@@ -3,17 +3,15 @@ package org.hucompute.textimager.uima.zemberek;
 import static org.apache.uima.fit.util.JCasUtil.select;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.normalization.TurkishSpellChecker;
 
 /**
 * ZemberekLemmatizer
@@ -30,12 +28,12 @@ import zemberek.morphology.analysis.tr.TurkishMorphology;
 		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token" },
 		outputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma" }
 		)
-public class ZemberekLemmatizer extends SegmenterBase {
+public class ZemberekSpellChecker extends SegmenterBase {
 	
 	/**
 	 * Constructor
 	 */
-	public ZemberekLemmatizer() {
+	public ZemberekSpellChecker() {
 		
 	}
 	
@@ -48,29 +46,18 @@ public class ZemberekLemmatizer extends SegmenterBase {
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		String text = aJCas.getDocumentText();
 		// Use Zemberek morphology
-		TurkishMorphology morphology;
-		
 		try {
-			morphology = TurkishMorphology.createWithDefaults();
-		
-			// Loop over every Token and create one Lemma.
+			TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+			TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
+			
 			for (Token token : select(aJCas, Token.class)) {
-				List<WordAnalysis> results = morphology.analyze(token.getCoveredText());
-				// Result: Create Lemma.
-				if(results.size() > 0) {
-					Lemma lemma = new Lemma(aJCas, token.getBegin(), token.getEnd());	
-					
-					String lemmaValue = results.get(0).getLemma();
-					
-					if(lemmaValue.equals("UNK")) {
-						// Insert text as lemma if unknown.
-						lemmaValue = token.getCoveredText();
-					}
-					
-		        	lemma.setValue(lemmaValue);
-		        	lemma.addToIndexes(aJCas);
-				}		
-	        }
+				// Is word correct?
+				spellChecker.check(token.getCoveredText());
+				
+				// Give suggestions!
+				spellChecker.suggestForWord(token.getCoveredText());
+				// spellChecker.rankWithUnigramProbability(arg0, arg1)
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

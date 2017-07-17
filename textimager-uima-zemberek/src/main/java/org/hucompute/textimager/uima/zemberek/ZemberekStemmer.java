@@ -44,8 +44,6 @@ public class ZemberekStemmer extends SegmenterBase {
 	/**
 	 * Create a Stem for every Token.
 	 * @param aJCas
-	 * @param text Not needed here.
-	 * @param zoneBegin Not needed here.
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {

@@ -43,8 +43,6 @@ public class ZemberekTokenizerDefault extends SegmenterBase {
 	/**
 	 * Analyze the text for all token and output into UIMA.
 	 * @param aJCas
-	 * @param text Input to analyze for token.
-	 * @param zoneBegin Not needed here.
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
