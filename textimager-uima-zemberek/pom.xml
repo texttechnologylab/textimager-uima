@@ -21,6 +21,11 @@
         <artifactId>morphology</artifactId>
         <version>0.11.0</version>
     </dependency>
+    <dependency>
+        <groupId>zemberek-nlp</groupId>
+        <artifactId>normalization</artifactId>
+        <version>0.11.0</version>
+    </dependency>
   	<dependency>
   		<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
   		<artifactId>

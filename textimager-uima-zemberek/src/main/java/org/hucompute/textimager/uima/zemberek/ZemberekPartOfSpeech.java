@@ -4,6 +4,7 @@ import static org.apache.uima.fit.util.JCasUtil.select;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.TypeCapability;
@@ -45,8 +46,6 @@ public class ZemberekPartOfSpeech extends SegmenterBase {
 	/**
 	 * Analyze the text for all token and output into UIMA as POS.
 	 * @param aJCas
-	 * @param text Input to analyze for POS.
-	 * @param zoneBegin Not needed here.
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
@@ -109,5 +108,5 @@ public class ZemberekPartOfSpeech extends SegmenterBase {
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {
 		
-	}	
+	}
 }
