@@ -40,7 +40,7 @@ public class ZemberekPartOfSpeechTest {
 		// Create a new Engine Description for the Sentence-Boundary-Detection.
 		AnalysisEngineDescription sentanceBoundAnnotator = createEngineDescription(ZemberekSentenceBoundary.class);
 		// Create a new Engine Description for the POS.
-		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekNewPartOfSpeech.class, ZemberekNewPartOfSpeech.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/zemberek/lib/pos-tr-pretrained.map");
+		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekNewPartOfSpeech.class);
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();

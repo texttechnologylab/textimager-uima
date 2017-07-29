@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.uima.UimaContext;
@@ -15,12 +14,9 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.morph.MorphologicalFeaturesParser;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
@@ -119,7 +115,7 @@ public class ZemberekNewPartOfSpeech extends JCasAnnotator_ImplBase {
 				return (ZemberekNewPartOfSpeech) object;
 			}
 		};
-		mappingProvider = MappingProviderFactory.createPosMappingProvider(posMappingLocation, language, modelProvider);
+		mappingProvider = MappingProviderFactory.createPosMappingProvider("src/main/resources/org/hucompute/textimager/uima/zemberek/lib/pos-tr-pretrained.map", language, modelProvider);
 	}
 
 
