@@ -31,12 +31,6 @@ import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
 
-/**
- * 
- * @author Wahed Hemati
- *
- */
-
 @TypeCapability(
 		inputs = {
 				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
