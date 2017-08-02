@@ -36,5 +36,6 @@
 		<module>textimager-uima-marmot</module>
 		
 		<module>textimager-uima-OpenerProject</module>
+		<module>textimager-uima-talismane</module>
 	</modules>
 </project>
