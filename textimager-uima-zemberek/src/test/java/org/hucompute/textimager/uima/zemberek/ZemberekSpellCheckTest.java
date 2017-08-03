@@ -8,24 +8,20 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
-import org.hucompute.textimager.uima.zemberek.ZemberekLemmatizer;
 import org.hucompute.textimager.uima.zemberek.ZemberekTokenizerDefault;
 import org.junit.Test;
 
 import de.tudarmstadt.ukp.dkpro.core.api.anomaly.type.SpellingAnomaly;
-import de.tudarmstadt.ukp.dkpro.core.api.anomaly.type.SuggestedAction;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 
 /**
 * ZemberekSpellCheckTest
 *
-* @date 28.07.2016
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
-* Turkish Spellchecking Test. Test if the annotation is generated correctly.
-*
+* This class provide several test cases for turkish language. 
 */
 public class ZemberekSpellCheckTest {
 	
@@ -35,12 +31,11 @@ public class ZemberekSpellCheckTest {
 	 */
 	@Test
 	public void testLemma() throws Exception {
-		// Istanbul, hallo! Leider kann ich nur ganz wenig Türkisch.
+		// Wir hatten gelesen (falsch)
 		String text = "okumuştk";
 		
-		// Create a new Engine Description for the Tokenizer.
+		// Create new AnalysisEngineDescription
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(ZemberekTokenizerDefault.class);
-		// Create a new Engine Description for the SpellChecker.
 		AnalysisEngineDescription spellAnnotator = createEngineDescription(ZemberekSpellChecker.class);
 				
 		// Create a new JCas - "Holder"-Class for Annotation. 
@@ -52,14 +47,14 @@ public class ZemberekSpellCheckTest {
 		// Pipeline
 		SimplePipeline.runPipeline(inputCas, tokenAnnotator, spellAnnotator);
 		
-		// Sample text
+		// Sample Text
 		String outputCorrectToken = "okumuştu | Okumuş'ta | okumuşta | okumuştuk | Okumuş'tuk | Okumuş'tu | ";
 		
-		// Generate text with library
+		// Generated text with library
 		String outputTestToken = "";
 		String visualOutput = "";
 		
-		// Loop over different anomalies and create the test text.
+		// Loop over different anomalies and create the UIMA-Output.
 		for (SpellingAnomaly anomaly : select(inputCas, SpellingAnomaly.class)) {			
 			for(int i = 0; i < anomaly.getSuggestions().size(); i++) {
 				outputTestToken = outputTestToken + anomaly.getSuggestions(i).getReplacement() + " | ";
@@ -67,10 +62,10 @@ public class ZemberekSpellCheckTest {
 			}			
         }
 		
+		// Visual Output
 		System.out.println(visualOutput);
 		
 		// JUnit Test for Anomaly
 		assertEquals(outputCorrectToken, outputTestToken);
 	}
-	
 }

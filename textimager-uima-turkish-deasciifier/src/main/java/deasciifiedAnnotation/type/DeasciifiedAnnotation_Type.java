@@ -1,5 +1,3 @@
-
-/* First created by JCasGen Tue Apr 12 15:59:03 CEST 2016 */
 package deasciifiedAnnotation.type;
 
 import org.apache.uima.jcas.JCas;
@@ -14,7 +12,6 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Tue Apr 12 15:59:03 CEST 2016
  * @generated */
 public class DeasciifiedAnnotation_Type extends Annotation_Type {
   /** @generated 

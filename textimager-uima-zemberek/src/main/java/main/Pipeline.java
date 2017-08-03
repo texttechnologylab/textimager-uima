@@ -15,6 +15,7 @@ import org.apache.uima.jcas.JCas;
 import org.hucompute.services.util.XmlFormatter;
 import org.hucompute.textimager.uima.zemberek.ZemberekLemmatizer;
 import org.hucompute.textimager.uima.zemberek.ZemberekPartOfSpeech;
+import org.hucompute.textimager.uima.zemberek.ZemberekPartOfSpeech;
 import org.hucompute.textimager.uima.zemberek.ZemberekSentenceBoundary;
 import org.hucompute.textimager.uima.zemberek.ZemberekStemmer;
 import org.hucompute.textimager.uima.zemberek.ZemberekTokenizerDefault;
@@ -39,12 +40,11 @@ public class Pipeline {
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(ZemberekTokenizerDefault.class);
 		// Create a new Engine Description for the Lemmatizer.
 		AnalysisEngineDescription lemmaAnnotator = createEngineDescription(ZemberekLemmatizer.class);
-		// Create a new Engine Description for the POS.
-		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class);
 		// Create a new Engine Description for the Sentence-Boundary-Detection.
 		AnalysisEngineDescription sentanceBoundAnnotator = createEngineDescription(ZemberekSentenceBoundary.class);
 		// Create a new Engine Description for the Sentence-Boundary-Detection.
-		AnalysisEngineDescription stemAnnotator = createEngineDescription(ZemberekStemmer.class);
+		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class, ZemberekPartOfSpeech.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/zemberek/lib/pos-default.map");
+		//AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class);
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
@@ -54,7 +54,7 @@ public class Pipeline {
 				
 		inputCas.setDocumentLanguage("tr");
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, tokenAnnotator, lemmaAnnotator, stemAnnotator, posAnnotator, sentanceBoundAnnotator);
+		SimplePipeline.runPipeline(inputCas, tokenAnnotator, lemmaAnnotator, sentanceBoundAnnotator, posAnnotator);
 		
 		// Output as XML
 		String output = XmlFormatter.getPrettyString(inputCas.getCas());

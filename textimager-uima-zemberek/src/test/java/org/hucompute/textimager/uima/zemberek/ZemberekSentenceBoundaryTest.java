@@ -16,59 +16,57 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 /**
 * ZemberekSentenceBoundaryTest
 *
-* @date 17.06.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
-* Turkish Sentence-Boundary Test. Test if the sentence is generated correctly.
-*
+* This class provide several test cases for turkish language. 
 */
 public class ZemberekSentenceBoundaryTest {
 	
 	/**
-	 * Test with JUnit if the token is generated correctly.
+	 * Test with JUnit if the sentences are generated correctly.
 	 * @throws Exception
 	 */
 	@Test
-	public void testTokenizer() throws Exception {
+	public void testSentenceBoundary() throws Exception {
 		// Istanbul, hallo! Leider kann ich nur ganz wenig Türkisch.
-		String text = "İstanbul, alo! Ne çok az Türk konuşabilir yazık.";
+		String testText = "İstanbul, alo! Ne çok az Türk konuşabilir yazık.";
 		
-		// Create a new Engine Description for the Sentence-Boundary-Detection.
-		AnalysisEngineDescription sentanceBoundAnnotator = createEngineDescription(ZemberekSentenceBoundary.class);
+		// Create new AnalysisEngineDescription
+		AnalysisEngineDescription tokenAnnotator = createEngineDescription(ZemberekTokenizerDefault.class);
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(ZemberekSentenceBoundary.class);
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
 		// Input
-		inputCas.setDocumentText(text);
+		inputCas.setDocumentText(testText);
 		
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, sentanceBoundAnnotator);
+		SimplePipeline.runPipeline(inputCas, tokenAnnotator, sentenceAnnotator);
 		
 		// Sample Text
 		String outputCorrectToken = "İstanbul, alo! | Ne çok az Türk konuşabilir yazık. | ";
 		String outputCorrectBegin = "0 | 15 | ";
 		String outputCorrectEnd = "14 | 48 | ";
 		
-		// Generate Text with library
+		// Generated text with library
 		String outputTestToken = "";
 		String outputTestBegin = "";
 		String outputTestEnd = "";
 		
-		
-		// Loop over different sentences and create the test text.
-		for (Sentence sentence : select(inputCas, Sentence.class)) {
+		// Loop over different sentences and create the UIMA-Output.
+		for (Sentence sentence : select(inputCas, Sentence.class)) {		
 			outputTestToken = outputTestToken + sentence.getCoveredText() + " | ";
 			outputTestBegin = outputTestBegin + sentence.getBegin() + " | ";
 			outputTestEnd = outputTestEnd + sentence.getEnd() + " | ";
         }
 		
-		// JUnit Test for Sentence, Begin, End
+		// JUnit-Test: Sentence, Begin, End
 		assertEquals(outputCorrectToken, outputTestToken);
 		assertEquals(outputCorrectBegin, outputTestBegin);
 		assertEquals(outputCorrectEnd, outputTestEnd);
-	}
-	
+	}	
 }

@@ -16,65 +16,62 @@ import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 /**
 * ZemberekPartOfSpeechTest
 *
-* @date 13.06.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
-* Turkish POS Test. Test if the POS is generated correctly.
-*
+* This class provide several test cases for turkish language. 
 */
 public class ZemberekPartOfSpeechTest {
 	
 	/**
-	 * Test with JUnit if the POS is generated correctly.
+	 * Test with JUnit if the POS are generated correctly and if the pipeline is working.
 	 * @throws Exception
 	 */
 	@Test
-	public void testPOS() throws Exception {
+	public void testPartOfSpeech() throws Exception {
 		// Istanbul, hallo! Leider kann ich nur ganz wenig Türkisch.
-		String text = "İstanbul, alo! Ne çok az Türk konuşabilir yazık.";
+		String testText = "İstanbul, alo! Ne çok az Türk konuşabilir yazık.";
 		
-		// Create a new Engine Description for the Tokenizer.
+		// Create new AnalysisEngineDescription
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(ZemberekTokenizerDefault.class);
-		// Create a new Engine Description for the Sentence-Boundary-Detection.
-		AnalysisEngineDescription sentanceBoundAnnotator = createEngineDescription(ZemberekSentenceBoundary.class);
-		// Create a new Engine Description for the POS.
-		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekNewPartOfSpeech.class);
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(ZemberekSentenceBoundary.class);
+		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class);
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
 		// Input
-		inputCas.setDocumentText(text);
-		inputCas.setDocumentLanguage("tr");
+		inputCas.setDocumentText(testText);
+		
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, tokenAnnotator, sentanceBoundAnnotator, posAnnotator);
+		SimplePipeline.runPipeline(inputCas, tokenAnnotator, sentenceAnnotator, posAnnotator);
 		
 		// Sample Text
-		String outputCorrectToken = "İstanbul | , | alo | ! | Ne | çok | az | Türk | konuşabilir | yazık | . | ";
-		String outputCorrectValue = "Noun:ProperNoun | Punctuation | Interjection | Punctuation | Adjective | Adverb | Adjective | Noun:ProperNoun | Verb | Noun | Punctuation | ";
-		String outputCorrectBegin = "0 | 8 | 10 | 13 | 15 | 18 | 22 | 25 | 30 | 42 | 47 | ";
-		String outputCorrectEnd = "8 | 9 | 13 | 14 | 17 | 21 | 24 | 29 | 41 | 47 | 48 | ";
+		String outputCorrectToken = "İstanbul | İstanbul | , | , | alo | alo | ! | ! | Ne | çok | az | ";
+		String outputCorrectValue = "ProperNoun | Adjective | Punctuation | Adverb | Interjection | Adjective | Punctuation | ProperNoun | Verb | Noun | Punctuation | ";
+		String outputCorrectBegin = "0 | 0 | 8 | 8 | 10 | 10 | 13 | 13 | 15 | 18 | 22 | ";
+		String outputCorrectEnd = "8 | 8 | 9 | 9 | 13 | 13 | 14 | 14 | 17 | 21 | 24 | ";
 		
-		// Generate Text with library
+		// Generated text with library
 		String outputTestToken = "";
 		String outputTestValue = "";
 		String outputTestBegin = "";
 		String outputTestEnd = "";
 		
-		for (POS pos : select(inputCas, POS.class)) {
+		// Loop over different POS-Tags and create the UIMA-Output.
+		for (POS pos : select(inputCas, POS.class)) {		
 			outputTestToken = outputTestToken + pos.getCoveredText() + " | ";
 			outputTestValue = outputTestValue + pos.getPosValue() + " | ";
 			outputTestBegin = outputTestBegin + pos.getBegin() + " | ";
 			outputTestEnd = outputTestEnd + pos.getEnd() + " | ";
-		}
-
-		// JUnit Test for Token, Begin, End
+        }
+		
+		// JUnit-Test: CoveredText, Value, Begin, End
 		assertEquals(outputCorrectToken, outputTestToken);
 		assertEquals(outputCorrectValue, outputTestValue);
 		assertEquals(outputCorrectBegin, outputTestBegin);
 		assertEquals(outputCorrectEnd, outputTestEnd);
 	}
-	
 }

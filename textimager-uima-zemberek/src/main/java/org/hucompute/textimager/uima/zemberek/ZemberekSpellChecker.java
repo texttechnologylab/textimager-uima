@@ -19,13 +19,14 @@ import zemberek.normalization.TurkishSpellChecker;
 /**
 * ZemberekSpellChecker
 *
-* @date 23.06.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.1
+* @version 1.2
 *
-* Turkish Spell Checker.
-*
+* This class provide spell checking for turkish language. 
+* UIMA-Token is needed as input to create SpellingAnomaly.
+* UIMA-Standard is used to represent the final SpellingAnomaly.
 */
 @TypeCapability(
 		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token" },
@@ -34,21 +35,13 @@ import zemberek.normalization.TurkishSpellChecker;
 public class ZemberekSpellChecker extends SegmenterBase {
 	
 	/**
-	 * Constructor
-	 */
-	public ZemberekSpellChecker() {
-		
-	}
-	
-
-	/**
-	 * Create a SpellingAnomaly for every Token.
+	 * Analyze the text and create suggestedAction for every token. After successfully creation, add spellingAnomaly to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		// Use Zemberek morphology
 		try {
+			// Create new morphology
 			TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 			TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
 			
@@ -58,13 +51,15 @@ public class ZemberekSpellChecker extends SegmenterBase {
 					// Give suggestions!
 					spellChecker.suggestForWord(token.getCoveredText());
 					
-					// Spelling Anomaly
+					// SpellingAnomaly
 					SpellingAnomaly anomaly = new SpellingAnomaly(aJCas, token.getBegin(), token.getEnd());
 					FSArray actions = new FSArray(aJCas, spellChecker.suggestForWord(token.getCoveredText()).size());
 					
 					// Create SuggestedAction
 					int i = 0;
+					// Uniform probability
 					float certainty = (float) (1.0 / (float) spellChecker.suggestForWord(token.getCoveredText()).size());
+					
 					for(String string : spellChecker.suggestForWord(token.getCoveredText())) {						
 						SuggestedAction action = new SuggestedAction(aJCas, token.getBegin(), token.getEnd());
 						action.setReplacement(string);
@@ -82,7 +77,6 @@ public class ZemberekSpellChecker extends SegmenterBase {
 			e.printStackTrace();
 		}
 	}
-
 
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {

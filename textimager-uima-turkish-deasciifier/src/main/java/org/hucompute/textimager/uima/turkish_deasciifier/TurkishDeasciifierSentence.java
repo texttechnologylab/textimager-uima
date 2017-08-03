@@ -11,42 +11,32 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import deasciifiedAnnotation.type.DeasciifiedAnnotation;
 
 /**
-* DeasciifierUIMA
+* TurkishDeasciifierSentence
 *
-* @date 12.07.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
 * @version 1.1
 *
-* Turkish Deasciifier.
-*
+* This class provide deasciified text for turkish language. 
+* UIMA-Sentence is needed as input to create deasciifiedText.
 */
 @TypeCapability(
 		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" },
 		outputs = {"deasciifiedAnnotator.type.deasciifiedAnnotator" }
 		)
 public class TurkishDeasciifierSentence extends SegmenterBase {
-	
-	/**
-	 * Constructor
-	 */
-	public TurkishDeasciifierSentence() {
-		
-	}
-	
 
 	/**
-	 * Create a deasciified Text for the text.
+	 * Create a deasciified text for the inputText. After successfully creation, add deasciified text to JCas.
 	 * @param aJCas
-	 * @param text Not needed here.
-	 * @param zoneBegin Not needed here.
 	 */
 	@Override
-	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		// Create new Turkish-Deasciifier
 		TurkishDeasciifier deasciifier = new TurkishDeasciifier();
 		// Create DeasciifiedAnnotation		
-		// Loop over every Token and create deasciified text.
+		// Loop over every sentence and create deasciified text.
 		for (Sentence sentence : select(aJCas, Sentence.class)) {				
 			deasciifier.setAsciiString(sentence.getCoveredText());
 			// Create DeasciifiedAnnotation		
@@ -54,5 +44,10 @@ public class TurkishDeasciifierSentence extends SegmenterBase {
 			deasciifiedUIMAText.setValue(deasciifier.convertToTurkish());
 			deasciifiedUIMAText.addToIndexes();
         }	
-	}	
+	}
+	
+	@Override
+	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {
+		
+	}
 }

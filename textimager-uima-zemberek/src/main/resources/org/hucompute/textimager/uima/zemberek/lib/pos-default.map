@@ -1,0 +1,33 @@
+# https://github.com/ahmetaa/zemberek-nlp/blob/master/morphology/src/test/resources/dev-lexicon.txt
+#
+# Catch-all rule
+*|*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+#
+# Noun - Noun
+Noun=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.N
+# Proper Noun - Proper Noun
+ProperNoun=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.NP
+# Personal - Pronoun
+Personal=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# Pronoun - Pronoun
+Pronoun=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# Determiner - Determiner
+Determiner=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# Adjective - Adjective
+Adjective=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADJ
+# Verb - Verb
+Verb=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+# Preposition - Preposition
+Preposition=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PP
+# Adverb - Adverb
+Adverb=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADV
+# Conjunction - Conjunction
+Conjunction=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ
+# Punctuation - Punctuation
+Punctuation=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PUNC
+# Numeral - Numeral
+Numeral=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+# Cardinal - Numeral
+Cardinal=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+# Unknown - Other
+Unknown=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
