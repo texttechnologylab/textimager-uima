@@ -14,44 +14,37 @@ import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
 
 /**
-* ZemberekBeforeDisambiguator
+* ZemberekBeforeDisambiguation
 *
-* @date 17.7.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
-* Turkish Analysis.
-*
+* This class provide disambiguation for turkish language. 
+* UIMA-Sentence is needed as input to create analysis.
+* UIMA-Standard is used to represent the final disambiguation.
 */
 @TypeCapability(
 		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" },
 		outputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma" }
 		)
 public class ZemberekBeforeDisambiguation extends SegmenterBase {
-	
-	/**
-	 * Constructor
-	 */
-	public ZemberekBeforeDisambiguation() {
-		
-	}
-	
 
 	/**
-	 * Create a analysis for every Token in the Sentence.
+	 * Analyze the text and create disambiguation for every sentence. After successfully creation, add disambiguation to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String text = aJCas.getDocumentText();
-		// Use Zemberek morphology
+		String inputText = aJCas.getDocumentText();
 		try {
-		TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-        Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();		
-        TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
-        
-	        SentenceAnalysis result = sentenceAnalyzer.analyze(text);
+			// Create new morphology
+			TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+	        Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();		
+	        TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
+	        
+	        SentenceAnalysis result = sentenceAnalyzer.analyze(inputText);
 	        
 	        for(SentenceAnalysis.Entry entry : result) {
 	        	System.out.println("Word = " + entry.input);
@@ -60,11 +53,9 @@ public class ZemberekBeforeDisambiguation extends SegmenterBase {
 	            }
 	        }
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
 
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {

@@ -18,13 +18,14 @@ import zemberek.morphology.analysis.tr.TurkishMorphology;
 /**
 * ZemberekLemmatizer
 *
-* @date 23.06.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.1
+* @version 1.2
 *
-* Turkish Lemmatization.
-*
+* This class provide lemmatization for turkish language. 
+* UIMA-Token is needed as input to create lemma.
+* UIMA-Standard is used to represent the final lemma.
 */
 @TypeCapability(
 		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token" },
@@ -33,37 +34,26 @@ import zemberek.morphology.analysis.tr.TurkishMorphology;
 public class ZemberekLemmatizer extends SegmenterBase {
 	
 	/**
-	 * Constructor
-	 */
-	public ZemberekLemmatizer() {
-		
-	}
-	
-
-	/**
-	 * Create a Lemma for every Token.
+	 * Analyze the text and create lemmas for every token. After successfully creation, add lemmas to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String text = aJCas.getDocumentText();
-		// Use Zemberek morphology
-		TurkishMorphology morphology;
-		
 		try {
-			morphology = TurkishMorphology.createWithDefaults();
+			// Create a new morphology
+			TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 		
-			// Loop over every Token and create one Lemma.
+			// Loop over every token and create a corresponding lemma.
 			for (Token token : select(aJCas, Token.class)) {
 				List<WordAnalysis> results = morphology.analyze(token.getCoveredText());
-				// Result: Create Lemma.
+				// If there are results, use the first element in the list as lemma value.
 				if(results.size() > 0) {
 					Lemma lemma = new Lemma(aJCas, token.getBegin(), token.getEnd());	
 					
 					String lemmaValue = results.get(0).getLemma();
 					
 					if(lemmaValue.equals("UNK")) {
-						// Insert text as lemma if unknown.
+						// lemmaValue is unknown: Insert covered text as value.
 						lemmaValue = token.getCoveredText();
 					}
 					
@@ -75,7 +65,6 @@ public class ZemberekLemmatizer extends SegmenterBase {
 			e.printStackTrace();
 		}
 	}
-
 
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {

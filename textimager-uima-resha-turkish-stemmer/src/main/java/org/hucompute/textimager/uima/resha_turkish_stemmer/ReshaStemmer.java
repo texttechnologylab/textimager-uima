@@ -7,6 +7,7 @@ import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
 import com.hrzafer.reshaturkishstemmer.Resha;
+import com.hrzafer.reshaturkishstemmer.Stemmer;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
@@ -15,46 +16,42 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 /**
 * ReshaStemmer
 *
-* @date 10.07.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
-* Turkish Stemmer.
-*
+* This class provide stemming for turkish language. 
+* UIMA-Token is needed as input to create stem.
+* UIMA-Standard is used to represent the final stem.
 */
 @TypeCapability(
 		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token" },
 		outputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem" }
 		)
 public class ReshaStemmer extends SegmenterBase {
-	
-	/**
-	 * Constructor
-	 */
-	public ReshaStemmer() {
-		
-	}
-	
 
 	/**
-	 * Create a Stem for every Token.
+	 * Analyze the text and create stems for every token. After successfully creation, add stems to JCas.
 	 * @param aJCas
-	 * @param text Not needed here.
-	 * @param zoneBegin Not needed here.
 	 */
 	@Override
-	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		// Use Resha-Turkish-Stemmer
-		com.hrzafer.reshaturkishstemmer.Stemmer stemmer = Resha.Instance;
+		Stemmer stemmer = Resha.Instance;
 
-		// Loop over every Token and create one Stem.
+		// Loop over every token and create a corresponding stem.
 		for (Token token : select(aJCas, Token.class)) {
 			String stem = stemmer.stem(token.getCoveredText());
-			// Create Stem
+			// Create stem
 			Stem stemUIMA = new Stem(aJCas, token.getBegin(), token.getEnd());	
 			stemUIMA.setValue(stem);
 			stemUIMA.addToIndexes(aJCas);
 		}
+	}
+	
+	@Override
+	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {
+		
 	}	
 }

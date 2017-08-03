@@ -13,35 +13,28 @@ import zemberek.tokenization.TurkishSentenceExtractor;
 /**
 * ZemberekSentenceBoundary
 *
-* @date 17.06.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
-* Turkish Sentence-Boundary Detection.
-*
+* This class provide sentence detection for turkish language. 
+* UIMA-Standard is used to represent the final sentence.
 */
 @TypeCapability(outputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" })
 public class ZemberekSentenceBoundary extends SegmenterBase {
 
 	/**
-	 * Constructor
-	 */
-	public ZemberekSentenceBoundary() {
-		
-	}	
-
-	/**
-	 * Analyze the text for all sentences and output into UIMA.
+	 * Analyze the text and create sentences. After successfully creation, add sentences to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String text = aJCas.getDocumentText();
-		// Create a new sentence extractor
+		String inputText = aJCas.getDocumentText();
+		// Create new sentence extractor
 		TurkishSentenceExtractor extractor = TurkishSentenceExtractor.DEFAULT;
-        // List of different sentences
-		List<String> sentences = extractor.fromParagraph(text);
+        // List of sentences
+		List<String> sentences = extractor.fromParagraph(inputText);
 			
 		int start = 0;
 		int end = 0;

@@ -1,6 +1,3 @@
-
-
-/* First created by JCasGen Tue Apr 12 15:59:03 CEST 2016 */
 package deasciifiedAnnotation.type;
 
 import org.apache.uima.jcas.JCas; 
@@ -9,11 +6,6 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 import org.apache.uima.jcas.tcas.Annotation;
 
-
-/** 
- * Updated by JCasGen Tue Apr 12 15:59:03 CEST 2016
- * XML source: /home/ahemati/workspace/Fingeruebung/src/main/resources/desc/type/TestTypeSystem.xml
- * @generated */
 public class DeasciifiedAnnotation extends Annotation {
   /** @generated
    * @ordered 
@@ -73,8 +65,6 @@ public class DeasciifiedAnnotation extends Annotation {
    * @generated modifiable 
    */
   private void readObject() {/*default - does nothing empty block */}
-     
- 
     
   //*--------------*
   //* Feature: value

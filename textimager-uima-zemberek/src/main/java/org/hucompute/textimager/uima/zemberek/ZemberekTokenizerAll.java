@@ -14,52 +14,43 @@ import zemberek.tokenization.TurkishTokenizer;
 /**
 * ZemberekTokenizerAll
 *
-* @date 29.05.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
-* Turkish Tokenization.
-*
+* This class provide special tokenization for turkish language. 
+* UIMA-Standard is used to represent the final token.
 */
 @TypeCapability(outputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token" })
 public class ZemberekTokenizerAll extends SegmenterBase {
 
 	/**
-	* Tokenizer, to subdivide text into token. All does not ignore whitespaces.
-	*
+	* Tokenizer to subdivide text into token.
 	* @since 1.0
 	*/
 	private TurkishTokenizer tokenizer = TurkishTokenizer.ALL;
 	
 	/**
-	 * Constructor
-	 */
-	public ZemberekTokenizerAll() {
-		
-	}
-	
-
-	/**
-	 * Analyze the text for all token and output into UIMA.
+	 * Analyze the text and create tokens for every word. After successfully creation, add tokens to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String text = aJCas.getDocumentText();
-		// Create a new token iterator	
-		Iterator<Token> tokenIterator = tokenizer.getTokenIterator(text); 
+		String inputText = aJCas.getDocumentText();
+		// Create a new token iterator
+		Iterator<Token> tokenIterator = tokenizer.getTokenIterator(inputText); 
 				
 		// Loop over every token
 		while (tokenIterator.hasNext()) {
-			// Use Zemberek Token
+			// Zemberek-Token
 			Token token = tokenIterator.next();
 			
-	        // Create Token, offset end by 1 to fit UIMA
+	        // Create UIMA-Token: Offset stopIndex by 1 to fit UIMA-Standard.
 	        Annotation tokenUIMA = createToken(aJCas, token.getStartIndex(), token.getStopIndex() + 1);	        
-	    }
+	        if(tokenUIMA != null) tokenUIMA.addToIndexes(aJCas);
+		}
 	}
-
 
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {

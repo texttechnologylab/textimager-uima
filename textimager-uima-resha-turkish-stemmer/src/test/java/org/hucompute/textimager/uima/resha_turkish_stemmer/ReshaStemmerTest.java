@@ -5,17 +5,17 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import com.hrzafer.reshaturkishstemmer.Resha;
+import com.hrzafer.reshaturkishstemmer.Stemmer;
 
 /**
 * ReshaStemmerTest
 *
-* @date 10.07.2017
+* @date 03.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.1
 *
-* Turkish Stemmer Test. Test if the stem is generated correctly.
-*
+* This class provide several test cases for turkish language. 
 */
 public class ReshaStemmerTest {
 	
@@ -25,8 +25,7 @@ public class ReshaStemmerTest {
 	 */
 	@Test
 	public void testLemma() throws Exception {
-		// Use Resha-Turkish-Stemmer
-		com.hrzafer.reshaturkishstemmer.Stemmer stemmer = Resha.Instance;
+		Stemmer stemmer = Resha.Instance;
 		
 		String stem = stemmer.stem("kitapçıdaki");
 		assertEquals(stem, "kitapçı");
