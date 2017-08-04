@@ -37,7 +37,7 @@ public class ZemberekPartOfSpeechTest {
 		// Create new AnalysisEngineDescription
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(ZemberekTokenizerDefault.class);
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(ZemberekSentenceBoundary.class);
-		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class);
+		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class, ZemberekPartOfSpeech.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/zemberek/lib/pos-default.map");
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
@@ -50,7 +50,7 @@ public class ZemberekPartOfSpeechTest {
 		
 		// Sample Text
 		String outputCorrectToken = "İstanbul | İstanbul | , | , | alo | alo | ! | ! | Ne | çok | az | ";
-		String outputCorrectValue = "ProperNoun | Adjective | Punctuation | Adverb | Interjection | Adjective | Punctuation | ProperNoun | Verb | Noun | Punctuation | ";
+		String outputCorrectValue = "ProperNoun | Adjective | Adverb | Punctuation | Interjection | Adjective | ProperNoun | Punctuation | Verb | Noun | Punctuation | ";
 		String outputCorrectBegin = "0 | 0 | 8 | 8 | 10 | 10 | 13 | 13 | 15 | 18 | 22 | ";
 		String outputCorrectEnd = "8 | 8 | 9 | 9 | 13 | 13 | 14 | 14 | 17 | 21 | 24 | ";
 		
