@@ -21,7 +21,7 @@ import zemberek.tokenization.TurkishSentenceExtractor;
 * This class provide sentence detection for turkish language. 
 * UIMA-Standard is used to represent the final sentence.
 */
-@TypeCapability(outputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" })
+@TypeCapability(outputs = { "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" })
 public class ZemberekSentenceBoundary extends SegmenterBase {
 
 	/**

@@ -1,4 +1,4 @@
-package main;
+
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
@@ -13,12 +13,9 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.services.util.XmlFormatter;
-import org.hucompute.textimager.uima.zemberek.ZemberekLemmatizer;
-import org.hucompute.textimager.uima.zemberek.ZemberekPartOfSpeech;
-import org.hucompute.textimager.uima.zemberek.ZemberekPartOfSpeech;
-import org.hucompute.textimager.uima.zemberek.ZemberekSentenceBoundary;
-import org.hucompute.textimager.uima.zemberek.ZemberekStemmer;
-import org.hucompute.textimager.uima.zemberek.ZemberekTokenizerDefault;
+import org.hucompute.textimager.uima.polyglot.PolyglotLanguage;
+import org.hucompute.textimager.uima.polyglot.PolyglotSentenceBoundary;
+import org.hucompute.textimager.uima.polyglot.PolyglotTokenizer;
 
 /**
 * Pipeline
@@ -37,24 +34,18 @@ public class Pipeline {
 		// String text = "Türkiye ya da resmî adıyla Türkiye Cumhuriyeti, topraklarının büyük bölümü Anadolu'ya, küçük bir bölümü ise Balkanlar'ın uzantısı olan Trakya'ya yayılmış bir ülke. Vikipedi'nin güvenilebilirliği ve doğruluğu üzerine tartışmalar mevcuttur ve site yoğun olarak vandalizme maruz kalmaktadır.";	
 		
 		// Create a new Engine Description for the Tokenizer.
-		AnalysisEngineDescription tokenAnnotator = createEngineDescription(ZemberekTokenizerDefault.class);
-		// Create a new Engine Description for the Lemmatizer.
-		AnalysisEngineDescription lemmaAnnotator = createEngineDescription(ZemberekLemmatizer.class);
-		// Create a new Engine Description for the Sentence-Boundary-Detection.
-		AnalysisEngineDescription sentanceBoundAnnotator = createEngineDescription(ZemberekSentenceBoundary.class);
-		// Create a new Engine Description for the Sentence-Boundary-Detection.
-		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class, ZemberekPartOfSpeech.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/zemberek/lib/pos-default.map");
-		//AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class);
+		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
+		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
 		// Input
-		// inputCas.setDocumentText(FileUtils.readFileToString(new File("src/main/resources/input.txt")));
-		inputCas.setDocumentText("İstanbul, İstanbul alo! Ne çok az Türk konuşabilir yazık.");		
-		inputCas.setDocumentLanguage("tr");
+		inputCas.setDocumentText("İstanbul, İstanbul alo! Ne çok az Türk konuşabilir yazık.");
+		
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, tokenAnnotator, lemmaAnnotator, sentanceBoundAnnotator, posAnnotator);
+		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator);
 		
 		// Output as XML
 		String output = XmlFormatter.getPrettyString(inputCas.getCas());
