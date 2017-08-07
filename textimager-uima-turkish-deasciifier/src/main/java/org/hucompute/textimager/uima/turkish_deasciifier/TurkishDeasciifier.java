@@ -379,20 +379,5 @@ public class TurkishDeasciifier {
 			e.printStackTrace();
 		}
 	}
-	
-//	public static void loadPatternTableFromJsonFile(String filename){
-//		turkishPatternTable = new HashMap<String, HashMap<String, Integer>>();
-//		
-//		String fc = readFromFile(filename);
-//		JSON j = JSON.parse(fc);
-//
-//		for (String letter : j.keySet()) {
-//			HashMap<String, Integer> hm = new HashMap<String, Integer>();
-//			for (String rec : j.get(letter).keySet()) {
-//				hm.put(rec, j.get(letter).get(rec).asInt());
-//			}
-//			turkishPatternTable.put(letter, hm);
-//		}
-//	}
 
 }
