@@ -2,6 +2,7 @@
 #
 # Catch-all rule
 *|*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
 #
 # Noun - Noun
 Noun=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.N
