@@ -13,6 +13,8 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.services.util.XmlFormatter;
+import org.hucompute.textimager.uima.polyglot.PolyglotLanguage;
+import org.hucompute.textimager.uima.polyglot.PolyglotSentenceBoundary;
 import org.hucompute.textimager.uima.polyglot.PolyglotTokenizer;
 
 /**
@@ -32,17 +34,18 @@ public class Pipeline {
 		// String text = "Türkiye ya da resmî adıyla Türkiye Cumhuriyeti, topraklarının büyük bölümü Anadolu'ya, küçük bir bölümü ise Balkanlar'ın uzantısı olan Trakya'ya yayılmış bir ülke. Vikipedi'nin güvenilebilirliği ve doğruluğu üzerine tartışmalar mevcuttur ve site yoğun olarak vandalizme maruz kalmaktadır.";	
 		
 		// Create a new Engine Description for the Tokenizer.
+		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
 		// Input
-		inputCas.setDocumentText("Das ist ein Test");
-				
-		inputCas.setDocumentLanguage("tr");
+		inputCas.setDocumentText("İstanbul, İstanbul alo! Ne çok az Türk konuşabilir yazık.");
+		
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, tokenAnnotator);
+		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator);
 		
 		// Output as XML
 		String output = XmlFormatter.getPrettyString(inputCas.getCas());

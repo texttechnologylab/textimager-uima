@@ -50,8 +50,8 @@ public class Pipeline {
 		JCas inputCas = JCasFactory.createJCas();
 		
 		// Input
-		inputCas.setDocumentText(FileUtils.readFileToString(new File("src/main/resources/input.txt")));
-				
+		// inputCas.setDocumentText(FileUtils.readFileToString(new File("src/main/resources/input.txt")));
+		inputCas.setDocumentText("İstanbul, İstanbul alo! Ne çok az Türk konuşabilir yazık.");		
 		inputCas.setDocumentLanguage("tr");
 		// Pipeline
 		SimplePipeline.runPipeline(inputCas, tokenAnnotator, lemmaAnnotator, sentanceBoundAnnotator, posAnnotator);
