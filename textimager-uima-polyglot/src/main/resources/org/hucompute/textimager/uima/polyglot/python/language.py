@@ -16,6 +16,11 @@ def sentence(text):
 	inputText = Text(text)
 	for x in inputText.sentences:	
 		print x
+def pos(text):
+	inputText = Text(text)
+	for x in inputText.pos_tags:	
+		for y in x:
+			print y
 def main():
 	if sys.argv[1]=="language":
 		language(sys.argv[2])
@@ -23,6 +28,8 @@ def main():
 		token(sys.argv[2])
 	elif sys.argv[1]=="sentence":
 		sentence(sys.argv[2])
+	elif sys.argv[1]=="pos":
+		pos(sys.argv[2])
 
 if __name__ == "__main__":
 	main()
