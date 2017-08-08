@@ -78,6 +78,7 @@ public class PolyglotTokenizer  extends SegmenterBase {
 				int startPosition = 0;
 				int endPosition = 0;
 				
+				// Calculate word begin and end.
 				for (String currentWord : resultInParts) {				
 					currentSentence = currentSentence.substring(lastWordLength);
 					wordOffset = currentSentence.indexOf(currentWord);
@@ -86,8 +87,6 @@ public class PolyglotTokenizer  extends SegmenterBase {
 					endPosition = startPosition + currentWord.length();
 					currentTextPosition = endPosition - sentence.getBegin();	
 					lastWordLength = currentWord.length();
-					
-					System.out.println(currentSentence + " | " + startPosition + " | " + endPosition + " | " + currentTextPosition+ " | " + lastWordLength);
 					
 					// Create UIMA-Token: Offset next startPosition by 1 to fit UIMA-Standard.					
 			        Token token = new Token(aJCas, startPosition, endPosition);		

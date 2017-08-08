@@ -31,11 +31,13 @@ public class TurkishDeasciifierText extends SegmenterBase {
 		String inputText = aJCas.getDocumentText();
 		// Create new Turkish-Deasciifier
 		TurkishDeasciifier deasciifier = new TurkishDeasciifier();
-		deasciifier.setAsciiString(inputText);
-		// Create DeasciifiedAnnotation		
-		DeasciifiedAnnotation deasciifiedUIMAText = new DeasciifiedAnnotation(aJCas, 0, inputText.length());
-		deasciifiedUIMAText.setValue(deasciifier.convertToTurkish());
-		deasciifiedUIMAText.addToIndexes();
+		if(deasciifier != null) {
+			deasciifier.setAsciiString(inputText);
+			// Create DeasciifiedAnnotation		
+			DeasciifiedAnnotation deasciifiedUIMAText = new DeasciifiedAnnotation(aJCas, 0, inputText.length());
+			deasciifiedUIMAText.setValue(deasciifier.convertToTurkish());
+			deasciifiedUIMAText.addToIndexes();
+		}		
 	}
 	
 	@Override

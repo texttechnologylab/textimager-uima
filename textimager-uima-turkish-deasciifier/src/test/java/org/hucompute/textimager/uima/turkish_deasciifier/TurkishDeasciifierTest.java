@@ -34,6 +34,7 @@ public class TurkishDeasciifierTest {
 		// Use Deasciifier
 		TurkishDeasciifier deasciifier = new TurkishDeasciifier();
 		deasciifier.setAsciiString("Hadi bir masal uyduralim, icinde mutlu, doygun, telassiz durdugumuz.");
+		
 		// Test with JUnit
 		assertEquals(deasciifier.convertToTurkish(), "Hadi bir masal uyduralım, içinde mutlu, doygun, telaşsız durduğumuz.");
 	}

@@ -1,22 +1,25 @@
-package org.hucompute.textimager.uima.zemberek;
+package org.hucompute.textimager.uima.polyglot;
 
+import static org.apache.uima.fit.util.JCasUtil.select;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.util.ArrayList;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-
-import static org.apache.uima.fit.util.JCasUtil.select;
-
-import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.Type;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
@@ -24,33 +27,27 @@ import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.analysis.SentenceAnalysis;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
-import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
 
 /**
-* ZemberekPartOfSpeech
+* PolyglotPartOfSpeech
 *
-* @date 03.08.2017
+* @date 08.08.2017
 *
 * @author Alexander Sang
-* @version 1.2
+* @version 1.0
 *
-* This class provide POS for turkish language. 
-* UIMA-Token, UIMA-Sentence are needed as input to create POS.
-* UIMA-Standard is used to represent the final POS.
-*/
+* This class provide POS for 16 languages. (http://polyglot.readthedocs.io/en/latest/POS.html) 
+* UIMA-Token is needed as input to create POS.
+* UIMA-Standard is used to represent the final POS.*/
 @TypeCapability(
-		inputs = {
-				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
-				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"},
+		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token"},
 		outputs = {"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS"})
-public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
-    /**
+public class PolyglotPartOfSpeech  extends SegmenterBase {
+	
+	/**
      * Use this language instead of the document language to resolve the model.
      */
     public static final String PARAM_LANGUAGE = ComponentParameters.PARAM_LANGUAGE;
@@ -110,10 +107,10 @@ public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
         modelProvider = new CasConfigurableProviderBase<File>()
         {
             {
-                setContextObject(ZemberekPartOfSpeech.this);
+                setContextObject(PolyglotPartOfSpeech.this);
 
-                setDefault(ARTIFACT_ID, "${groupId}.Zemberek-model-tagger-${language}-${variant}");
-                setDefault(LOCATION, "classpath:org/hucompute/textimager/uima/zemberek/lib/"
+                setDefault(ARTIFACT_ID, "${groupId}.Polyglot-model-tagger-${language}-${variant}");
+                setDefault(LOCATION, "classpath:org/hucompute/textimager/uima/polyglot/lib/"
                         + "tagger-${variant}.model");
                 setDefault(VARIANT, "default");
 
@@ -133,66 +130,98 @@ public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
         posMappingProvider = MappingProviderFactory.createPosMappingProvider(posMappingLocation, language, modelProvider);
     }
 	
-    /**
-	 * Analyze the sentences and create POS for every token. After successfully creation, map and add POS to JCas.
+	/**
+	 * Analyze the text and create tokens for every word. After successfully creation, add tokens to JCas.
 	 * @param aJCas
 	 */
 	@Override
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {		
-			// Variables for mapping
-			CAS cas = aJCas.getCas();
-			modelProvider.configure(cas);
-			posMappingProvider.configure(cas);
-			     
-	        try {
-	        	// Initialize Zemberek
-	        	TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-	        	Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
-	        	TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
-				
-				// Analyze the sentences.
-				for (Sentence sentence : select(aJCas, Sentence.class)) {
-					SentenceAnalysis analysis = sentenceAnalyzer.analyze(sentence.getCoveredText());
-					sentenceAnalyzer.disambiguate(analysis);
-					
-					// Current
-					int i = 0;
-					
-					// Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
-					ArrayList<Token> T = new ArrayList<Token>();
-					for (Token token : select(aJCas, Token.class)) {
-						T.add(token);
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
+		String POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		String inputText = aJCas.getDocumentText();
+		
+		// Variables for mapping
+		CAS cas = aJCas.getCas();
+		modelProvider.configure(cas);
+		posMappingProvider.configure(cas);
+		
+		// Define ProcessBuilder
+        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "pos", inputText);
+        pb.redirectError(Redirect.INHERIT);
+        
+        boolean success = false;
+        Process proc = null;
+        
+        try {
+	    	// Start Process
+	        proc = pb.start();
+	
+	        // IN, OUT, ERROR Streams
+	        PrintWriter out = new PrintWriter(new OutputStreamWriter(proc.getOutputStream()));
+	        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+	        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+	      
+	        StringBuilder builder = new StringBuilder();
+					String line = null;
+					while ( (line = in.readLine()) != null) {
+					   builder.append(line);
+					   builder.append(System.getProperty("line.separator"));
 					}
-					
-					// Analyze sentence
-			        for (SentenceAnalysis.Entry entry : analysis) {	            
-			        	// Analyze current token
-			        	WordAnalysis wa = entry.parses.get(0);
-			        	
-			        	// If we have a token, create a corresponding POS-Tag.
-			        	if(T.size() > i) {		        		
-			        		// Filter for primaryPos and secondaryPos
-			        		if(wa.dictionaryItem.secondaryPos.toString().equals("None")) {
-			        			String tag = wa.dictionaryItem.primaryPos + "";
-			        			Type posTag = posMappingProvider.getTagType(tag);
-								POS posElement = (POS) cas.createAnnotation(posTag, T.get(i).getBegin(), T.get(i).getEnd());
-								posElement.setPosValue(tag);
-								posElement.addToIndexes();
-			        		} else {
-			        			String tag = wa.dictionaryItem.secondaryPos + "";
-			        			Type posTag = posMappingProvider.getTagType(tag);
-								POS posElement = (POS) aJCas.getCas().createAnnotation(posTag, T.get(i).getBegin(), T.get(i).getEnd());
-								posElement.setPosValue(tag);
-								posElement.addToIndexes();
-			        		}
-			        	}            
-			        	
-			    		// Next
-			        	i = i + 1;
-			        }
-				}		
-			} catch (IOException e) {
-				e.printStackTrace();
+			String result = builder.toString();
+			String[] resultInParts = result.split("\n");
+									
+			// Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
+			ArrayList<Token> T = new ArrayList<Token>();
+			for (Token token : select(aJCas, Token.class)) {
+				T.add(token);
 			}
+			
+			for(int i = 0; i < T.size(); i = i + 1) {				
+				// System.out.println("Token: " + T.get(i).getCoveredText());
+				// System.out.println(resultInParts[i * 2] + " | " + resultInParts[i * 2 + 1]);
+				
+				String tag = resultInParts[i * 2 + 1];
+    			Type posTag = posMappingProvider.getTagType(tag);
+				POS posElement = (POS) cas.createAnnotation(posTag, T.get(i).getBegin(), T.get(i).getEnd());
+				posElement.setPosValue(tag);
+				posElement.addToIndexes();
+			}		
+						
+	        // Get Errors
+             String errorString = "";
+			 line = "";
+			 try {
+				while ((line = error.readLine()) != null) {
+					errorString += line+"\n";
+				}
+			 } catch (IOException e) {
+				e.printStackTrace();
+			 }
+
+			 // Log Error
+			 if(errorString != "")
+			 getLogger().error(errorString);
+			 
+             success = true;
+        }
+        catch (IOException e) {
+            throw new AnalysisEngineProcessException(e);
+        }
+        
+        finally {
+            if (!success) {
+
+            }
+            
+            if (proc != null) {
+                proc.destroy();
+            }
+        }
 	}
+
+	
+	@Override
+	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {		
+			
+	}
+
 }

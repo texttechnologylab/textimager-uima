@@ -14,13 +14,14 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.services.util.XmlFormatter;
 import org.hucompute.textimager.uima.polyglot.PolyglotLanguage;
+import org.hucompute.textimager.uima.polyglot.PolyglotPartOfSpeech;
 import org.hucompute.textimager.uima.polyglot.PolyglotSentenceBoundary;
 import org.hucompute.textimager.uima.polyglot.PolyglotTokenizer;
 
 /**
 * Pipeline
 *
-* @date 29.05.2017
+* @date 08.08.2017
 *
 * @author Alexander Sang
 * @version 1.0
@@ -37,15 +38,17 @@ public class Pipeline {
 		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
+		AnalysisEngineDescription posAnnotator = createEngineDescription(PolyglotPartOfSpeech.class, PolyglotPartOfSpeech.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/pos-default.map");
+		
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
 		// Input
-		inputCas.setDocumentText("İstanbul, İstanbul alo! Ne çok az Türk konuşabilir yazık.");
+		inputCas.setDocumentText("Das ist ein Test. Das ist ein Test!");
 		
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator);
+		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator, posAnnotator);
 		
 		// Output as XML
 		String output = XmlFormatter.getPrettyString(inputCas.getCas());
