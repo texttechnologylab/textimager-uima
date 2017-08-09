@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.List;
 
 import static org.apache.uima.fit.util.JCasUtil.selectCovered;
@@ -100,6 +101,7 @@ public class TalismanePOS extends SegmenterBase {
     public static final String PARAM_INTERN_TAGS = ComponentParameters.PARAM_INTERN_TAGS;
     @ConfigurationParameter(name = PARAM_INTERN_TAGS, mandatory = false, defaultValue = "true")
     private boolean internTags;
+    
 
     /**
      * Log the tag set(s) when a model is loaded.
@@ -157,15 +159,19 @@ public class TalismanePOS extends SegmenterBase {
 	 * @param token
 	 * @return true if lemma added to JCas
 	 */
-	private boolean addLemmatoJCas(JCas aJCas,PosTaggedToken token){
+	private boolean addLemmatoJCas(JCas aJCas,PosTaggedToken token, int SentenceBegin){
 		
-		if(token.getLemmaForCoNLL() != "_") {			
-			Lemma lemma = new Lemma(aJCas, token.getToken().getStartIndex(),token.getToken().getEndIndex());
+		// Add The Lemma to JCas if the Lemma isn't empty
+		if(token.getLemmaForCoNLL() != "_") {	
+			// begin and end of Lemma
+			int begin = token.getToken().getStartIndex() + SentenceBegin;
+			int end = token.getToken().getEndIndex() + SentenceBegin;
+			//Add Annotation to JCas
+			Lemma lemma = new Lemma(aJCas, begin, end);
 			lemma.setValue(token.getLemmaForCoNLL());
 			lemma.addToIndexes();
 			return true;
 		}
-		
 		return false;
 	}
 	
@@ -176,13 +182,16 @@ public class TalismanePOS extends SegmenterBase {
 	 * @param aJCas
 	 * @param token
 	 */
-	private void addPOStoJCas(JCas aJCas,PosTaggedToken token){
+	private void addPOStoJCas(JCas aJCas,PosTaggedToken token, int SentenceBegin){
 		
-		if(token.getDecision().getOutcome() != null) {			
-			int begin = token.getToken().getStartIndex();
-			int end = token.getToken().getEndIndex();
+		// Add The POS to JCas if the POS isn't empty
+		if(token.getDecision().getOutcome() != null) {	
+			// begin and end of Lemma
+			int begin = token.getToken().getStartIndex() + SentenceBegin;
+			int end = token.getToken().getEndIndex() + SentenceBegin;
 			CAS cas = aJCas.getCas();
 			
+			// Map and Add Annotation to JCas
 			String tag = token.getDecision().getOutcome();
         	Type posTag = posMappingProvider.getTagType(tag);
             POS posAnno = (POS) cas.createAnnotation(posTag, begin, end);
@@ -200,11 +209,12 @@ public class TalismanePOS extends SegmenterBase {
 		posMappingProvider.configure(cas);
 		
 
-		// arbitrary session id
-	    String sessionId = "";
-
-	    // load the Talismane configuration
+		// load the Talismane configuration
 	    Config conf = ConfigFactory.load("org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf");
+	    
+	    //create session ID
+  		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+  		String sessionId = timestamp.toString();
 	    TalismaneSession session = null;
 		try {
 			session = new TalismaneSession(conf, sessionId);
@@ -222,6 +232,7 @@ public class TalismanePOS extends SegmenterBase {
 			List<de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token> jCasTokens = selectCovered(aJCas, 
 					de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, jCasSentence);
 			
+			int SentenceBegin = jCasSentence.getBegin();
 			//create Sentence and TokenSequence
 			Sentence originalText = new Sentence(jCasSentence.getCoveredText(), session);
 			TokenSequence tokenSequence = new TokenSequence(originalText, session);
@@ -231,7 +242,7 @@ public class TalismanePOS extends SegmenterBase {
 			
 			
 			for(de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token jCasToken :jCasTokens) {
-				tokenSequence.addToken(jCasToken.getBegin(), jCasToken.getEnd());	
+				tokenSequence.addToken(jCasToken.getBegin() - SentenceBegin, jCasToken.getEnd() - SentenceBegin);	
 			}
 			
 		    // init Pos Tagger
@@ -244,7 +255,7 @@ public class TalismanePOS extends SegmenterBase {
 				catch (TalismaneException e) {e.printStackTrace();}
 		
 			
-			// -- Lematise text 
+			// POS Tag and Lemmatize Sentence
 			
 		    PosTagSequence posTagSequence = null;
 			try {
@@ -254,18 +265,18 @@ public class TalismanePOS extends SegmenterBase {
 				catch (TalismaneException e) {e.printStackTrace();} 
 				catch (IOException e) {e.printStackTrace();}
 
-			// Add to JCAS      
+			// Add to POS and Lemma JCAS      
 			for (PosTaggedToken token : posTagSequence) {
 				
-				addPOStoJCas(aJCas, token);
+				addPOStoJCas(aJCas, token, SentenceBegin);
 				
-				boolean add = addLemmatoJCas(aJCas, token);
+				boolean add = addLemmatoJCas(aJCas, token,SentenceBegin);
 		    	if(!add){
 		    		tokenSequenceLower.addToken(token.getToken().getStartIndex(), token.getToken().getEndIndex());
 		    		}	  		
 	  		}
 			
-			// Lemmatize to Lower
+			// POS Tag and Lemmatize Sentence to Lower Case
 			if(tokenSequence.size() > 0) {
 				posTagSequence.clear();
 				try {
@@ -275,13 +286,13 @@ public class TalismanePOS extends SegmenterBase {
 				catch (TalismaneException e) {e.printStackTrace();} 
 				catch (IOException e) {e.printStackTrace();}
 				
-				// Add to JCAS
+				// Add Missign Lemma to JCas to JCAS
 				for (PosTaggedToken token : posTagSequence) { 
 					
-					boolean add = addLemmatoJCas(aJCas, token);
+					boolean add = addLemmatoJCas(aJCas, token,SentenceBegin);
 					if(!add) {			
-						int start = token.getToken().getStartIndex();
-						int end = token.getToken().getEndIndex();
+						int start = token.getToken().getStartIndex()+SentenceBegin;
+						int end = token.getToken().getEndIndex()+SentenceBegin;
 						Lemma lemma = new Lemma(aJCas, start,end);
 						lemma.setValue(tokenSequence.getSentence().getRawInput(start, end));
 						lemma.addToIndexes();

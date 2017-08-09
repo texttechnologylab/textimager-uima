@@ -1,6 +1,7 @@
 package org.hucompute.textimager.uima.talismane;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -27,15 +28,17 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 		outputs = {
 				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
 				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" })
-public class TalismaneTokenSentenceAnnotator extends SegmenterBase{
+public class TalismaneSegmenter extends SegmenterBase{
 
 	@Override
 	protected void process(JCas aJCas, String text, int arg2) throws AnalysisEngineProcessException {
-		// arbitrary session id
-	    String sessionId = "";
-
-	    // load the Talismane configuration
+		
+		// load the Talismane configuration
 	    Config conf = ConfigFactory.load("org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf");
+	    
+	    //create session ID
+  		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+  		String sessionId = timestamp.toString();
 	    TalismaneSession session = null;
 		try {
 			session = new TalismaneSession(conf, sessionId);
@@ -63,9 +66,7 @@ public class TalismaneTokenSentenceAnnotator extends SegmenterBase{
 			} 
 	    catch (TalismaneException e) {e.printStackTrace();}
 
-	    // the detected sentences can be retrieved directly from the raw text
-	    // this allows annotations made on the sentences to get reflected in the
-	    // raw text
+	    //Get Sentences
 	    List<Sentence> sentences = rawText.getDetectedSentences();
 
 	    //Add sentences to JCas
@@ -73,8 +74,8 @@ public class TalismaneTokenSentenceAnnotator extends SegmenterBase{
 	    	de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sen = 
 	    			new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(aJCas);
 	    	
-	    	int sStart = sentence.getAnalysisStart();
-	    	int sEnd = sentence.getAnalysisEnd();
+	    	int sStart = sentence.getOriginalIndex(0);
+	    	int sEnd = sStart + sentence.getText().length();
 	    	
 	    	//ignore empty sentences
 	    	if(sStart != sEnd) {
