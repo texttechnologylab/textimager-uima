@@ -1,0 +1,65 @@
+# Dependency labels for French.
+# From Marie Candito and Benoît Crabbé and Mathieu Falco
+# Dépendances syntaxiques de surface pour le français
+# May, 2011
+# http://alpage.inria.fr/statgram/frdep/Publications/FTB-GuideDepSurface.pdf
+
+#aff
+aff=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#a_obj
+a_obj=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#arg
+arg=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#ato
+ato=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#ats
+ats=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#aux_caus
+aux_caus=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#aux_pass
+aux_pass=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#aux_tps
+aux_tps=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#comp
+comp=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#coord
+coord=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#de_obj
+de_obj=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#dep
+dep=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#dep_coord
+dep_coord=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#det
+det=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#mod
+mod=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#mod_rel
+mod_rel=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#obj
+obj=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#p_obj
+p_obj=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#ponct
+ponct=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PUNCT
+#root
+root=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT
+#suj
+suj=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+
+# Additional dependencies to specify obj as prep (for object of prepostion) and sub (for object of subordinating conjunction)
+#prep
+prep=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+#sub
+sub=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
+# Additional dependencies for manual annotation only
+#aff_moyen
+#arg_comp
+#arg_cons
+#mod_cleft
+#mod_loc
+#p_obj_loc
+#p_obj_agt
+#suj_impers
+
+*=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency
