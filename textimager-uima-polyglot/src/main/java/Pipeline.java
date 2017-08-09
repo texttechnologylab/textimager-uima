@@ -14,6 +14,7 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.services.util.XmlFormatter;
 import org.hucompute.textimager.uima.polyglot.PolyglotLanguage;
+import org.hucompute.textimager.uima.polyglot.PolyglotNamedEntity;
 import org.hucompute.textimager.uima.polyglot.PolyglotPartOfSpeech;
 import org.hucompute.textimager.uima.polyglot.PolyglotSentenceBoundary;
 import org.hucompute.textimager.uima.polyglot.PolyglotTokenizer;
@@ -39,16 +40,17 @@ public class Pipeline {
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
 		AnalysisEngineDescription posAnnotator = createEngineDescription(PolyglotPartOfSpeech.class, PolyglotPartOfSpeech.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/pos-default.map");
+		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
 		
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
 		// Input
-		inputCas.setDocumentText("Das ist ein Test. Das ist ein Test!");
+		inputCas.setDocumentText("İstanbul, alo! Ne çok az Türk konuşabilir yazık.");
 		
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator, posAnnotator);
+		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator, nerAnnotator);
 		
 		// Output as XML
 		String output = XmlFormatter.getPrettyString(inputCas.getCas());
