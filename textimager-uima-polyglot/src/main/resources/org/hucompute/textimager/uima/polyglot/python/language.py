@@ -1,7 +1,8 @@
 import sys
 import numpy as np
 import polyglot
-from polyglot.text import Text
+from polyglot.text import Text, Word
+from polyglot.mapping import Embedding
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -26,6 +27,19 @@ def ner(text):
 	for entity in inputText.entities:
 		for x in entity:
 			print entity.tag, x
+def polarity(text):
+	inputText = Text(text)
+	for x in inputText.words:
+		print x, x.polarity
+def morphology(text, langCode):	
+	inputText = Text(text)
+	inputText.language = langCode
+	for x in inputText.morphemes:
+		print x
+def transliteration(text):
+	inputText = Text(text)
+	transliterator = Transliterator(source_lang="en", target_lang="ru")
+	print(transliterator.transliterate(text))
 			
 def main():
 	if sys.argv[1]=="language":
@@ -38,6 +52,14 @@ def main():
 		pos(sys.argv[2])
 	elif sys.argv[1]=="ner":
 		ner(sys.argv[2])
+	elif sys.argv[1]=="polarity":
+		polarity(sys.argv[2])
+	elif sys.argv[1]=="embedding":
+		embedding(sys.argv[2])
+	elif sys.argv[1]=="morphology":
+		morphology(sys.argv[2], sys.argv[3])
+	elif sys.argv[1]=="transliteration":
+		transliteration(sys.argv[2])
 
 if __name__ == "__main__":
 	main()
