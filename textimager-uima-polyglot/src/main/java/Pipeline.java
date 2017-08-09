@@ -13,9 +13,11 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.services.util.XmlFormatter;
+import org.hucompute.textimager.uima.polyglot.PolyglotMorphology;
 import org.hucompute.textimager.uima.polyglot.PolyglotLanguage;
 import org.hucompute.textimager.uima.polyglot.PolyglotNamedEntity;
 import org.hucompute.textimager.uima.polyglot.PolyglotPartOfSpeech;
+import org.hucompute.textimager.uima.polyglot.PolyglotSentiment;
 import org.hucompute.textimager.uima.polyglot.PolyglotSentenceBoundary;
 import org.hucompute.textimager.uima.polyglot.PolyglotTokenizer;
 
@@ -41,16 +43,18 @@ public class Pipeline {
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
 		AnalysisEngineDescription posAnnotator = createEngineDescription(PolyglotPartOfSpeech.class, PolyglotPartOfSpeech.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/pos-default.map");
 		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
+		AnalysisEngineDescription polarityAnnotator = createEngineDescription(PolyglotSentiment.class);
+		AnalysisEngineDescription morphologyAnnotator = createEngineDescription(PolyglotMorphology.class);
 		
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
 		// Input
-		inputCas.setDocumentText("İstanbul, alo! Ne çok az Türk konuşabilir yazık.");
+		inputCas.setDocumentText("Beautiful is better than ugly.");
 		
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator, nerAnnotator);
+		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator, polarityAnnotator);
 		
 		// Output as XML
 		String output = XmlFormatter.getPrettyString(inputCas.getCas());
