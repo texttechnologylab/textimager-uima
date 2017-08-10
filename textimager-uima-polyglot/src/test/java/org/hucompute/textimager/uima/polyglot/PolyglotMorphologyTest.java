@@ -25,7 +25,7 @@ import morphemeAnnotation.type.MorphemeAnnotation;
 public class PolyglotMorphologyTest {
 	
 	/**
-	 * Test with JUnit if the Morphemes are generated correctly and if the pipeline is working.
+	 * Test with JUnit if the morphemes are generated correctly and if the pipeline is working.
 	 * @throws Exception
 	 */
 	@Test
@@ -73,7 +73,7 @@ public class PolyglotMorphologyTest {
 	}
 	
 	/**
-	 * Test with JUnit if the Morphemes are generated correctly and if the pipeline is working.
+	 * Test with JUnit if the morphemes are generated correctly and if the pipeline is working.
 	 * @throws Exception
 	 */
 	@Test
@@ -121,7 +121,7 @@ public class PolyglotMorphologyTest {
 	}
 	
 	/**
-	 * Test with JUnit if the Morphemes are generated correctly and if the pipeline is working.
+	 * Test with JUnit if the morphemes are generated correctly and if the pipeline is working.
 	 * @throws Exception
 	 */
 	@Test

@@ -1,12 +1,17 @@
 package org.hucompute.textimager.uima.zemberek;
 
+import static org.apache.uima.fit.util.JCasUtil.select;
+
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import disambiguationAnnotation.type.DisambiguationAnnotation;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
@@ -14,22 +19,21 @@ import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
 
 /**
-* ZemberekBeforeDisambiguation
+* ZemberekDisambiguation
 *
-* @date 03.08.2017
+* @date 10.08.2017
 *
 * @author Alexander Sang
 * @version 1.2
 *
 * This class provide disambiguation for turkish language. 
-* UIMA-Sentence is needed as input to create analysis.
+* UIMA-Token is needed as input to create analysis.
 * UIMA-Standard is used to represent the final disambiguation.
 */
 @TypeCapability(
-		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" },
-		outputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma" }
-		)
-public class ZemberekBeforeDisambiguation extends SegmenterBase {
+		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token"},
+		outputs = {"disambiguationAnnotation.type.DisambiguationAnnotation"})
+public class ZemberekDisambiguation extends SegmenterBase {
 
 	/**
 	 * Analyze the text and create disambiguation for every sentence. After successfully creation, add disambiguation to JCas.
@@ -45,12 +49,25 @@ public class ZemberekBeforeDisambiguation extends SegmenterBase {
 	        TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
 	        
 	        SentenceAnalysis result = sentenceAnalyzer.analyze(inputText);
+	        sentenceAnalyzer.disambiguate(result);
+	        
+		    // Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
+			ArrayList<Token> T = new ArrayList<Token>();
+			for (Token token : select(aJCas, Token.class)) {
+				T.add(token);
+			}
+			
+			int i = 0;
 	        
 	        for(SentenceAnalysis.Entry entry : result) {
-	        	System.out.println("Word = " + entry.input);
 	        	for (WordAnalysis analysis : entry.parses) {
-	                System.out.println(analysis.formatLong());
+	                // Create DisambiguationAnnotation		
+					DisambiguationAnnotation morphText = new DisambiguationAnnotation(aJCas, T.get(i).getBegin(), T.get(i).getEnd());
+					morphText.setValue(analysis.formatLong());
+					morphText.addToIndexes();	
 	            }
+	        	
+	        	i++;
 	        }
 		} catch (IOException e) {
 			e.printStackTrace();

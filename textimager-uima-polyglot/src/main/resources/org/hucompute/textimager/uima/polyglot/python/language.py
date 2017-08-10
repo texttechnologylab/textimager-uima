@@ -27,7 +27,7 @@ def ner(text):
 	for entity in inputText.entities:
 		for x in entity:
 			print entity.tag, x
-def polarity(text):
+def sentiment(text):
 	inputText = Text(text)
 	for x in inputText.words:
 		print x, x.polarity
@@ -36,10 +36,10 @@ def morphology(text, langCode):
 	inputText.language = langCode
 	for x in inputText.morphemes:
 		print x
-def transliteration(text):
+def transliteration(text, toLangCode):
 	inputText = Text(text)
-	transliterator = Transliterator(source_lang="en", target_lang="ru")
-	print(transliterator.transliterate(text))
+	for x in inputText.transliterate(toLangCode):
+  		print(x)
 			
 def main():
 	if sys.argv[1]=="language":
@@ -52,14 +52,14 @@ def main():
 		pos(sys.argv[2])
 	elif sys.argv[1]=="ner":
 		ner(sys.argv[2])
-	elif sys.argv[1]=="polarity":
-		polarity(sys.argv[2])
+	elif sys.argv[1]=="sentiment":
+		sentiment(sys.argv[2])
 	elif sys.argv[1]=="embedding":
 		embedding(sys.argv[2])
 	elif sys.argv[1]=="morphology":
 		morphology(sys.argv[2], sys.argv[3])
 	elif sys.argv[1]=="transliteration":
-		transliteration(sys.argv[2])
+		transliteration(sys.argv[2], sys.argv[3])
 
 if __name__ == "__main__":
 	main()

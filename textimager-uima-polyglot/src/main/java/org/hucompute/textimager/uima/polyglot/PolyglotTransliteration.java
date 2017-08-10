@@ -1,42 +1,57 @@
 package org.hucompute.textimager.uima.polyglot;
 
+import static org.apache.uima.fit.util.JCasUtil.select;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
+import java.util.ArrayList;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
+import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import tansliterationAnnotation.type.TransliterationAnnotation;
 
 /**
-* PolyglotSentenceBoundary
+* PolyglotTransliteration
 *
-* @date 07.08.2017
+* @date 08.08.2017
 *
 * @author Alexander Sang
 * @version 1.0
 *
-* This class provide sentence detection for different languages. 
-* UIMA-Standard is used to represent the final sentence.
-*/
-@TypeCapability(outputs = { "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" })
-public class PolyglotSentenceBoundary  extends SegmenterBase {
+* This class provide Transliteration for 69 languages. (http://polyglot.readthedocs.io/en/latest/Transliteration.html) 
+* UIMA-Token are needed as input to create Transliteration.
+* UIMA-Standard is used to represent the final Transliteration.*/
+@TypeCapability(
+		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token"},
+		outputs = {"tansliterationAnnotation.type.TransliterationAnnotation"})
+public class PolyglotTransliteration  extends SegmenterBase {
 	
 	/**
-	 * Analyze the text and create sentences. After successfully creation, add sentences to JCas.
+     * Load the toLanguage-Tag
+     */
+    public static final String PARAM_TO_LANGUAGE_CODE = ComponentParameters.PARAM_LANGUAGE;
+    @ConfigurationParameter(name = PARAM_TO_LANGUAGE_CODE, mandatory = false)
+    protected String toLanguageCode;
+	
+	/**
+	 * Analyze the text and create Transliteration-Tag. After successfully creation, add Transliteration to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		String POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
 		String inputText = aJCas.getDocumentText();
-		
-		// Define ProcessBuilder
-        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "sentence", inputText);
+		        
+    	// Define ProcessBuilder
+        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "transliteration", inputText, toLanguageCode);
         pb.redirectError(Redirect.INHERIT);
         
         boolean success = false;
@@ -58,21 +73,23 @@ public class PolyglotSentenceBoundary  extends SegmenterBase {
 					}
 			String result = builder.toString();
 			String[] resultInParts = result.split("\n");
-					
-			int startPosition = 0;
-			int endPosition = 0;		
-					
-			for (String currentSentence : resultInParts) {
-				// Create end-Tag
-				endPosition = startPosition + currentSentence.length();
-				// Create sentence
-	            Sentence sentence = new Sentence(aJCas, startPosition, endPosition);
-	            // Create next start-Tag
-	            startPosition = endPosition + 1;
-	            // Add to JCas-Index
-	            sentence.addToIndexes(aJCas);
-			}
 			
+			// Create an ArrayList of all token, because Transliteration-library doesn't output begin/end of token. Calculate it manually.
+			ArrayList<Token> T = new ArrayList<Token>();
+			for (Token token : select(aJCas, Token.class)) {
+				T.add(token);
+			}
+
+			// Only process sentence if Transliteration is found.
+			if(result.length() != 0 && resultInParts.length > 0) {
+				// Create transliteration for every token.
+				for(int i = 0; i < resultInParts.length; i++) {
+					TransliterationAnnotation transliteration = new TransliterationAnnotation(aJCas, T.get(i).getBegin(), T.get(i).getEnd());
+					transliteration.setValue(resultInParts[i]);
+					transliteration.addToIndexes();
+				}
+			}
+				
 	        // Get Errors
              String errorString = "";
 			 line = "";
