@@ -13,6 +13,7 @@ import org.hucompute.textimager.uima.zemberek.ZemberekTokenizerDefault;
 import org.junit.Test;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import disambiguationAnnotation.type.DisambiguationAnnotation;
 
 /**
 * ZemberekDisambiguationTest
@@ -32,16 +33,14 @@ public class ZemberekDisambiguationTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testLemma() throws Exception {
+	public void testDisambiguation() throws Exception {
 		// Istanbul, hallo! Leider kann ich nur ganz wenig Türkisch.
 		String text = "İstanbul, alo! Ne çok az Türk konuşabilir yazık.";
 		
 		// Create a new Engine Description for the Tokenizer.
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(ZemberekTokenizerDefault.class);
-		// Create a new Engine Description for the SentenceBoundaryDetection.
-		AnalysisEngineDescription sentanceBoundAnnotator = createEngineDescription(ZemberekSentenceBoundary.class);
 		// Create a new Engine Description for the Disambiguation.
-		AnalysisEngineDescription disambAnnotator = createEngineDescription(ZemberekAfterDisambiguation.class);
+		AnalysisEngineDescription disambAnnotator = createEngineDescription(ZemberekDisambiguation.class);
 				
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
@@ -50,27 +49,27 @@ public class ZemberekDisambiguationTest {
 		inputCas.setDocumentText(text);
 		
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, tokenAnnotator, sentanceBoundAnnotator, disambAnnotator);
+		SimplePipeline.runPipeline(inputCas, tokenAnnotator, disambAnnotator);
 		
 		// Sample Text
-		String outputCorrectToken = "İstanbul | , | alo | ! | ne | çok | az | Türk | konuşmak | yazık | . | ";
-		String outputCorrectBegin = "0 | 8 | 10 | 13 | 15 | 18 | 22 | 25 | 30 | 42 | 47 | ";
-		String outputCorrectEnd = "8 | 9 | 13 | 14 | 17 | 21 | 24 | 29 | 41 | 47 | 48 | ";
+		String outputCorrectValue = "[(İstanbul:istanbul) (Noun,Prop;A3sg+Pnon+Nom)] | [(,:,) (Punc)] | [(alo:alo) (Interj)] | [(!:!) (Punc)] | [(ne:ne) (Adj)] | [(Ne:ne) (Noun,Prop;A3sg+Pnon+Nom)] | [(ne:ne) (Noun;A3sg+Pnon+Nom)] | [(ne:ne) (Conj)] | [(ne:ne) (Interj)] | [(ne:ne) (Pron,Ques)] | [(ne:ne) (Adv)] | [(çok:çok) (Adv)] | [(çok:çok) (Det)] | [(çok:çok) (Postp,PCAbl)] | [(çok:çok) (Adj)] | [(az:az) (Adj)] | [(azmak:az) (Verb;Pos+Imp+A2sg)] | [(Az:az) (Noun,Prop;A3sg+Pnon+Nom)] | [(az:az) (Postp,PCAbl)] | [(az:az) (Adv)] | [(Türk:türk) (Noun,Prop;A3sg+Pnon+Nom)] | [(konuşmak:konuş) (Verb;Pos)(Verb;Abil:abil+Aor:ir+A3sg)] | [(konuşmak:konuş) (Verb;Pos)(Verb;Abil:abil)(Adj;AorPart:ir)] | [(konuşmak:konuş) (Verb;Pos)(Verb;Abil:abil+AorPart:ir)] | [(yazık:yazık) (Noun;A3sg+Pnon+Nom)] | [(yazık:yazık) (Adv)] | [(yazık:yazık) (Interj)] | [(.:.) (Punc)] | ";
+		String outputCorrectBegin = "0 | 8 | 10 | 13 | 15 | 15 | 15 | 15 | 15 | 15 | 15 | 18 | 18 | 18 | 18 | 22 | 22 | 22 | 22 | 22 | 25 | 30 | 30 | 30 | 42 | 42 | 42 | 47 | ";
+		String outputCorrectEnd = "8 | 9 | 13 | 14 | 17 | 17 | 17 | 17 | 17 | 17 | 17 | 21 | 21 | 21 | 21 | 24 | 24 | 24 | 24 | 24 | 29 | 41 | 41 | 41 | 47 | 47 | 47 | 48 | ";
 		
 		// Generate Text with library
-		String outputTestToken = "";
+		String outputTestValue = "";
 		String outputTestBegin = "";
 		String outputTestEnd = "";
 		
 		// Loop over different lemma and create the test text.
-		for (Lemma lemma : select(inputCas, Lemma.class)) {			
-			outputTestToken = outputTestToken + lemma.getValue() + " | ";
-			outputTestBegin = outputTestBegin + lemma.getBegin() + " | ";
-			outputTestEnd = outputTestEnd + lemma.getEnd() + " | ";
+		for (DisambiguationAnnotation disambiguation : select(inputCas, DisambiguationAnnotation.class)) {			
+			outputTestValue = outputTestValue + disambiguation.getValue() + " | ";
+			outputTestBegin = outputTestBegin + disambiguation.getBegin() + " | ";
+			outputTestEnd = outputTestEnd + disambiguation.getEnd() + " | ";
         }
 		
-		// JUnit Test for Lemma, Begin, End
-		assertEquals(outputCorrectToken, outputTestToken);
+		// JUnit Test for Value, Begin, End
+		assertEquals(outputCorrectValue, outputTestValue);
 		assertEquals(outputCorrectBegin, outputTestBegin);
 		assertEquals(outputCorrectEnd, outputTestEnd);
 	}

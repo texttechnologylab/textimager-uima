@@ -13,7 +13,7 @@ import org.junit.Test;
 import sentimentAnnotation.type.SentimentAnnotation;
 
 /**
-* PolyglotPolarityTest
+* PolyglotSentimentTest
 *
 * @date 09.08.2017
 *

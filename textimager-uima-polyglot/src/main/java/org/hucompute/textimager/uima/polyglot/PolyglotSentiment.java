@@ -3,55 +3,37 @@ package org.hucompute.textimager.uima.polyglot;
 import static org.apache.uima.fit.util.JCasUtil.select;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
-import java.net.URL;
 import java.util.ArrayList;
 
-import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.Type;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import morphemeAnnotation.type.MorphemeAnnotation;
 import sentimentAnnotation.type.SentimentAnnotation;
 
 /**
-* PolyglotPolarity
+* PolyglotSentiment
 *
-* @date 08.08.2017
+* @date 10.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.1
 *
-* This class provide NER for 40 languages. (http://polyglot.readthedocs.io/en/latest/NamedEntityRecognition.html) 
-* UIMA-Token are needed as input to create POS.
-* UIMA-Standard is used to represent the final Polarity.*/
+* This class provide Sentiment for 135 languages. (http://polyglot.readthedocs.io/en/latest/Sentiment.html) 
+* UIMA-Token are needed as input to create Sentiment.
+* UIMA-Standard is used to represent the final Sentiment.*/
 @TypeCapability(
 		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token"},
-		outputs = {"polarityAnnotation.type.PolarityAnnotation"})
+		outputs = {"sentimentAnnotation.type.SentimentAnnotation"})
 public class PolyglotSentiment  extends SegmenterBase {
 	
 	/**
-	 * Analyze the text and create Polarity-Tag for every word. After successfully creation, add Polarity to JCas.
+	 * Analyze the text and create Sentiment-Tag for every word. After successfully creation, add Polarity to JCas.
 	 * @param aJCas
 	 */
 	@Override
@@ -66,7 +48,7 @@ public class PolyglotSentiment  extends SegmenterBase {
 		}
 		
 		// Define ProcessBuilder
-        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "polarity", inputText);
+        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "sentiment", inputText);
         pb.redirectError(Redirect.INHERIT);
         
         boolean success = false;
@@ -76,8 +58,7 @@ public class PolyglotSentiment  extends SegmenterBase {
 	    	// Start Process
 	        proc = pb.start();
 	
-	        // IN, OUT, ERROR Streams
-	        PrintWriter out = new PrintWriter(new OutputStreamWriter(proc.getOutputStream()));
+	        // IN, ERROR Streams
 	        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 	        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 	      
@@ -90,13 +71,13 @@ public class PolyglotSentiment  extends SegmenterBase {
 			String result = builder.toString();
 			String[] resultInParts = result.split("\n");
 							
-			// Only process sentence if Polarity-TAG is found.
+			// Only process sentence if Sentiment-TAG is found.
 			if(result.length() != 0 && resultInParts.length > 0) {
 				for(int i = 0; i < resultInParts.length; i = i + 1) {
 					String[] currentWord = resultInParts[i].split(" ");										
-					SentimentAnnotation polarity = new SentimentAnnotation(aJCas, T.get(i).getBegin(), T.get(i).getEnd());
-					polarity.setValue(currentWord[1]);
-					polarity.addToIndexes();	
+					SentimentAnnotation sentiment = new SentimentAnnotation(aJCas, T.get(i).getBegin(), T.get(i).getEnd());
+					sentiment.setValue(currentWord[1]);
+					sentiment.addToIndexes();	
 				}
 			}
 				
@@ -129,14 +110,11 @@ public class PolyglotSentiment  extends SegmenterBase {
             if (proc != null) {
                 proc.destroy();
             }
-        }
-	
+        }	
 	}
-
 	
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {		
 			
 	}
-
 }

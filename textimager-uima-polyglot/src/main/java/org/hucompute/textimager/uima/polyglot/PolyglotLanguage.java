@@ -3,14 +3,9 @@ package org.hucompute.textimager.uima.polyglot;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
@@ -48,8 +43,7 @@ public class PolyglotLanguage  extends SegmenterBase {
 	    	// Start Process
 	        proc = pb.start();
 	
-	        // IN, OUT, ERROR Streams
-	        PrintWriter out = new PrintWriter(new OutputStreamWriter(proc.getOutputStream()));
+	        // IN, ERROR Streams
 	        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 	        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 	      
@@ -96,7 +90,6 @@ public class PolyglotLanguage  extends SegmenterBase {
             }
         }
 	}
-
 	
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {		

@@ -6,8 +6,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,7 +26,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 /**
@@ -155,8 +152,7 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
 	    	// Start Process
 	        proc = pb.start();
 	
-	        // IN, OUT, ERROR Streams
-	        PrintWriter out = new PrintWriter(new OutputStreamWriter(proc.getOutputStream()));
+	        // IN, ERROR Streams
 	        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 	        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 	      
@@ -175,10 +171,8 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
 				T.add(token);
 			}
 			
-			for(int i = 0; i < T.size(); i = i + 1) {				
-				// System.out.println("Token: " + T.get(i).getCoveredText());
-				// System.out.println(resultInParts[i * 2] + " | " + resultInParts[i * 2 + 1]);
-				
+			for(int i = 0; i < T.size(); i = i + 1) {	
+				// Create POS-Tag
 				String tag = resultInParts[i * 2 + 1];
     			Type posTag = posMappingProvider.getTagType(tag);
 				POS posElement = (POS) cas.createAnnotation(posTag, T.get(i).getBegin(), T.get(i).getEnd());

@@ -39,7 +39,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 * @version 1.0
 *
 * This class provide NER for 40 languages. (http://polyglot.readthedocs.io/en/latest/NamedEntityRecognition.html) 
-* UIMA-Token|UIMA-Sentence are needed as input to create POS.
+* UIMA-Token|UIMA-Sentence are needed as input to create NE.
 * UIMA-Standard is used to represent the final NE.*/
 @TypeCapability(
 		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token", "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"},
@@ -71,9 +71,9 @@ public class PolyglotNamedEntity  extends SegmenterBase {
      * Load the part-of-speech tag to UIMA type mapping from this location instead of locating the
      * mapping automatically.
      */
-    public static final String PARAM_POS_MAPPING_LOCATION = ComponentParameters.PARAM_POS_MAPPING_LOCATION;
-    @ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
-    protected String posMappingLocation;
+    public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = ComponentParameters.PARAM_NAMED_ENTITY_MAPPING_LOCATION;
+    @ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
+    protected String neMappingLocation;
 
     /**
      * Use the {@link String#intern()} method on tags. This is usually a good idea to avoid spaming
@@ -126,7 +126,7 @@ public class PolyglotNamedEntity  extends SegmenterBase {
             }
         };
 
-        nerMappingProvider = MappingProviderFactory.createPosMappingProvider(posMappingLocation, language, modelProvider);
+        nerMappingProvider = MappingProviderFactory.createPosMappingProvider(neMappingLocation, language, modelProvider);
     }
 	
 	/**

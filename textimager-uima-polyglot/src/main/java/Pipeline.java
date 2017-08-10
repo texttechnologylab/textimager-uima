@@ -20,6 +20,7 @@ import org.hucompute.textimager.uima.polyglot.PolyglotPartOfSpeech;
 import org.hucompute.textimager.uima.polyglot.PolyglotSentiment;
 import org.hucompute.textimager.uima.polyglot.PolyglotSentenceBoundary;
 import org.hucompute.textimager.uima.polyglot.PolyglotTokenizer;
+import org.hucompute.textimager.uima.polyglot.PolyglotTransliteration;
 
 /**
 * Pipeline
@@ -42,16 +43,17 @@ public class Pipeline {
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
 		AnalysisEngineDescription posAnnotator = createEngineDescription(PolyglotPartOfSpeech.class, PolyglotPartOfSpeech.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/pos-default.map");
-		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
+		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_NAMED_ENTITY_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
 		AnalysisEngineDescription polarityAnnotator = createEngineDescription(PolyglotSentiment.class);
 		AnalysisEngineDescription morphologyAnnotator = createEngineDescription(PolyglotMorphology.class);
+		AnalysisEngineDescription transliterationAnnotator = createEngineDescription(PolyglotTransliteration.class, PolyglotTransliteration.PARAM_TO_LANGUAGE_CODE, "tr");
 		
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
 		// Input
-		inputCas.setDocumentText("Beautiful is better than ugly.");
+		inputCas.setDocumentText("We will meet at eight o'clock on Thursday morning.");
 		
 		// Pipeline
 		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator, polarityAnnotator);

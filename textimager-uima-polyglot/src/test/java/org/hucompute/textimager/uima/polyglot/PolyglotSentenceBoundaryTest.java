@@ -10,9 +10,7 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 /**
 * PolyglotSentenceBoundaryTest
@@ -27,11 +25,11 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 public class PolyglotSentenceBoundaryTest {
 	
 	/**
-	 * Test with JUnit if the Sentences are generated correctly and if the pipeline is working.
+	 * Test with JUnit if the sentences are generated correctly and if the pipeline is working.
 	 * @throws Exception
 	 */
 	@Test
-	public void testPartOfSpeechGerman() throws Exception {
+	public void testSentenceBoundaryGerman() throws Exception {
 		// Create a new Engine Description.
 		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
@@ -55,25 +53,25 @@ public class PolyglotSentenceBoundaryTest {
 		String outputTestBegin = "";
 		String outputTestEnd = "";
 		
-		// Loop over different POS-Tags and create the UIMA-Output.
+		// Loop over different Sentence-Tags and create the UIMA-Output.
 		for (Sentence sentence : select(inputCas, Sentence.class)) {		
 			outputTestToken = outputTestToken + sentence.getCoveredText() + " | ";
 			outputTestBegin = outputTestBegin + sentence.getBegin() + " | ";
 			outputTestEnd = outputTestEnd + sentence.getEnd() + " | ";
         }
 		
-		// JUnit-Test: CoveredText, Value, Begin, End
+		// JUnit-Test: CoveredText, Begin, End
 		assertEquals(outputCorrectToken, outputTestToken);
 		assertEquals(outputCorrectBegin, outputTestBegin);
 		assertEquals(outputCorrectEnd, outputTestEnd);
 	}
 	
 	/**
-	 * Test with JUnit if the Sentences are generated correctly and if the pipeline is working.
+	 * Test with JUnit if the sentences are generated correctly and if the pipeline is working.
 	 * @throws Exception
 	 */
 	@Test
-	public void testPartOfSpeechTurkish() throws Exception {
+	public void testSentenceBoundaryTurkish() throws Exception {
 		// Create a new Engine Description.
 		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
@@ -97,14 +95,14 @@ public class PolyglotSentenceBoundaryTest {
 		String outputTestBegin = "";
 		String outputTestEnd = "";
 		
-		// Loop over different POS-Tags and create the UIMA-Output.
+		// Loop over different Sentence-Tags and create the UIMA-Output.
 		for (Sentence sentence : select(inputCas, Sentence.class)) {		
 			outputTestToken = outputTestToken + sentence.getCoveredText() + " | ";
 			outputTestBegin = outputTestBegin + sentence.getBegin() + " | ";
 			outputTestEnd = outputTestEnd + sentence.getEnd() + " | ";
         }
 		
-		// JUnit-Test: CoveredText, Value, Begin, End
+		// JUnit-Test: CoveredText, Begin, End
 		assertEquals(outputCorrectToken, outputTestToken);
 		assertEquals(outputCorrectBegin, outputTestBegin);
 		assertEquals(outputCorrectEnd, outputTestEnd);

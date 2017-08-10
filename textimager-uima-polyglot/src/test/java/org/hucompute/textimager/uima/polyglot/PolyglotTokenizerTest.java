@@ -10,7 +10,6 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 /**
@@ -30,7 +29,7 @@ public class PolyglotTokenizerTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testPartOfSpeechGerman() throws Exception {
+	public void testTokenizerGerman() throws Exception {
 		// Create a new Engine Description.
 		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
@@ -55,14 +54,14 @@ public class PolyglotTokenizerTest {
 		String outputTestBegin = "";
 		String outputTestEnd = "";
 		
-		// Loop over different POS-Tags and create the UIMA-Output.
+		// Loop over different Token-Tags and create the UIMA-Output.
 		for (Token token : select(inputCas, Token.class)) {		
 			outputTestToken = outputTestToken + token.getCoveredText() + " | ";
 			outputTestBegin = outputTestBegin + token.getBegin() + " | ";
 			outputTestEnd = outputTestEnd + token.getEnd() + " | ";
         }
 		
-		// JUnit-Test: CoveredText, Value, Begin, End
+		// JUnit-Test: CoveredText, Begin, End
 		assertEquals(outputCorrectToken, outputTestToken);
 		assertEquals(outputCorrectBegin, outputTestBegin);
 		assertEquals(outputCorrectEnd, outputTestEnd);
@@ -73,7 +72,7 @@ public class PolyglotTokenizerTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testPartOfSpeechTurkish() throws Exception {
+	public void testTokenizerTurkish() throws Exception {
 		// Create a new Engine Description.
 		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
@@ -98,14 +97,14 @@ public class PolyglotTokenizerTest {
 		String outputTestBegin = "";
 		String outputTestEnd = "";
 		
-		// Loop over different POS-Tags and create the UIMA-Output.
+		// Loop over different Token-Tags and create the UIMA-Output.
 		for (Token token : select(inputCas, Token.class)) {		
 			outputTestToken = outputTestToken + token.getCoveredText() + " | ";
 			outputTestBegin = outputTestBegin + token.getBegin() + " | ";
 			outputTestEnd = outputTestEnd + token.getEnd() + " | ";
         }
 		
-		// JUnit-Test: CoveredText, Value, Begin, End
+		// JUnit-Test: CoveredText, Begin, End
 		assertEquals(outputCorrectToken, outputTestToken);
 		assertEquals(outputCorrectBegin, outputTestBegin);
 		assertEquals(outputCorrectEnd, outputTestEnd);

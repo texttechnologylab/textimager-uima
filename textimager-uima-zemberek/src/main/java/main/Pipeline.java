@@ -13,8 +13,10 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.services.util.XmlFormatter;
+import org.hucompute.textimager.uima.zemberek.ZemberekDisambiguation;
 import org.hucompute.textimager.uima.zemberek.ZemberekLemmatizer;
 import org.hucompute.textimager.uima.zemberek.ZemberekPartOfSpeech;
+import org.hucompute.textimager.uima.zemberek.ZemberekPronunciation;
 import org.hucompute.textimager.uima.zemberek.ZemberekPartOfSpeech;
 import org.hucompute.textimager.uima.zemberek.ZemberekSentenceBoundary;
 import org.hucompute.textimager.uima.zemberek.ZemberekStemmer;
@@ -45,6 +47,8 @@ public class Pipeline {
 		// Create a new Engine Description for the Sentence-Boundary-Detection.
 		AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class, ZemberekPartOfSpeech.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/zemberek/lib/pos-default.map");
 		//AnalysisEngineDescription posAnnotator = createEngineDescription(ZemberekPartOfSpeech.class);
+		AnalysisEngineDescription disambiguationAnnotator = createEngineDescription(ZemberekDisambiguation.class);
+		AnalysisEngineDescription pronounciationAnnotator = createEngineDescription(ZemberekPronunciation.class);
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
@@ -54,7 +58,8 @@ public class Pipeline {
 		inputCas.setDocumentText("İstanbul, İstanbul alo! Ne çok az Türk konuşabilir yazık.");		
 		inputCas.setDocumentLanguage("tr");
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, tokenAnnotator, lemmaAnnotator, sentanceBoundAnnotator, posAnnotator);
+		//SimplePipeline.runPipeline(inputCas, tokenAnnotator, lemmaAnnotator, sentanceBoundAnnotator, posAnnotator);
+		SimplePipeline.runPipeline(inputCas, tokenAnnotator, disambiguationAnnotator, pronounciationAnnotator);
 		
 		// Output as XML
 		String output = XmlFormatter.getPrettyString(inputCas.getCas());

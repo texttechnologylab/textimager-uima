@@ -10,7 +10,6 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 
 /**
@@ -26,7 +25,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 public class PolyglotNamedEntityTest {
 	
 	/**
-	 * Test with JUnit if the POS are generated correctly and if the pipeline is working.
+	 * Test with JUnit if the NamedEntities are generated correctly and if the pipeline is working.
 	 * @throws Exception
 	 */
 	@Test
@@ -35,7 +34,7 @@ public class PolyglotNamedEntityTest {
 		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
-		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
+		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_NAMED_ENTITY_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
@@ -74,7 +73,7 @@ public class PolyglotNamedEntityTest {
 	}
 	
 	/**
-	 * Test with JUnit if the POS are generated correctly and if the pipeline is working.
+	 * Test with JUnit if the NamedEntities are generated correctly and if the pipeline is working.
 	 * @throws Exception
 	 */
 	@Test
@@ -83,7 +82,7 @@ public class PolyglotNamedEntityTest {
 		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
-		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
+		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_NAMED_ENTITY_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
@@ -122,7 +121,7 @@ public class PolyglotNamedEntityTest {
 	}
 	
 	/**
-	 * Test with JUnit if the POS are generated correctly and if the pipeline is working.
+	 * Test with JUnit if the NamedEntities are generated correctly and if the pipeline is working.
 	 * @throws Exception
 	 */
 	@Test
@@ -131,7 +130,7 @@ public class PolyglotNamedEntityTest {
 		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
-		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
+		AnalysisEngineDescription nerAnnotator = createEngineDescription(PolyglotNamedEntity.class, PolyglotNamedEntity.PARAM_NAMED_ENTITY_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/ner-default.map");
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
