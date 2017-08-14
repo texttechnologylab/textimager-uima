@@ -47,6 +47,13 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 public class PolyglotNamedEntity  extends SegmenterBase {
 	
 	/**
+     * Load the PythonPATH
+     */
+    public static final String PARAM_PYTHON_PATH = ComponentParameters.PARAM_INTERN_TAGS;
+    @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
+    protected String PythonPATH;
+    
+	/**
      * Use this language instead of the document language to resolve the model.
      */
     public static final String PARAM_LANGUAGE = ComponentParameters.PARAM_LANGUAGE;
@@ -74,16 +81,6 @@ public class PolyglotNamedEntity  extends SegmenterBase {
     public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = ComponentParameters.PARAM_NAMED_ENTITY_MAPPING_LOCATION;
     @ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
     protected String neMappingLocation;
-
-    /**
-     * Use the {@link String#intern()} method on tags. This is usually a good idea to avoid spaming
-     * the heap with thousands of strings representing only a few different tags.
-     *
-     * Default: {@code true}
-     */
-    public static final String PARAM_INTERN_TAGS = ComponentParameters.PARAM_INTERN_TAGS;
-    @ConfigurationParameter(name = PARAM_INTERN_TAGS, mandatory = false, defaultValue = "true")
-    private boolean internTags;
 
     /**
      * Log the tag set(s) when a model is loaded.
@@ -144,7 +141,7 @@ public class PolyglotNamedEntity  extends SegmenterBase {
 		
 		for (Sentence sentence : select(aJCas, Sentence.class)) {		
 			// Define ProcessBuilder
-	        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "ner", sentence.getCoveredText());
+	        ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "ner", sentence.getCoveredText());
 	        pb.redirectError(Redirect.INHERIT);
 	        
 	        boolean success = false;

@@ -10,9 +10,11 @@ import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
+import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
@@ -35,6 +37,13 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 public class PolyglotTokenizer  extends SegmenterBase {
 	
 	/**
+     * Load the PythonPATH
+     */
+    public static final String PARAM_PYTHON_PATH = ComponentParameters.PARAM_INTERN_TAGS;
+    @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
+    protected String PythonPATH;
+	
+	/**
 	 * Analyze the text and create tokens for every word. After successfully creation, add tokens to JCas.
 	 * @param aJCas
 	 */
@@ -44,7 +53,7 @@ public class PolyglotTokenizer  extends SegmenterBase {
 		
 		for (Sentence sentence : select(aJCas, Sentence.class)) {		
 			// Define ProcessBuilder
-	        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "token", sentence.getCoveredText());
+	        ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "token", sentence.getCoveredText());
 	        pb.redirectError(Redirect.INHERIT);
 	        
 	        boolean success = false;

@@ -35,6 +35,13 @@ import tansliterationAnnotation.type.TransliterationAnnotation;
 public class PolyglotTransliteration  extends SegmenterBase {
 	
 	/**
+     * Load the PythonPATH
+     */
+    public static final String PARAM_PYTHON_PATH = ComponentParameters.PARAM_INTERN_TAGS;
+    @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
+    protected String PythonPATH;
+	
+	/**
      * Load the toLanguage-Tag
      */
     public static final String PARAM_TO_LANGUAGE_CODE = ComponentParameters.PARAM_LANGUAGE;
@@ -51,7 +58,7 @@ public class PolyglotTransliteration  extends SegmenterBase {
 		String inputText = aJCas.getDocumentText();
 		        
     	// Define ProcessBuilder
-        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "transliteration", inputText, toLanguageCode);
+        ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "transliteration", inputText, toLanguageCode);
         pb.redirectError(Redirect.INHERIT);
         
         boolean success = false;

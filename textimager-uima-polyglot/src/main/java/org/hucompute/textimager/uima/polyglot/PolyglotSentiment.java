@@ -9,9 +9,11 @@ import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
+import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import sentimentAnnotation.type.SentimentAnnotation;
@@ -33,6 +35,13 @@ import sentimentAnnotation.type.SentimentAnnotation;
 public class PolyglotSentiment  extends SegmenterBase {
 	
 	/**
+     * Load the PythonPATH
+     */
+    public static final String PARAM_PYTHON_PATH = ComponentParameters.PARAM_INTERN_TAGS;
+    @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
+    protected String PythonPATH;
+    
+	/**
 	 * Analyze the text and create Sentiment-Tag for every word. After successfully creation, add Polarity to JCas.
 	 * @param aJCas
 	 */
@@ -48,7 +57,7 @@ public class PolyglotSentiment  extends SegmenterBase {
 		}
 		
 		// Define ProcessBuilder
-        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "sentiment", inputText);
+        ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "sentiment", inputText);
         pb.redirectError(Redirect.INHERIT);
         
         boolean success = false;

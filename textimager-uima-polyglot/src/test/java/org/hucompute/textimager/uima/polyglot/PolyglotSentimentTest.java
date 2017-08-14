@@ -31,11 +31,11 @@ public class PolyglotSentimentTest {
 	@Test
 	public void testSentimentGerman() throws Exception {
 		// Create a new Engine Description.
-		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
-		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
-		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
-		AnalysisEngineDescription polarityAnnotator = createEngineDescription(PolyglotSentiment.class);
-		
+		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class, PolyglotLanguage.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class, PolyglotSentenceBoundary.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class, PolyglotTokenizer.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription polarityAnnotator = createEngineDescription(PolyglotSentiment.class, PolyglotSentiment.PARAM_PYTHON_PATH, "/usr/bin/python");
+				
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
@@ -79,11 +79,11 @@ public class PolyglotSentimentTest {
 	@Test
 	public void testSentimentEnglish() throws Exception {
 		// Create a new Engine Description.
-		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
-		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
-		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
-		AnalysisEngineDescription polarityAnnotator = createEngineDescription(PolyglotSentiment.class);
-		
+		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class, PolyglotLanguage.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class, PolyglotSentenceBoundary.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class, PolyglotTokenizer.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription polarityAnnotator = createEngineDescription(PolyglotSentiment.class, PolyglotSentiment.PARAM_PYTHON_PATH, "/usr/bin/python");
+				
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
@@ -127,10 +127,10 @@ public class PolyglotSentimentTest {
 	@Test
 	public void testSentimentTurkish() throws Exception {
 		// Create a new Engine Description.
-		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
-		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
-		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
-		AnalysisEngineDescription polarityAnnotator = createEngineDescription(PolyglotSentiment.class);
+		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class, PolyglotLanguage.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class, PolyglotSentenceBoundary.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class, PolyglotTokenizer.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription polarityAnnotator = createEngineDescription(PolyglotSentiment.class, PolyglotSentiment.PARAM_PYTHON_PATH, "/usr/bin/python");
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
