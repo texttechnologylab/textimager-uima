@@ -6,8 +6,10 @@ import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 
+import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 
 /**
@@ -24,6 +26,13 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 public class PolyglotLanguage  extends SegmenterBase {
 	
 	/**
+     * Load the PythonPATH
+     */
+    public static final String PARAM_PYTHON_PATH = ComponentParameters.PARAM_INTERN_TAGS;
+    @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
+    protected String PythonPATH;
+    
+	/**
 	 * Analyze the text and recognize language. After successfully recognition, add language code to JCas.
 	 * @param aJCas
 	 */
@@ -33,7 +42,7 @@ public class PolyglotLanguage  extends SegmenterBase {
 		String inputText = aJCas.getDocumentText();
 		
 		// Define ProcessBuilder
-        ProcessBuilder pb = new ProcessBuilder("/usr/bin/python", POLYGLOT_LOCATION + "language.py", "language", inputText);
+        ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "language", inputText);
         pb.redirectError(Redirect.INHERIT);
         
         boolean success = false;

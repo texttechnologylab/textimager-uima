@@ -5,8 +5,6 @@ import static org.apache.uima.fit.util.JCasUtil.select;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -17,23 +15,23 @@ import org.apache.uima.jcas.JCas;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import morphemeAnnotation.type.MorphemeAnnotation;
+import embeddingAnnotation.type.EmbeddingAnnotation;
 
 /**
-* PolyglotMorphology
+* PolyglotEmbedding
 *
-* @date 09.08.2017
+* @date 11.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.1
 *
-* This class provide morphemes for 135 languages. (http://polyglot.readthedocs.io/en/latest/MorphologicalAnalysis.html) 
-* UIMA-Token is needed as input to create POS.
-* UIMA-Standard is used to represent the final MorphologyAnnotation.*/
+* This class provide Embedding for 137 languages. (http://polyglot.readthedocs.io/en/latest/Embeddings.html) 
+* UIMA-Token are needed as input to create Embedding.
+* UIMA-Standard is used to represent the final Embedding.*/
 @TypeCapability(
-		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token", "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"},
-		outputs = {"de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity"})
-public class PolyglotMorphology  extends SegmenterBase {
+		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token"},
+		outputs = {"sentimentAnnotation.type.EmbeddingAnnotation"})
+public class PolyglotEmbedding  extends SegmenterBase {
 	
 	/**
      * Load the PythonPATH
@@ -43,27 +41,27 @@ public class PolyglotMorphology  extends SegmenterBase {
     protected String PythonPATH;
     
 	/**
-	 * Analyze the text and create NE-Tag for every word. After successfully creation, add NE to JCas.
+	 * Analyze the text and create Sentiment-Tag for every word. After successfully creation, add Polarity to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		String POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		String EMBEDDING_LOCATION = "/home/alex/polyglot_data/embeddings2/" + aJCas.getDocumentLanguage() + "/embeddings_pkl.tar.bz2";
 		
-		for (Token token : select(aJCas, Token.class)) {		
+		for (Token token : select(aJCas, Token.class)) {				
 			// Define ProcessBuilder
-	        ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "morphology", token.getCoveredText(), aJCas.getDocumentLanguage());
-	        pb.redirectError(Redirect.INHERIT);
-	        
-	        boolean success = false;
-	        Process proc = null;
-	        
-	        try {
+		    ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "embedding", token.getCoveredText(), EMBEDDING_LOCATION);
+		    pb.redirectError(Redirect.INHERIT);
+		    
+		    boolean success = false;
+		    Process proc = null;
+		    
+		    try {
 		    	// Start Process
 		        proc = pb.start();
 		
-		        // IN, OUT, ERROR Streams
-		        PrintWriter out = new PrintWriter(new OutputStreamWriter(proc.getOutputStream()));
+		        // IN, ERROR Streams
 		        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 		        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 		      
@@ -75,21 +73,20 @@ public class PolyglotMorphology  extends SegmenterBase {
 						}
 				String result = builder.toString();
 				String[] resultInParts = result.split("\n");
-				String value = "";
-				
-				// Build value-String
-				for(int i = 0; i < resultInParts.length; i = i + 1) {
-					value = value + "[" + resultInParts[i] + "]";
+								
+				// Only process sentence if Embedding-TAG is found.
+				if(result.length() != 0 && resultInParts.length > 1) {
+					for(int i = 0; i < resultInParts.length; i = i + 2) {
+						// Create EmbeddingAnnotation		
+						EmbeddingAnnotation embeddingText = new EmbeddingAnnotation(aJCas, token.getBegin(), token.getEnd());
+						embeddingText.setValue(resultInParts[i]);
+						embeddingText.setDistance(resultInParts[i + 1]);
+						embeddingText.addToIndexes();	
+					}
 				}
-				
-				// Create MorphemeAnnotation		
-				MorphemeAnnotation morphText = new MorphemeAnnotation(aJCas, token.getBegin(), token.getEnd());
-				morphText.setValue(value);
-				morphText.addToIndexes();	
-				
-				
+					
 		        // Get Errors
-	             String errorString = "";
+		         String errorString = "";
 				 line = "";
 				 try {
 					while ((line = error.readLine()) != null) {
@@ -98,29 +95,29 @@ public class PolyglotMorphology  extends SegmenterBase {
 				 } catch (IOException e) {
 					e.printStackTrace();
 				 }
-
+		
 				 // Log Error
 				 if(errorString != "")
 				 getLogger().error(errorString);
 				 
-	             success = true;
-	        }
-	        catch (IOException e) {
-	            throw new AnalysisEngineProcessException(e);
-	        }
-	        
-	        finally {
-	            if (!success) {
-
-	            }
-	            
-	            if (proc != null) {
-	                proc.destroy();
-	            }
-	        }
+		         success = true;
+		    }
+		    catch (IOException e) {
+		        throw new AnalysisEngineProcessException(e);
+		    }
+		    
+		    finally {
+		        if (!success) {
+		
+		        }
+		        
+		        if (proc != null) {
+		            proc.destroy();
+		        }
+		    }	
 		}
 	}
-
+	
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {		
 			

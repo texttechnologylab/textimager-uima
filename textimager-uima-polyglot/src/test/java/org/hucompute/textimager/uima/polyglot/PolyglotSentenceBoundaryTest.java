@@ -31,9 +31,9 @@ public class PolyglotSentenceBoundaryTest {
 	@Test
 	public void testSentenceBoundaryGerman() throws Exception {
 		// Create a new Engine Description.
-		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
-		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
-		
+		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class, PolyglotLanguage.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class, PolyglotSentenceBoundary.PARAM_PYTHON_PATH, "/usr/bin/python");
+				
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
@@ -73,8 +73,8 @@ public class PolyglotSentenceBoundaryTest {
 	@Test
 	public void testSentenceBoundaryTurkish() throws Exception {
 		// Create a new Engine Description.
-		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
-		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
+		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class, PolyglotLanguage.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class, PolyglotSentenceBoundary.PARAM_PYTHON_PATH, "/usr/bin/python");
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();

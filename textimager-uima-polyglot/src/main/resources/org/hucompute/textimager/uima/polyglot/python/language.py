@@ -40,6 +40,11 @@ def transliteration(text, toLangCode):
 	inputText = Text(text)
 	for x in inputText.transliterate(toLangCode):
   		print(x)
+def embedding(text, embeddingPATH):
+	embeddings = Embedding.load(embeddingPATH)
+	neighbors = embeddings.nearest_neighbors(text)
+	for w, d in zip(neighbors, embeddings.distances(text, neighbors)):
+  		print("{}\n{}".format(w,d))
 			
 def main():
 	if sys.argv[1]=="language":
@@ -55,7 +60,7 @@ def main():
 	elif sys.argv[1]=="sentiment":
 		sentiment(sys.argv[2])
 	elif sys.argv[1]=="embedding":
-		embedding(sys.argv[2])
+		embedding(sys.argv[2], sys.argv[3])
 	elif sys.argv[1]=="morphology":
 		morphology(sys.argv[2], sys.argv[3])
 	elif sys.argv[1]=="transliteration":

@@ -31,9 +31,9 @@ public class PolyglotTokenizerTest {
 	@Test
 	public void testTokenizerGerman() throws Exception {
 		// Create a new Engine Description.
-		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
-		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
-		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
+		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class, PolyglotLanguage.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class, PolyglotSentenceBoundary.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class, PolyglotTokenizer.PARAM_PYTHON_PATH, "/usr/bin/python");
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
@@ -74,10 +74,10 @@ public class PolyglotTokenizerTest {
 	@Test
 	public void testTokenizerTurkish() throws Exception {
 		// Create a new Engine Description.
-		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class);
-		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class);
-		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class);
-		
+		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class, PolyglotLanguage.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class, PolyglotSentenceBoundary.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class, PolyglotTokenizer.PARAM_PYTHON_PATH, "/usr/bin/python");
+				
 		// Create a new JCas - "Holder"-Class for Annotation. 
 		JCas inputCas = JCasFactory.createJCas();
 		
