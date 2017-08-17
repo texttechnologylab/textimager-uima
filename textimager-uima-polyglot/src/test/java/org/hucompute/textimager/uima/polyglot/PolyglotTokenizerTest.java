@@ -18,7 +18,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 * @date 08.08.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.1
 *
 * This class provide several test cases for different languages. 
 */
