@@ -65,13 +65,28 @@ public class PolyglotSentenceBoundary  extends SegmenterBase {
 					   builder.append(line);
 					   builder.append(System.getProperty("line.separator"));
 					}
-			String result = builder.toString();
+			String result = builder.toString();			
 			String[] resultInParts = result.split("\n");
-					
+			
+			String documentText = aJCas.getDocumentText();
 			int startPosition = 0;
 			int endPosition = 0;		
-					
+			
 			for (String currentSentence : resultInParts) {
+				while(documentText.startsWith("\n")) {
+					// Multiple line breaks.
+					startPosition = startPosition + 1;
+					documentText = documentText.substring(1);
+				}
+				
+				if(documentText.length() > currentSentence.length() + 1) {
+					// Remove text to calculate next start-Position
+					documentText = documentText.substring(currentSentence.length() + 1);
+				} else {
+					// Last sentence
+					documentText = documentText.substring(currentSentence.length());
+				}
+									
 				// Create end-Tag
 				endPosition = startPosition + currentSentence.length();
 				// Create sentence
