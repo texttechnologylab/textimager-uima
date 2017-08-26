@@ -277,7 +277,7 @@ public class TalismanePOS extends SegmenterBase {
 	  		}
 			
 			// POS Tag and Lemmatize Sentence to Lower Case
-			if(tokenSequence.size() > 0) {
+			if(tokenSequenceLower.size() > 0) {
 				posTagSequence.clear();
 				try {
 					posTagSequence = posTagger.tagSentence(tokenSequenceLower);

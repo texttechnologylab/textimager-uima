@@ -6,6 +6,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
@@ -95,7 +98,49 @@ public class TalismaneTest {
 
 	}
 	
-	
+	@Test
+	public void FullPipeRuntime() throws UIMAException, IOException{
+		String text = new String(Files.readAllBytes(Paths.get("src/test/java/wiki_fr_text")));
+		JCas cas = JCasFactory.createText(text,"fr");
+		AggregateBuilder builder = new AggregateBuilder();
+		builder.add(createEngineDescription(
+				TalismaneSegmenter.class));
+		builder.add(createEngineDescription(
+				TalismanePOS.class,
+				TalismanePOS.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/pos-default.map"));
+		builder.add(createEngineDescription(
+				TalismaneDependencyParser.class,
+				TalismaneDependencyParser.PARAM_DEPENDENCY_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/dependency-default.map"));
+		
+		Timestamp timestamp1 = new Timestamp(System.currentTimeMillis());
+		
+		SimplePipeline.runPipeline(cas,builder.createAggregate());
+		
+		Timestamp timestamp2 = new Timestamp(System.currentTimeMillis());
+		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));	
+		File xml = new File("Out.xml");
+		System.out.println(xml.getAbsolutePath());
+		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
+		
+		
+		
+//		91 seconds
+//		Token: 2153
+//		Sentence: 76
+//		Token per Second: 23
+		
+//		941 seconds
+//		Token: 6082
+//		Sentence: 213
+//		Token per Second: 6
+		Timestamp t3 = new Timestamp(timestamp2.getTime() - timestamp1.getTime());
+		long Time_in_Seconds = (t3.getTime() / 1000);
+		System.out.println(Time_in_Seconds +" seconds");
+		System.out.println("Token: "+JCasUtil.select(cas, Token.class).size());
+		System.out.println("Sentence: "+JCasUtil.select(cas, Sentence.class).size());
+		System.out.println("Token per Second: "+JCasUtil.select(cas, Token.class).size()/Time_in_Seconds);
+
+	}
 	
 
 }
