@@ -21,8 +21,11 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+
+import static org.apache.uima.fit.util.JCasUtil.selectCovered;
 import static org.apache.uima.util.Level.INFO;
 
 import org.apache.uima.cas.CAS;
@@ -38,6 +41,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.ModelProviderBase;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 
@@ -140,146 +144,109 @@ public class OpenerProjectPOSTagger  extends JCasAnnotator_ImplBase {
 
 	
 	@Override
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {		
-			
-			// Needed for Mapping
-			CAS cas = aJCas.getCas();
-			modelProvider.configure(cas);
-			posMappingProvider.configure(cas);
-			
-			//Generate KAF File
-			String text = aJCas.getDocumentText();
-			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			String KAF_LOCATION = "/tmp/POS" + timestamp.getTime() + ".kaf";
-			KAFDocument kaf = new KAFDocument(aJCas.getDocumentLanguage(), "1.0");
-			kaf.setRawText(text);
-			
-			// get token from JCas
-			for(Token jCasToken : 
-					org.apache.uima.fit.util.JCasUtil.select(aJCas,Token.class)) {
-				kaf.newWF(text.substring(jCasToken.getBegin(), jCasToken.getEnd()), jCasToken.getBegin());
-			}
-			kaf.save(KAF_LOCATION);
-
-			// command for the Process
-			List<String> cmd = new ArrayList<String>();
-			cmd.add("/bin/sh");
-			cmd.add("-c");
-			cmd.add("cat" + " \"" + KAF_LOCATION + "\"" + 
-					" | jruby --2.0 -S pos-tagger | jruby --2.0 -S ner | jruby --2.0 -S ned");
-
-			// Define ProcessBuilder
-	        ProcessBuilder pb = new ProcessBuilder(cmd);
-	        pb.redirectError(Redirect.INHERIT);
-
-
-	        boolean success = false;
-	        Process proc = null;
-	        
-	        try {
-		    	// Start Process
-		        proc = pb.start();
+public void process(JCas aJCas) throws AnalysisEngineProcessException {				
+		// Needed for Mapping
+		CAS cas = aJCas.getCas();
+		modelProvider.configure(cas);
+		posMappingProvider.configure(cas);
 		
-		        // IN, OUT, ERROR Streams
-		        PrintWriter out = new PrintWriter(new OutputStreamWriter(proc.getOutputStream()));
-		        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-		        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-				       
-		        // InputSteam to KAF 
-		        KAFDocument inputkaf = KAFDocument.createFromStream(in);
-		        
-		        
-		        System.out.println("POS");
-		        System.out.println(inputkaf.toString());
-		        
-		        List<Term> termList = inputkaf.getTerms();
-		        
-		        for(Term term : termList) {
-		        	
-		        	List<WF> kafToken = term.getWFs();
-		        	int begin = kafToken.get(0).getOffset();
-		        	int end = begin + kafToken.get(0).getLength();
-		        	
-		        	// Lemma
-		        	Lemma lemma = new Lemma(aJCas, begin, end);
-		        	lemma.setValue(term.getLemma());
-		        	lemma.addToIndexes();
-		        	
-		        	
-		        	//POS with Mapping
-		        	String tag = term.getPos();
-		        	Type posTag = posMappingProvider.getTagType(tag);
-	                POS posAnno = (POS) cas.createAnnotation(posTag, begin, end);
-	                posAnno.setPosValue(tag);
-	                posAnno.addToIndexes();
+		//Generate KAF File
+		JCastoKaf jkaf = new JCastoKaf(aJCas);
+		jkaf.add_Token_Sentence();
+		KAFDocument kaf = jkaf.getKaf();
+		String KAF_LOCATION = jkaf.KAF_LOCATION;
+		kaf.save(KAF_LOCATION);
 
-		        
-		        	
-//		        	Morpheme morph = new Morpheme(aJCas, begin, end);
-//		        	morph.setMorphTag(term.getMorphofeat());
-//		        	morph.addToIndexes();
+		// command for the Process
+		List<String> cmd = new ArrayList<String>();
+		cmd.add("/bin/sh");
+		cmd.add("-c");
+		cmd.add("cat" + " \"" + KAF_LOCATION + "\"" + 
+				" | jruby --2.0 -S pos-tagger");
 
-		        }
-		        
-		        List<Entity> entityList = inputkaf.getEntities();
-		        
-		        for(Entity entity : entityList) {
-		        	
-		        	List<Term> terms = entity.getTerms();
-		        	for(Term term : terms) {
-		        		
-			        	List<WF> kafToken = term.getWFs();
-			        	int begin = kafToken.get(0).getOffset();
-			        	int end = begin + kafToken.get(0).getLength();
-			        	
-			        	NamedEntity nm = new NamedEntity(aJCas, begin, end);
-			        	nm.setValue(entity.getType());
-			        	nm.addToIndexes();
-			        	System.out.println(text.substring(begin, end) + " - " + begin);
-			        }
-		        	
-		        	
-		        	
-		        }
-		        
-		       	        
-	            
-	             // Get Errors
-	             String line = "";
-	             String errorString = "";
-				 line = "";
-				 try {
-					while ((line = error.readLine()) != null) {
-						errorString += line+"\n";
-					}
-				 } catch (IOException e) {
-					e.printStackTrace();
-				 }
+		// Define ProcessBuilder
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.redirectError(Redirect.INHERIT);
 
-				 // Log Error
-				 if(errorString != "")
-				 getLogger().error(errorString);
-				 
-	             success = true;
-	        }
-	        catch (IOException e) {
-	            throw new AnalysisEngineProcessException(e);
-	        }
-	        finally {
-	            if (!success) {
 
-	            }
-	            if (proc != null) {
-	                proc.destroy();
-	            }
-	        }
+        boolean success = false;
+        Process proc = null;
+        
+        try {
+	    	// Start Process
+	        proc = pb.start();
+	        // IN, OUT, ERROR Streams
+	        PrintWriter out = new PrintWriter(new OutputStreamWriter(proc.getOutputStream()));
+	        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+	        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+			       
+	        // InputSteam to KAF 
+	        KAFDocument inputkaf = KAFDocument.createFromStream(in);
 	        
-	        try {
-				Files.delete(Paths.get(KAF_LOCATION));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
+	        List<Term> termList = inputkaf.getTerms();
+	        
+	        for(Term term : termList) {
+	        	
+	        	List<WF> kafToken = term.getWFs();
+	        	int begin = kafToken.get(0).getOffset();
+	        	int end = begin + kafToken.get(0).getLength();
+	        	
+	        	// Lemma
+	        	Lemma lemma = new Lemma(aJCas, begin, end);
+	        	lemma.setValue(term.getLemma());
+	        	lemma.addToIndexes();
+	        	
+	        	
+	        	//POS with Mapping
+	        	String tag = term.getPos();
+	        	Type posTag = posMappingProvider.getTagType("X");
+                POS posAnno = (POS) cas.createAnnotation(posTag, begin, end);
+                posAnno.setPosValue(tag);
+                posAnno.addToIndexes();
+                	        
+	        	
+		        	Morpheme morph = new Morpheme(aJCas, begin, end);
+		        	morph.setMorphTag(term.getMorphofeat());
+		        	morph.addToIndexes();
+
+	        }
+	        	       	        
+            
+             // Get Errors
+             String line = "";
+             String errorString = "";
+			 line = "";
+			 try {
+				while ((line = error.readLine()) != null) {
+					errorString += line+"\n";
+				}
+			 } catch (IOException e) {
 				e.printStackTrace();
-			}
-	}
+			 }
+
+			 // Log Error
+			 if(errorString != "")
+			 getLogger().error(errorString);
+			 
+             success = true;
+        }
+        catch (IOException e) {
+            throw new AnalysisEngineProcessException(e);
+        }
+        finally {
+            if (!success) {
+
+            }
+            if (proc != null) {
+                proc.destroy();
+            }
+        }
+        
+        try {
+			Files.delete(Paths.get(KAF_LOCATION));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+}
 
 }
