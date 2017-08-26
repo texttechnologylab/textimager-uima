@@ -1,0 +1,54 @@
+# ROOT
+ROOT=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# CS
+CS=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# S
+S=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NN-SB
+NN-SB=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VVFIN
+VVFIN=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP
+PP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# APPR
+APPR=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# ART
+ART=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NE
+NE=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PTKVZ
+PTKVZ=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# KON
+KON=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAFIN
+VAFIN=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# ADV
+ADV=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AP
+AP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# ADJD
+ADJD=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# $.
+$.=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NN
+NN=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# APPRART
+APPRART=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# ADJA
+ADJA=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# CARD
+CARD=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PPER-SB
+PPER-SB=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NP-SB
+NP-SB=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PIDAT
+PIDAT=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VP
+VP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PPOSAT
+PPOSAT=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VVPP
+VVPP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+#Catch
+*=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
