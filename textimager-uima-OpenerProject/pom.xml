@@ -42,13 +42,6 @@
 		<artifactId>kaflib</artifactId>
 		<version>1.0.5</version>
 	</dependency>
-	<dependency>
-		<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-		<artifactId>
-			de.tudarmstadt.ukp.dkpro.core.opennlp-asl
-		</artifactId>
-		<version>1.8.0</version>
-	</dependency>
   </dependencies>
   
   <build>
