@@ -6,14 +6,20 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
@@ -48,7 +54,7 @@ public class OpenerProjectTest {
 	
 	@Test
 	public void TokenizerDE() throws UIMAException{
-		JCas cas = JCasFactory.createText("Das ist ein guter Test.", "de");
+		JCas cas = JCasFactory.createText("Das ist ein \n guter Test.", "de");
 		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
 
 		AggregateBuilder builder = new AggregateBuilder();
@@ -100,7 +106,7 @@ public class OpenerProjectTest {
 		
 	}
 	@Test
-	public void simpleExample() throws UIMAException{
+	public void POS_DE() throws UIMAException{
 		JCas cas = JCasFactory.createText("Das ist ein guter Test.", "fr");
 		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
 
@@ -127,15 +133,12 @@ public class OpenerProjectTest {
 				new String[] { "R", "V", "D", "A", "G","O"}, 
 				JCasUtil.select(cas, POS.class));	
 	}
-	@Test
-	public void NER() throws UIMAException, IOException{
-		JCas cas = JCasFactory.createText("Angela Dorothea Merkel (API : /ˈaŋɡela doʀoˈteːa ˈmɛʁkl̩/), née Kasner le 17 juillet 1954 à Hambourg, est une femme d'État allemande, membre de l'Union chrétienne-démocrate (CDU) et chancelière fédérale depuis le 22 novembre 2005.\n" + 
-				"\n" + 
-				"Physicienne de formation, elle est élue sans discontinuer au Bundestag depuis 1991. Elle est ministre fédérale des Femmes et de la Jeunesse au sein du cabinet Kohl IV, de 1991 à 1994, avant de se voir confier le ministère fédéral de l'Environnement, de la Protection de la Nature et de la Sécurité nucléaire du cabinet Kohl V, jusqu'en 1998. Elle devient, en 2000, la première femme présidente de la CDU.\n" + 
-				"\n" + 
-				"Après la victoire relative de la droite aux élections fédérales de 2005, elle est élue chancelière de la République fédérale d'Allemagne, formant une grande coalition alliant la CDU et le Parti social-démocrate (SPD). Elle est reconduite dans ses fonctions à la tête d'un gouvernement CDU-FDP en 2009, puis d'un nouveau gouvernement de coalition CDU-SPD en 2013. Lors de la crise migratoire en Europe, à partir de 2015, elle doit faire face à des critiques de dirigeants États européens et de son camp en raison de sa politique d'ouverture des frontières.\n" + 
-				"\n" + 
-				"Elle est désignée à dix reprises femme la plus puissante du monde par le magazine Forbes et personnalité de l'année 2015 par le magazine Time. Elle est aussi largement perçue comme la personnalité politique la plus importante et la plus puissante de l'Union européenne.", "fr");
+//	@Test
+	public void NER_DE() throws UIMAException, IOException{
+		JCas cas = JCasFactory.createText("Merkel wuchs in der DDR auf und war dort als Physikerin wissenschaftlich tätig. Bei der Bundestagswahl am 2. Dezember 1990 errang sie erstmals ein Bundestagsmandat; in allen darauffolgenden sechs Bundestagswahlen wurde sie in ihrem Wahlkreis in Vorpommern direkt gewählt.", "de");
+//		JCas cas = JCasFactory.createText(
+//				"After breakfast at the Elia Beach Hotel, I and my wife had a walk to Mykonos. There we were picked up and driven to Piraeus Port, where we had lunch with Mr. Vernicos at the Marine Club."
+//				, "en");
 		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
 
 		AggregateBuilder builder = new AggregateBuilder();
@@ -145,6 +148,9 @@ public class OpenerProjectTest {
 		builder.add(createEngineDescription(
 				OpenerProjectPOSTagger.class
 				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map"
+				));
+		builder.add(createEngineDescription(
+				OpenerProjectNER.class
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
@@ -156,7 +162,114 @@ public class OpenerProjectTest {
 		System.out.println(xml.getAbsolutePath());
 		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
 	}
+	
+//	@Test
+	public void Constituent() throws UIMAException, IOException{
+		String text = new String(Files.readAllBytes(Paths.get("wiki_de_text")));
+		JCas cas = JCasFactory.createText(text, "de");
+//		JCas cas = JCasFactory.createText("Merkel wuchs in der DDR auf und war dort als Physikerin wissenschaftlich tätig. Bei der Bundestagswahl am 2. Dezember 1990 errang sie erstmals ein Bundestagsmandat; in allen darauffolgenden sechs Bundestagswahlen wurde sie in ihrem Wahlkreis in Vorpommern direkt gewählt.", "de");
+//		JCas cas = JCasFactory.createText(
+//				"After breakfast at the Elia Beach Hotel, I and my wife had a walk to Mykonos. There we were picked up and driven to Piraeus Port, where we had lunch with Mr. Vernicos at the Marine Club."
+//				, "en");
+		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
 
+		AggregateBuilder builder = new AggregateBuilder();
+		builder.add(createEngineDescription(
+				OpenerProjectTokenizer.class
+				));
+		builder.add(createEngineDescription(
+				OpenerProjectPOSTagger.class
+				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map"
+				));
+		builder.add(createEngineDescription(
+				OpenerProjectConstituentParser.class,
+				OpenerProjectConstituentParser.PARAM_CONSTITUENT_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/constituent-en-default.map"
+				));
+		SimplePipeline.runPipeline(cas,builder.createAggregate());
+	
+
+		System.out.println(cas.getCas());
+		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
+		
+		File xml = new File("Out.xml");
+		System.out.println(xml.getAbsolutePath());
+		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
+	}
+	
+	@Test
+	public void FullPipeRuntim() throws UIMAException, IOException{
+		String lan = "en";
+		String text = new String(Files.readAllBytes(Paths.get("src/test/java/wiki_"+lan+"_text")));
+		JCas cas = JCasFactory.createText(text,lan);
+		
+		AggregateBuilder token = new AggregateBuilder();
+		token.add(createEngineDescription(
+				OpenerProjectTokenizer.class));
+		
+		AggregateBuilder POS = new AggregateBuilder();
+		POS.add(createEngineDescription(
+				OpenerProjectPOSTagger.class
+				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map"
+				));
+		
+		AggregateBuilder Const = new AggregateBuilder();
+		Const.add(createEngineDescription(
+				OpenerProjectConstituentParser.class,
+				OpenerProjectConstituentParser.PARAM_CONSTITUENT_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/constituent-en-default.map"
+				));
+		
+		AggregateBuilder NER = new AggregateBuilder();
+		NER.add(createEngineDescription(
+				OpenerProjectNER.class
+				));
+		
+		long Time_1 = RunPipe(cas, token);
+		System.out.println("Tokenizer: " + Time_1 +" seconds");
+		long Time_2 = RunPipe(cas, POS);
+		System.out.println("POS: " + Time_2 +" seconds");
+		long Time_3 = RunPipe(cas, Const);
+		System.out.println("Constituent: " + Time_3+" seconds");
+		long Time_4 = RunPipe(cas, NER);
+		System.out.println("NER: " + Time_4 +" seconds");
+		
+		
+		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));	
+		File xml = new File("Out.xml");
+		System.out.println(xml.getAbsolutePath());
+		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
+		
+		System.out.println("Tokenizer: " + Time_1 +" seconds");
+		System.out.println("POS: " + Time_2 +" seconds");
+		System.out.println("Constituent: " + Time_3+" seconds");
+		System.out.println("NER: " + Time_4 +" seconds");
+		System.out.println("Token: "+JCasUtil.select(cas, Token.class).size());
+		System.out.println("Sentence: "+JCasUtil.select(cas, Sentence.class).size());
+		
+//		Tokenizer: 7 seconds
+//		POS: 11 seconds
+//		Constituent: 93 seconds
+//		NER: 59 seconds
+//		Token: 16620
+//		Sentence: 636
+		
+//		Tokenizer: 8 seconds
+//		POS: 14 seconds
+//		Constituent: 307 seconds
+//		NER: 239 seconds
+//		Token: 33240
+//		Sentence: 1272
+
+	}
+
+	public long RunPipe(JCas cas,AggregateBuilder builder) throws AnalysisEngineProcessException, ResourceInitializationException {
+		
+		Timestamp timestamp1 = new Timestamp(System.currentTimeMillis());
+		SimplePipeline.runPipeline(cas,builder.createAggregate());
+		Timestamp timestamp2 = new Timestamp(System.currentTimeMillis());	
+		Timestamp t3 = new Timestamp(timestamp2.getTime() - timestamp1.getTime());
+		
+		return (t3.getTime() / 1000);
+	}
 	
 	
 
