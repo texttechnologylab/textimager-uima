@@ -16,6 +16,8 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
 
@@ -29,13 +31,15 @@ public class OpenerProjectTokenizer  extends SegmenterBase {
 	
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {		
-	
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			String KAF_LOCATION = "/tmp/tokenizer" + timestamp.getTime() + ".kaf";
-		
-		
+			String KAF_LOCATION = "/tmp/kaf" + timestamp.getTime() + ".kaf";
+
 			String version   = KAFDocument.class.getPackage().getImplementationVersion();
 			KAFDocument kaf = new KAFDocument(aJCas.getDocumentLanguage(), "1.0");
+			
+//			while(text.contains("\n\n")) {
+//				text = text.replaceAll("\n\n", "\n");
+//			}
 			kaf.setRawText(text);
 			kaf.save(KAF_LOCATION);	
 			
@@ -68,17 +72,27 @@ public class OpenerProjectTokenizer  extends SegmenterBase {
 		        // InputSteam to KAF 
 		        KAFDocument inputkaf = KAFDocument.createFromStream(in);
 		        
-		        System.out.println(inputkaf.toString());
-		        
 		        List<WF> wfList = inputkaf.getWFs();
+		        List<List<WF>> sentList = inputkaf.getSentences();
+		        
+		        for(List<WF> kafSentence:sentList){
+		        	int Begin = kafSentence.get(0).getOffset();
+		        	int End = kafSentence.get(kafSentence.size()-1).getOffset() + kafSentence.get(kafSentence.size()-1).getLength();
+		        	Sentence sent = new Sentence(aJCas, Begin, End);
+		        	sent.addToIndexes();
+		        }
 		        // Create Token
 		        for(WF kafToken:wfList){
 		        	int Begin = kafToken.getOffset();
 		        	int End = Begin + kafToken.getLength();
 		        	
-		        	createToken(aJCas, Begin, End);		        	
+		        	Token token = new Token(aJCas);
+		        	token.setBegin(Begin);
+		        	token.setEnd(End);
+		        	token.addToIndexes();
+		        	
 		        }
-	            
+	           
 	             // Get Errors
 	             String line = "";
 	             String errorString = "";
