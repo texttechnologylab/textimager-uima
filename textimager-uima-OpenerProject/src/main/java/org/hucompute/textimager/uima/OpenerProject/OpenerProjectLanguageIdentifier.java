@@ -6,27 +6,38 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 
+import de.tudarmstadt.ukp.dkpro.core.api.resources.RuntimeProvider;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 import ixa.kaflib.KAFDocument;
 
 public class OpenerProjectLanguageIdentifier extends SegmenterBase {
+	
+	
 
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {		
 	
-			
+		
+		String pathToJruby = "~/jruby/bin/";
+		try {
+			pathToJruby = new String(Files.readAllBytes(Paths.get("/src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/jruby_path")));
+		} catch (IOException e1) {
+			pathToJruby = "~/jruby/bin/";
+		}		
 		// command for the Process
 		List<String> cmd = new ArrayList<String>();
 		cmd.add("/bin/sh");
 		cmd.add("-c");
 		cmd.add("echo" + " \"" + text + "\"" + 
-				" | language-identifier");
+				" | "+pathToJruby+"jruby -S language-identifier");
 
 		// Define ProcessBuilder
         ProcessBuilder pb = new ProcessBuilder(cmd);
