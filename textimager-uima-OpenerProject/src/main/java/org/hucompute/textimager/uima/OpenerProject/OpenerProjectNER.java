@@ -145,12 +145,18 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 		String KAF_LOCATION = jkaf.KAF_LOCATION;
 		kaf.save(KAF_LOCATION);
 
+		String pathToJruby = "~/jruby/bin/";
+		try {
+			pathToJruby = new String(Files.readAllBytes(Paths.get("/src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/jruby_path")));
+		} catch (IOException e1) {
+			pathToJruby = "~/jruby/bin/";
+		}	
 		// command for the Process
 		List<String> cmd = new ArrayList<String>();
 		cmd.add("/bin/sh");
 		cmd.add("-c");
 		cmd.add("cat" + " \"" + KAF_LOCATION + "\"" + 
-				"| jruby --2.0 -S ner");
+				"| "+pathToJruby+"jruby -S ner");
 		//| jruby --2.0 -S ned
 
 		// Define ProcessBuilder

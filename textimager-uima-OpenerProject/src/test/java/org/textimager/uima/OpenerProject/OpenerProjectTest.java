@@ -79,10 +79,6 @@ public class OpenerProjectTest {
 		builder.add(createEngineDescription(
 				OpenerProjectLanguageIdentifier.class));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
-		
-		for (Token token : JCasUtil.select(cas, Token.class)) {
-			System.out.println(token);
-		}
 
 		assertEquals("Language", "de" , cas.getDocumentLanguage());
 		
@@ -197,7 +193,7 @@ public class OpenerProjectTest {
 	}
 	
 	@Test
-	public void FullPipeRuntim() throws UIMAException, IOException{
+	public void FullPipeRuntime() throws UIMAException, IOException{
 		String lan = "en";
 		String text = new String(Files.readAllBytes(Paths.get("src/test/java/wiki_"+lan+"_text")));
 		JCas cas = JCasFactory.createText(text,lan);
