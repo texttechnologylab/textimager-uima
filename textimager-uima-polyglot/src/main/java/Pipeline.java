@@ -46,6 +46,7 @@ public class Pipeline {
 		AnalysisEngineDescription languageAnnotator = createEngineDescription(PolyglotLanguage.class, PolyglotLanguage.PARAM_PYTHON_PATH, "/usr/bin/python");
 		AnalysisEngineDescription sentenceAnnotator = createEngineDescription(PolyglotSentenceBoundary.class, PolyglotSentenceBoundary.PARAM_PYTHON_PATH, "/usr/bin/python");
 		AnalysisEngineDescription tokenAnnotator = createEngineDescription(PolyglotTokenizer.class, PolyglotTokenizer.PARAM_PYTHON_PATH, "/usr/bin/python");
+		AnalysisEngineDescription posAnnotator = createEngineDescription(PolyglotPartOfSpeech.class, PolyglotPartOfSpeech.PARAM_PYTHON_PATH, "/usr/bin/python", PolyglotPartOfSpeech.PARAM_POS_MAPPING_LOCATION, "src/main/resources/org/hucompute/textimager/uima/polyglot/lib/pos-default.map");
 		
 		
 		// Create a new JCas - "Holder"-Class for Annotation. 
@@ -56,15 +57,11 @@ public class Pipeline {
 		//inputCas.setDocumentText("We will meet at eight o'clock on Thursday morning.");
 		
 		// Pipeline
-		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator);
+		SimplePipeline.runPipeline(inputCas, languageAnnotator, sentenceAnnotator, tokenAnnotator, posAnnotator);
 		
 		// Output as XML
 		String output = XmlFormatter.getPrettyString(inputCas.getCas());
 		System.out.println(output);
-				
-		for (Token token : select(inputCas, Token.class)) {		
-			System.out.println(token.getCoveredText());
-        }
 		
 		// Ausgabe in eine Datei schreiben.
 		File file = new File("Output.xml");
