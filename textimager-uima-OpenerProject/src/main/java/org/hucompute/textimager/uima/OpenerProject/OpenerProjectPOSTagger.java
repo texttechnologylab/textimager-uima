@@ -52,8 +52,13 @@ import ixa.kaflib.WF;
 
 
 @TypeCapability(
+		inputs = {
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"},
 		outputs = {
-				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma"})
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.Lemma",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.Morpheme"})
 public class OpenerProjectPOSTagger  extends JCasAnnotator_ImplBase {
 	// end::capabilities[]
     /**
@@ -212,9 +217,9 @@ public void process(JCas aJCas) throws AnalysisEngineProcessException {
                 posAnno.addToIndexes();
                 	        
 	        	
-		        	Morpheme morph = new Morpheme(aJCas, begin, end);
-		        	morph.setMorphTag(term.getMorphofeat());
-		        	morph.addToIndexes();
+	        	Morpheme morph = new Morpheme(aJCas, begin, end);
+	        	morph.setMorphTag(term.getMorphofeat());
+	        	morph.addToIndexes();
 
 	        }
 	        	       	        
