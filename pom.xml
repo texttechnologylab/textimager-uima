@@ -37,5 +37,6 @@
 		
 		<module>textimager-uima-OpenerProject</module>
 		<module>textimager-uima-talismane</module>
+		<module>textimager-uima-IXA</module>
 	</modules>
 </project>
