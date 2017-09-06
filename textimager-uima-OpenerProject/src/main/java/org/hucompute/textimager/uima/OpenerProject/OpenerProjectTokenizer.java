@@ -23,7 +23,8 @@ import ixa.kaflib.WF;
 
 @TypeCapability(
 		outputs = {
-				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token"})
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" })
 public class OpenerProjectTokenizer  extends SegmenterBase {
 	
 	

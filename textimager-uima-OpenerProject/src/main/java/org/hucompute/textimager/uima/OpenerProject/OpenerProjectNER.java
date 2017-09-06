@@ -23,6 +23,7 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.fit.util.JCasUtil;
@@ -43,6 +44,17 @@ import ixa.kaflib.Span;
 import ixa.kaflib.Term;
 import ixa.kaflib.WF;
 
+@TypeCapability(
+		inputs = {
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.Lemma",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.Morpheme"},
+		outputs = {
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.Lemma",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.Morpheme"})
 public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 	
 	/**

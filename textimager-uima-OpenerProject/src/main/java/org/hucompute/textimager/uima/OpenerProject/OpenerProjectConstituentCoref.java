@@ -26,6 +26,7 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
@@ -57,7 +58,20 @@ import ixa.kaflib.Tree;
 import ixa.kaflib.TreeNode;
 import ixa.kaflib.WF;
 
-public class OpenerProjectConstituentParser extends JCasAnnotator_ImplBase {
+
+@TypeCapability(
+		inputs = {
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.Lemma",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.Morpheme"},
+		outputs = {
+				"de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceChain",
+				"de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceLink",
+				"de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent"
+				})
+public class OpenerProjectConstituentCoref extends JCasAnnotator_ImplBase {
 	
 
     /**
@@ -101,7 +115,7 @@ public class OpenerProjectConstituentParser extends JCasAnnotator_ImplBase {
         modelProvider = new CasConfigurableProviderBase<File>()
         {
             {
-                setContextObject(OpenerProjectConstituentParser.this);
+                setContextObject(OpenerProjectConstituentCoref.this);
 
                 setDefault(ARTIFACT_ID, "${groupId}.OpenerProject-model-tagger-${language}-${variant}");
                 setDefault(LOCATION, "classpath:org/hucompute/textimager/uima/OpenerProject/lib/"

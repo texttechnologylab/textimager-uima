@@ -178,8 +178,8 @@ public class OpenerProjectTest {
 				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map"
 				));
 		builder.add(createEngineDescription(
-				OpenerProjectConstituentParser.class,
-				OpenerProjectConstituentParser.PARAM_CONSTITUENT_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/constituent-en-default.map"
+				OpenerProjectConstituentCoref.class,
+				OpenerProjectConstituentCoref.PARAM_CONSTITUENT_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/constituent-en-default.map"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
@@ -192,7 +192,6 @@ public class OpenerProjectTest {
 		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
 	}
 	
-	@Test
 	public void FullPipeRuntime() throws UIMAException, IOException{
 		String lan = "en";
 		String text = new String(Files.readAllBytes(Paths.get("src/test/java/wiki_"+lan+"_text")));
@@ -210,8 +209,8 @@ public class OpenerProjectTest {
 		
 		AggregateBuilder Const = new AggregateBuilder();
 		Const.add(createEngineDescription(
-				OpenerProjectConstituentParser.class,
-				OpenerProjectConstituentParser.PARAM_CONSTITUENT_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/constituent-en-default.map"
+				OpenerProjectConstituentCoref.class,
+				OpenerProjectConstituentCoref.PARAM_CONSTITUENT_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/constituent-en-default.map"
 				));
 		
 		AggregateBuilder NER = new AggregateBuilder();
@@ -240,20 +239,6 @@ public class OpenerProjectTest {
 		System.out.println("NER: " + Time_4 +" seconds");
 		System.out.println("Token: "+JCasUtil.select(cas, Token.class).size());
 		System.out.println("Sentence: "+JCasUtil.select(cas, Sentence.class).size());
-		
-//		Tokenizer: 7 seconds
-//		POS: 11 seconds
-//		Constituent: 93 seconds
-//		NER: 59 seconds
-//		Token: 16620
-//		Sentence: 636
-		
-//		Tokenizer: 8 seconds
-//		POS: 14 seconds
-//		Constituent: 307 seconds
-//		NER: 239 seconds
-//		Token: 33240
-//		Sentence: 1272
 
 	}
 
