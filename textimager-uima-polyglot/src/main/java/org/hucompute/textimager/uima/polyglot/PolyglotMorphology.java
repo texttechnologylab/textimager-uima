@@ -22,7 +22,7 @@ import morphemeAnnotation.type.MorphemeAnnotation;
 /**
 * PolyglotMorphology
 *
-* @date 09.08.2017
+* @date 08.09.2017
 *
 * @author Alexander Sang
 * @version 1.0
@@ -38,7 +38,7 @@ public class PolyglotMorphology  extends SegmenterBase {
 	/**
      * Load the PythonPATH
      */
-    public static final String PARAM_PYTHON_PATH = ComponentParameters.PARAM_INTERN_TAGS;
+    public static final String PARAM_PYTHON_PATH = "PythonPathPolyglot";
     @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
     protected String PythonPATH;
     
