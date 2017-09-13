@@ -63,6 +63,14 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS",
 				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.Lemma"})
 public class TalismanePOS extends SegmenterBase {
+	
+	/**
+     * Path to Config File
+     */
+    public static final String PARAM_CONFIG_LOCATION = "PARAM_CONFIG_LOCATION";
+    @ConfigurationParameter(name = PARAM_CONFIG_LOCATION, mandatory = false)
+    protected String configLocation;
+
 	 /**
      * Use this language instead of the document language to resolve the model.
      */
@@ -210,7 +218,7 @@ public class TalismanePOS extends SegmenterBase {
 		
 
 		// load the Talismane configuration
-	    Config conf = ConfigFactory.load("org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf");
+	    Config conf = ConfigFactory.load(configLocation);
 	    
 	    //create session ID
   		Timestamp timestamp = new Timestamp(System.currentTimeMillis());

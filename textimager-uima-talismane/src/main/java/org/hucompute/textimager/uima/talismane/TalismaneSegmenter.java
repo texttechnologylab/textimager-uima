@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
@@ -29,12 +30,19 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
 				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" })
 public class TalismaneSegmenter extends SegmenterBase{
+	
+	/**
+     * Path to Config File
+     */
+    public static final String PARAM_CONFIG_LOCATION = "PARAM_CONFIG_LOCATION";
+    @ConfigurationParameter(name = PARAM_CONFIG_LOCATION, mandatory = false)
+    protected String configLocation;
 
 	@Override
 	protected void process(JCas aJCas, String text, int arg2) throws AnalysisEngineProcessException {
 		
 		// load the Talismane configuration
-	    Config conf = ConfigFactory.load("org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf");
+	    Config conf = ConfigFactory.load(configLocation);
 	    
 	    //create session ID
   		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
