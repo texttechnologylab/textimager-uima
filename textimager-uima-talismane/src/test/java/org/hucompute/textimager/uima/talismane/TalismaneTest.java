@@ -37,13 +37,9 @@ public class TalismaneTest {
 
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
-				TalismaneSegmenter.class));
-		SimplePipeline.runPipeline(cas,builder.createAggregate());
+				TalismaneSegmenter.class,
+				TalismaneSegmenter.PARAM_CONFIG_LOCATION,"org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf"));
 		
-		for (Token token : JCasUtil.select(cas, Token.class)) {
-			System.out.println(token);
-		}
-
 		System.out.println(cas.getCas());
 		AssertAnnotations.assertToken(new String[] {"Ceci", "est", "un", "bon", "test","."}, JCasUtil.select(cas, Token.class));
 		AssertAnnotations.assertSentence(new String[] {"Ceci est un bon test."}, JCasUtil.select(cas, Sentence.class));
@@ -66,8 +62,9 @@ public class TalismaneTest {
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
 				TalismanePOS.class,
-				TalismanePOS.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/pos-default.map"));
-		SimplePipeline.runPipeline(cas,builder.createAggregate());
+				TalismanePOS.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/pos-default.map",
+				TalismanePOS.PARAM_CONFIG_LOCATION,"org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf"));
+		
 
 		AssertAnnotations.assertLemma(new String[] {"ceci", "être", "un", "bon","test","."}, JCasUtil.select(cas, Lemma.class));
 		AssertAnnotations.assertPOS(new String[] {"N", "V", "ART", "ADJ","N","PUNC"}, new String[] {"NPP", "V", "DET", "ADJ","NC","PONCT"}, JCasUtil.select(cas, POS.class));
@@ -80,13 +77,16 @@ public class TalismaneTest {
 
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
-				TalismaneSegmenter.class));
+				TalismaneSegmenter.class,
+				TalismaneSegmenter.PARAM_CONFIG_LOCATION,"org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf"));
 		builder.add(createEngineDescription(
 				TalismanePOS.class,
-				TalismanePOS.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/pos-default.map"));
+				TalismanePOS.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/pos-default.map",
+				TalismanePOS.PARAM_CONFIG_LOCATION,"org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf"));
 		builder.add(createEngineDescription(
 				TalismaneDependencyParser.class,
-				TalismaneDependencyParser.PARAM_DEPENDENCY_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/dependency-default.map"));
+				TalismaneDependencyParser.PARAM_DEPENDENCY_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/dependency-default.map",
+				TalismaneDependencyParser.PARAM_CONFIG_LOCATION,"org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf"));
 		
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 		
@@ -97,50 +97,5 @@ public class TalismaneTest {
 		//AssertAnnotations.assertSentence(new String[] {"Ceci est un bon test."}, JCasUtil.select(cas, Sentence.class));
 
 	}
-	
-	@Test
-	public void FullPipeRuntime() throws UIMAException, IOException{
-		String text = new String(Files.readAllBytes(Paths.get("src/test/java/wiki_fr_text")));
-		JCas cas = JCasFactory.createText(text,"fr");
-		AggregateBuilder builder = new AggregateBuilder();
-		builder.add(createEngineDescription(
-				TalismaneSegmenter.class));
-		builder.add(createEngineDescription(
-				TalismanePOS.class,
-				TalismanePOS.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/pos-default.map"));
-		builder.add(createEngineDescription(
-				TalismaneDependencyParser.class,
-				TalismaneDependencyParser.PARAM_DEPENDENCY_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/talismane/lib/dependency-default.map"));
-		
-		Timestamp timestamp1 = new Timestamp(System.currentTimeMillis());
-		
-		SimplePipeline.runPipeline(cas,builder.createAggregate());
-		
-		Timestamp timestamp2 = new Timestamp(System.currentTimeMillis());
-		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));	
-		File xml = new File("Out.xml");
-		System.out.println(xml.getAbsolutePath());
-		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
-		
-		
-		
-//		91 seconds
-//		Token: 2153
-//		Sentence: 76
-//		Token per Second: 23
-		
-//		941 seconds
-//		Token: 6082
-//		Sentence: 213
-//		Token per Second: 6
-		Timestamp t3 = new Timestamp(timestamp2.getTime() - timestamp1.getTime());
-		long Time_in_Seconds = (t3.getTime() / 1000);
-		System.out.println(Time_in_Seconds +" seconds");
-		System.out.println("Token: "+JCasUtil.select(cas, Token.class).size());
-		System.out.println("Sentence: "+JCasUtil.select(cas, Sentence.class).size());
-		System.out.println("Token per Second: "+JCasUtil.select(cas, Token.class).size()/Time_in_Seconds);
-
-	}
-	
 
 }

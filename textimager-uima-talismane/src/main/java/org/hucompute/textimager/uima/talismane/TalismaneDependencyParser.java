@@ -9,10 +9,10 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Type;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.fit.util.JCasUtil;
@@ -51,7 +51,13 @@ inputs = {
 outputs = {
 		"de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency"})
 public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
-	
+	/**
+     * Path to Config File
+     */
+    public static final String PARAM_CONFIG_LOCATION = "PARAM_CONFIG_LOCATION";
+    @ConfigurationParameter(name = PARAM_CONFIG_LOCATION, mandatory = false)
+    protected String configLocation;
+    
     /**
      * Log the tag set(s) when a model is loaded.
      *
@@ -140,10 +146,7 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
                 return ResourceUtils.getUrlAsFile(aUrl, true);
             }
         };
-        
-        //PARAM_DEPENDENCY_MAPPING_LOCATION didn't override dependencyMappingLocation so I set the Path to the map here
-        dependencyMappingLocation = "src/main/resources/org/hucompute/textimager/uima/talismane/lib/dependency-default.map";
-        
+         
         dependencyMappingProvider = MappingProviderFactory.createDependencyMappingProvider(dependencyMappingLocation,
                 language, modelProvider);
     }
@@ -155,7 +158,7 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
 		dependencyMappingProvider.configure(cas);
 
 		// load the Talismane configuration
-	    Config conf = ConfigFactory.load("org/hucompute/textimager/uima/talismane/talismane-fr-4.1.0.conf");
+	    Config conf = ConfigFactory.load(configLocation);
 	    
 	    //create session ID
   		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
