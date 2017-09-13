@@ -60,7 +60,15 @@ import ixa.kaflib.WF;
 				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.Lemma",
 				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.Morpheme"})
 public class OpenerProjectPOSTagger  extends JCasAnnotator_ImplBase {
-	// end::capabilities[]
+
+    /**
+     * Load the part-of-speech tag to UIMA type mapping from this location instead of locating the
+     * mapping automatically.
+     */
+    public static final String PARAM_JRUBY_LOCATION = "PARAM_JRUBY_LOCATION";
+    @ConfigurationParameter(name = PARAM_JRUBY_LOCATION, mandatory = false)
+    protected String jRubyLocation;
+    
     /**
      * Use this language instead of the document language to resolve the model.
      */
@@ -163,11 +171,7 @@ public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		kaf.save(KAF_LOCATION);
 		
 		String pathToJruby = "~/jruby/bin/";
-		try {
-			pathToJruby = new String(Files.readAllBytes(Paths.get("/src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/jruby_path")));
-		} catch (IOException e1) {
-			pathToJruby = "~/jruby/bin/";
-		}	
+		if(jRubyLocation != null) pathToJruby=jRubyLocation;
 
 		// command for the Process
 		List<String> cmd = new ArrayList<String>();
@@ -211,7 +215,7 @@ public void process(JCas aJCas) throws AnalysisEngineProcessException {
 	        	
 	        	//POS with Mapping
 	        	String tag = term.getPos();
-	        	Type posTag = posMappingProvider.getTagType("X");
+	        	Type posTag = posMappingProvider.getTagType(tag);
                 POS posAnno = (POS) cas.createAnnotation(posTag, begin, end);
                 posAnno.setPosValue(tag);
                 posAnno.addToIndexes();
