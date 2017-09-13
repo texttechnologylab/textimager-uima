@@ -52,10 +52,16 @@ import ixa.kaflib.WF;
 				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.Lemma",
 				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.Morpheme"},
 		outputs = {
-				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS",
-				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.Lemma",
-				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.Morpheme"})
+				"de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity"
+				})
 public class OpenerProjectNER extends JCasAnnotator_ImplBase {
+    /**
+     * Load the part-of-speech tag to UIMA type mapping from this location instead of locating the
+     * mapping automatically.
+     */
+    public static final String PARAM_JRUBY_LOCATION = "PARAM_JRUBY_LOCATION";
+    @ConfigurationParameter(name = PARAM_JRUBY_LOCATION, mandatory = false)
+    protected String jRubyLocation;
 	
 	/**
      * Use this language instead of the document language to resolve the model.
@@ -82,9 +88,9 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
      * Load the part-of-speech tag to UIMA type mapping from this location instead of locating the
      * mapping automatically.
      */
-    public static final String PARAM_POS_MAPPING_LOCATION = ComponentParameters.PARAM_POS_MAPPING_LOCATION;
-    @ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
-    protected String posMappingLocation;
+    public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = ComponentParameters.PARAM_NAMED_ENTITY_MAPPING_LOCATION;
+    @ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
+    protected String namedEntityMappingLocation;
 
     /**
      * Use the {@link String#intern()} method on tags. This is usually a good idea to avoid spaming
@@ -106,8 +112,11 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
     protected boolean printTagSet;
 
     private CasConfigurableProviderBase<File> modelProvider;
-    private MappingProvider posMappingProvider;
+    private MappingProvider mappingProvider;
 
+
+
+    
     @Override
     public void initialize(UimaContext aContext)
         throws ResourceInitializationException
@@ -136,10 +145,19 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
                 return ResourceUtils.getUrlAsFile(aUrl, true);
             }
         };
+        
+        mappingProvider = new MappingProvider();
+        mappingProvider
+                .setDefaultVariantsLocation("org/hucompute/textimager/uima/OpenerProject/lib/ner-default.map");
+        mappingProvider.setDefault(MappingProvider.LOCATION, "classpath:/org/hucompute/textimager/uima/"
+                + "OpenerProject/lib/ner-${variant}.map");
+        mappingProvider.setDefault(MappingProvider.BASE_TYPE, NamedEntity.class.getName());
+        mappingProvider.setOverride(MappingProvider.LOCATION, namedEntityMappingLocation);
+        mappingProvider.setOverride(MappingProvider.LANGUAGE, language);
+        mappingProvider.setOverride(MappingProvider.VARIANT, variant);
+//        mappingProvider).addTagMappingImport("ner", modelProvider);
 
 
-        posMappingProvider = MappingProviderFactory.createPosMappingProvider(posMappingLocation,
-                language, modelProvider);
     }
 
 	@Override
@@ -148,7 +166,7 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 		// Needed for Mapping
 		CAS cas = aJCas.getCas();
 		modelProvider.configure(cas);
-		posMappingProvider.configure(cas);
+		mappingProvider.configure(cas);
 		
 		//Generate KAF File
 		JCastoKaf jkaf = new JCastoKaf(aJCas);
@@ -158,11 +176,8 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 		kaf.save(KAF_LOCATION);
 
 		String pathToJruby = "~/jruby/bin/";
-		try {
-			pathToJruby = new String(Files.readAllBytes(Paths.get("/src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/jruby_path")));
-		} catch (IOException e1) {
-			pathToJruby = "~/jruby/bin/";
-		}	
+		if(jRubyLocation != null) pathToJruby=jRubyLocation;
+		
 		// command for the Process
 		List<String> cmd = new ArrayList<String>();
 		cmd.add("/bin/sh");
@@ -205,10 +220,12 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 	        	int begin = kafTerms.get(0).getWFs().get(0).getOffset();
 	        	int end = kafTerms.get(t-1).getWFs().get(w-1).getOffset() 
 	        			+ kafTerms.get(t-1).getWFs().get(w-1).getLength(); 
-	        			
-	        	NamedEntity nm = new NamedEntity(aJCas, begin, end);
-	        	nm.setValue(entity.getType());
-	        	nm.addToIndexes();
+	        	
+	        	String tag = entity.getType();
+	        	Type nameTag = mappingProvider.getTagType(tag);
+	        	NamedEntity nameAnno = (NamedEntity) cas.createAnnotation(nameTag, begin, end);
+	        	nameAnno.setValue(tag);
+	        	nameAnno.addToIndexes();
 
 	        }
 	                

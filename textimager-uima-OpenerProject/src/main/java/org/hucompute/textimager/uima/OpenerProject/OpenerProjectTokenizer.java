@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
@@ -27,7 +28,13 @@ import ixa.kaflib.WF;
 				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" })
 public class OpenerProjectTokenizer  extends SegmenterBase {
 	
-	
+    /**
+     * Load the part-of-speech tag to UIMA type mapping from this location instead of locating the
+     * mapping automatically.
+     */
+    public static final String PARAM_JRUBY_LOCATION = "PARAM_JRUBY_LOCATION";
+    @ConfigurationParameter(name = PARAM_JRUBY_LOCATION, mandatory = false)
+    protected String jRubyLocation;
 
 	
 	@Override
@@ -45,11 +52,8 @@ public class OpenerProjectTokenizer  extends SegmenterBase {
 			kaf.save(KAF_LOCATION);	
 			
 			String pathToJruby = "~/jruby/bin/";
-			try {
-				pathToJruby = new String(Files.readAllBytes(Paths.get("/src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/jruby_path")));
-			} catch (IOException e1) {
-				pathToJruby = "~/jruby/bin/";
-			}	
+			if(jRubyLocation != null) pathToJruby=jRubyLocation;
+			
 			// command for the Process
 			List<String> cmd = new ArrayList<String>();
 			cmd.add("/bin/sh");

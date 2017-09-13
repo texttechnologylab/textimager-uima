@@ -36,7 +36,7 @@ public class OpenerProjectTest {
 	
 	@Test
 	public void TokenizerFR() throws UIMAException{
-		JCas cas = JCasFactory.createText("Ceci est un bon test.", "fr");
+		JCas cas = JCasFactory.createText("Ceci est un bon test. \n\n\n Ceci est un bon test.", "fr");
 		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
 
 		AggregateBuilder builder = new AggregateBuilder();
@@ -117,6 +117,7 @@ public class OpenerProjectTest {
 		builder.add(createEngineDescription(
 				OpenerProjectPOSTagger.class
 				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map"
+				,OpenerProjectPOSTagger.PARAM_JRUBY_LOCATION,"~/jruby/bin/"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 		
@@ -129,13 +130,12 @@ public class OpenerProjectTest {
 				new String[] { "R", "V", "D", "A", "G","O"}, 
 				JCasUtil.select(cas, POS.class));	
 	}
-//	@Test
+	@Test
 	public void NER_DE() throws UIMAException, IOException{
 		JCas cas = JCasFactory.createText("Merkel wuchs in der DDR auf und war dort als Physikerin wissenschaftlich tätig. Bei der Bundestagswahl am 2. Dezember 1990 errang sie erstmals ein Bundestagsmandat; in allen darauffolgenden sechs Bundestagswahlen wurde sie in ihrem Wahlkreis in Vorpommern direkt gewählt.", "de");
 //		JCas cas = JCasFactory.createText(
 //				"After breakfast at the Elia Beach Hotel, I and my wife had a walk to Mykonos. There we were picked up and driven to Piraeus Port, where we had lunch with Mr. Vernicos at the Marine Club."
 //				, "en");
-		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
 
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
@@ -143,10 +143,12 @@ public class OpenerProjectTest {
 				));
 		builder.add(createEngineDescription(
 				OpenerProjectPOSTagger.class
-				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map"
+				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map",
+				OpenerProjectPOSTagger.PARAM_JRUBY_LOCATION,"~/jruby/bin/"
 				));
 		builder.add(createEngineDescription(
 				OpenerProjectNER.class
+				,OpenerProjectNER.PARAM_NAMED_ENTITY_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/ner-default.map"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
@@ -160,7 +162,7 @@ public class OpenerProjectTest {
 	}
 	
 //	@Test
-	public void Constituent() throws UIMAException, IOException{
+	public void Constituen() throws UIMAException, IOException{
 		String text = new String(Files.readAllBytes(Paths.get("wiki_de_text")));
 		JCas cas = JCasFactory.createText(text, "de");
 //		JCas cas = JCasFactory.createText("Merkel wuchs in der DDR auf und war dort als Physikerin wissenschaftlich tätig. Bei der Bundestagswahl am 2. Dezember 1990 errang sie erstmals ein Bundestagsmandat; in allen darauffolgenden sechs Bundestagswahlen wurde sie in ihrem Wahlkreis in Vorpommern direkt gewählt.", "de");
@@ -175,7 +177,8 @@ public class OpenerProjectTest {
 				));
 		builder.add(createEngineDescription(
 				OpenerProjectPOSTagger.class
-				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map"
+				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map",
+				OpenerProjectPOSTagger.PARAM_JRUBY_LOCATION,"~/jruby/bin/"
 				));
 		builder.add(createEngineDescription(
 				OpenerProjectConstituentCoref.class,
@@ -191,7 +194,7 @@ public class OpenerProjectTest {
 		System.out.println(xml.getAbsolutePath());
 		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
 	}
-	
+	@Test
 	public void FullPipeRuntime() throws UIMAException, IOException{
 		String lan = "en";
 		String text = new String(Files.readAllBytes(Paths.get("src/test/java/wiki_"+lan+"_text")));
@@ -216,14 +219,15 @@ public class OpenerProjectTest {
 		AggregateBuilder NER = new AggregateBuilder();
 		NER.add(createEngineDescription(
 				OpenerProjectNER.class
+				,OpenerProjectNER.PARAM_NAMED_ENTITY_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/ner-default.map"
 				));
 		
 		long Time_1 = RunPipe(cas, token);
 		System.out.println("Tokenizer: " + Time_1 +" seconds");
 		long Time_2 = RunPipe(cas, POS);
 		System.out.println("POS: " + Time_2 +" seconds");
-		long Time_3 = RunPipe(cas, Const);
-		System.out.println("Constituent: " + Time_3+" seconds");
+		//long Time_3 = RunPipe(cas, Const);
+		//System.out.println("Constituent: " + Time_3+" seconds");
 		long Time_4 = RunPipe(cas, NER);
 		System.out.println("NER: " + Time_4 +" seconds");
 		
@@ -235,7 +239,7 @@ public class OpenerProjectTest {
 		
 		System.out.println("Tokenizer: " + Time_1 +" seconds");
 		System.out.println("POS: " + Time_2 +" seconds");
-		System.out.println("Constituent: " + Time_3+" seconds");
+		//System.out.println("Constituent: " + Time_3+" seconds");
 		System.out.println("NER: " + Time_4 +" seconds");
 		System.out.println("Token: "+JCasUtil.select(cas, Token.class).size());
 		System.out.println("Sentence: "+JCasUtil.select(cas, Sentence.class).size());

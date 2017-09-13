@@ -73,6 +73,14 @@ import ixa.kaflib.WF;
 				})
 public class OpenerProjectConstituentCoref extends JCasAnnotator_ImplBase {
 	
+    /**
+     * Load the part-of-speech tag to UIMA type mapping from this location instead of locating the
+     * mapping automatically.
+     */
+    public static final String PARAM_JRUBY_LOCATION = "PARAM_JRUBY_LOCATION";
+    @ConfigurationParameter(name = PARAM_JRUBY_LOCATION, mandatory = false)
+    protected String jRubyLocation;
+	
 
     /**
      * Use this language instead of the document language to resolve the model and tag set mapping.
@@ -155,11 +163,7 @@ public class OpenerProjectConstituentCoref extends JCasAnnotator_ImplBase {
 		kaf.save(KAF_LOCATION);
 		
 		String pathToJruby = "~/jruby/bin/";
-		try {
-			pathToJruby = new String(Files.readAllBytes(Paths.get("/src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/jruby_path")));
-		} catch (IOException e1) {
-			pathToJruby = "~/jruby/bin/";
-		}
+		if(jRubyLocation != null) pathToJruby=jRubyLocation;
 		
 		// command for the Process
 		List<String> cmd = new ArrayList<String>();
