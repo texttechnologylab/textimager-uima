@@ -44,17 +44,23 @@ public class PolyglotTransliteration  extends SegmenterBase {
 	/**
      * Load the toLanguage-Tag
      */
-    public static final String PARAM_TO_LANGUAGE_CODE = ComponentParameters.PARAM_LANGUAGE;
+    public static final String PARAM_TO_LANGUAGE_CODE = "ToLanguageCode";
     @ConfigurationParameter(name = PARAM_TO_LANGUAGE_CODE, mandatory = false)
     protected String toLanguageCode;
 	
+    public static final String PARAM_POLYGLOT_PATH = "PolyglotPath";
+    @ConfigurationParameter(name = PARAM_POLYGLOT_PATH, mandatory = false)
+    protected String POLYGLOT_LOCATION;
+    
 	/**
 	 * Analyze the text and create Transliteration-Tag. After successfully creation, add Transliteration to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		if(POLYGLOT_LOCATION == null) {
+			POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		}
 		String inputText = aJCas.getDocumentText();
 		        
     	// Define ProcessBuilder
