@@ -38,9 +38,13 @@ public class PolyglotTokenizer  extends SegmenterBase {
 	/**
      * Load the PythonPATH
      */
-    public static final String PARAM_PYTHON_PATH = "PythonPathPolyglot";
+    public static final String PARAM_PYTHON_PATH = "PythonPath";
     @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
     protected String PythonPATH;
+    
+    public static final String PARAM_POLYGLOT_PATH = "PolyglotPath";
+    @ConfigurationParameter(name = PARAM_POLYGLOT_PATH, mandatory = false)
+    protected String POLYGLOT_LOCATION;
 	
 	/**
 	 * Analyze the text and create tokens for every word. After successfully creation, add tokens to JCas.
@@ -48,7 +52,9 @@ public class PolyglotTokenizer  extends SegmenterBase {
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		if(POLYGLOT_LOCATION == null) {
+			POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		}
 		
 		for (Sentence sentence : select(aJCas, Sentence.class)) {		
 			// Define ProcessBuilder

@@ -42,13 +42,19 @@ public class PolyglotMorphology  extends SegmenterBase {
     @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
     protected String PythonPATH;
     
+    public static final String PARAM_POLYGLOT_PATH = "PolyglotPath";
+    @ConfigurationParameter(name = PARAM_POLYGLOT_PATH, mandatory = false)
+    protected String POLYGLOT_LOCATION;
+    
 	/**
 	 * Analyze the text and create NE-Tag for every word. After successfully creation, add NE to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		if(POLYGLOT_LOCATION == null) {
+			POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		}
 		
 		for (Token token : select(aJCas, Token.class)) {		
 			// Define ProcessBuilder

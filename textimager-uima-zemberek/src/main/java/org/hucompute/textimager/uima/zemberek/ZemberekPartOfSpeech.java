@@ -100,7 +100,7 @@ public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
 
     private CasConfigurableProviderBase<File> modelProvider;
     private MappingProvider posMappingProvider;
-
+    
     @Override
     public void initialize(UimaContext aContext)
         throws ResourceInitializationException
@@ -143,7 +143,6 @@ public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
 			CAS cas = aJCas.getCas();
 			modelProvider.configure(cas);
 			posMappingProvider.configure(cas);
-			     
 	        try {
 	        	// Initialize Zemberek
 	        	TurkishMorphology morphology = TurkishMorphology.createWithDefaults();

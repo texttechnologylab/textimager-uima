@@ -14,61 +14,18 @@
   <type6:Token begin="39" end="50" sofa="1" xmi:id="103"/>
   <type6:Token begin="51" end="56" sofa="1" xmi:id="113"/>
   <type6:Token begin="56" end="57" sofa="1" xmi:id="123"/>
-  <type6:Sentence begin="0" end="23" sofa="1" xmi:id="133"/>
-  <type6:Sentence begin="24" end="57" sofa="1" xmi:id="138"/>
-  <pos:NP PosValue="ProperNoun" begin="0" end="8" sofa="1" xmi:id="143"/>
-  <pos:NP PosValue="ProperNoun" begin="10" end="18" sofa="1" xmi:id="153"/>
-  <pos:NP PosValue="ProperNoun" begin="19" end="22" sofa="1" xmi:id="183"/>
-  <pos:PUNC PosValue="Punctuation" begin="8" end="9" sofa="1" xmi:id="148"/>
-  <pos:PUNC PosValue="Punctuation" begin="22" end="23" sofa="1" xmi:id="163"/>
-  <pos:PUNC PosValue="Punctuation" begin="27" end="30" sofa="1" xmi:id="198"/>
-  <pos:O PosValue="Interjection" begin="19" end="22" sofa="1" xmi:id="158"/>
-  <pos:ADJ PosValue="Adjective" begin="0" end="8" sofa="1" xmi:id="168"/>
-  <pos:ADJ PosValue="Adjective" begin="10" end="18" sofa="1" xmi:id="178"/>
-  <pos:ADV PosValue="Adverb" begin="8" end="9" sofa="1" xmi:id="173"/>
-  <pos:V PosValue="Verb" begin="22" end="23" sofa="1" xmi:id="188"/>
-  <pos:N PosValue="Noun" begin="24" end="26" sofa="1" xmi:id="193"/>
-  <type10:DisambiguationAnnotation begin="0" end="8" sofa="1" value="[(İstanbul:istanbul) (Noun,Prop;A3sg+Pnon+Nom)]" xmi:id="203"/>
-  <type10:DisambiguationAnnotation begin="8" end="9" sofa="1" value="[(,:,) (Punc)]" xmi:id="208"/>
-  <type10:DisambiguationAnnotation begin="10" end="18" sofa="1" value="[(İstanbul:istanbul) (Noun,Prop;A3sg+Pnon+Nom)]" xmi:id="213"/>
-  <type10:DisambiguationAnnotation begin="19" end="22" sofa="1" value="[(alo:alo) (Interj)]" xmi:id="218"/>
-  <type10:DisambiguationAnnotation begin="22" end="23" sofa="1" value="[(!:!) (Punc)]" xmi:id="223"/>
-  <type10:DisambiguationAnnotation begin="24" end="26" sofa="1" value="[(ne:ne) (Adj)]" xmi:id="228"/>
-  <type10:DisambiguationAnnotation begin="24" end="26" sofa="1" value="[(Ne:ne) (Noun,Prop;A3sg+Pnon+Nom)]" xmi:id="258"/>
-  <type10:DisambiguationAnnotation begin="24" end="26" sofa="1" value="[(ne:ne) (Pron,Ques)]" xmi:id="243"/>
-  <type10:DisambiguationAnnotation begin="24" end="26" sofa="1" value="[(ne:ne) (Interj)]" xmi:id="248"/>
-  <type10:DisambiguationAnnotation begin="24" end="26" sofa="1" value="[(ne:ne) (Noun;A3sg+Pnon+Nom)]" xmi:id="253"/>
-  <type10:DisambiguationAnnotation begin="24" end="26" sofa="1" value="[(ne:ne) (Conj)]" xmi:id="238"/>
-  <type10:DisambiguationAnnotation begin="24" end="26" sofa="1" value="[(ne:ne) (Adv)]" xmi:id="233"/>
-  <type10:DisambiguationAnnotation begin="27" end="30" sofa="1" value="[(çok:çok) (Adv)]" xmi:id="263"/>
-  <type10:DisambiguationAnnotation begin="27" end="30" sofa="1" value="[(çok:çok) (Det)]" xmi:id="273"/>
-  <type10:DisambiguationAnnotation begin="27" end="30" sofa="1" value="[(çok:çok) (Postp,PCAbl)]" xmi:id="278"/>
-  <type10:DisambiguationAnnotation begin="27" end="30" sofa="1" value="[(çok:çok) (Adj)]" xmi:id="268"/>
-  <type10:DisambiguationAnnotation begin="31" end="33" sofa="1" value="[(az:az) (Adj)]" xmi:id="283"/>
-  <type10:DisambiguationAnnotation begin="31" end="33" sofa="1" value="[(azmak:az) (Verb;Pos+Imp+A2sg)]" xmi:id="298"/>
-  <type10:DisambiguationAnnotation begin="31" end="33" sofa="1" value="[(Az:az) (Noun,Prop;A3sg+Pnon+Nom)]" xmi:id="303"/>
-  <type10:DisambiguationAnnotation begin="31" end="33" sofa="1" value="[(az:az) (Postp,PCAbl)]" xmi:id="293"/>
-  <type10:DisambiguationAnnotation begin="31" end="33" sofa="1" value="[(az:az) (Adv)]" xmi:id="288"/>
-  <type10:DisambiguationAnnotation begin="34" end="38" sofa="1" value="[(Türk:türk) (Noun,Prop;A3sg+Pnon+Nom)]" xmi:id="308"/>
-  <type10:DisambiguationAnnotation begin="39" end="50" sofa="1" value="[(konuşmak:konuş) (Verb;Pos)(Verb;Abil:abil+Aor:ir+A3sg)]" xmi:id="313"/>
-  <type10:DisambiguationAnnotation begin="39" end="50" sofa="1" value="[(konuşmak:konuş) (Verb;Pos)(Verb;Abil:abil+AorPart:ir)]" xmi:id="323"/>
-  <type10:DisambiguationAnnotation begin="39" end="50" sofa="1" value="[(konuşmak:konuş) (Verb;Pos)(Verb;Abil:abil)(Adj;AorPart:ir)]" xmi:id="318"/>
-  <type10:DisambiguationAnnotation begin="51" end="56" sofa="1" value="[(yazık:yazık) (Noun;A3sg+Pnon+Nom)]" xmi:id="328"/>
-  <type10:DisambiguationAnnotation begin="51" end="56" sofa="1" value="[(yazık:yazık) (Adv)]" xmi:id="338"/>
-  <type10:DisambiguationAnnotation begin="51" end="56" sofa="1" value="[(yazık:yazık) (Interj)]" xmi:id="333"/>
-  <type10:DisambiguationAnnotation begin="56" end="57" sofa="1" value="[(.:.) (Punc)]" xmi:id="343"/>
-  <type11:PronunciationAnnotation begin="0" end="8" sofa="1" value="istanbul" xmi:id="348"/>
-  <type11:PronunciationAnnotation begin="8" end="9" sofa="1" value="a" xmi:id="353"/>
-  <type11:PronunciationAnnotation begin="10" end="18" sofa="1" value="istanbul" xmi:id="358"/>
-  <type11:PronunciationAnnotation begin="19" end="22" sofa="1" value="alo" xmi:id="363"/>
-  <type11:PronunciationAnnotation begin="22" end="23" sofa="1" value="a" xmi:id="368"/>
-  <type11:PronunciationAnnotation begin="24" end="26" sofa="1" value="ne" xmi:id="373"/>
-  <type11:PronunciationAnnotation begin="27" end="30" sofa="1" value="çok" xmi:id="378"/>
-  <type11:PronunciationAnnotation begin="31" end="33" sofa="1" value="az" xmi:id="383"/>
-  <type11:PronunciationAnnotation begin="34" end="38" sofa="1" value="türk" xmi:id="388"/>
-  <type11:PronunciationAnnotation begin="39" end="50" sofa="1" value="konuşabilir" xmi:id="393"/>
-  <type11:PronunciationAnnotation begin="51" end="56" sofa="1" value="yazık" xmi:id="398"/>
-  <type11:PronunciationAnnotation begin="56" end="57" sofa="1" value="a" xmi:id="403"/>
+  <type11:PronunciationAnnotation begin="0" end="8" sofa="1" value="istanbul" xmi:id="133"/>
+  <type11:PronunciationAnnotation begin="8" end="9" sofa="1" value="a" xmi:id="138"/>
+  <type11:PronunciationAnnotation begin="10" end="18" sofa="1" value="istanbul" xmi:id="143"/>
+  <type11:PronunciationAnnotation begin="19" end="22" sofa="1" value="alo" xmi:id="148"/>
+  <type11:PronunciationAnnotation begin="22" end="23" sofa="1" value="a" xmi:id="153"/>
+  <type11:PronunciationAnnotation begin="24" end="26" sofa="1" value="ne" xmi:id="158"/>
+  <type11:PronunciationAnnotation begin="27" end="30" sofa="1" value="çok" xmi:id="163"/>
+  <type11:PronunciationAnnotation begin="31" end="33" sofa="1" value="az" xmi:id="168"/>
+  <type11:PronunciationAnnotation begin="34" end="38" sofa="1" value="türk" xmi:id="173"/>
+  <type11:PronunciationAnnotation begin="39" end="50" sofa="1" value="konuşabilir" xmi:id="178"/>
+  <type11:PronunciationAnnotation begin="51" end="56" sofa="1" value="yazık" xmi:id="183"/>
+  <type11:PronunciationAnnotation begin="56" end="57" sofa="1" value="a" xmi:id="188"/>
   <cas:Sofa mimeType="text" sofaID="_InitialView" sofaNum="1" sofaString="İstanbul, İstanbul alo! Ne çok az Türk konuşabilir yazık." xmi:id="1"/>
-  <cas:View members="8 13 23 33 43 53 63 73 83 93 103 113 123 133 138 143 153 183 148 163 198 158 168 178 173 188 193 203 208 213 218 223 228 258 243 248 253 238 233 263 273 278 268 283 298 303 293 288 308 313 323 318 328 338 333 343 348 353 358 363 368 373 378 383 388 393 398 403" sofa="1"/>
+  <cas:View members="8 13 23 33 43 53 63 73 83 93 103 113 123 133 138 143 148 153 158 163 168 173 178 183 188" sofa="1"/>
 </xmi:XMI>

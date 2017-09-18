@@ -41,13 +41,20 @@ public class PolyglotSentiment  extends SegmenterBase {
     @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
     protected String PythonPATH;
     
+    public static final String PARAM_POLYGLOT_PATH = "PolyglotPath";
+    @ConfigurationParameter(name = PARAM_POLYGLOT_PATH, mandatory = false)
+    protected String POLYGLOT_LOCATION;
+    
 	/**
 	 * Analyze the text and create Sentiment-Tag for every word. After successfully creation, add Polarity to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		if(POLYGLOT_LOCATION == null) {
+			POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		}
+		
 		String inputText = aJCas.getDocumentText();
 		
 		// List of every Token.
@@ -79,7 +86,7 @@ public class PolyglotSentiment  extends SegmenterBase {
 					}
 			String result = builder.toString();
 			String[] resultInParts = result.split("\n");
-							
+			
 			// Only process sentence if Sentiment-TAG is found.
 			if(result.length() != 0 && resultInParts.length > 0) {
 				for(int i = 0; i < resultInParts.length; i = i + 1) {

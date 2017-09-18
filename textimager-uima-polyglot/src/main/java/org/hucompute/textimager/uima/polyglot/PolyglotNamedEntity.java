@@ -90,7 +90,11 @@ public class PolyglotNamedEntity  extends SegmenterBase {
     public static final String PARAM_PRINT_TAGSET = ComponentParameters.PARAM_PRINT_TAGSET;
     @ConfigurationParameter(name = PARAM_PRINT_TAGSET, mandatory = true, defaultValue = "false")
     protected boolean printTagSet;
-
+    
+    public static final String PARAM_POLYGLOT_PATH = "PolyglotPath";
+    @ConfigurationParameter(name = PARAM_POLYGLOT_PATH, mandatory = false)
+    protected String POLYGLOT_LOCATION;
+    
     private CasConfigurableProviderBase<File> modelProvider;
     private MappingProvider nerMappingProvider;
 
@@ -132,8 +136,9 @@ public class PolyglotNamedEntity  extends SegmenterBase {
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
-		
+		if(POLYGLOT_LOCATION == null) {
+			POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		}
 		// Variables for mapping
 		CAS cas = aJCas.getCas();
 		modelProvider.configure(cas);

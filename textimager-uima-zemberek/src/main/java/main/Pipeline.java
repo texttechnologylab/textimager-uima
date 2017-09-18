@@ -59,7 +59,7 @@ public class Pipeline {
 		inputCas.setDocumentLanguage("tr");
 		// Pipeline
 		//SimplePipeline.runPipeline(inputCas, tokenAnnotator, lemmaAnnotator, sentanceBoundAnnotator, posAnnotator);
-		SimplePipeline.runPipeline(inputCas, tokenAnnotator, sentanceBoundAnnotator, posAnnotator, disambiguationAnnotator, pronounciationAnnotator);
+		SimplePipeline.runPipeline(inputCas, tokenAnnotator, pronounciationAnnotator);
 		
 		// Output as XML
 		String output = XmlFormatter.getPrettyString(inputCas.getCas());

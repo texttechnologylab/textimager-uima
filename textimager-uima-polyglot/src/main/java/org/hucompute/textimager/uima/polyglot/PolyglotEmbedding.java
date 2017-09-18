@@ -40,14 +40,27 @@ public class PolyglotEmbedding  extends SegmenterBase {
     @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
     protected String PythonPATH;
     
+    public static final String PARAM_POLYGLOT_PATH = "PolyglotPath";
+    @ConfigurationParameter(name = PARAM_POLYGLOT_PATH, mandatory = false)
+    protected String POLYGLOT_LOCATION;
+    
+    public static final String PARAM_EMBEDDING_PATH = "EmbeddingPath";
+    @ConfigurationParameter(name = PARAM_EMBEDDING_PATH, mandatory = false)
+    protected String EMBEDDING_LOCATION;
+    
 	/**
 	 * Analyze the text and create Sentiment-Tag for every word. After successfully creation, add Polarity to JCas.
 	 * @param aJCas
 	 */
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		String POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
-		String EMBEDDING_LOCATION = "/home/alex/polyglot_data/embeddings2/" + aJCas.getDocumentLanguage() + "/embeddings_pkl.tar.bz2";
+		if(POLYGLOT_LOCATION == null) {
+			POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
+		}
+		
+		if(EMBEDDING_LOCATION == null) {
+			EMBEDDING_LOCATION = "/home/alex/polyglot_data/embeddings2/" + aJCas.getDocumentLanguage() + "/embeddings_pkl.tar.bz2";
+		}
 		
 		for (Token token : select(aJCas, Token.class)) {				
 			// Define ProcessBuilder
