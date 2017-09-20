@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import numpy as np
 import polyglot
@@ -45,26 +46,22 @@ def embedding(text, embeddingPATH):
 	neighbors = embeddings.nearest_neighbors(text)
 	for w, d in zip(neighbors, embeddings.distances(text, neighbors)):
   		print("{}\n{}".format(w,d))
-			
-def main():
-	if sys.argv[1]=="language":
-		language(sys.argv[2])
-	elif sys.argv[1]=="token":
-		token(sys.argv[2])
-	elif sys.argv[1]=="sentence":
-		sentence(sys.argv[2])
-	elif sys.argv[1]=="pos":
-		pos(sys.argv[2])
-	elif sys.argv[1]=="ner":
-		ner(sys.argv[2])
-	elif sys.argv[1]=="sentiment":
-		sentiment(sys.argv[2])
-	elif sys.argv[1]=="embedding":
-		embedding(sys.argv[2], sys.argv[3])
-	elif sys.argv[1]=="morphology":
-		morphology(sys.argv[2], sys.argv[3])
-	elif sys.argv[1]=="transliteration":
-		transliteration(sys.argv[2], sys.argv[3])
-
-if __name__ == "__main__":
-	main()
+		
+if sys.argv[1]=="language":
+	language(sys.argv[2])
+elif sys.argv[1]=="token":
+	token(sys.argv[2])
+elif sys.argv[1]=="sentence":
+	sentence(sys.argv[2])
+elif sys.argv[1]=="pos":
+	pos(sys.argv[2])
+elif sys.argv[1]=="ner":
+	ner(sys.argv[2])
+elif sys.argv[1]=="sentiment":
+	sentiment(sys.argv[2])
+elif sys.argv[1]=="embedding":
+	embedding(sys.argv[2], sys.argv[3])
+elif sys.argv[1]=="morphology":
+	morphology(sys.argv[2], sys.argv[3])
+elif sys.argv[1]=="transliteration":
+	transliteration(sys.argv[2], sys.argv[3])

@@ -33,10 +33,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 /**
 * PolyglotNamedEntity
 *
-* @date 08.09.2017
+* @date 20.09.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
 * This class provide NER for 40 languages. (http://polyglot.readthedocs.io/en/latest/NamedEntityRecognition.html) 
 * UIMA-Token|UIMA-Sentence are needed as input to create NE.

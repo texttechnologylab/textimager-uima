@@ -21,10 +21,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 /**
 * PolyglotTokenizer
 *
-* @date 08.09.2017
+* @date 20.09.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
 * This class provide tokenization for 165 languages. 
 * UIMA-Standard is used to represent the final token.
@@ -38,7 +38,7 @@ public class PolyglotTokenizer  extends SegmenterBase {
 	/**
      * Load the PythonPATH
      */
-    public static final String PARAM_PYTHON_PATH = "PythonPath";
+    public static final String PARAM_PYTHON_PATH = "PythonPathPolyglot";
     @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
     protected String PythonPATH;
     

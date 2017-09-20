@@ -17,10 +17,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 /**
 * PolyglotSentenceBoundary
 *
-* @date 08.09.2017
+* @date 20.09.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
 * This class provide sentence detection for different languages. 
 * UIMA-Standard is used to represent the final sentence.
@@ -71,7 +71,7 @@ public class PolyglotSentenceBoundary  extends SegmenterBase {
 					   builder.append(line);
 					   builder.append(System.getProperty("line.separator"));
 					}
-			String result = builder.toString();			
+			String result = builder.toString();
 			String[] resultInParts = result.split("\n");
 			
 			String documentText = aJCas.getDocumentText();

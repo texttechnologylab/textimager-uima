@@ -31,10 +31,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 /**
 * PolyglotPartOfSpeech
 *
-* @date 08.09.2017
+* @date 20.09.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
 * This class provide POS for 16 languages. (http://polyglot.readthedocs.io/en/latest/POS.html) 
 * UIMA-Token is needed as input to create POS.

@@ -21,10 +21,10 @@ import sentimentAnnotation.type.SentimentAnnotation;
 /**
 * PolyglotSentiment
 *
-* @date 08.09.2017
+* @date 20.09.2017
 *
 * @author Alexander Sang
-* @version 1.1
+* @version 1.2
 *
 * This class provide Sentiment for 135 languages. (http://polyglot.readthedocs.io/en/latest/Sentiment.html) 
 * UIMA-Token are needed as input to create Sentiment.
