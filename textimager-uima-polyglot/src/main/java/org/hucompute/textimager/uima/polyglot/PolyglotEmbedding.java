@@ -20,10 +20,10 @@ import embeddingAnnotation.type.EmbeddingAnnotation;
 /**
 * PolyglotEmbedding
 *
-* @date 08.09.2017
+* @date 20.09.2017
 *
 * @author Alexander Sang
-* @version 1.1
+* @version 1.2
 *
 * This class provide Embedding for 137 languages. (http://polyglot.readthedocs.io/en/latest/Embeddings.html) 
 * UIMA-Token are needed as input to create Embedding.
@@ -60,6 +60,8 @@ public class PolyglotEmbedding  extends SegmenterBase {
 		
 		if(EMBEDDING_LOCATION == null) {
 			EMBEDDING_LOCATION = "/home/alex/polyglot_data/embeddings2/" + aJCas.getDocumentLanguage() + "/embeddings_pkl.tar.bz2";
+		} else {
+			EMBEDDING_LOCATION = EMBEDDING_LOCATION + aJCas.getDocumentLanguage() + "/embeddings_pkl.tar.bz2"; 
 		}
 		
 		for (Token token : select(aJCas, Token.class)) {				

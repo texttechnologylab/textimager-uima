@@ -21,10 +21,10 @@ import tansliterationAnnotation.type.TransliterationAnnotation;
 /**
 * PolyglotTransliteration
 *
-* @date 08.09.2017
+* @date 20.09.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
 * This class provide Transliteration for 69 languages. (http://polyglot.readthedocs.io/en/latest/Transliteration.html) 
 * UIMA-Token are needed as input to create Transliteration.

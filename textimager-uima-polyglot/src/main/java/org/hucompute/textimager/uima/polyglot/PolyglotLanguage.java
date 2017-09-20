@@ -15,10 +15,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 /**
 * PolyglotLanguage
 *
-* @date 08.09.2017
+* @date 20.09.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
 * This class provide language recognition for different languages. 
 * Language code is used for JCas document language.

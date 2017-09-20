@@ -22,10 +22,10 @@ import morphemeAnnotation.type.MorphemeAnnotation;
 /**
 * PolyglotMorphology
 *
-* @date 08.09.2017
+* @date 20.09.2017
 *
 * @author Alexander Sang
-* @version 1.0
+* @version 1.2
 *
 * This class provide morphemes for 135 languages. (http://polyglot.readthedocs.io/en/latest/MorphologicalAnalysis.html) 
 * UIMA-Token is needed as input to create POS.
