@@ -143,8 +143,9 @@ public class OpenerProjectConstituentCoref extends JCasAnnotator_ImplBase {
             }
         };
 
-
-        constituentMappingProvider = MappingProviderFactory.createPosMappingProvider(constituentMappingLocation,
+        if(constituentMappingLocation == null) 
+        	constituentMappingLocation="classpath:/org/hucompute/textimager/uima/OpenerProject/lib/constituent-default.map";
+        constituentMappingProvider = MappingProviderFactory.createConstituentMappingProvider(constituentMappingLocation,
                 language, modelProvider);
     }
 
@@ -169,7 +170,7 @@ public class OpenerProjectConstituentCoref extends JCasAnnotator_ImplBase {
 		List<String> cmd = new ArrayList<String>();
 		cmd.add("/bin/sh");
 		cmd.add("-c");
-		cmd.add("cat" + " \"" + KAF_LOCATION + "\"" + 
+		cmd.add("export PATH=/usr/bin:$PATH && cat" + " \"" + KAF_LOCATION + "\"" + 
 				"| "+pathToJruby+"jruby -S constituent-parser | "+pathToJruby+"jruby -S coreference");
 
 		// Define ProcessBuilder

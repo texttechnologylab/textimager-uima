@@ -40,7 +40,7 @@ public class OpenerProjectLanguageIdentifier extends SegmenterBase {
 		List<String> cmd = new ArrayList<String>();
 		cmd.add("/bin/sh");
 		cmd.add("-c");
-		cmd.add("echo" + " \"" + text + "\"" + 
+		cmd.add("export PATH=/usr/bin:$PATH && echo" + " \"" + text + "\"" + 
 				" | "+pathToJruby+"jruby -S language-identifier");
 
 		// Define ProcessBuilder
