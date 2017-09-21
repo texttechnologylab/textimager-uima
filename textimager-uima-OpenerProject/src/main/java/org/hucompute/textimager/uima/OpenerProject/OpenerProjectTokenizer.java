@@ -94,7 +94,6 @@ public class OpenerProjectTokenizer  extends SegmenterBase {
 		        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 		        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 		        
-		        System.out.println(in.readLine());
 
 		        // InputSteam to KAF 
 		        KAFDocument inputkaf = KAFDocument.createFromStream(in);
