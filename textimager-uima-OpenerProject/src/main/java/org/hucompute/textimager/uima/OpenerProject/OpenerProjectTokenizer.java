@@ -36,6 +36,17 @@ public class OpenerProjectTokenizer  extends SegmenterBase {
     @ConfigurationParameter(name = PARAM_JRUBY_LOCATION, mandatory = false)
     protected String jRubyLocation;
 
+    public static String createRegex(String s) {
+        StringBuilder b = new StringBuilder();
+        for(int i=0; i<s.length(); ++i) {
+            char ch = s.charAt(i);
+            if ("\"".indexOf(ch) != -1)
+                b.append('\\').append(ch);
+            else
+                b.append(ch);
+        }
+        return b.toString();
+    }
 	
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {		
@@ -49,7 +60,11 @@ public class OpenerProjectTokenizer  extends SegmenterBase {
 //				text = text.replaceAll("\n\n", "\n");
 //			}
 			kaf.setRawText(text);
-			kaf.save(KAF_LOCATION);	
+			kaf.save(KAF_LOCATION);
+			
+//			String KAF_STRING = kaf.toString().replaceAll("\n", " ");
+//			System.out.println(KAF_STRING);
+//			KAF_STRING = KAF_STRING.replace("![CDATA[", "").replace(".]]", "");
 			
 			String pathToJruby = "~/jruby/bin/";
 			if(jRubyLocation != null) pathToJruby=jRubyLocation;
@@ -58,9 +73,10 @@ public class OpenerProjectTokenizer  extends SegmenterBase {
 			List<String> cmd = new ArrayList<String>();
 			cmd.add("/bin/sh");
 			cmd.add("-c");
-			cmd.add("cat" + " \"" + KAF_LOCATION + "\"" + 
+			cmd.add("export PATH=/usr/bin:$PATH && cat" + " \"" + KAF_LOCATION+"\"" + 
 					" | "+pathToJruby+"jruby -S tokenizer");
 
+			System.out.println(cmd);
 			// Define ProcessBuilder
 	        ProcessBuilder pb = new ProcessBuilder(cmd);
 	        pb.redirectError(Redirect.INHERIT);
@@ -77,9 +93,12 @@ public class OpenerProjectTokenizer  extends SegmenterBase {
 		        PrintWriter out = new PrintWriter(new OutputStreamWriter(proc.getOutputStream()));
 		        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 		        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-				       
+		        
+		        System.out.println(in.readLine());
+
 		        // InputSteam to KAF 
 		        KAFDocument inputkaf = KAFDocument.createFromStream(in);
+		        System.out.println(inputkaf);
 		        
 		        List<WF> wfList = inputkaf.getWFs();
 		        List<List<WF>> sentList = inputkaf.getSentences();
@@ -132,12 +151,6 @@ public class OpenerProjectTokenizer  extends SegmenterBase {
 	            }
 	        }
 	        
-	        try {
-				Files.delete(Paths.get(KAF_LOCATION));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 	}
 
 }

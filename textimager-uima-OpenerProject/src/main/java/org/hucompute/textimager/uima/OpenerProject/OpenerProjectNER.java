@@ -148,10 +148,11 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
         
         mappingProvider = new MappingProvider();
         mappingProvider
-                .setDefaultVariantsLocation("org/hucompute/textimager/uima/OpenerProject/lib/ner-default.map");
+                .setDefaultVariantsLocation("classpath:/org/hucompute/textimager/uima/OpenerProject/lib/ner-default.map");
         mappingProvider.setDefault(MappingProvider.LOCATION, "classpath:/org/hucompute/textimager/uima/"
-                + "OpenerProject/lib/ner-${variant}.map");
+                + "OpenerProject/lib/ner-default.map");
         mappingProvider.setDefault(MappingProvider.BASE_TYPE, NamedEntity.class.getName());
+        
         mappingProvider.setOverride(MappingProvider.LOCATION, namedEntityMappingLocation);
         mappingProvider.setOverride(MappingProvider.LANGUAGE, language);
         mappingProvider.setOverride(MappingProvider.VARIANT, variant);
@@ -182,7 +183,7 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 		List<String> cmd = new ArrayList<String>();
 		cmd.add("/bin/sh");
 		cmd.add("-c");
-		cmd.add("cat" + " \"" + KAF_LOCATION + "\"" + 
+		cmd.add("export PATH=/usr/bin:$PATH && cat" + " \"" + KAF_LOCATION + "\"" + 
 				"| "+pathToJruby+"jruby -S ner");
 		//| jruby --2.0 -S ned
 

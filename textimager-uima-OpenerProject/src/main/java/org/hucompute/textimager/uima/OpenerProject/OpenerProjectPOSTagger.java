@@ -149,7 +149,9 @@ public class OpenerProjectPOSTagger  extends JCasAnnotator_ImplBase {
             }
         };
 
-
+        
+		if(posMappingLocation == null) 
+			posMappingLocation="classpath:/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map";
         posMappingProvider = MappingProviderFactory.createPosMappingProvider(posMappingLocation,
                 language, modelProvider);
     }
@@ -177,7 +179,7 @@ public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		List<String> cmd = new ArrayList<String>();
 		cmd.add("/bin/sh");
 		cmd.add("-c");
-		cmd.add("cat" + " \"" + KAF_LOCATION + "\"" + 
+		cmd.add("export PATH=/usr/bin:$PATH && cat" + " \"" + KAF_LOCATION + "\"" + 
 				" | "+pathToJruby+"jruby -S pos-tagger");
 
 		// Define ProcessBuilder

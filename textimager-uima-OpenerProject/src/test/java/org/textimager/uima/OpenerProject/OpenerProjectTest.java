@@ -36,7 +36,7 @@ public class OpenerProjectTest {
 	
 	@Test
 	public void TokenizerFR() throws UIMAException{
-		JCas cas = JCasFactory.createText("Ceci est un bon test. \n\n\n Ceci est un bon test.", "fr");
+		JCas cas = JCasFactory.createText("Ceci est un bon test.", "fr");
 		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
 
 		AggregateBuilder builder = new AggregateBuilder();
@@ -45,7 +45,7 @@ public class OpenerProjectTest {
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 		
 		for (Token token : JCasUtil.select(cas, Token.class)) {
-			System.out.println(token);
+			System.out.println(token.getCoveredText());
 		}
 
 		AssertAnnotations.assertToken(new String[] {"Ceci", "est", "un", "bon", "test","."}, JCasUtil.select(cas, Token.class));
