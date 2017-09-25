@@ -162,7 +162,7 @@ public class OpenerProjectTest {
 	}
 	
 //	@Test
-	public void Constituen() throws UIMAException, IOException{
+	public void Constituent() throws UIMAException, IOException{
 		String text = new String(Files.readAllBytes(Paths.get("wiki_de_text")));
 		JCas cas = JCasFactory.createText(text, "de");
 //		JCas cas = JCasFactory.createText("Merkel wuchs in der DDR auf und war dort als Physikerin wissenschaftlich tätig. Bei der Bundestagswahl am 2. Dezember 1990 errang sie erstmals ein Bundestagsmandat; in allen darauffolgenden sechs Bundestagswahlen wurde sie in ihrem Wahlkreis in Vorpommern direkt gewählt.", "de");
@@ -194,7 +194,7 @@ public class OpenerProjectTest {
 		System.out.println(xml.getAbsolutePath());
 		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
 	}
-	@Test
+//	@Test
 	public void FullPipeRuntime() throws UIMAException, IOException{
 		String lan = "en";
 		String text = new String(Files.readAllBytes(Paths.get("src/test/java/wiki_"+lan+"_text")));
@@ -226,8 +226,8 @@ public class OpenerProjectTest {
 		System.out.println("Tokenizer: " + Time_1 +" seconds");
 		long Time_2 = RunPipe(cas, POS);
 		System.out.println("POS: " + Time_2 +" seconds");
-		//long Time_3 = RunPipe(cas, Const);
-		//System.out.println("Constituent: " + Time_3+" seconds");
+		long Time_3 = RunPipe(cas, Const);
+		System.out.println("Constituent: " + Time_3+" seconds");
 		long Time_4 = RunPipe(cas, NER);
 		System.out.println("NER: " + Time_4 +" seconds");
 		
@@ -239,7 +239,7 @@ public class OpenerProjectTest {
 		
 		System.out.println("Tokenizer: " + Time_1 +" seconds");
 		System.out.println("POS: " + Time_2 +" seconds");
-		//System.out.println("Constituent: " + Time_3+" seconds");
+		System.out.println("Constituent: " + Time_3+" seconds");
 		System.out.println("NER: " + Time_4 +" seconds");
 		System.out.println("Token: "+JCasUtil.select(cas, Token.class).size());
 		System.out.println("Sentence: "+JCasUtil.select(cas, Sentence.class).size());
