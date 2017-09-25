@@ -36,18 +36,21 @@ public class IXATokenizer extends JCasAnnotator_ImplBase {
 		
 		// Annotate Sentence and Token
 		for(List<Token> sentence: TokenList) {
-			int sentenceBegin = sentence.get(0).startOffset();
-			int sentenceEnd = sentence.get(sentence.size()-1).startOffset() + sentence.get(sentence.size()-1).tokenLength();
-			Sentence casSentence = new Sentence(aJCas, sentenceBegin, sentenceEnd);
-			casSentence.addToIndexes();
-			
-			for(Token token: sentence) {
-				int tokenBegin = token.startOffset();
-				int tokenEnd = tokenBegin + token.tokenLength();
-				de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token casToken = 
-						new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(aJCas,tokenBegin,tokenEnd);
-				casToken.addToIndexes();
+			if(sentence.size() > 0) {
+				int sentenceBegin = sentence.get(0).startOffset();
+				int sentenceEnd = sentence.get(sentence.size()-1).startOffset() + sentence.get(sentence.size()-1).tokenLength();
+				Sentence casSentence = new Sentence(aJCas, sentenceBegin, sentenceEnd);
+				casSentence.addToIndexes();
+				
+				for(Token token: sentence) {
+					int tokenBegin = token.startOffset();
+					int tokenEnd = tokenBegin + token.tokenLength();
+					de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token casToken = 
+							new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(aJCas,tokenBegin,tokenEnd);
+					casToken.addToIndexes();
+				}
 			}
+				
 		}
 		
 	}
