@@ -9,6 +9,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import disambiguationAnnotation.type.DisambiguationAnnotation;
@@ -61,10 +62,13 @@ public class ZemberekDisambiguation extends SegmenterBase {
 	        
 	        for(SentenceAnalysis.Entry entry : result) {
 	        	for (WordAnalysis analysis : entry.parses) {
-	                // Create DisambiguationAnnotation		
-					DisambiguationAnnotation morphText = new DisambiguationAnnotation(aJCas, T.get(i).getBegin(), T.get(i).getEnd());
-					morphText.setValue(analysis.formatLong());
-					morphText.addToIndexes();	
+	        		// Create MorphemeAnnotation		
+					MorphologicalFeatures morpheme = new MorphologicalFeatures(aJCas, T.get(i).getBegin(), T.get(i).getEnd());
+					morpheme.setValue(analysis.formatLong());
+					morpheme.addToIndexes();	
+//					DisambiguationAnnotation morphText = new DisambiguationAnnotation(aJCas, T.get(i).getBegin(), T.get(i).getEnd());
+//					morphText.setValue(analysis.formatLong());
+//					morphText.addToIndexes();	
 	            }
 	        	
 	        	i++;

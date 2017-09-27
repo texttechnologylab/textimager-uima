@@ -12,6 +12,7 @@ import org.hucompute.textimager.uima.zemberek.ZemberekTokenizerDefault;
 import org.junit.Test;
 
 import de.tudarmstadt.ukp.dkpro.core.api.anomaly.type.SpellingAnomaly;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 
 /**
 * ZemberekSpellCheckTest
@@ -30,7 +31,7 @@ public class ZemberekSpellCheckTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testLemma() throws Exception {
+	public void testSpellChecker() throws Exception {
 		// Wir hatten gelesen (falsch)
 		String text = "okumuştk";
 		
@@ -62,10 +63,46 @@ public class ZemberekSpellCheckTest {
 			}			
         }
 		
+		// JUnit Test for Anomaly
+		assertEquals(outputCorrectToken, outputTestToken);
+	}
+	
+	@Test
+	public void testSpellCheckerPipeline() throws Exception {
+		// Istanbul, hallo! Leider kann ich nur ganz wenig Türkisch.
+		String testText = "İtanbul, alo! Ne çok az Türk konuşabilir yazık.";
+		
+		// Create new AnalysisEngineDescription
+		AnalysisEngineDescription tokenAnnotator = createEngineDescription(ZemberekTokenizerDefault.class);
+		AnalysisEngineDescription spellAnnotator = createEngineDescription(ZemberekSpellChecker.class);
+		
+		// Create a new JCas - "Holder"-Class for Annotation. 
+		JCas inputCas = JCasFactory.createJCas();
+		
+		// Input
+		inputCas.setDocumentText(testText);
+		
+		// Pipeline
+		SimplePipeline.runPipeline(inputCas, tokenAnnotator, spellAnnotator);
+		
+		// Sample Text
+		String outputCorrectToken = "İstanbul | ";
+		
+		// Generated text with library
+		String outputTestToken = "";
+		String visualOutput = "";
+		
+		// Loop over different anomalies and create the UIMA-Output.
+		for (SpellingAnomaly anomaly : select(inputCas, SpellingAnomaly.class)) {			
+			for(int i = 0; i < anomaly.getSuggestions().size(); i++) {
+				outputTestToken = outputTestToken + anomaly.getSuggestions(i).getReplacement() + " | ";
+				visualOutput = visualOutput + anomaly.getSuggestions(i) + " \n ";
+			}			
+        }
+		
 		// Visual Output
 		System.out.println(visualOutput);
-		
-		// JUnit Test for Anomaly
+		// JUnit-Test: Lemma, Begin, End
 		assertEquals(outputCorrectToken, outputTestToken);
 	}
 }

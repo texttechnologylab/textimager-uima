@@ -51,26 +51,28 @@ public class ZemberekSpellChecker extends SegmenterBase {
 					// Give suggestions!
 					spellChecker.suggestForWord(token.getCoveredText());
 					
-					// SpellingAnomaly
-					SpellingAnomaly anomaly = new SpellingAnomaly(aJCas, token.getBegin(), token.getEnd());
-					FSArray actions = new FSArray(aJCas, spellChecker.suggestForWord(token.getCoveredText()).size());
-					
-					// Create SuggestedAction
-					int i = 0;
-					// Uniform probability
-					float certainty = (float) (1.0 / (float) spellChecker.suggestForWord(token.getCoveredText()).size());
-					
-					for(String string : spellChecker.suggestForWord(token.getCoveredText())) {						
-						SuggestedAction action = new SuggestedAction(aJCas, token.getBegin(), token.getEnd());
-						action.setReplacement(string);
-						action.setCertainty(certainty);
-						actions.set(i, action);
-						i = i + 1;						
+					if(spellChecker.suggestForWord(token.getCoveredText()) != null) {
+						// SpellingAnomaly
+						SpellingAnomaly anomaly = new SpellingAnomaly(aJCas, token.getBegin(), token.getEnd());
+						FSArray actions = new FSArray(aJCas, spellChecker.suggestForWord(token.getCoveredText()).size());
+						
+						// Create SuggestedAction
+						int i = 0;
+						// Uniform probability
+						float certainty = (float) (1.0 / (float) spellChecker.suggestForWord(token.getCoveredText()).size());
+						
+						for(String string : spellChecker.suggestForWord(token.getCoveredText())) {						
+							SuggestedAction action = new SuggestedAction(aJCas, token.getBegin(), token.getEnd());
+							action.setReplacement(string);
+							action.setCertainty(certainty);
+							actions.set(i, action);
+							i = i + 1;						
+						}
+						
+						// Set Anomaly
+						anomaly.setSuggestions(actions);
+						anomaly.addToIndexes(aJCas);
 					}
-					
-					// Set Anomaly
-					anomaly.setSuggestions(actions);
-					anomaly.addToIndexes(aJCas);
 				}
 			}
 		} catch (IOException e) {

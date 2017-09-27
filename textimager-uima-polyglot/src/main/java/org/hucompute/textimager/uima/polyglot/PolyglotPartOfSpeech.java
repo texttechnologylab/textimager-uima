@@ -20,12 +20,14 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 /**
@@ -40,7 +42,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 * UIMA-Token is needed as input to create POS.
 * UIMA-Standard is used to represent the final POS.*/
 @TypeCapability(
-		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token"},
+		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"},
 		outputs = {"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS"})
 public class PolyglotPartOfSpeech  extends SegmenterBase {
 	
@@ -137,82 +139,105 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
 		if(POLYGLOT_LOCATION == null) {
 			POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
 		}
-		String inputText = aJCas.getDocumentText();
 		
 		// Variables for mapping
 		CAS cas = aJCas.getCas();
 		modelProvider.configure(cas);
 		posMappingProvider.configure(cas);
 		
-		// Define ProcessBuilder
-        ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "pos", inputText);
-        pb.redirectError(Redirect.INHERIT);
-        
-        boolean success = false;
-        Process proc = null;
-        
-        try {
-	    	// Start Process
-	        proc = pb.start();
-	
-	        // IN, ERROR Streams
-	        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-	        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-	      
-	        StringBuilder builder = new StringBuilder();
-					String line = null;
-					while ( (line = in.readLine()) != null) {
-					   builder.append(line);
-					   builder.append(System.getProperty("line.separator"));
-					}
-			String result = builder.toString();
-			String[] resultInParts = result.split("\n");
-									
-			// Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
-			ArrayList<Token> T = new ArrayList<Token>();
-			for (Token token : select(aJCas, Token.class)) {
-				T.add(token);
-			}
+		// Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
+		ArrayList<Token> T = new ArrayList<Token>();
+		for (Token token : select(aJCas, Token.class)) {
+			T.add(token);
+		}
+		
+		int offsetToken = 0;
+		
+		for (Sentence sentence : select(aJCas, Sentence.class)) {	
+			// Define ProcessBuilder
+	        ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "pos", sentence.getCoveredText());
+	        pb.redirectError(Redirect.INHERIT);
+	        
+	        boolean success = false;
+	        Process proc = null;
 			
-			for(int i = 0; i < T.size(); i = i + 1) {	
-				// Create POS-Tag
-				String tag = resultInParts[i * 2 + 1];
-    			Type posTag = posMappingProvider.getTagType(tag);
-				POS posElement = (POS) cas.createAnnotation(posTag, T.get(i).getBegin(), T.get(i).getEnd());
-				posElement.setPosValue(tag);
-				posElement.addToIndexes();
-			}		
-						
-	        // Get Errors
-             String errorString = "";
-			 line = "";
-			 try {
-				while ((line = error.readLine()) != null) {
-					errorString += line+"\n";
-				}
-			 } catch (IOException e) {
-				e.printStackTrace();
-			 }
+	        try {
+		    	// Start Process
+		        proc = pb.start();
+		
+		        // IN, ERROR Streams
+		        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+		        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+		      
+		        StringBuilder builder = new StringBuilder();
+						String line = null;
+						while ( (line = in.readLine()) != null) {
+						   builder.append(line);
+						   builder.append(System.getProperty("line.separator"));
+						}
+				String result = builder.toString();
+				String[] resultInParts = result.split("\n");
 
-			 // Log Error
-			 if(errorString != "")
-			 getLogger().error(errorString);
-			 
-             success = true;
-        }
-        catch (IOException e) {
-            throw new AnalysisEngineProcessException(e);
-        }
-        
-        finally {
-            if (!success) {
+				int currentOffset = 0;
+				for(int i = 0; i < T.size(); i = i + 1) {
+					if(i + offsetToken >= T.size()) {
+						break;						
+					}
+					
+					if(T.get(i + offsetToken).getEnd() > sentence.getEnd() || T.get(i + offsetToken).getBegin() > sentence.getEnd()) {
+//						System.out.println("ABBRUCH");
+						break;
+					}
+					
+					if(T.get(i + offsetToken).getBegin() < sentence.getBegin()) {
+//						System.out.println("WEITER");
+						continue;
+					}
+					
+					if(resultInParts[i * 2].equals(T.get(i + offsetToken).getCoveredText())) {
+						// Create POS-Tag
+						String tag = resultInParts[i * 2 + 1];
+		    			Type posTag = posMappingProvider.getTagType(tag);
+						POS posElement = (POS) cas.createAnnotation(posTag, T.get(i + offsetToken).getBegin(), T.get(i + offsetToken).getEnd());
+						posElement.setPosValue(tag);
+						posElement.addToIndexes();
+						currentOffset = currentOffset + 1;
+					}
+				}		
 
-            }
-            
-            if (proc != null) {
-                proc.destroy();
-            }
-        }
+				offsetToken = offsetToken + currentOffset;
+				
+		        // Get Errors
+	             String errorString = "";
+				 line = "";
+				 try {
+					while ((line = error.readLine()) != null) {
+						errorString += line+"\n";
+					}
+				 } catch (IOException e) {
+					e.printStackTrace();
+				 }
+	
+				 // Log Error
+				 if(errorString != "")
+				 getLogger().error(errorString);
+				 
+	             success = true;
+	        }
+	        catch (IOException e) {
+	            throw new AnalysisEngineProcessException(e);
+	        }
+	        
+	        finally {
+	            if (!success) {
+	
+	            }
+	            
+	            if (proc != null) {
+	                proc.destroy();
+	            }
+	        }
+		}
 	}
 
 	

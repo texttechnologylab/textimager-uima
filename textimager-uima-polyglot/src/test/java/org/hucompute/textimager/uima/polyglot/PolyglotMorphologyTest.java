@@ -10,6 +10,7 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import morphemeAnnotation.type.MorphemeAnnotation;
 
 /**
@@ -58,7 +59,7 @@ public class PolyglotMorphologyTest {
 		String outputTestEnd = "";
 		
 		// Loop over different MorphemeAnnotation-Tags and create the UIMA-Output.
-		for (MorphemeAnnotation morpheme : select(inputCas, MorphemeAnnotation.class)) {		
+		for (MorphologicalFeatures morpheme : select(inputCas, MorphologicalFeatures.class)) {		
 			outputTestToken = outputTestToken + morpheme.getCoveredText() + " | ";
 			outputTestValue = outputTestValue + morpheme.getValue() + " | ";
 			outputTestBegin = outputTestBegin + morpheme.getBegin() + " | ";
@@ -106,7 +107,7 @@ public class PolyglotMorphologyTest {
 		String outputTestEnd = "";
 		
 		// Loop over different MorphemeAnnotation-Tags and create the UIMA-Output.
-		for (MorphemeAnnotation morpheme : select(inputCas, MorphemeAnnotation.class)) {		
+		for (MorphologicalFeatures morpheme : select(inputCas, MorphologicalFeatures.class)) {		
 			outputTestToken = outputTestToken + morpheme.getCoveredText() + " | ";
 			outputTestValue = outputTestValue + morpheme.getValue() + " | ";
 			outputTestBegin = outputTestBegin + morpheme.getBegin() + " | ";
@@ -152,9 +153,9 @@ public class PolyglotMorphologyTest {
 		String outputTestValue = "";
 		String outputTestBegin = "";
 		String outputTestEnd = "";
-		
+
 		// Loop over different MorphemeAnnotation-Tags and create the UIMA-Output.
-		for (MorphemeAnnotation morpheme : select(inputCas, MorphemeAnnotation.class)) {		
+		for (MorphologicalFeatures morpheme : select(inputCas, MorphologicalFeatures.class)) {		
 			outputTestToken = outputTestToken + morpheme.getCoveredText() + " | ";
 			outputTestValue = outputTestValue + morpheme.getValue() + " | ";
 			outputTestBegin = outputTestBegin + morpheme.getBegin() + " | ";

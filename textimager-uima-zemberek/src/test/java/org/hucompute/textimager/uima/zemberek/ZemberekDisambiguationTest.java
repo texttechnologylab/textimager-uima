@@ -12,6 +12,7 @@ import org.hucompute.textimager.uima.zemberek.ZemberekLemmatizer;
 import org.hucompute.textimager.uima.zemberek.ZemberekTokenizerDefault;
 import org.junit.Test;
 
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import disambiguationAnnotation.type.DisambiguationAnnotation;
 
@@ -62,7 +63,7 @@ public class ZemberekDisambiguationTest {
 		String outputTestEnd = "";
 		
 		// Loop over different lemma and create the test text.
-		for (DisambiguationAnnotation disambiguation : select(inputCas, DisambiguationAnnotation.class)) {			
+		for (MorphologicalFeatures disambiguation : select(inputCas, MorphologicalFeatures.class)) {			
 			outputTestValue = outputTestValue + disambiguation.getValue() + " | ";
 			outputTestBegin = outputTestBegin + disambiguation.getBegin() + " | ";
 			outputTestEnd = outputTestEnd + disambiguation.getEnd() + " | ";
