@@ -14,6 +14,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
@@ -89,9 +90,9 @@ public class PolyglotMorphology  extends SegmenterBase {
 				}
 				
 				// Create MorphemeAnnotation		
-				MorphemeAnnotation morphText = new MorphemeAnnotation(aJCas, token.getBegin(), token.getEnd());
-				morphText.setValue(value);
-				morphText.addToIndexes();	
+				MorphologicalFeatures morpheme = new MorphologicalFeatures(aJCas, token.getBegin(), token.getEnd());
+				morpheme.setValue(value);
+				morpheme.addToIndexes();	
 				
 				
 		        // Get Errors

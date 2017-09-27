@@ -47,7 +47,7 @@ public class PolyglotPartOfSpeechTest {
 		
 		// Sample Text
 		String outputCorrectToken = "Deutschland | ist | ein | Bundesstaat | in | Mitteleuropa | . | Er | besteht | aus | 16 | Ländern | und | ist | als | freiheitlich | - | demokratischer | und | sozialer | Rechtsstaat | verfasst | . | Die | Bundesrepublik | Deutschland | stellt | die | jüngste | Ausprägung | des | deutschen | Nationalstaates | dar | . | ";
-		String outputCorrectValue = "PROPN | VERB | DET | NOUN | ADP | NOUN | PUNCT | PRON | VERB | ADP | NUM | NOUN | CONJ | VERB | ADP | ADJ | PUNCT | ADJ | CONJ | ADJ | NOUN | VERB | PUNCT | DET | PROPN | PROPN | VERB | DET | ADJ | NOUN | DET | ADJ | NOUN | ADV | PUNCT | ";
+		String outputCorrectValue = "PROPN | VERB | DET | NOUN | ADP | PROPN | PUNCT | PRON | VERB | ADP | NUM | NOUN | CONJ | VERB | ADP | ADJ | PUNCT | ADJ | CONJ | ADJ | NOUN | VERB | PUNCT | DET | PROPN | PROPN | VERB | DET | ADJ | NOUN | DET | ADJ | NOUN | ADV | PUNCT | ";
 		String outputCorrectBegin = "0 | 12 | 16 | 20 | 32 | 35 | 47 | 49 | 52 | 60 | 64 | 67 | 75 | 79 | 83 | 87 | 99 | 100 | 115 | 119 | 128 | 140 | 148 | 150 | 154 | 169 | 181 | 188 | 192 | 200 | 211 | 215 | 225 | 241 | 244 | ";
 		String outputCorrectEnd = "11 | 15 | 19 | 31 | 34 | 47 | 48 | 51 | 59 | 63 | 66 | 74 | 78 | 82 | 86 | 99 | 100 | 114 | 118 | 127 | 139 | 148 | 149 | 153 | 168 | 180 | 187 | 191 | 199 | 210 | 214 | 224 | 240 | 244 | 245 | ";
 		

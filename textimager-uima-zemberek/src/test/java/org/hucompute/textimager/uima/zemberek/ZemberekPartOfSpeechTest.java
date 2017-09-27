@@ -49,10 +49,10 @@ public class ZemberekPartOfSpeechTest {
 		SimplePipeline.runPipeline(inputCas, tokenAnnotator, sentenceAnnotator, posAnnotator);
 		
 		// Sample Text
-		String outputCorrectToken = "İstanbul | İstanbul | , | , | alo | alo | ! | ! | Ne | çok | az | ";
-		String outputCorrectValue = "ProperNoun | Adjective | Adverb | Punctuation | Interjection | Adjective | ProperNoun | Punctuation | Verb | Noun | Punctuation | ";
-		String outputCorrectBegin = "0 | 0 | 8 | 8 | 10 | 10 | 13 | 13 | 15 | 18 | 22 | ";
-		String outputCorrectEnd = "8 | 8 | 9 | 9 | 13 | 13 | 14 | 14 | 17 | 21 | 24 | ";
+		String outputCorrectToken = "İstanbul | , | alo | ! | Ne | çok | az | Türk | konuşabilir | yazık | . | ";
+		String outputCorrectValue = "ProperNoun | Punctuation | Interjection | Punctuation | Adjective | Adverb | Adjective | ProperNoun | Verb | Noun | Punctuation | ";
+		String outputCorrectBegin = "0 | 8 | 10 | 13 | 15 | 18 | 22 | 25 | 30 | 42 | 47 | ";
+		String outputCorrectEnd = "8 | 9 | 13 | 14 | 17 | 21 | 24 | 29 | 41 | 47 | 48 | ";
 		
 		// Generated text with library
 		String outputTestToken = "";

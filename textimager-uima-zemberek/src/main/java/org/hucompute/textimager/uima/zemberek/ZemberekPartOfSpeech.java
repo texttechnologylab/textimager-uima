@@ -148,20 +148,21 @@ public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
 	        	TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 	        	Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
 	        	TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
+
+				
+				// Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
+				ArrayList<Token> T = new ArrayList<Token>();
+				for (Token token : select(aJCas, Token.class)) {
+					T.add(token);
+				}
+				
+				// Current
+				int i = 0;
 				
 				// Analyze the sentences.
 				for (Sentence sentence : select(aJCas, Sentence.class)) {
 					SentenceAnalysis analysis = sentenceAnalyzer.analyze(sentence.getCoveredText());
 					sentenceAnalyzer.disambiguate(analysis);
-					
-					// Current
-					int i = 0;
-					
-					// Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
-					ArrayList<Token> T = new ArrayList<Token>();
-					for (Token token : select(aJCas, Token.class)) {
-						T.add(token);
-					}
 					
 					// Analyze sentence
 			        for (SentenceAnalysis.Entry entry : analysis) {	            
