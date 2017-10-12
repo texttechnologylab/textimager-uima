@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>Wikipedia</name>
+  <description/>
+  <version>${version}</version>
+  <vendor>TextImager, Universität Frankfurt</vendor>
+  <types>
+    <typeDescription>
+      <name>de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink</name>
+      <description>Wikipedia link</description>
+      <supertypeName>uima.tcas.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>LinkType</name>
+          <description>The type of the link, e.g. internal, external, image, ...</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>Target</name>
+          <description>The link target url</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>Anchor</name>
+          <description>The anchor of the link</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+    <typeDescription>
+      <name>org.hucompute.textimager.uima.type.wikipedia.WikipediaLink</name>
+      <description>Wikipedia link</description>
+      <supertypeName>de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink</supertypeName>
+      <features>
+        <featureDescription>
+          <name>WikiData</name>
+          <description>WikiData Id</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>WikiDataHyponyms</name>
+          <description>WikiData Hyponyms</description>
+          <rangeTypeName>uima.cas.StringArray</rangeTypeName>
+        </featureDescription>
+        </features>
+    </typeDescription>
+  </types>
+</typeSystemDescription>

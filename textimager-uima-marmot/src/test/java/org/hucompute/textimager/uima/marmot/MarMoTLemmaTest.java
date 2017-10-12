@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.marmot;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static de.tudarmstadt.ukp.dkpro.core.testing.AssertAnnotations.assertPOS;
+import static de.tudarmstadt.ukp.dkpro.core.testing.AssertAnnotations.assertLemma;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.fit.factory.AggregateBuilder;
@@ -12,12 +13,14 @@ import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.tokit.BreakIteratorSegmenter;
 
-public class MarMoTTaggerTest {
+public class MarMoTLemmaTest {
 
-	@Test
+//	@Test
 	public void simpleExampleDE() throws UIMAException{
 		JCas cas = JCasFactory.createText("Das ist ein guter Test.", "de");
 		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
@@ -31,45 +34,35 @@ public class MarMoTTaggerTest {
 
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
-				MarMoTTagger.class
-//				,MarMoTTagger.PARAM_MODEL_LOCATION,"classpath:/org/hucompute/textimager/uima/marmot/test/de.marmot"
-				,MarMoTTagger.PARAM_MODEL_LOCATION,"http://cistern.cis.lmu.de/marmot/models/CURRENT/spmrl/de.marmot"
-
-				,MarMoTTagger.PARAM_POS_MAPPING_LOCATION,"classpath:/org/hucompute/textimager/uima/marmot/lib/pos-de-pretrained.map"
+				MarMoTLemma.class
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 		
-
-		assertPOS(
-				new String[] { "PR", "V", "ART", "ADJ", "NN","PUNC"},
-				new String[] { "PDS|PDS", "VAFIN|VAFIN", "ART|ART", "ADJA|ADJA", "NN|NN","$.|$."}, 
-				JCasUtil.select(cas, POS.class));	
+		assertLemma(new String[]{"der","sein","ein","gut","Test","--"}, JCasUtil.select(cas, Lemma.class));
 	}
 	
 //	@Test
-//	public void simpleExampleLa() throws UIMAException{
-//		JCas cas = JCasFactory.createText("Magnus stultus est.", "la");
+	public void simpleExampleLa() throws UIMAException{
+		JCas cas = JCasFactory.createText("Hoc senatusconsulti genus in usu fuit a tempore Gracchorum usque ad secundum triumviratum (43 a.C.n.).");
 //		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
 //
 //		new Token(cas,0,6).addToIndexes();
 //		new Token(cas,7,14).addToIndexes();
 //		new Token(cas,15,18).addToIndexes();
 //		new Token(cas,18,19).addToIndexes();
-//
-//		AggregateBuilder builder = new AggregateBuilder();
-//		
-//		builder.add(createEngineDescription(
-//				MarMoTTagger.class
-////				,MarMoTTagger.PARAM_MODEL_LOCATION,"http://cistern.cis.lmu.de/marmot/models/CURRENT/spmrl/de.marmot"
-////				,MarMoTTagger.PARAM_POS_MAPPING_LOCATION,"classpath:/org/hucompute/textimager/uima/marmot/lib/pos-de-pretrained.map"
-//				));
-//		SimplePipeline.runPipeline(cas,builder.createAggregate());
-//		
-//
-//		assertPOS(
-//				new String[] { "PR", "V", "ART", "ADJ", "NN","PUNC"},
-//				new String[] { "NN", "V", "$."}, 
-//				JCasUtil.select(cas, POS.class));	
-//	}
+
+		AggregateBuilder builder = new AggregateBuilder();
+		builder.add(createEngineDescription(
+				BreakIteratorSegmenter.class
+				));
+		builder.add(createEngineDescription(
+				MarMoTLemma.class
+				));
+		
+		SimplePipeline.runPipeline(cas,builder.createAggregate());
+		
+		assertLemma(new String[]{"magnus","stultus","sum","."}, JCasUtil.select(cas, Lemma.class));
+
+	}
 
 }
