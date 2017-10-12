@@ -34,6 +34,9 @@
 	</dependencies>
 	<modules>
 		<module>textimager-uima-marmot</module>
+		<module>textimager-uima-OpenerProject</module>
+		<module>textimager-uima-talismane</module>
+		<module>textimager-uima-IXA</module>
     <module>textimager-uima-type</module>
-  </modules>
+	</modules>
 </project>

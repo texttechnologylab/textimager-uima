@@ -1,0 +1,27 @@
+#  Source: https://github.com/opener-project/kaf/wiki/KAF-structure-overview
+#
+#
+# Catch-all rule
+*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+#
+#
+# N common noun
+N=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.N
+# R proper noun
+R=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.NP
+# Q Pronoun
+Q=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# D Determiner
+D=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# G Adjective
+G=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADJ
+# V verb
+V=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+# P preposition
+P=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PP
+# A adverb
+A=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADV
+# C conjunction
+C=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ
+# O other
+O=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
