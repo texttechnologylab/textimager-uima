@@ -18,7 +18,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 public class MarMoTTaggerTest {
 
 	@Test
-	public void simpleExample() throws UIMAException{
+	public void simpleExampleDE() throws UIMAException{
 		JCas cas = JCasFactory.createText("Das ist ein guter Test.", "de");
 		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
 
@@ -32,19 +32,42 @@ public class MarMoTTaggerTest {
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
 				MarMoTTagger.class
-				,MarMoTTagger.PARAM_MODEL_LOCATION,"http://cistern.cis.lmu.de/marmot/models/CURRENT/spmrl/de.marmot"
-				,MarMoTTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/marmot/lib/pos-de-pretrained.map"
+				,MarMoTTagger.PARAM_MODEL_LOCATION,"classpath:/org/hucompute/textimager/uima/marmot/test/de.marmot"
+				,MarMoTTagger.PARAM_POS_MAPPING_LOCATION,"classpath:/org/hucompute/textimager/uima/marmot/lib/pos-de-pretrained.map"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 		
-		for (Token token : JCasUtil.select(cas, Token.class)) {
-			System.out.println(token);
-		}
 
 		assertPOS(
 				new String[] { "PR", "V", "ART", "ADJ", "NN","PUNC"},
 				new String[] { "PDS|PDS", "VAFIN|VAFIN", "ART|ART", "ADJA|ADJA", "NN|NN","$.|$."}, 
 				JCasUtil.select(cas, POS.class));	
 	}
+	
+//	@Test
+//	public void simpleExampleLa() throws UIMAException{
+//		JCas cas = JCasFactory.createText("Magnus stultus est.", "la");
+//		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
+//
+//		new Token(cas,0,6).addToIndexes();
+//		new Token(cas,7,14).addToIndexes();
+//		new Token(cas,15,18).addToIndexes();
+//		new Token(cas,18,19).addToIndexes();
+//
+//		AggregateBuilder builder = new AggregateBuilder();
+//		
+//		builder.add(createEngineDescription(
+//				MarMoTTagger.class
+////				,MarMoTTagger.PARAM_MODEL_LOCATION,"http://cistern.cis.lmu.de/marmot/models/CURRENT/spmrl/de.marmot"
+////				,MarMoTTagger.PARAM_POS_MAPPING_LOCATION,"classpath:/org/hucompute/textimager/uima/marmot/lib/pos-de-pretrained.map"
+//				));
+//		SimplePipeline.runPipeline(cas,builder.createAggregate());
+//		
+//
+//		assertPOS(
+//				new String[] { "PR", "V", "ART", "ADJ", "NN","PUNC"},
+//				new String[] { "NN", "V", "$."}, 
+//				JCasUtil.select(cas, POS.class));	
+//	}
 
 }
