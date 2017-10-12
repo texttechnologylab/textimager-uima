@@ -32,7 +32,9 @@ public class MarMoTTaggerTest {
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
 				MarMoTTagger.class
-				,MarMoTTagger.PARAM_MODEL_LOCATION,"classpath:/org/hucompute/textimager/uima/marmot/test/de.marmot"
+//				,MarMoTTagger.PARAM_MODEL_LOCATION,"classpath:/org/hucompute/textimager/uima/marmot/test/de.marmot"
+				,MarMoTTagger.PARAM_MODEL_LOCATION,"http://cistern.cis.lmu.de/marmot/models/CURRENT/spmrl/de.marmot"
+
 				,MarMoTTagger.PARAM_POS_MAPPING_LOCATION,"classpath:/org/hucompute/textimager/uima/marmot/lib/pos-de-pretrained.map"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
