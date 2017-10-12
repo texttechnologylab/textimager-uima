@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/XMI" xmlns:cas="http:///uima/cas.ecore" xmlns:chunk="http:///de/tudarmstadt/ukp/dkpro/core/api/syntax/type/chunk.ecore" xmlns:constituent="http:///de/tudarmstadt/ukp/dkpro/core/api/syntax/type/constituent.ecore" xmlns:dependency="http:///de/tudarmstadt/ukp/dkpro/core/api/syntax/type/dependency.ecore" xmlns:morph="http:///de/tudarmstadt/ukp/dkpro/core/api/lexmorph/type/morph.ecore" xmlns:pos="http:///de/tudarmstadt/ukp/dkpro/core/api/lexmorph/type/pos.ecore" xmlns:tcas="http:///uima/tcas.ecore" xmlns:tweet="http:///de/tudarmstadt/ukp/dkpro/core/api/lexmorph/type/pos/tweet.ecore" xmlns:type="http:///de/tudarmstadt/ukp/dkpro/core/api/anomaly/type.ecore" xmlns:type10="http:///disambiguationAnnotation/type.ecore" xmlns:type11="http:///pronunciationAnnotation/type.ecore" xmlns:type2="http:///de/tudarmstadt/ukp/dkpro/core/api/coref/type.ecore" xmlns:type3="http:///de/tudarmstadt/ukp/dkpro/core/api/frequency/tfidf/type.ecore" xmlns:type4="http:///de/tudarmstadt/ukp/dkpro/core/api/metadata/type.ecore" xmlns:type5="http:///de/tudarmstadt/ukp/dkpro/core/api/ner/type.ecore" xmlns:type6="http:///de/tudarmstadt/ukp/dkpro/core/api/segmentation/type.ecore" xmlns:type7="http:///de/tudarmstadt/ukp/dkpro/core/api/semantics/type.ecore" xmlns:type8="http:///de/tudarmstadt/ukp/dkpro/core/api/syntax/type.ecore" xmlns:type9="http:///de/tudarmstadt/ukp/dkpro/core/api/transform/type.ecore" xmi:version="2.0">
+  <cas:NULL xmi:id="0"/>
+  <tcas:DocumentAnnotation begin="0" end="57" language="tr" sofa="1" xmi:id="8"/>
+  <type6:Token begin="0" end="8" sofa="1" xmi:id="13"/>
+  <type6:Token begin="8" end="9" sofa="1" xmi:id="23"/>
+  <type6:Token begin="10" end="18" sofa="1" xmi:id="33"/>
+  <type6:Token begin="19" end="22" sofa="1" xmi:id="43"/>
+  <type6:Token begin="22" end="23" sofa="1" xmi:id="53"/>
+  <type6:Token begin="24" end="26" sofa="1" xmi:id="63"/>
+  <type6:Token begin="27" end="30" sofa="1" xmi:id="73"/>
+  <type6:Token begin="31" end="33" sofa="1" xmi:id="83"/>
+  <type6:Token begin="34" end="38" sofa="1" xmi:id="93"/>
+  <type6:Token begin="39" end="50" sofa="1" xmi:id="103"/>
+  <type6:Token begin="51" end="56" sofa="1" xmi:id="113"/>
+  <type6:Token begin="56" end="57" sofa="1" xmi:id="123"/>
+  <type11:PronunciationAnnotation begin="0" end="8" sofa="1" value="istanbul" xmi:id="133"/>
+  <type11:PronunciationAnnotation begin="8" end="9" sofa="1" value="a" xmi:id="138"/>
+  <type11:PronunciationAnnotation begin="10" end="18" sofa="1" value="istanbul" xmi:id="143"/>
+  <type11:PronunciationAnnotation begin="19" end="22" sofa="1" value="alo" xmi:id="148"/>
+  <type11:PronunciationAnnotation begin="22" end="23" sofa="1" value="a" xmi:id="153"/>
+  <type11:PronunciationAnnotation begin="24" end="26" sofa="1" value="ne" xmi:id="158"/>
+  <type11:PronunciationAnnotation begin="27" end="30" sofa="1" value="çok" xmi:id="163"/>
+  <type11:PronunciationAnnotation begin="31" end="33" sofa="1" value="az" xmi:id="168"/>
+  <type11:PronunciationAnnotation begin="34" end="38" sofa="1" value="türk" xmi:id="173"/>
+  <type11:PronunciationAnnotation begin="39" end="50" sofa="1" value="konuşabilir" xmi:id="178"/>
+  <type11:PronunciationAnnotation begin="51" end="56" sofa="1" value="yazık" xmi:id="183"/>
+  <type11:PronunciationAnnotation begin="56" end="57" sofa="1" value="a" xmi:id="188"/>
+  <cas:Sofa mimeType="text" sofaID="_InitialView" sofaNum="1" sofaString="İstanbul, İstanbul alo! Ne çok az Türk konuşabilir yazık." xmi:id="1"/>
+  <cas:View members="8 13 23 33 43 53 63 73 83 93 103 113 123 133 138 143 148 153 158 163 168 173 178 183 188" sofa="1"/>
+</xmi:XMI>

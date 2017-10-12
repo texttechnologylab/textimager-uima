@@ -1,0 +1,360 @@
+# TOP
+TOP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NP00000
+NP00000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# SENTENCE
+SENTENCE=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# SN
+SN=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# GRUP.NOM
+GRUP.NOM=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# GRUP.VERB
+GRUP.VERB=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSIP3S0
+VSIP3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DI0MS0
+DI0MS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NCMS000
+NCMS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# CONJ
+CONJ=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# CC
+CC=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NCFS000
+NCFS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# SP
+SP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PREP
+PREP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# SPS00
+SPS00=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FP
+FP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# S
+S=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DA0FS0
+DA0FS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FC
+FC=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# S.A
+S.A=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# GRUP.A
+GRUP.A=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0FS0
+AQ0FS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# SPCMS
+SPCMS=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# SADV
+SADV=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# GRUP.ADV
+GRUP.ADV=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# RG
+RG=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PARTICIPI
+PARTICIPI=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0FSP
+AQ0FSP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# CS
+CS=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FE
+FE=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NCCP000
+NCCP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0MPP
+AQ0MPP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NCMP000
+NCMP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NP0000O
+NP0000O=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# Z
+Z=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# RELATIU
+RELATIU=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PR0CN000
+PR0CN000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DP3CS0
+DP3CS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIP3S0
+VMIP3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# GERUNDI
+GERUNDI=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSG0000
+VSG0000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DA0FP0
+DA0FP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DI0FP0
+DI0FP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NCFP000
+NCFP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AO0FS0
+AO0FS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DA0MS0
+DA0MS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0CS0
+AQ0CS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NP0000P
+NP0000P=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DA0MP0
+DA0MP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0MS0
+AQ0MS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NP0000L
+NP0000L=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0CP0
+AQ0CP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0FP0
+AQ0FP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSIP3P0
+VSIP3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMP00PM
+VMP00PM=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PR0CP000
+PR0CP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIP3P0
+VMIP3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3FP000
+PP3FP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIS3S0
+VMIS3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FPA
+FPA=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FPT
+FPT=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NP0000A
+NP0000A=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FD
+FD=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# SA
+SA=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# INC
+INC=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NC00000
+NC00000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# MORFEMA.PRONOMINAL
+MORFEMA.PRONOMINAL=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# P0300000
+P0300000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# MORFEMA.VERBAL
+MORFEMA.VERBAL=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# P0000000
+P0000000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DD0MP0
+DD0MP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAIP3P0
+VAIP3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMP00SM
+VMP00SM=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# INFINITIU
+INFINITIU=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMN0000
+VMN0000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0MSP
+AQ0MSP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAII3S0
+VAII3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NCMN000
+NCMN000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NEG
+NEG=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# RN
+RN=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSIC3S0
+VSIC3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSIS3S0
+VSIS3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMP00SF
+VMP00SF=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMG0000
+VMG0000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAIP3S0
+VAIP3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSP00SM
+VSP00SM=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AO0MS0
+AO0MS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3MP000
+PP3MP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FX
+FX=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMII3S0
+VMII3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# W
+W=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSN0000
+VSN0000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DI0FS0
+DI0FS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DP3CP0
+DP3CP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0MP0
+AQ0MP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMSI3S0
+VMSI3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAIS3S0
+VAIS3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DD0MS0
+DD0MS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DD0FS0
+DD0FS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSII3S0
+VSII3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PD0CS000
+PD0CS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIS3P0
+VMIS3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DI0MP0
+DI0MP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMII3P0
+VMII3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMM03S0
+VMM03S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PR0MS000
+PR0MS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DA0NS0
+DA0NS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NCFN000
+NCFN000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NCCS000
+NCCS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PR0CS000
+PR0CS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DN0CP0
+DN0CP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMSP3S0
+VMSP3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSIS3P0
+VSIS3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSII3P0
+VSII3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PN0MP000
+PN0MP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DD0FP0
+DD0FP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3CSD00
+PP3CSD00=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PT0CS000
+PT0CS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3FSA00
+PP3FSA00=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIC3S0
+VMIC3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PR000000
+PR000000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PI0FS000
+PI0FS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DN0MS0
+DN0MS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3MSA00
+PP3MSA00=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0FPP
+AQ0FPP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIP1P0
+VMIP1P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAIC3S0
+VAIC3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PR0FS000
+PR0FS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PD0FS000
+PD0FS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMP00PF
+VMP00PF=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PR0FP000
+PR0FP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3NS000
+PP3NS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSIF3S0
+VSIF3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIF3S0
+VMIF3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIF3P0
+VMIF3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PI0MP000
+PI0MP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3MS000
+PP3MS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DN0MP0
+DN0MP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PN0CP000
+PN0CP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AO0MP0
+AO0MP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AO0FP0
+AO0FP0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DN0FS0
+DN0FS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAII3P0
+VAII3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PD0MP000
+PD0MP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FH
+FH=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FAA
+FAA=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FAT
+FAT=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAIP1P0
+VAIP1P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AQ0CN0
+AQ0CN0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# ZU
+ZU=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PI0MS000
+PI0MS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# FS
+FS=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PD0MS000
+PD0MS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMSP3P0
+VMSP3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIC3P0
+VMIC3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# ZP
+ZP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# ZM
+ZM=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3CNO00
+PP3CNO00=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3CN000
+PP3CN000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DI0CS0
+DI0CS0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3CPD00
+PP3CPD00=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMSI3P0
+VMSI3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAIC3P0
+VAIC3P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PD0NS000
+PD0NS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PR0MP000
+PR0MP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PD0FP000
+PD0FP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VASI3S0
+VASI3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PI0FP000
+PI0FP000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# A
+A=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP3FS000
+PP3FS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PI0CS000
+PI0CS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# DP1FSP
+DP1FSP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VSSP3S0
+VSSP3S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMSP1P0
+VMSP1P0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VMIP1S0
+VMIP1S0=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NCCN000
+NCCN000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PN0FS000
+PN0FS000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP30SA00
+PP30SA00=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VAN0000
+VAN0000=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+#Catch
+*=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X

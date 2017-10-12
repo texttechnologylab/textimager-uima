@@ -1,0 +1,12 @@
+# http://polyglot.readthedocs.io/en/latest/NamedEntityRecognition.html
+#
+# Catch-all rule
+*|*=de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity
+*=de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity
+#
+# I-LOC - Location
+I-LOC=de.tudarmstadt.ukp.dkpro.core.api.ner.type.Location
+# I-ORG - Organisation
+I-ORG=de.tudarmstadt.ukp.dkpro.core.api.ner.type.Organization
+# I-PER - Person
+I-PER=de.tudarmstadt.ukp.dkpro.core.api.ner.type.Person

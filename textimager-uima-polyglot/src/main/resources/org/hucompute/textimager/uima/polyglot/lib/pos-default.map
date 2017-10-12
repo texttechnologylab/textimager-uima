@@ -1,0 +1,40 @@
+# http://polyglot.readthedocs.io/en/latest/POS.html
+#
+# Catch-all rule
+*|*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+#
+# ADJ - Adjective
+ADJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADJ
+# ADP - Adposition
+ADP=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PP
+# ADV - Adverb
+ADV=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADV
+# AUX - Auxiliary Verb
+AUX=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+# CONJ - Conjunction
+CONJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ
+# DET - Determiner
+DET=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# INTJ - Interjection
+INTJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+# NOUN - Noun
+NOUN=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.N
+# NUM - Numeral
+NUM=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+# PART - Particle
+PART=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PRT
+# PRON - Pronoun
+PRON=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+# PROPN - Proper Noun
+PROPN=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.NP
+# PUNCT - Punctuation
+PUNCT=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PUNC
+# SCONJ - Subordinating Conjunction
+SCONJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ
+# SYM - Symbol
+SYM=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+# VERB - Verb
+VERB=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+# X - Other
+X=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O

@@ -1,0 +1,61 @@
+#  Source: https://github.com/joliciel-informatique/talismane/blob/master/examples/french/frTagset.txt
+#
+#
+#
+#
+#ADJ	adjectif	OPEN
+ADJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADJ
+#ADV	adverbe	OPEN
+ADV=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADV
+#ADVWH	adverbe intérrogatif	CLOSED
+ADVWH=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADV
+#CC	conjonction de coordination	CLOSED
+CC=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ
+#CLO	clitique objet	CLOSED
+CLO=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+#CLR	clitique réflexif	CLOSED
+CLR=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+#CLS	clitique sujet	CLOSED
+CLS=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+#CS	conjonction de subordination	CLOSED
+CS=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ
+#DET	déteriminant	CLOSED
+DET=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+#DETWH	déterminant intérrogatif	CLOSED
+DETWH=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+#ET	mot étranger	OPEN
+ET=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+#I	interjection	OPEN
+I=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+#NC	nom commun	OPEN
+NC=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.N
+#NPP	nom propre	OPEN
+NPP=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.N
+#P	prépostion	CLOSED
+P=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PP
+#P+D	préposition+déterminant	CLOSED
+P+D=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PP
+#P+PRO	préposition+pronom	CLOSED
+P+PRO=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PP
+#PONCT	ponctuation	PUNCTUATION
+PONCT=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PUNC
+#PREF	préfixe	OPEN
+PREF=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+#PRO	pronom	CLOSED
+PRO=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+#PROREL	pronom rélatif	CLOSED
+PROREL=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+#PROWH	pronom intérrogatif	CLOSED
+PROWH=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+#V	verbe indicatif	OPEN
+V=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+#VIMP	verbe impératif	OPEN
+VIMP=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+#VINF	verbe infinitif	OPEN
+VINF=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+#VPP	verbe participe passé	OPEN
+VPP=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+#VPR	verbe participe présent	OPEN
+VPR=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+#VS	verbe subjonctif	OPEN
+VS=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
