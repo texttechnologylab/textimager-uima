@@ -1,0 +1,52 @@
+# TOP
+TOP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# N
+N=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# S
+S=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# NP
+NP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# D
+D=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VN
+VN=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# V
+V=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AP
+AP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# A
+A=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# Srel
+Srel=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PRO
+PRO=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PONCT
+PONCT=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VPpart
+VPpart=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PP
+PP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# P
+P=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# VPinf
+VPinf=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# ADV
+ADV=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# CL
+CL=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# COORD
+COORD=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# C
+C=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# Ssub
+Ssub=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# Sint
+Sint=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# PREF
+PREF=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# AdP
+AdP=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+# INC
+INC=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
+#Catch
+*=de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.X
