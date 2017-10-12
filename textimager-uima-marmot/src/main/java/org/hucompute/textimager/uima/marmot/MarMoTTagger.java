@@ -90,7 +90,7 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 	 * Default: {@code true}
 	 */
 	public static final String PARAM_WRITE_MORPH = ComponentParameters.PARAM_WRITE_MORPH;
-	@ConfigurationParameter(name=PARAM_WRITE_MORPH, mandatory=true, defaultValue="true")
+	@ConfigurationParameter(name=PARAM_WRITE_MORPH, mandatory=true, defaultValue="false")
 	private boolean writeMorph;
 
 
@@ -103,7 +103,7 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 			throws ResourceInitializationException {
 		super.initialize(aContext);
 
-		modelProvider = new ModelProviderBase<MorphTagger>(this, "tagger", "pos")
+		modelProvider = new ModelProviderBase<MorphTagger>(this, "marmot", "pos")
 		{
 			@Override
 			protected MorphTagger produceResource(InputStream aStream) throws Exception {
@@ -118,6 +118,8 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 		};
 		mappingProvider = MappingProviderFactory.createPosMappingProvider(posMappingLocation,
 				language,modelProvider);
+		mappingProvider.setDefaultVariantsLocation(
+				"classpath:/org/hucompute/textimager/uima/marmot/lib/pos-default-variants.map");
         featuresParser = new MorphologicalFeaturesParser(this, modelProvider);
 	}
 
@@ -136,8 +138,6 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 			}
 			List<List<String>> tags = modelProvider.getResource().tag(new marmot.morph.Sentence(words));
 			for (int i = 0; i < tags.size(); i++) {
-				System.out.println(tags.get(i));
-
 				//Add the POS
 				if(writePos){
 					Type posTag = mappingProvider.getTagType(tags.get(i).get(0));
