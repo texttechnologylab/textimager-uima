@@ -40,5 +40,6 @@
 		<module>textimager-uima-talismane</module>
 		<module>textimager-uima-IXA</module>
     <module>textimager-uima-type</module>
+    <module>textimager-uima-toolkit-expansion</module>
 	</modules>
 </project>
