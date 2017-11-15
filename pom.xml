@@ -42,5 +42,6 @@
         <module>textimager-uima-IXA</module>
         <module>textimager-uima-laxt</module>
         <module>client-test</module>
+        <module>textimager-uima-toolkit-expansion</module>
     </modules>
 </project>
