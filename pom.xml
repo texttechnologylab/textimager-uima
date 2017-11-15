@@ -1,44 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.hucompute.textimager.uima</groupId>
-	<artifactId>textimager-uima</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>TextImager UIMA</name>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	<packaging>pom</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.hucompute.textimager.uima</groupId>
+    <artifactId>textimager-uima</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>TextImager UIMA</name>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <packaging>pom</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.uima</groupId>
-			<artifactId>uimaj-core</artifactId>
-			<version>2.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.uima</groupId>
-			<artifactId>uimafit-core</artifactId>
-			<version>2.3.0</version>
-		</dependency>
-	</dependencies>
-	<modules>
-		<module>textimager-uima-marmot</module>
-		<module>textimager-uima-wiki</module>
-		<module>textimager-uima-types</module>
-		<module>textimager-uima-OpenerProject</module>
-		<module>textimager-uima-talismane</module>
-		<module>textimager-uima-IXA</module>
-    <module>textimager-uima-type</module>
-	</modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.uima</groupId>
+            <artifactId>uimaj-core</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.uima</groupId>
+            <artifactId>uimafit-core</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+    </dependencies>
+    <modules>
+        <module>textimager-uima-marmot</module>
+        <module>textimager-uima-wiki</module>
+        <module>textimager-uima-types</module>
+        <module>textimager-uima-OpenerProject</module>
+        <module>textimager-uima-talismane</module>
+        <module>textimager-uima-IXA</module>
+        <module>textimager-uima-laxt</module>
+        <module>client-test</module>
+    </modules>
 </project>
