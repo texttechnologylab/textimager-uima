@@ -38,6 +38,11 @@
     	<scope>test</scope>
     	<version>1.8.0</version>
     </dependency>
+    <dependency>
+		<groupId>com.github.ixa-ehu</groupId>
+		<artifactId>kaflib</artifactId>
+		<version>1.0.5</version>
+	</dependency>
   </dependencies>
   <build>
     <plugins>
