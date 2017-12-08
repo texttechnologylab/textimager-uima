@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Grammar>
+  <Graph ID="reflexivePronouns">
+    <Node ID="0" X="9" Y="223" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>2</Child>
+      <Child>13</Child>
+      <Child>6</Child>
+      <Child>15</Child>
+      <Child>29</Child>
+    </Node>
+    <Node ID="32" X="449" Y="418" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/și/i&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;REMOVE +regex="Px3.*"&gt;</AnnotationCode>
+      <Child>33</Child>
+    </Node>
+    <Node ID="1" X="1026" Y="224" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="33" X="576" Y="418" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;-WORD=/le|-l|-i|-o|-ar|-a|-au/i&gt;</MatchingPatternCode>
+      <Child>30</Child>
+    </Node>
+    <Node ID="2" X="222" Y="43" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Pp1.s.*/+/msd.*/=/Px1.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Px1.s.*"&gt;</AnnotationCode>
+      <Child>4</Child>
+    </Node>
+    <Node ID="35" X="262" Y="418" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>32</Child>
+    </Node>
+    <Node ID="4" X="545" Y="43" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Vm[is].1s.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Vm..1s.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="6" X="219" Y="173" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Pp2.s.*/+/msd.*/=/Px2.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Px2.s.*"&gt;</AnnotationCode>
+      <Child>8</Child>
+    </Node>
+    <Node ID="8" X="550" Y="174" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Vm[is].2s.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Vm..2s.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="13" X="216" Y="96" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Pp1.p.*/+/msd.*/=/Px1.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Px1.p.*"&gt;</AnnotationCode>
+      <Child>14</Child>
+    </Node>
+    <Node ID="14" X="549" Y="97" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Vm[ism].1p.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Vm..1p.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="15" X="222" Y="224" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Pp2.p.*/+/msd.*/=/Px2.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Px2.p.*"&gt;</AnnotationCode>
+      <Child>16</Child>
+    </Node>
+    <Node ID="16" X="548" Y="224" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Vm[ism].2p.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Vm..2p.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="17" X="450" Y="350" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/și/i&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Px3.*"&gt;</AnnotationCode>
+      <Child>20</Child>
+    </Node>
+    <Node ID="20" X="575" Y="350" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/le|-l|-i|-o|-ar|-a|-au/i&gt;</MatchingPatternCode>
+      <Child>30</Child>
+    </Node>
+    <Node ID="25" X="452" Y="292" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;=</MatchingPatternCode>
+      <Child>17</Child>
+    </Node>
+    <Node ID="26" X="261" Y="350" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>17</Child>
+    </Node>
+    <Node ID="27" X="145" Y="292" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>28</Child>
+    </Node>
+    <Node ID="28" X="181" Y="292" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/să|când|care|dacă|dar|nu/&gt;</MatchingPatternCode>
+      <Child>25</Child>
+    </Node>
+    <Node ID="29" X="185" Y="383" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>26</Child>
+      <Child>35</Child>
+    </Node>
+    <Node ID="30" X="889" Y="381" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+  </Graph>
+  <Graph ID="propperNouns">
+    <Node ID="0" X="32" Y="211" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>2</Child>
+      <Child>6</Child>
+    </Node>
+    <Node ID="1" X="772" Y="222" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="217" Y="257" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+in_dict=false+WORD=/\p{Lu}.+/+/msd.*/=/Np.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="(Np)|(Np..[r\-].*)"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="3" X="168" Y="114" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;=</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="4" X="119" Y="86" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;&gt;</MatchingPatternCode>
+      <Child>3</Child>
+    </Node>
+    <Node ID="5" X="63" Y="78" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>4</Child>
+    </Node>
+    <Node ID="6" X="200" Y="350" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+in_dict=true+WORD=/[^\p{Lu}]+/ +/msd.*/=/Np.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;REMOVE +regex="Np.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+  </Graph>
+  <Graph ID="infinitive">
+    <Node ID="0" X="75" Y="222" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>21</Child>
+      <Child>15</Child>
+      <Child>20</Child>
+    </Node>
+    <Node ID="1" X="982" Y="206" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="317" Y="118" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+in_dict=true+/msd.*/=/Vmn.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Vmn.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="3" X="268" Y="49" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;=</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="4" X="90" Y="49" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=/putea/&gt;</MatchingPatternCode>
+      <Child>3</Child>
+    </Node>
+    <Node ID="5" X="33" Y="49" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>4</Child>
+    </Node>
+    <Node ID="9" X="587" Y="265" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+in_dict=true+/msd.*/=/Vmn.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;REMOVE +regex="Vmn.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="10" X="485" Y="322" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;!</MatchingPatternCode>
+      <Child>9</Child>
+    </Node>
+    <Node ID="11" X="420" Y="355" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;&gt;|&lt;E&gt;</MatchingPatternCode>
+      <Child>10</Child>
+    </Node>
+    <Node ID="12" X="377" Y="356" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;&gt;|&lt;E&gt;</MatchingPatternCode>
+      <Child>11</Child>
+    </Node>
+    <Node ID="13" X="19" Y="352" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>14</Child>
+    </Node>
+    <Node ID="14" X="58" Y="356" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=/(vrea)|(avea)|(putea)|(a)/&gt;</MatchingPatternCode>
+      <Child>12</Child>
+    </Node>
+    <Node ID="15" X="254" Y="209" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/a/i&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Qn"&gt;</AnnotationCode>
+      <Child>19</Child>
+      <Child>17</Child>
+    </Node>
+    <Node ID="17" X="431" Y="209" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+in_dict=true+/msd.*/=/Vmn.*/-/msd.*/=/P.*/-/msd.*/=/T.*/-WORD=/fi/i&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Vmn.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="19" X="302" Y="168" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/nu|se|mai|și/i&gt;</MatchingPatternCode>
+      <Child>17</Child>
+    </Node>
+    <Node ID="20" X="226" Y="265" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>9</Child>
+    </Node>
+    <Node ID="21" X="222" Y="118" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+  </Graph>
+  <Graph ID="oblique_cases">
+    <Node ID="0" X="27" Y="184" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>5</Child>
+    </Node>
+    <Node ID="1" X="787" Y="171" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="418" Y="60" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Pp...o.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Pp...o.*"&gt;</AnnotationCode>
+      <Child>11</Child>
+    </Node>
+    <Node ID="5" X="149" Y="97" priorityPolicy="custom">
+      <MatchingPatternCode>:oblique_prep</MatchingPatternCode>
+      <Child>10</Child>
+    </Node>
+    <Node ID="10" X="313" Y="95" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>2</Child>
+      <Child>12</Child>
+    </Node>
+    <Node ID="11" X="655" Y="94" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="12" X="367" Y="125" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Nc..o.*/-/msd.*/=/A.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Nc..o.*"&gt;</AnnotationCode>
+      <Child>11</Child>
+    </Node>
+  </Graph>
+  <Graph ID="numerals">
+    <Node ID="0" X="100" Y="100" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="1" X="700" Y="100" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="362" Y="104" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/\p{N}+/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="M.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+  </Graph>
+  <Graph ID="articles2">
+    <Node ID="0" X="11" Y="116" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>5</Child>
+      <Child>8</Child>
+    </Node>
+    <Node ID="1" X="689" Y="118" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="120" Y="44" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Nc.*/&gt;</MatchingPatternCode>
+      <Child>3</Child>
+    </Node>
+    <Node ID="3" X="275" Y="44" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=al&gt;</MatchingPatternCode>
+      <Child>6</Child>
+    </Node>
+    <Node ID="4" X="465" Y="71" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=lui&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Ds3.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="5" X="158" Y="71" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>4</Child>
+    </Node>
+    <Node ID="6" X="400" Y="44" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;=</MatchingPatternCode>
+      <Child>4</Child>
+    </Node>
+    <Node ID="7" X="86" Y="43" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="8" X="155" Y="168" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>9</Child>
+    </Node>
+    <Node ID="9" X="471" Y="168" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=lui&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;REMOVE +regex="Pp.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="10" X="278" Y="140" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=al&gt;</MatchingPatternCode>
+      <Child>11</Child>
+    </Node>
+    <Node ID="11" X="403" Y="140" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;=</MatchingPatternCode>
+      <Child>9</Child>
+    </Node>
+    <Node ID="12" X="252" Y="139" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>10</Child>
+    </Node>
+  </Graph>
+  <Graph ID="articles1">
+    <Node ID="0" X="24" Y="326" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>3</Child>
+      <Child>2</Child>
+      <Child>10</Child>
+      <Child>13</Child>
+      <Child>18</Child>
+      <Child>16</Child>
+    </Node>
+    <Node ID="1" X="1189" Y="328" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="334" Y="84" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/lui/i&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;REMOVE +regex="Tfmso"&gt;</AnnotationCode>
+      <Child>7</Child>
+    </Node>
+    <Node ID="3" X="334" Y="25" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/lui/i&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Tfmso"&gt;</AnnotationCode>
+      <Child>5</Child>
+    </Node>
+    <Node ID="5" X="516" Y="26" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/(\p{Lu}.*)|([\p{N}]+)/&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="7" X="493" Y="82" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;-/msd.*/=/Np.*/&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="10" X="292" Y="258" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Td.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Td.*"&gt;</AnnotationCode>
+      <Child>11</Child>
+    </Node>
+    <Node ID="11" X="461" Y="258" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Sp|Rg/&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>12</Child>
+    </Node>
+    <Node ID="12" X="629" Y="258" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/(Nc.*)|(Afp.*)/&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="13" X="294" Y="334" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=/al/+/msd.*/=/Ts.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Ts.*"&gt;</AnnotationCode>
+      <Child>14</Child>
+    </Node>
+    <Node ID="14" X="563" Y="334" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+in_dict=true+/msd.*/=/(Ps.*)|(Ds.*)|(N...oy.*)/&gt;
+&lt;+WORD=/lui/i&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="16" X="307" Y="556" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/o/i+/msd.*/=/Ti.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Ti.*"&gt;</AnnotationCode>
+      <Child>17</Child>
+    </Node>
+    <Node ID="17" X="561" Y="556" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;-/msd.*/=/V.*/+/msd.*/=/Ncf.*/&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="18" X="307" Y="498" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/o/i+/msd.*/=/Pp.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Pp.*"&gt;</AnnotationCode>
+      <Child>19</Child>
+    </Node>
+    <Node ID="19" X="561" Y="498" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/V.*/-/msd.*/=/Nc.*/&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+  </Graph>
+  <Graph ID="adjectives">
+    <Node ID="0" X="71" Y="78" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>5</Child>
+    </Node>
+    <Node ID="1" X="631" Y="78" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="52" Y="38" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/(T.m.*)|(M.m.*)/&gt;</MatchingPatternCode>
+      <Child>3</Child>
+    </Node>
+    <Node ID="3" X="278" Y="38" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=Rg&gt;|&lt;E&gt;</MatchingPatternCode>
+      <Child>4</Child>
+    </Node>
+    <Node ID="4" X="397" Y="38" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=Rg&gt;|&lt;E&gt;</MatchingPatternCode>
+      <Child>9</Child>
+    </Node>
+    <Node ID="5" X="257" Y="78" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+in_dict=true+/msd.*/=/Afpf.*/+/msd.*/=/Afpm.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Afpm.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="9" X="518" Y="38" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;=</MatchingPatternCode>
+      <Child>5</Child>
+    </Node>
+    <Node ID="10" X="12" Y="38" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+  </Graph>
+  <Graph ID="conjunctive1">
+    <Node ID="0" X="36" Y="377" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>10</Child>
+    </Node>
+    <Node ID="1" X="977" Y="382" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="4" X="92" Y="150" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=/(.+ )?să/&gt;</MatchingPatternCode>
+      <Child>5</Child>
+    </Node>
+    <Node ID="5" X="347" Y="30" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;-/msd.*/=/Vms.*/-WORD=/fi/i&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>7</Child>
+    </Node>
+    <Node ID="6" X="348" Y="245" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;-/msd.*/=/Vms.*/-WORD=/fi/i&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>9</Child>
+    </Node>
+    <Node ID="7" X="347" Y="100" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;-/msd.*/=/Vms.*/-WORD=/fi/i&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>8</Child>
+    </Node>
+    <Node ID="8" X="345" Y="172" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;-/msd.*/=/Vms.*/-WORD=/fi/i&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>6</Child>
+    </Node>
+    <Node ID="9" X="345" Y="318" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;-/msd.*/=/Vms.*/-WORD=/fi/i&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>11</Child>
+    </Node>
+    <Node ID="10" X="674" Y="391" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Vms.*/-/msd.*/=/Va.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Vms.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="11" X="602" Y="349" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;=</MatchingPatternCode>
+      <Child>10</Child>
+    </Node>
+    <Node ID="12" X="45" Y="151" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>4</Child>
+    </Node>
+  </Graph>
+  <Graph ID="participle">
+    <Node ID="0" X="568" Y="298" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>4</Child>
+    </Node>
+    <Node ID="1" X="936" Y="287" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="62" Y="60" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/(-a)|(a)|(ai)|(-ai)|(am)|(-am)|(au)|(-au)|(ați)|(-ați)|(ati)|(-ati)|(fi)|(de)|(la)|(din)|(pentru)/i&gt;</MatchingPatternCode>
+      <Child>3</Child>
+    </Node>
+    <Node ID="3" X="443" Y="160" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=/(mai)|(și)/&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>7</Child>
+    </Node>
+    <Node ID="4" X="756" Y="285" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Vmp/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;REMOVE +regex="Vmp"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="5" X="1112" Y="103" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;!</MatchingPatternCode>
+      <Child>4</Child>
+    </Node>
+    <Node ID="6" X="16" Y="49" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="7" X="673" Y="160" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=/(mai)|(și)/&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>5</Child>
+    </Node>
+  </Graph>
+  <Graph ID="conjunctive2">
+    <Node ID="0" X="34" Y="322" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="1" X="857" Y="326" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="629" Y="326" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Vms.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;REMOVE +regex="Vms.*"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="3" X="547" Y="223" priorityPolicy="custom">
+      <MatchingPatternCode>?&lt;!</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="4" X="14" Y="199" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;X&gt;</MatchingPatternCode>
+      <Child>5</Child>
+    </Node>
+    <Node ID="5" X="68" Y="180" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=/(.+ )?să/&gt;</MatchingPatternCode>
+      <Child>6</Child>
+    </Node>
+    <Node ID="6" X="236" Y="101" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>8</Child>
+    </Node>
+    <Node ID="7" X="451" Y="95" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>10</Child>
+    </Node>
+    <Node ID="8" X="302" Y="95" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>9</Child>
+    </Node>
+    <Node ID="9" X="383" Y="95" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>7</Child>
+    </Node>
+    <Node ID="10" X="518" Y="103" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;&gt;
+&lt;E&gt;</MatchingPatternCode>
+      <Child>3</Child>
+    </Node>
+  </Graph>
+  <Graph ID="fără">
+    <Node ID="0" X="18" Y="50" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="1" X="383" Y="51" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="85" Y="50" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/fără/i&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Cs"&gt;</AnnotationCode>
+      <Child>3</Child>
+    </Node>
+    <Node ID="3" X="222" Y="51" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/(.+ )?să/i&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+  </Graph>
+  <Graph ID="oblique_prep">
+    <Node ID="0" X="17" Y="74" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="1" X="617" Y="74" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="207" Y="212" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=Sp+/lemma.*/=/în~\p{L}+/&gt;
+&lt;+/msd.*/=Sp+/lemma.*/=/spre~\p{L}+/&gt;
+&lt;+/msd.*/=Sp+/lemma.*/=/prin~\p{L}+/&gt;
+&lt;+/msd.*/=Sp+/lemma.*/=/la~\p{L}+/&gt;
+&lt;+/msd.*/=Sp+/lemma.*/=/din~\p{L}+/&gt;
+&lt;+/msd.*/=Sp+/lemma.*/=/cu~\p{L}+/&gt;
+&lt;+/lemma.*/=pe~dinaintea&gt;
+&lt;+/lemma.*/=pe~deasupra&gt;
+&lt;+/lemma.*/=pe~după&gt;
+&lt;+/lemma.*/=pe~parcursul&gt;
+&lt;+/lemma.*/=pe~timpul&gt;
+&lt;+/lemma.*/=/de-a~latul/&gt;
+&lt;+/lemma.*/=de~dinaintea&gt;
+&lt;+/lemma.*/=de~dragul&gt;
+&lt;+/lemma.*/=/de~jur-împrejurul/&gt;
+&lt;+/lemma.*/=deasupra&gt;
+&lt;+/lemma.*/=asupra&gt;
+&lt;+/lemma.*/=conform&gt;
+&lt;+/lemma.*/=contra&gt;
+&lt;+/lemma.*/=împotriva&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+  </Graph>
+  <Graph ID="imperative">
+    <Node ID="0" X="12" Y="47" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+    <Node ID="1" X="507" Y="48" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="78" Y="46" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Vmm.*/&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;KEEP +regex="Vmm.*"&gt;</AnnotationCode>
+      <Child>3</Child>
+    </Node>
+    <Node ID="3" X="247" Y="47" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+WORD=/-.*/+/msd.*/=/Pp[12].*/&gt;</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+  </Graph>
+  <Graph ID="Main">
+    <Node ID="0" X="41" Y="142" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>35</Child>
+    </Node>
+    <Node ID="1" X="662" Y="164" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="35" X="292" Y="124" priorityPolicy="custom">
+      <MatchingPatternCode>:infinitive
+:propperNouns
+:numerals
+:articles1
+:articles2
+:reflexivePronouns
+:conjunctive1
+:conjunctive2
+:participle
+:fără
+:oblique_cases
+:imperative
+:adjectives
+:adverbs</MatchingPatternCode>
+      <Child>1</Child>
+    </Node>
+  </Graph>
+  <Graph ID="adverbs">
+    <Node ID="0" X="80" Y="141" isStartNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+      <Child>3</Child>
+    </Node>
+    <Node ID="1" X="730" Y="138" isEndNode="true" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;E&gt;</MatchingPatternCode>
+    </Node>
+    <Node ID="2" X="332" Y="119" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/msd.*/=/Rg/+/msd.*/=/Nc.*/-WORD=/mai/i&gt;</MatchingPatternCode>
+      <AnnotationCode>&lt;REMOVE +regex="Rg"&gt;</AnnotationCode>
+      <Child>1</Child>
+    </Node>
+    <Node ID="3" X="189" Y="119" priorityPolicy="custom">
+      <MatchingPatternCode>&lt;+/lemma.*/=/un/i&gt;</MatchingPatternCode>
+      <Child>2</Child>
+    </Node>
+  </Graph>
+</Grammar>
