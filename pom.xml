@@ -40,9 +40,7 @@
         <module>textimager-uima-OpenerProject</module>
         <module>textimager-uima-talismane</module>
         <module>textimager-uima-IXA</module>
-        <module>textimager-uima-laxt</module>
+        <module>textimager-uima-uaic</module>
         <module>client-test</module>
-        
-        
     </modules>
 </project>
