@@ -1,0 +1,98 @@
+# http://nlptools.info.uaic.ro/WebPosRo/docs/POS%20tagger%20hibrid.pdf
+# https://dkpro.github.io/dkpro-core/releases/1.7.0/apidocs/de/tudarmstadt/ukp/dkpro/core/api/lexmorph/type/pos/package-summary.html
+
+# Catch-all rule
+*|*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+
+
+# Common noun
+Nc=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.NN
+# Proper noun
+Np=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.NP
+
+
+# Auxiliary verb
+Va=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+# Predicative verb
+Vm=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+
+
+# Qualificative adjective
+Af=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADJ
+
+
+# Personal pronoun
+Pp=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# Demonstrative pronoun
+Pd=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# Indefinite pronoun
+Pi=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# Possessive pronoun
+Ps=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# Reflexiv pronoun
+Px=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# Interrogative or relative pronoun
+Pw=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# Negative pronoun
+Pz=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+# Emphatic pronoun
+Ph=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+
+
+# Demonstrative pronominal adjective (determiner)
+Dd=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# Indefinite pronominal adjective (determiner)
+Di=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# Possessive pronominal adjective (determiner)
+Ds=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# Interrogative or relative pronominal adjective (determiner)
+Dw=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# Negative pronominal adjective (determiner)
+Dz=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# Emphatic pronominal adjective (determiner)
+Dh=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+
+
+# Demonstrative article
+Td=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# Indefinite article
+Ti=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# Definite article
+Tf=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+# Possessive article
+Ts=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ART
+
+
+# Adverb
+Rg=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADV
+
+
+# Preposition
+Sp=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PP
+
+
+# Coordinative conjunction
+Cc=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ
+# Subordinating conjunction
+Cs=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ
+
+
+# Cardinal numeral
+Mc=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+# Ordinal numeral
+Mo=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+# Fractional numeral
+Mf=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+# Collective numeral
+Ml=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+
+
+# Negative particle
+Qz=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PRT
+# Infinitve particle
+Qn=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PRT
+# Conjunctive particle
+Qs=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PRT
+# Particle (future)
+Qf=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PRT
