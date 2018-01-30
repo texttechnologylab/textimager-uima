@@ -29,5 +29,14 @@
 			<scope>test</scope>
 			<version>1.8.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/de.tudarmstadt.ukp.dkpro.core/de.tudarmstadt.ukp.dkpro.core.io.xmi-asl -->
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+			<artifactId>de.tudarmstadt.ukp.dkpro.core.io.xmi-asl</artifactId>
+			<version>1.8.0</version>
+			<scope>test</scope>
+		</dependency>
+
+
 	</dependencies>
 </project>

@@ -5,6 +5,7 @@ import static org.apache.uima.fit.util.JCasUtil.select;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -71,28 +72,6 @@ public class MarMoTLemma extends JCasAnnotator_ImplBase {
 				return (MorphTagger) object;
 			}
 		};
-		//		if(modelLocation == null){
-		//			try {
-		//				tagger_la = loadFromStream(new FileInputStream(new File("/home/team/models/lemmatizer/marmot/la/cap_all_lemmas.marmot")));
-		//			} catch (FileNotFoundException e) {
-		//				// TODO Auto-generated catch block
-		//				e.printStackTrace();
-		//			}
-		//			try {
-		//				tagger_de = loadFromStream(new FileInputStream(new File("/home/team/models/lemmatizer/marmot/de/all-tiger_onlyLemmas-utf8.marmot")));
-		//			} catch (FileNotFoundException e) {
-		//				// TODO Auto-generated catch block
-		//				e.printStackTrace();
-		//			}
-		//		}
-		//		else{
-		//			try {
-		//				tagger = loadFromStream(new FileInputStream(new File(modelLocation)));
-		//			} catch (FileNotFoundException e) {
-		//				// TODO Auto-generated catch block
-		//				e.printStackTrace();
-		//			}
-		//		}
 	}
 
 
@@ -120,8 +99,12 @@ public class MarMoTLemma extends JCasAnnotator_ImplBase {
 		String[]split = input.split("\\|");
 		String lemma = token;
 		if(split.length>1){
-			lemma = split[1].split("=")[1].replace("_", "") + lemma.substring(Integer.parseInt(split[0].split("=")[1]));
-			lemma = lemma.substring(0,lemma.length()-Integer.parseInt(split[2].split("=")[1]))+split[3].split("=")[1].replace("_", "") ;
+			try{
+				lemma = split[1].split("=")[1].replace("_", "") + lemma.substring(Integer.parseInt(split[0].split("=")[1]));
+				lemma = lemma.substring(0,lemma.length()-Integer.parseInt(split[2].split("=")[1]))+split[3].split("=")[1].replace("_", "") ;
+			}catch(StringIndexOutOfBoundsException e){
+				e.printStackTrace();
+			}
 		}
 		return lemma;
 	}
