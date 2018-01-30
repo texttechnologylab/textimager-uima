@@ -1,12 +1,15 @@
 package org.hucompute.textimager.uima.wiki;
 
 import org.apache.uima.UIMAException;
+import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.junit.Test;
 
 import com.google.common.collect.Iterators;
@@ -14,8 +17,10 @@ import com.google.common.collect.Iterators;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
+import de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiReader;
 
 public class WikidataHyponymsTest  {
 	
@@ -51,7 +56,7 @@ public class WikidataHyponymsTest  {
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 		
 		org.hucompute.textimager.uima.type.wikipedia.WikipediaLink [] wikiLinks = Iterators.toArray(JCasUtil.select(cas, org.hucompute.textimager.uima.type.wikipedia.WikipediaLink.class).iterator(), org.hucompute.textimager.uima.type.wikipedia.WikipediaLink.class);
-		
+		System.out.println(Arrays.asList(wikiLinks));
 		//Mahlerei
 		assertEquals(wikiLinks[0].getWikiData(),"Q174705");
 		assertArrayEquals(wikiLinks[0].getWikiDataHyponyms().toArray(), new String[]{"Q1231896", "Q26904132", "Q174705"});
@@ -68,6 +73,14 @@ public class WikidataHyponymsTest  {
 		assertEquals(wikiLinks[3].getWikiData(),"Q4692");
 		assertArrayEquals(wikiLinks[3].getWikiDataHyponyms().toArray(), new String[]{"Q32880", "Q968159", "Q1792644", "Q735", "Q2198855", "Q4692"});
 	}
+	
+//	@Test
+//	public void test() throws UIMAException, IOException{
+//		CollectionReader coll = CollectionReaderFactory.createCollectionReader(XmiReader.class, XmiReader.PARAM_SOURCE_LOCATION,"src/test/resources/285557.xmi");
+//		AggregateBuilder builder = new AggregateBuilder();
+//		builder.add(AnalysisEngineFactory.createEngineDescription(WikidataHyponyms.class));
+//		SimplePipeline.runPipeline(coll,builder.createAggregate());
+//	}
 	
 	private void addWikipediaLink(JCas cas, int begin, int end, String target, String linkTyp, String anchor){
 		WikipediaLink wiki = new WikipediaLink(cas,begin,end);
