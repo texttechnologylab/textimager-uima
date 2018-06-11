@@ -42,5 +42,6 @@
         <module>textimager-uima-IXA</module>
 <!--         <module>textimager-uima-uaic</module> -->
         <module>textimager-uima-io-mediawiki</module>
+        <module>textimager-uima-spacy</module>
     </modules>
 </project>
