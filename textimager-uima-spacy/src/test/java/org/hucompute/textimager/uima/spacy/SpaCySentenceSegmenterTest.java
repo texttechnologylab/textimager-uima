@@ -39,10 +39,7 @@ public class SpaCySentenceSegmenterTest {
 		Token t9 = new Token(cas, 39, 40);
 		t9.addToIndexes();
 		
-		AnalysisEngineDescription spacyDependencyParser = createEngineDescription(
-				SpaCySentenceSegmenter.class,
-				SpaCySentenceSegmenter.PARAM_REST_ENDPOINT,"http://localhost:5000/sentence"
-		);
+		AnalysisEngineDescription spacyDependencyParser = createEngineDescription(SpaCySentenceSegmenter.class);
 		
 		SimplePipeline.runPipeline(cas, spacyDependencyParser);
 		

@@ -19,10 +19,7 @@ public class SpaCyTokenizerTest {
 		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
 		cas.setDocumentLanguage("de");
 
-		AnalysisEngineDescription spacyTokenizer = createEngineDescription(
-				SpaCyTokenizer.class,
-				SpaCyTokenizer.PARAM_REST_ENDPOINT,"http://localhost:5000/tokenizer"
-		);
+		AnalysisEngineDescription spacyTokenizer = createEngineDescription(SpaCyTokenizer.class);
 		
 		SimplePipeline.runPipeline(cas, spacyTokenizer);
 		

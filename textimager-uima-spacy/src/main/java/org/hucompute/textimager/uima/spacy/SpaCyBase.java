@@ -1,5 +1,6 @@
 package org.hucompute.textimager.uima.spacy;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -8,7 +9,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -18,12 +18,13 @@ import org.json.JSONObject;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 public abstract class SpaCyBase extends JCasAnnotator_ImplBase {
-	/**
-	 * spaCy REST Endpoint
-	 */
-	public static final String PARAM_REST_ENDPOINT = "restEndpoint";
-	@ConfigurationParameter(name = PARAM_REST_ENDPOINT, mandatory = true)
-	protected String restEndpoint;
+	// Base URL, Port added during initialisation
+	private String restEndpointBase = "127.0.0.1:";
+	
+	private Process dockerProcess = null;
+
+	// Provide Rest Verb for URL
+	protected abstract String getRestEndpointVerb();
 	
 	// Build request JSON object
 	protected abstract JSONObject buildJSON(JCas aJCas);
@@ -89,6 +90,24 @@ public abstract class SpaCyBase extends JCasAnnotator_ImplBase {
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
+		
+		String port = "5000";
+		restEndpointBase += port;
+		ProcessBuilder builder = new ProcessBuilder("docker", "run", "-p", port + ":80", "--rm", "texttechnologylab/textimager-spacy");
+        try {
+			dockerProcess = builder.start();
+		} catch (IOException e) {
+			throw new ResourceInitializationException(e);
+		}
+	}
+	
+	@Override
+	public void destroy() {
+		if (dockerProcess != null) {
+			dockerProcess.destroy();
+		}
+
+		super.destroy();
 	}
 
 	@Override
@@ -97,7 +116,7 @@ public abstract class SpaCyBase extends JCasAnnotator_ImplBase {
 		System.out.println(body);
 		
 		try {
-			URL url = new URL(restEndpoint);
+			URL url = new URL(getRestEndpoint());
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");
 			connection.setDoInput(true);
@@ -120,5 +139,9 @@ public abstract class SpaCyBase extends JCasAnnotator_ImplBase {
 		} catch (Exception ex) {
 			throw new AnalysisEngineProcessException(ex);
 		}
+	}
+	
+	private String getRestEndpoint() {
+		return restEndpointBase + "/" + getRestEndpointVerb();
 	}
 }
