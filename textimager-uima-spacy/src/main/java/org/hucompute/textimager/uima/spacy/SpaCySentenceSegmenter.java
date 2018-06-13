@@ -32,4 +32,9 @@ public class SpaCySentenceSegmenter extends SpaCyBase {
 				casSentence.addToIndexes();
 			});
 	}
+
+	@Override
+	protected String getRestEndpointVerb() {
+		return "sentence";
+	}
 }

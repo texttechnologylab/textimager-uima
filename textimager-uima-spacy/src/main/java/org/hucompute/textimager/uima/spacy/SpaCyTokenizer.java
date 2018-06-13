@@ -33,4 +33,9 @@ public class SpaCyTokenizer extends SpaCyBase {
 				}
 			});
 	}
+
+	@Override
+	protected String getRestEndpointVerb() {
+		return "tokenizer";
+	}
 }
