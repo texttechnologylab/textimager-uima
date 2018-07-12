@@ -30,6 +30,34 @@ def hello():
 	return "spaCy - REST Server - https://github.com/texttechnologylab"
 
 
+# POS Tagging
+@app.route("/tagger", methods=['POST'])
+def tagger():
+	lang = request.json["lang"]
+	words = request.json["words"]
+	spaces = request.json["spaces"]
+
+	nlp = get_spacy_nlp(lang)		
+	doc = Doc(nlp.vocab, words=words, spaces=spaces)
+	nlp.tagger(doc)
+	
+	pos = [
+		{
+			#"pos": token.pos_,
+			"tag": token.tag_,
+			"idx": token.idx,
+			"length": len(token),
+			"is_space": token.is_space
+		}
+		for token in doc
+	]
+	
+	return json.dumps({
+		"text": doc.text,
+		"pos": pos
+	})
+
+
 # Sentence Segmentation
 @app.route("/sentence", methods=['POST'])
 def sentence():
