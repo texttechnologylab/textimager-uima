@@ -26,7 +26,7 @@ public abstract class SpaCyBase extends JCasAnnotator_ImplBase {
      * The docker image for the spacy server
      */
     public static final String PARAM_DOCKER_IMAGE = "dockerImage";
-    @ConfigurationParameter(name = PARAM_DOCKER_IMAGE, mandatory = true, defaultValue = "texttechnologylab/textimager-spacy:1")
+    @ConfigurationParameter(name = PARAM_DOCKER_IMAGE, mandatory = true, defaultValue = "texttechnologylab/textimager-spacy:2")
     protected String dockerImage;
     
     /**
