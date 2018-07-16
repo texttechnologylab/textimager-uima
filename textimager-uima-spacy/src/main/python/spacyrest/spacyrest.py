@@ -56,7 +56,7 @@ def ner():
 	]
 	
 	return json.dumps({
-		"text": doc.text,
+		#"text": doc.text,
 		"ents": ents
 	})
 	
@@ -84,7 +84,7 @@ def tagger():
 	]
 	
 	return json.dumps({
-		"text": doc.text,
+		#"text": doc.text,
 		"pos": pos
 	})
 
@@ -112,7 +112,7 @@ def sentence():
 	]
 	
 	return json.dumps({
-		"text": doc.text,
+		#"text": doc.text,
 		"sents": sents
 	})
 
@@ -140,6 +140,6 @@ def tokenizer():
 	]
 	
 	return json.dumps({
-		"text": doc.text,
+		#"text": doc.text,
 		"token": tokens
 	})
