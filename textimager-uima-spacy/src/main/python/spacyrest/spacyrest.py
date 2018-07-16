@@ -61,6 +61,40 @@ def ner():
 	})
 	
 	
+# Dependency Parser
+@app.route("/parser", methods=['POST'])
+def parser():
+	lang = request.json["lang"]
+	words = request.json["words"]
+	spaces = request.json["spaces"]
+
+	nlp = get_spacy_nlp(lang)		
+	doc = Doc(nlp.vocab, words=words, spaces=spaces)
+	nlp.parser(doc)
+	
+	deps = [
+		{
+			#"text": token.text,
+			"dep": token.dep_,
+			"idx": token.idx,
+			"length": len(token),
+			"is_space": token.is_space,
+			"head": {
+				#"text": token.head.text,
+				"idx": token.head.idx,
+				"length": len(token.head),
+				"is_space": token.head.is_space
+			}
+		}
+		for token in doc
+	]
+	
+	return json.dumps({
+		"text": doc.text,
+		"deps": deps
+	})
+	
+	
 # POS Tagging
 @app.route("/tagger", methods=['POST'])
 def tagger():
