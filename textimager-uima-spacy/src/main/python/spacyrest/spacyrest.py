@@ -30,6 +30,37 @@ def hello():
 	return "spaCy - REST Server - https://github.com/texttechnologylab"
 
 
+# NER
+@app.route("/ner", methods=['POST'])
+def ner():
+	lang = request.json["lang"]
+	words = request.json["words"]
+	spaces = request.json["spaces"]
+
+	nlp = get_spacy_nlp(lang)		
+	doc = Doc(nlp.vocab, words=words, spaces=spaces)
+
+	# TODO better solution?	
+	for name, proc in nlp.pipeline:
+		if name == "ner":
+			doc = proc(doc)
+	
+	ents = [
+		{
+			#"text": ent.text,
+			"start_char": ent.start_char,
+			"end_char": ent.end_char,
+			"label": ent.label_
+		}
+		for ent in doc.ents
+	]
+	
+	return json.dumps({
+		"text": doc.text,
+		"ents": ents
+	})
+	
+	
 # POS Tagging
 @app.route("/tagger", methods=['POST'])
 def tagger():
