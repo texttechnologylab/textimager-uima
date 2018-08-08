@@ -19,7 +19,8 @@ public class SpaCyTokenizerTest {
 		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
 		cas.setDocumentLanguage("de");
 
-		AnalysisEngineDescription spacyTokenizer = createEngineDescription(SpaCyTokenizer.class);
+		AnalysisEngineDescription spacyTokenizer = createEngineDescription(SpaCyTokenizer.class,
+				SpaCyTagger.PARAM_DOCKER_IMAGE,"textimager-spacy");
 		
 		SimplePipeline.runPipeline(cas, spacyTokenizer);
 		
