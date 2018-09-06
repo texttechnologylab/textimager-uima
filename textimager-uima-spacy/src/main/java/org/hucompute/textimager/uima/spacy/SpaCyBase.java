@@ -26,7 +26,7 @@ public abstract class SpaCyBase extends JCasAnnotator_ImplBase {
      * The docker image for the spacy server
      */
     public static final String PARAM_DOCKER_IMAGE = "dockerImage";
-    @ConfigurationParameter(name = PARAM_DOCKER_IMAGE, mandatory = true, defaultValue = "texttechnologylab/textimager-spacy:1")
+    @ConfigurationParameter(name = PARAM_DOCKER_IMAGE, mandatory = true, defaultValue = "texttechnologylab/textimager-spacy:3")
     protected String dockerImage;
     
     /**
@@ -149,7 +149,24 @@ public abstract class SpaCyBase extends JCasAnnotator_ImplBase {
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
+		
+		// wait so that instances do not interrupt
+		try {
+			Thread.sleep((long) (Math.random() * 1000));
+		} catch (InterruptedException e1) {
+			// ..
+		}
 
+		try {
+			File dockerPidFileTemp = File.createTempFile("textimager_ducc_spacy_", "_docker_pid");
+			dockerPidFile = dockerPidFileTemp.getAbsolutePath();
+			// TODO better solution
+			dockerPidFileTemp.delete();
+			System.out.println("docker pid file: " + dockerPidFile);
+		} catch (Exception ex) {
+			throw new ResourceInitializationException(ex);
+		}
+		
 		int portInt = portMin;
 		while (!isPortFree(restEndpointIP, portInt)) {
 			System.out.println("port " + portInt + " not available, checking next...");
@@ -162,16 +179,6 @@ public abstract class SpaCyBase extends JCasAnnotator_ImplBase {
 		System.out.println("using port " + port);
 		
 		restEndpointBase = "http://" + restEndpointIP + ":" + port;
-		
-		try {
-			File dockerPidFileTemp = File.createTempFile("textimager_ducc_spacy_", "_docker_pid");
-			dockerPidFile = dockerPidFileTemp.getAbsolutePath();
-			// TODO better solution
-			dockerPidFileTemp.delete();
-			System.out.println("docker pid file: " + dockerPidFile);
-		} catch (Exception ex) {
-			throw new ResourceInitializationException(ex);
-		}
 		
 		ProcessBuilder builder = new ProcessBuilder("docker", "run", "-d", "--cidfile", dockerPidFile, "--rm", "-p", port + ":80", dockerImage);
         try {
@@ -192,8 +199,12 @@ public abstract class SpaCyBase extends JCasAnnotator_ImplBase {
 			} catch (InterruptedException e) {
 				dockerProcess.destroyForcibly();
 			}
-			System.out.println("exit value: " + dockerProcess.exitValue());
-		} catch (IOException e) {
+			int exitValue = dockerProcess.exitValue();
+			System.out.println("exit value: " + exitValue);
+			if (exitValue != 0) {
+				throw new Exception("error starting docker container with spacy rest server.");
+			}
+		} catch (Exception e) {
 			throw new ResourceInitializationException(e);
 		}
 	}

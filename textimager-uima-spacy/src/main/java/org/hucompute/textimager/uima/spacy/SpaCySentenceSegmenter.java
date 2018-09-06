@@ -24,8 +24,8 @@ public class SpaCySentenceSegmenter extends SpaCyBase {
 	@Override
 	protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
 		JSONArray sentences = jsonResult.getJSONArray("sents");
-		sentences.forEach(t -> {
-				JSONObject sentence = (JSONObject)t;
+		sentences.forEach(s -> {
+				JSONObject sentence = (JSONObject)s;
 				int begin = sentence.getInt("start_char");
 				int end = sentence.getInt("end_char");
 				Sentence casSentence = new Sentence(aJCas, begin, end);

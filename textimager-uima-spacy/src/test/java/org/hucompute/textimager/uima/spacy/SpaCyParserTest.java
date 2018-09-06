@@ -11,10 +11,10 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 
-public class SpaCySentenceSegmenterTest {
+public class SpaCyParserTest {
 	@Test
 	public void simpleExampleLa() throws UIMAException{
 		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
@@ -39,18 +39,18 @@ public class SpaCySentenceSegmenterTest {
 		Token t9 = new Token(cas, 39, 40);
 		t9.addToIndexes();
 		
-		AnalysisEngineDescription spacyDependencyParser = createEngineDescription(SpaCySentenceSegmenter.class,
-				SpaCyTagger.PARAM_DOCKER_IMAGE,"textimager-spacy");
+		AnalysisEngineDescription spacyParser = createEngineDescription(SpaCyParser.class,
+				SpaCyParser.PARAM_DOCKER_IMAGE,"textimager-spacy");
 		
-		SimplePipeline.runPipeline(cas, spacyDependencyParser);
+		SimplePipeline.runPipeline(cas, spacyParser);
 		
-		String[] sentences = new String[] {
-				"Das ist   ein Test.",
-				"Und noch      einer.  "
+		String[] deps = new String[] {
+				"SB", "--", "NK", "PD", "PUNCT",
+				"JU", "MO", "--", "PUNCT",
 		};
 
-		String[] casSentences = (String[]) JCasUtil.select(cas, Sentence.class).stream().map(s -> s.getCoveredText()).toArray(String[]::new);
-		
-		assertArrayEquals(sentences, casSentences);
+		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+
+		assertArrayEquals(deps, casDeps);
 	}
 }
