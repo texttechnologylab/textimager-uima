@@ -26,5 +26,11 @@
 			<artifactId>guava</artifactId>
 			<version>26.0-jre</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.hucompute.services</groupId>
+			<artifactId>services-types</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
