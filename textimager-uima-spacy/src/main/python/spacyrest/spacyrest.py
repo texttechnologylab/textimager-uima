@@ -30,6 +30,99 @@ def hello():
 	return "spaCy - REST Server - https://github.com/texttechnologylab"
 
 
+# NER
+@app.route("/ner", methods=['POST'])
+def ner():
+	lang = request.json["lang"]
+	words = request.json["words"]
+	spaces = request.json["spaces"]
+
+	nlp = get_spacy_nlp(lang)		
+	doc = Doc(nlp.vocab, words=words, spaces=spaces)
+
+	# TODO better solution?	
+	for name, proc in nlp.pipeline:
+		if name == "ner":
+			doc = proc(doc)
+	
+	ents = [
+		{
+			#"text": ent.text,
+			"start_char": ent.start_char,
+			"end_char": ent.end_char,
+			"label": ent.label_
+		}
+		for ent in doc.ents
+	]
+	
+	return json.dumps({
+		#"text": doc.text,
+		"ents": ents
+	})
+	
+	
+# Dependency Parser
+@app.route("/parser", methods=['POST'])
+def parser():
+	lang = request.json["lang"]
+	words = request.json["words"]
+	spaces = request.json["spaces"]
+
+	nlp = get_spacy_nlp(lang)		
+	doc = Doc(nlp.vocab, words=words, spaces=spaces)
+	nlp.parser(doc)
+	
+	deps = [
+		{
+			#"text": token.text,
+			"dep": token.dep_,
+			"idx": token.idx,
+			"length": len(token),
+			"is_space": token.is_space,
+			"head": {
+				#"text": token.head.text,
+				"idx": token.head.idx,
+				"length": len(token.head),
+				"is_space": token.head.is_space
+			}
+		}
+		for token in doc
+	]
+	
+	return json.dumps({
+		"text": doc.text,
+		"deps": deps
+	})
+	
+	
+# POS Tagging
+@app.route("/tagger", methods=['POST'])
+def tagger():
+	lang = request.json["lang"]
+	words = request.json["words"]
+	spaces = request.json["spaces"]
+
+	nlp = get_spacy_nlp(lang)		
+	doc = Doc(nlp.vocab, words=words, spaces=spaces)
+	nlp.tagger(doc)
+	
+	pos = [
+		{
+			#"pos": token.pos_,
+			"tag": token.tag_,
+			"idx": token.idx,
+			"length": len(token),
+			"is_space": token.is_space
+		}
+		for token in doc
+	]
+	
+	return json.dumps({
+		#"text": doc.text,
+		"pos": pos
+	})
+
+
 # Sentence Segmentation
 @app.route("/sentence", methods=['POST'])
 def sentence():
@@ -53,7 +146,7 @@ def sentence():
 	]
 	
 	return json.dumps({
-		"text": doc.text,
+		#"text": doc.text,
 		"sents": sents
 	})
 
@@ -81,6 +174,6 @@ def tokenizer():
 	]
 	
 	return json.dumps({
-		"text": doc.text,
+		#"text": doc.text,
 		"token": tokens
 	})
