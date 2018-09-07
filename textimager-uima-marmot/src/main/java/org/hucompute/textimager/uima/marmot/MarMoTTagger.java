@@ -92,11 +92,13 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 	public static final String PARAM_WRITE_MORPH = ComponentParameters.PARAM_WRITE_MORPH;
 	@ConfigurationParameter(name=PARAM_WRITE_MORPH, mandatory=true, defaultValue="false")
 	private boolean writeMorph;
-
+	
+	public static final String PARAM_MAX_SENTENCE_LENGTH = "PARAM_MAX_SENTENCE_LENGTH";
+	@ConfigurationParameter(name = PARAM_MAX_SENTENCE_LENGTH, mandatory = false, defaultValue="-1")
+	protected int maximumSentenceLength;
 
 	private CasConfigurableProviderBase<MorphTagger> modelProvider;
     private MorphologicalFeaturesParser featuresParser;
-
 
 	@Override
 	public void initialize(UimaContext aContext)
@@ -122,6 +124,8 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 				"classpath:/org/hucompute/textimager/uima/marmot/lib/pos-default-variants.map");
         featuresParser = new MorphologicalFeaturesParser(this, modelProvider);
 	}
+	
+	int processed = 0;
 
 
 	@Override
@@ -133,6 +137,14 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 		for (Sentence sentence : select(aJCas, Sentence.class)) {
 			List<Word> words = new ArrayList<>();
 			List<Token>tokens =  JCasUtil.selectCovered(Token.class, sentence);
+			if(maximumSentenceLength > 0 && tokens.size() > maximumSentenceLength){
+				for (Token token : tokens) {
+					token.removeFromIndexes();
+				}
+				sentence.removeFromIndexes();
+				continue;
+			}
+			
 			for (Token token : tokens) {
 				words.add(new Word(token.getCoveredText()));
 			}
