@@ -35,7 +35,7 @@ public class SpaCyTokenizer extends SpaCyBase {
 	}
 
 	@Override
-	protected String getRestEndpointVerb() {
-		return "tokenizer";
+	protected String getRestRoute() {
+		return "/tokenizer";
 	}
 }
