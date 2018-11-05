@@ -34,7 +34,7 @@ public class SpaCySentenceSegmenter extends SpaCyBase {
 	}
 
 	@Override
-	protected String getRestEndpointVerb() {
-		return "sentence";
+	protected String getRestRoute() {
+		return "/sentence";
 	}
 }
