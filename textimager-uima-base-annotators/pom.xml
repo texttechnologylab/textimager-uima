@@ -5,7 +5,7 @@
     <artifactId>textimager-uima</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>textimager-uima-spacy</artifactId>
+  <artifactId>textimager-uima-base-annotators</artifactId>
 
 	<dependencies>
 		<dependency>
@@ -33,11 +33,6 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20180130</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-base-annotators</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	
