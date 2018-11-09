@@ -7,6 +7,8 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.zip.GZIPInputStream;
 
 import marmot.morph.MorphTagger;
@@ -29,7 +31,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 
 
 
-public class MarMoTLemma extends JCasAnnotator_ImplBase {
+public class MarMoTLemmaThreads extends JCasAnnotator_ImplBase {
 
 	/**
 	 * Location from which the model is read.
@@ -84,8 +86,33 @@ public class MarMoTLemma extends JCasAnnotator_ImplBase {
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		long start = System.currentTimeMillis();
 		modelProvider.configure(aJCas.getCas());
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
 		for (Sentence sentence : select(aJCas, Sentence.class)) {
+			executor.execute(new SentenceThread(sentence, aJCas));
+		}
+		executor.shutdown();
+		while(!executor.isShutdown()){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		System.out.println("processing time: " + (System.currentTimeMillis()-start));
+	}
+	
+	private class SentenceThread implements Runnable{
+		Sentence sentence;
+		JCas aJCas;
+		public SentenceThread(Sentence sentence, JCas aJCas) {
+			this.sentence = sentence;
+			this.aJCas = aJCas;
+		}
+		
+		@Override
+		public void run() {
 			List<Word> words = new ArrayList<>();
 			List<Token>tokens =  JCasUtil.selectCovered(Token.class, sentence);
 			if(maximumSentenceLength > 0 && tokens.size() > maximumSentenceLength){
@@ -93,7 +120,7 @@ public class MarMoTLemma extends JCasAnnotator_ImplBase {
 					token.removeFromIndexes();
 				}
 				sentence.removeFromIndexes();
-				continue;
+				return;
 			}
 
 			for (Token token : tokens) {
@@ -110,12 +137,13 @@ public class MarMoTLemma extends JCasAnnotator_ImplBase {
 				}
 				lemma.addToIndexes();
 				tokens.get(i).setLemma(lemma);
-			}
+			}			
 		}
-		System.out.println("processing time: " + (System.currentTimeMillis()-start));
+		
 	}
 
 	private String getLemma(String token,String input) throws StringIndexOutOfBoundsException{
+		System.out.println(input);
 		String[]split = input.split("\\|");
 		String lemma = token;
 		if(split.length>1){
