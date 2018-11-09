@@ -9,6 +9,11 @@ import org.json.JSONObject;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 public abstract class SpaCyBase extends DockerRestAnnotator {
+	@Override
+    protected String getDefaultDockerImage() {
+    	return "texttechnologylab/textimager-spacy:3";
+    }
+	
 	// Adds the "words" and "spaces" arrays for spaCy to the JSON object
 	protected void jsonAddWordsAndSpaces(JCas aJCas, JSONObject json) {
 		JSONArray jsonWords = new JSONArray();

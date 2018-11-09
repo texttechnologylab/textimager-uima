@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UimaContext;
@@ -32,11 +34,21 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
     public static final String PARAM_PORT_MAX = "portMax";
     @ConfigurationParameter(name = PARAM_PORT_MAX, mandatory = false, defaultValue = "5100")
     protected int portMax;
+    
+    /**
+     * The docker volumes options, separated by comma
+     */
+    public static final String PARAM_DOCKER_VOLUMES = "dockerVolumes";
+    @ConfigurationParameter(name = PARAM_DOCKER_VOLUMES, mandatory = false)
+    protected String dockerVolumes;
 
 	private boolean useDocker = true;
 	private String dockerRestEndpointIP = "127.0.0.1";
 	private String dockerRestEndpoint;
 	private String dockerPidFile = null;
+	
+	// Default Docker Image, if none is configured
+	abstract protected String getDefaultDockerImage();
 	
 	@Override
 	protected String getRestEndpoint() {
@@ -87,6 +99,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 		useDocker = (restEndpoint == null);
 		
 		if (useDocker) {
+			if (dockerImage == null) {
+				System.out.println("no docker image configured.");
+				dockerImage = getDefaultDockerImage();
+			}
+			
+			System.out.println("using docker image: " + dockerImage);
+			
 			// wait so that instances do not interrupt
 			try {
 				Thread.sleep((long) (Math.random() * 1000));
@@ -116,8 +135,24 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 			System.out.println("using port " + port);
 			
 			dockerRestEndpoint = "http://" + dockerRestEndpointIP + ":" + port;
-			
-			ProcessBuilder builder = new ProcessBuilder("docker", "run", "-d", "--cidfile", dockerPidFile, "--rm", "-p", port + ":80", dockerImage);
+
+			List<String> command = new ArrayList<String>();
+			command.add("docker");
+			command.add("run");
+			command.add("-d");
+			command.add("--cidfile");
+			command.add(dockerPidFile);
+			command.add("--rm");
+			command.add("-p");
+			command.add(port + ":80");
+			if (dockerVolumes != null) {
+				for (String m : dockerVolumes.split(",", -1)) {
+					command.add("-v");
+					command.add(m);
+				}
+			}
+			command.add(dockerImage);
+			ProcessBuilder builder = new ProcessBuilder(command);
 	        try {
 	        	Process dockerProcess = builder.start();
 				
