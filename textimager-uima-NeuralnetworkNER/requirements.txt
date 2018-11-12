@@ -1,0 +1,5 @@
+flask>=1.0
+numpy>=1.14.0
+backports.ssl-match-hostname==3.5.0.1
+tables==3.4.2
+theano==1.0.1
