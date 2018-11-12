@@ -43,5 +43,6 @@
 <!--         <module>textimager-uima-uaic</module> -->
         <module>textimager-uima-io-mediawiki</module>
         <module>textimager-uima-spacy</module>
+        <module>textimager-uima-NeuralnetworkNER</module>
     </modules>
 </project>
