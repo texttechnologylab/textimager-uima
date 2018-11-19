@@ -47,12 +47,6 @@ public class NeuralNER extends NeuralNERBase {
 	}
 
 	@Override
-	protected String getRestEndpointVerb() {
-		return "ner";
-	}
-
-
-	@Override
 	protected String getRestRoute() {
 		return "/ner";
 	}

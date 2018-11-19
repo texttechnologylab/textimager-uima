@@ -46,7 +46,8 @@ public class NeuralNERTest {
 
 		AnalysisEngineDescription spacyNer = createEngineDescription(NeuralNER.class,
 				NeuralNER.PARAM_DOCKER_IMAGE, "textimager-neuralnetwork-ner",
-				NeuralNER.PARAM_MODEL_NAME, "conll2010-tuebadz");
+				NeuralNER.PARAM_MODEL_NAME, "conll2010-tuebadz",
+				NeuralNER.PARAM_REST_ENDPOINT,"http://localhost:5000");
 
 		SimplePipeline.runPipeline(cas, spacyNer);
 
@@ -80,14 +81,16 @@ public class NeuralNERTest {
 
 		AnalysisEngineDescription spacyNer = createEngineDescription(NeuralNER.class,
 				NeuralNER.PARAM_DOCKER_IMAGE, "textimager-neuralnetwork-ner",
-				NeuralNER.PARAM_MODEL_NAME, "conll-germeval-tuebadz-europarl");
+				NeuralNER.PARAM_MODEL_NAME, "conll-germeval-tuebadz-europarl"
+//				NeuralNER.PARAM_REST_ENDPOINT,"http://localhost:5000"
+				);
+
 
 		SimplePipeline.runPipeline(cas, spacyNer);
 
 		String[] ents = new String[]{"B-MISC", "B-ORG"};
 
 		String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
-
 		assertArrayEquals(ents, casEnts);
 	}
 

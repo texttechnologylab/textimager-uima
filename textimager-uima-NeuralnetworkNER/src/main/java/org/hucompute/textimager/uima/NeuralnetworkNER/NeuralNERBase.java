@@ -11,7 +11,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -31,49 +30,12 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
  * @author Manuel Stoeckel
  */
 public abstract class NeuralNERBase extends DockerRestAnnotator {
-
-	/**
-	 * The docker image for the neuralnetwork-ner server
-	 */
-	public static final String PARAM_DOCKER_IMAGE = "dockerImage";
-	@ConfigurationParameter(name = PARAM_DOCKER_IMAGE, mandatory = true, defaultValue = "texttechnologylab/textimager-neuralnetwork-ner:3")
-	protected String dockerImage;
-
-	/**
-	 * The min port
-	 */
-	public static final String PARAM_PORT_MIN = "portMin";
-	@ConfigurationParameter(name = PARAM_PORT_MIN, mandatory = true, defaultValue = "5000")
-	protected int portMin;
-
-	/**
-	 * The max port
-	 */
-	public static final String PARAM_PORT_MAX = "portMax";
-	@ConfigurationParameter(name = PARAM_PORT_MAX, mandatory = true, defaultValue = "5100")
-	protected int portMax;
-
 	/**
 	 * The model name
 	 */
 	public static final String PARAM_MODEL_NAME = "modelName";
 	@ConfigurationParameter(name = PARAM_MODEL_NAME, mandatory = true, defaultValue = "conll2010-tuebadz")
 	protected static String modelName;
-
-	// Base URL, Port added during initialisation
-	private String restEndpointIP = "127.0.0.1";
-	private String restEndpointBase;
-
-	private String dockerPidFile = null;
-
-	// Provide Rest Verb for URL
-	protected abstract String getRestEndpointVerb();
-
-	// Build request JSON object
-	protected abstract JSONObject buildJSON(JCas aJCas);
-
-	// Update CAS with JSON results
-	protected abstract void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException;
 
 	// Adds the "words" and "spaces" arrays for neuralnetwork-ner to the JSON object
 	protected void jsonAddWordsAndCharIDs(JCas aJCas, JSONObject json) {
@@ -96,115 +58,11 @@ public abstract class NeuralNERBase extends DockerRestAnnotator {
 		json.put("begin_end", jsonBeginEnd);
 	}
 
-	private boolean isPortFree(String host, int port) {
-		try (Socket s = new Socket(host, port)) {
-			return false;
-		} catch (Exception e) {
-			return true;
-		}
-		// ignore
-	}
-
-	private boolean isHTTPOK(String url) {
-		try {
-			HttpURLConnection.setFollowRedirects(false);
-			HttpURLConnection con = (HttpURLConnection) new URL(restEndpointBase).openConnection();
-			con.setRequestMethod("HEAD");
-			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				System.out.println("neuralnetwork-ner server online");
-				return true;
-			}
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-		return false;
-	}
-
-	@Override
-	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-		super.initialize(aContext);
-
-		// wait so that instances do not interrupt
-		try {
-			Thread.sleep((long) (Math.random() * 1000));
-		} catch (InterruptedException e1) {
-			// ..
-		}
-
-		try {
-			File dockerPidFileTemp = File.createTempFile("textimager_ducc_neuralnetwork-ner_", "_docker_pid");
-			dockerPidFile = dockerPidFileTemp.getAbsolutePath();
-			// TODO better solution
-			dockerPidFileTemp.delete();
-			System.out.println("docker pid file: " + dockerPidFile);
-		} catch (Exception ex) {
-			throw new ResourceInitializationException(ex);
-		}
-
-		int portInt = portMin;
-		while (!isPortFree(restEndpointIP, portInt)) {
-			System.out.println("port " + portInt + " not available, checking next...");
-			portInt++;
-			if (portInt > portMax) {
-				throw new ResourceInitializationException(new Exception("no free ports found"));
-			}
-		}
-		String port = String.valueOf(portInt);
-		System.out.println("using port " + port);
-
-		restEndpointBase = "http://" + restEndpointIP + ":" + port;
-
-		ProcessBuilder builder = new ProcessBuilder("docker", "run", "-d", "--cidfile", dockerPidFile, "--rm", "-p", port + ":80", dockerImage);
-		try {
-			Process dockerProcess = builder.start();
-
-			// wait until server is ready
-			System.out.println("waiting for neuralnetwork-ner server...");
-			while (!isHTTPOK(restEndpointBase)) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// ignore
-				}
-			}
-			try {
-				dockerProcess.waitFor();
-			} catch (InterruptedException e) {
-				dockerProcess.destroyForcibly();
-			}
-			int exitValue = dockerProcess.exitValue();
-			System.out.println("exit value: " + exitValue);
-			if (exitValue != 0) {
-				throw new Exception("error starting docker container with neuralnetwork-ner rest server.");
-			}
-		} catch (Exception e) {
-			throw new ResourceInitializationException(e);
-		}
-	}
-
-	@Override
-	public void destroy() {
-		if (dockerPidFile != null) {
-			File dockerPidFileTemp = new File(dockerPidFile);
-			try {
-				String dockerId = FileUtils.readFileToString(dockerPidFileTemp, "UTF-8");
-				System.out.println("docker id: " + dockerId);
-				new ProcessBuilder("docker", "stop", dockerId).start();
-			} catch (IOException e) {
-				// ..
-			}
-			dockerPidFileTemp.delete();
-		}
-
-		super.destroy();
-	}
-
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		JSONObject json = buildJSON(aJCas);
 		json.put("model", modelName);
 		String body = json.toString();
-		System.out.println(body);
 
 		try {
 			URL url = new URL(getRestEndpoint());
@@ -221,7 +79,6 @@ public abstract class NeuralNERBase extends DockerRestAnnotator {
 			writer.flush();
 
 			String res = IOUtils.toString(connection.getInputStream());
-			System.out.println(res);
 
 			writer.close();
 
@@ -233,12 +90,7 @@ public abstract class NeuralNERBase extends DockerRestAnnotator {
 	}
 
 	@Override
-	protected String getRestEndpoint() {
-		return restEndpointBase + "/" + getRestEndpointVerb();
-	}
-
-	@Override
 	protected String getDefaultDockerImage() {
-		return "texttechnologylab/textimager-neuralnetwork-ner:2";
+		return "texttechnologylab/textimager-neuralnetwork-ner:3";
 	}
 }
