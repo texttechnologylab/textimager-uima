@@ -67,7 +67,7 @@ public class SpaCyParser extends SpaCyBase {
 	}
 
 	@Override
-	protected String getRestEndpointVerb() {
-		return "parser";
+	protected String getRestRoute() {
+		return "/parser";
 	}
 }
