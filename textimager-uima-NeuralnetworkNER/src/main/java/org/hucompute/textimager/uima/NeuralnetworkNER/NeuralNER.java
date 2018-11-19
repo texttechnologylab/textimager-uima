@@ -81,6 +81,9 @@ public class NeuralNER extends NeuralNERBase {
 			namedEntityTags[words.indexOf(JCasUtil.selectAt(aJCas, Token.class, begin, end).get(0))] = labelStr;
 		});
 		decoder.decode(words, namedEntityTags);
+		for (NamedEntity ne : JCasUtil.select(aJCas, NamedEntity.class)) {
+			ne.setValue("I-" + ne.getValue());
+		}
 	}
 
 	@Override
