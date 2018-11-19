@@ -81,7 +81,7 @@ public abstract class NeuralNERBase extends DockerRestAnnotator {
 			String res = IOUtils.toString(connection.getInputStream());
 
 			writer.close();
-
+			System.out.println(new JSONObject(res));
 			updateCAS(aJCas, new JSONObject(res));
 
 		} catch (Exception ex) {
