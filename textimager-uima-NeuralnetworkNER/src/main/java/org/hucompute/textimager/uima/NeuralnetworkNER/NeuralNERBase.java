@@ -16,6 +16,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -29,7 +30,8 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
  *
  * @author Manuel Stoeckel
  */
-public abstract class NeuralNERBase extends JCasAnnotator_ImplBase {
+public abstract class NeuralNERBase extends DockerRestAnnotator {
+
 	/**
 	 * The docker image for the neuralnetwork-ner server
 	 */
@@ -230,7 +232,13 @@ public abstract class NeuralNERBase extends JCasAnnotator_ImplBase {
 		}
 	}
 
-	private String getRestEndpoint() {
+	@Override
+	protected String getRestEndpoint() {
 		return restEndpointBase + "/" + getRestEndpointVerb();
+	}
+
+	@Override
+	protected String getDefaultDockerImage() {
+		return "texttechnologylab/textimager-neuralnetwork-ner:2";
 	}
 }

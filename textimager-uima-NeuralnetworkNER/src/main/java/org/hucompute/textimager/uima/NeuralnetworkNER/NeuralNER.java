@@ -50,4 +50,10 @@ public class NeuralNER extends NeuralNERBase {
 	protected String getRestEndpointVerb() {
 		return "ner";
 	}
+
+
+	@Override
+	protected String getRestRoute() {
+		return "/ner";
+	}
 }
