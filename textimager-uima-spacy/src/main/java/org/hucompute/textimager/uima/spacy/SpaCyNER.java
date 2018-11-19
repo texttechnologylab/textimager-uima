@@ -43,7 +43,7 @@ public class SpaCyNER extends SpaCyBase {
 	}
 
 	@Override
-	protected String getRestEndpointVerb() {
-		return "ner";
+	protected String getRestRoute() {
+		return "/ner";
 	}
 }

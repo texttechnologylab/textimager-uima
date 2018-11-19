@@ -89,7 +89,7 @@ public class SpaCyTagger extends SpaCyBase {
 	}
 
 	@Override
-	protected String getRestEndpointVerb() {
-		return "tagger";
+	protected String getRestRoute() {
+		return "/tagger";
 	}
 }
