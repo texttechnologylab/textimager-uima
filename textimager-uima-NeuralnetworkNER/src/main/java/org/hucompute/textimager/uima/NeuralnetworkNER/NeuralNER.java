@@ -1,9 +1,6 @@
 package org.hucompute.textimager.uima.NeuralnetworkNER;
 
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,18 +13,9 @@ import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
  */
 public class NeuralNER extends NeuralNERBase {
 	@Override
-	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-		super.initialize(aContext);
-	}
-	
-	@Override
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		super.process(aJCas);
-	}
-
-	@Override
 	protected JSONObject buildJSON(JCas aJCas) {
 		JSONObject json = new JSONObject();
+		jsonAddModel(aJCas, json);
 		jsonAddWordsAndCharIDs(aJCas, json);
 		return json;
 	}
@@ -47,7 +35,7 @@ public class NeuralNER extends NeuralNERBase {
 	}
 
 	@Override
-	protected String getRestEndpointVerb() {
-		return "ner";
+	protected String getRestRoute() {
+		return "/ner";
 	}
 }
