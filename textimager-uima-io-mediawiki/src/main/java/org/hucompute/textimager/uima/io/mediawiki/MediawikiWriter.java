@@ -1,6 +1,6 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.io.File;
+import java.io.File; 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -27,6 +27,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 
 // TODO replace with new "types" category
 import org.hucompute.services.type.CategoryCoveredTagged;
@@ -287,7 +288,16 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					textBuffer.append("{{#tip-text: ").append(token.getCoveredText())
 						.append(" |lemma:").append(token.getLemma().getValue())
 						.append(",pos:").append(token.getPos().getPosValue())
+						.append("}} ");
+					
+					//fuer jedes Token Named Entity hinzufuegen 
+					for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
+
+	                    textBuffer.append("{{NP: ").append(token.getCoveredText())
+						.append(" |\tNE:").append(ne.getValue())
 						.append("}}");
+
+	                } 
 					
 					textBuffer.append(" ");
 				}
