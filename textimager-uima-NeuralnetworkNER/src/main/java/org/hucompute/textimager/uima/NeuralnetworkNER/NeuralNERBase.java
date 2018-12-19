@@ -1,5 +1,8 @@
 package org.hucompute.textimager.uima.NeuralnetworkNER;
 
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;

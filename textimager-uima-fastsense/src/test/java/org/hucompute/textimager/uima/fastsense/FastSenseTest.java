@@ -52,7 +52,7 @@ public class FastSenseTest {
 
 		AnalysisEngineDescription fastSense = createEngineDescription(FastSense.class,
 				FastSense.PARAM_REST_ENDPOINT,"http://127.0.0.1:5000",
-				FastSense.PARAM_DOCKER_VOLUMES,"/mnt/tb1/baumartz/git/textimager-uima/textimager-uima-fastsense/src/main/python/best_model:/model");
+				FastSense.PARAM_DOCKER_VOLUMES,"/mnt/tb1/baumartz/git/fastSense/fastsense-en/best_model:/model");
 		
 		SimplePipeline.runPipeline(cas, fastSense);
 
