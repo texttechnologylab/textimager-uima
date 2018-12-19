@@ -104,6 +104,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		super.initialize(context);
 				
 		File outputDir = new File(targetLocation);
+		outputDir.mkdirs();
 		File outputDumpFile = new File(targetLocation + "/output.wiki.xml");
 		
 		String sitename = outputDir.getName();
