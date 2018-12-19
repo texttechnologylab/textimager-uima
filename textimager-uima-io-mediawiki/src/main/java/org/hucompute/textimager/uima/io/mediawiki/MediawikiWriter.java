@@ -9,7 +9,9 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -259,9 +261,23 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		String comment = "Generated from file " + meta.getDocumentUri();
 		
 		StringBuffer textBuffer = new StringBuffer();
+		StringBuffer catBuffer = new StringBuffer();
 		
 		// Inhalt: Paragraphenweise alle Token + Lemma als Tooltip
 		for (Paragraph paragraph : JCasUtil.select(jCas, Paragraph.class)) {
+			// DDC Kategorien: Von jedem Paragraphen den besten
+			// TODO Seperate Typen für DDC Kategorien und Wikipedia Disambiguation
+			// TODO Disambiguation Links
+			{
+				ArrayList<CategoryCoveredTagged> paragraphCats = new ArrayList<CategoryCoveredTagged>();
+				paragraphCats.addAll(JCasUtil.selectCovered(CategoryCoveredTagged.class, paragraph));
+				if (!paragraphCats.isEmpty()) {
+					Collections.sort(paragraphCats, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
+					CategoryCoveredTagged cat = paragraphCats.get(0);
+					catBuffer.append("[[").append(categoryPrefix).append("DDC").append(cat.getValue().replaceAll("__label_ddc__", "")).append("]]\n");
+				}
+			}
+			
 			for (Sentence sentence : JCasUtil.selectCovered(Sentence.class, paragraph)) {
 
 				textBuffer.append("<span class=\"sentence\">");
@@ -282,13 +298,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 			textBuffer.append("\n\n");
 		}
-
-		// DDC Tag gelten für ganzes Dokument
-		// TODO Seperate Typen für DDC Kategorien und Wikipedia Disambiguation
-		// TODO Disambiguation Links
-		for (CategoryCoveredTagged cat : JCasUtil.select(jCas, CategoryCoveredTagged.class)) {
-			textBuffer.append("[[").append(categoryPrefix).append("DDC").append(cat.getValue().replaceAll("__label_ddc__", "")).append("]]\n");
-		}
+		
+		textBuffer.append(catBuffer.toString());
 		
 		writePage(pageTitle, comment, textBuffer.toString(), nsPage);
 	}
