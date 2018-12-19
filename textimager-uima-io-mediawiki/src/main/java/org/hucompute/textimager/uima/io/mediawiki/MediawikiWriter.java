@@ -26,6 +26,9 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
+// TODO replace with new "types" category
+import org.hucompute.services.type.CategoryCoveredTagged;
+
 public class MediawikiWriter extends JCasConsumer_ImplBase{
 		
 	/**
@@ -90,6 +93,16 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			corpusTextBuilder.append(textBuilder).append("\n\n");
 		}
 		writePage("Corpus", "Corpus overview", corpusTextBuilder.toString(), nsPage);
+				
+		// Alle DDC Kategorieseiten erstellen
+		for (HashMap.Entry<String, String> entry : MediawikiDDCHelper.getAllDDCClasses().entrySet()) {
+			StringBuilder text = new StringBuilder();
+			if (!entry.getKey().endsWith("0")) {
+				text.append(MediawikiDDCHelper.getDDCClassName(entry.getKey().substring(0, 2) + "0")).append(": ");
+			}
+			text.append(entry.getValue());
+			writePage(categoryPrefix + "DDC" + entry.getKey(), "Generated DDC categoy", text.toString(), nsCategory);
+		}
 				
 		writer.println("</mediawiki>");
 
@@ -268,7 +281,14 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 			textBuffer.append("\n\n");
 		}
-				
+
+		// DDC Tag gelten für ganzes Dokument
+		// TODO Seperate Typen für DDC Kategorien und Wikipedia Disambiguation
+		// TODO Disambiguation Links
+		for (CategoryCoveredTagged cat : JCasUtil.select(jCas, CategoryCoveredTagged.class)) {
+			textBuffer.append("[[").append(categoryPrefix).append("DDC").append(cat.getValue().replaceAll("__label_ddc__", "")).append("]]\n");
+		}
+		
 		writePage(pageTitle, comment, textBuffer.toString(), nsPage);
 	}
 }
