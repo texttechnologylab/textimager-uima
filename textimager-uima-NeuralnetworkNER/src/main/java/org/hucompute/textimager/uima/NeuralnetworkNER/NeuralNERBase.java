@@ -3,6 +3,21 @@ package org.hucompute.textimager.uima.NeuralnetworkNER;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.Socket;
+import java.net.URL;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,11 +33,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
  * @author Manuel Stoeckel
  */
 public abstract class NeuralNERBase extends DockerRestAnnotator {
-	@Override
-    protected String getDefaultDockerImage() {
-    	return "texttechnologylab/textimager-neuralnetwork-ner:3";
-    }
-	
 	/**
 	 * The model name
 	 */
@@ -50,8 +60,40 @@ public abstract class NeuralNERBase extends DockerRestAnnotator {
 		json.put("words", jsonWords);
 		json.put("begin_end", jsonBeginEnd);
 	}
-	
-	protected void jsonAddModel(JCas aJCas, JSONObject json) {
+
+	@Override
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
+		JSONObject json = buildJSON(aJCas);
 		json.put("model", modelName);
+		String body = json.toString();
+
+		try {
+			URL url = new URL(getRestEndpoint());
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+			connection.setUseCaches(false);
+			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
+
+			OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+			writer.write(body);
+			writer.flush();
+
+			String res = IOUtils.toString(connection.getInputStream());
+
+			writer.close();
+			System.out.println(new JSONObject(res));
+			updateCAS(aJCas, new JSONObject(res));
+
+		} catch (Exception ex) {
+			throw new AnalysisEngineProcessException(ex);
+		}
+	}
+
+	@Override
+	protected String getDefaultDockerImage() {
+		return "texttechnologylab/textimager-neuralnetwork-ner:3";
 	}
 }
