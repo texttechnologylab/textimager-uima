@@ -46,5 +46,7 @@
         <module>textimager-uima-spacy</module>
         <module>textimager-uima-NeuralnetworkNER</module>
         <module>textimager-uima-cltk</module>
+        <module>textimager-uima-io</module>
+        <module>textimager-uima-fasttext</module>
     </modules>
 </project>
