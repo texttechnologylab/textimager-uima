@@ -50,28 +50,48 @@ models = {
 def hello():
     return "Neural Architectures for Named Entity Recognition - REST Server - https://github.com/texttechnologylab\n"
 
+#TODO: add dynamic modelloading
+model = None
+f_eval = None
+parameters = None
+word_to_id= None
+char_to_id = None
+tag_to_id = None
 
 # NER
 @app.route("/ner", methods=['POST'])
 def ner():
+    global model
+    global f_eval
+    global parameters
+    global word_to_id
+    global char_to_id
+    global tag_to_id
     model_name = request.json["model"]
     words = request.json["words"]
     begin_end = request.json["begin_end"]
+    if model is None:
+        ## Model loading
+        print "Loading model " + model_name + ".."
+        model = Model(model_path="models/" + models[model_name])
+        parameters = model.parameters
+    
+        # Load reverse mappings
+        word_to_id, char_to_id, tag_to_id = [
+            {v: k for k, v in x.items()}
+            for x in [model.id_to_word, model.id_to_char, model.id_to_tag]
+        ]
+    
+        # Load the model
+        _, f_eval = model.build(training=False, **parameters)
+        model.reload()
+#     else:
+#         parameters = model.parameters
+#         word_to_id, char_to_id, tag_to_id = [
+#             {v: k for k, v in x.items()}
+#             for x in [model.id_to_word, model.id_to_char, model.id_to_tag]
+#         ]
 
-    ## Model loading
-    print "Loading model " + model_name + ".."
-    model = Model(model_path="models/" + models[model_name])
-    parameters = model.parameters
-
-    # Load reverse mappings
-    word_to_id, char_to_id, tag_to_id = [
-        {v: k for k, v in x.items()}
-        for x in [model.id_to_word, model.id_to_char, model.id_to_tag]
-    ]
-
-    # Load the model
-    _, f_eval = model.build(training=False, **parameters)
-    model.reload()
 
     # Lowercase sentence
     if parameters['lower']:
