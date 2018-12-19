@@ -54,14 +54,14 @@ public class NeuralNERTest {
 
 		SimplePipeline.runPipeline(cas, spacyNer);
 
-		String[] ents = new String[]{"B-ORG"};
+		String[] ents = new String[]{"I-ORG"};
 
 		String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
 		System.out.println(JCasUtil.select(cas, NamedEntity.class));
-//		assertArrayEquals(ents, casEnts);
+		assertArrayEquals(ents, casEnts);
 	}
 
-//	@Test
+	@Test
 	public void test_conll() throws UIMAException {
 		JCas cas = getExampleJCas();
 
@@ -71,10 +71,10 @@ public class NeuralNERTest {
 
 		SimplePipeline.runPipeline(cas, spacyNer);
 
-		String[] ents = new String[]{};
+		String[] ents = new String[]{"B-PER","I-PER"};
 
 		String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
-
+		
 		assertArrayEquals(ents, casEnts);
 	}
 
