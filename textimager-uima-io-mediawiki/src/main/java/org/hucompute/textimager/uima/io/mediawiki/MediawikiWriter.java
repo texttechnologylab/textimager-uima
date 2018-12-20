@@ -283,24 +283,23 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				textBuffer.append("<span class=\"sentence\">");
 				
 				for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
-										
+					
+					
 					// {{#tip-text:  findest |lemma:finden }}
 					textBuffer.append("{{#tip-text: ").append(token.getCoveredText())
 						.append(" |lemma:").append(token.getLemma().getValue())
 						.append(",pos:").append(token.getPos().getPosValue())
-						.append("}} ");
-					
-					//fuer jedes Token Named Entity hinzufuegen 
-					for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
+						.append(",");
+								
+				
+			    for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
 
-	                    textBuffer.append("{{NP: ").append(token.getCoveredText())
-						.append(" |\tNE:").append(ne.getValue())
-						.append("}}");
+                    textBuffer.append(" NE:").append(ne.getValue());
 
-	                } 
-					
-					textBuffer.append(" ");
-				}
+                } /* for each NamedEntity within the noun phrase */
+			    
+			    textBuffer.append(" }} ");
+			}
 				
 				textBuffer.append("</span>");
 			}
