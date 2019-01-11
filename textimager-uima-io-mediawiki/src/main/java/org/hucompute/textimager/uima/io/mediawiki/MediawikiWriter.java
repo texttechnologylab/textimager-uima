@@ -287,18 +287,17 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					
 					// {{#tip-text:  findest |lemma:finden }}
 					textBuffer.append("{{#tip-text: ").append(token.getCoveredText())
-						.append(" |lemma:").append(token.getLemma().getValue())
-						.append(",pos:").append(token.getPos().getPosValue())
-						.append(",");
+					.append(" |lemma:").append(token.getLemma().getValue())
+					.append(",pos:").append(token.getPos().getPosValue());
 								
 				
-			    for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
+					 for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
 
-                    textBuffer.append(" NE:").append(ne.getValue());
+		                    textBuffer.append(",NE:").append(ne.getValue());
 
-                } /* for each NamedEntity within the noun phrase */
-			    
-			    textBuffer.append(" }} ");
+		                } /* for each NamedEntity within the noun phrase */
+					    
+					    textBuffer.append("}} ");
 			}
 				
 				textBuffer.append("</span>");
