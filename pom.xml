@@ -35,17 +35,17 @@
     </dependencies>
     <modules>
         <module>textimager-uima-base-annotators</module>
-        <module>textimager-uima-marmot</module>
+<!--         <module>textimager-uima-marmot</module> -->
         <module>textimager-uima-wiki</module>
         <module>textimager-uima-types</module>
-        <module>textimager-uima-OpenerProject</module>
-        <module>textimager-uima-talismane</module>
-        <module>textimager-uima-IXA</module>
+<!--         <module>textimager-uima-OpenerProject</module> -->
+<!--         <module>textimager-uima-talismane</module> -->
+<!--         <module>textimager-uima-IXA</module> -->
 <!--         <module>textimager-uima-uaic</module> -->
-        <module>textimager-uima-io-mediawiki</module>
-        <module>textimager-uima-spacy</module>
-        <module>textimager-uima-NeuralnetworkNER</module>
-        <module>textimager-uima-cltk</module>
+<!--         <module>textimager-uima-io-mediawiki</module> -->
+<!--         <module>textimager-uima-spacy</module> -->
+<!--         <module>textimager-uima-NeuralnetworkNER</module> -->
+<!--         <module>textimager-uima-cltk</module> -->
         <!--<module>textimager-uima-io</module>-->
         <!--<module>textimager-uima-fasttext</module>-->
     </modules>

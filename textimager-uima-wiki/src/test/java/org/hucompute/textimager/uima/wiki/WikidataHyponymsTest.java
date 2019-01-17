@@ -66,7 +66,7 @@ public class WikidataHyponymsTest  {
 		System.out.println(Arrays.toString(wikiLinks[1].getWikiDataHyponyms().toArray()));
 		System.out.println(Arrays.toString(new String[]{"Q5", "Q215627", "Q762"}));
 //		assertArrayEquals(new String[]{"Q5", "Q215627", "Q21070568", "Q762"}, wikiLinks[1].getWikiDataHyponyms().toArray());
-		assertArrayEquals(new String[]{"Q5", "Q215627", "Q762"}, wikiLinks[1].getWikiDataHyponyms().toArray());
+		assertArrayEquals(new String[]{"Q5", "Q154954","Q215627", "Q762"}, wikiLinks[1].getWikiDataHyponyms().toArray());
 
 		//Hochrenaissance
 		assertEquals(wikiLinks[2].getWikiData(),"Q1474884");
