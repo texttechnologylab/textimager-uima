@@ -1,6 +1,6 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.io.File;
+import java.io.File; 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -27,6 +27,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 
 // TODO replace with new "types" category
 import org.hucompute.services.type.CategoryCoveredTagged;
@@ -282,15 +283,22 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				textBuffer.append("<span class=\"sentence\">");
 				
 				for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
-										
+					
+					
 					// {{#tip-text:  findest |lemma:finden }}
 					textBuffer.append("{{#tip-text: ").append(token.getCoveredText())
-						.append(" |lemma:").append(token.getLemma().getValue())
-						.append(",pos:").append(token.getPos().getPosValue())
-						.append("}}");
-					
-					textBuffer.append(" ");
-				}
+					.append(" |lemma:").append(token.getLemma().getValue())
+					.append(",pos:").append(token.getPos().getPosValue());
+								
+				
+					 for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
+
+		                    textBuffer.append(",NE:").append(ne.getValue());
+
+		                } /* for each NamedEntity within the noun phrase */
+					    
+					    textBuffer.append("}} ");
+			}
 				
 				textBuffer.append("</span>");
 			}
