@@ -195,8 +195,6 @@ extends JCasFileWriter_ImplBase
 				if (cur == null || nextAnnot.getBegin() < cur.getEnd()) {
 					// Check if next annotation is fully nested
 					if (cur == null || nextAnnot.getEnd() <= cur.getEnd()) {
-						System.out.println(nextAnnot);
-						System.out.println(cur);
 						// Text between current and next annotation
 						xmlEventWriter.add(xmlef.createCharacters(text.substring(pos,
 								nextAnnot.getBegin())));
@@ -314,7 +312,6 @@ extends JCasFileWriter_ImplBase
 					iterator.moveToNext();
 					continue;
 				}
-				System.out.println(teiElement);
 
 				// Check if next annotation is potentially nested
 				if (cur == null || nextAnnot.getBegin() < cur.getEnd()) {
@@ -417,9 +414,9 @@ extends JCasFileWriter_ImplBase
 		}
 		else if (aAnnotation instanceof Constituent) {
 			Constituent c = (Constituent) aAnnotation;
-			if ("ROOT".equals(c.getConstituentType())) {
-				System.out.println();
-			}
+//			if ("ROOT".equals(c.getConstituentType())) {
+//				System.out.println();
+//			}
 			if (c.getConstituentType() != null) {
 				attributes.add(xmlef.createAttribute(ATTR_TYPE, c.getConstituentType()));
 			}
