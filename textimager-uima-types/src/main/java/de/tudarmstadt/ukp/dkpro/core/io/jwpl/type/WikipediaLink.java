@@ -11,8 +11,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** Wikipedia link
- * Updated by JCasGen Thu Oct 12 17:21:27 CEST 2017
- * XML source: /home/ahemati/workspaceGit/textimager-uima/textimager-uima-types/src/main/resources/desc/type/wikipediaLink.xml
+ * Updated by JCasGen Mon Jan 21 11:55:13 CET 2019
+ * XML source: /home/ahemati/workspaceGitNew/textimager-uima/textimager-uima-types/src/main/resources/desc/type/wikipediaLink.xml
  * @generated */
 public class WikipediaLink extends Annotation {
   /** @generated

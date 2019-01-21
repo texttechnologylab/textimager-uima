@@ -10,7 +10,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** Wikipedia link
- * Updated by JCasGen Thu Oct 12 17:21:27 CEST 2017
+ * Updated by JCasGen Mon Jan 21 11:55:13 CET 2019
  * @generated */
 public class WikipediaLink_Type extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink_Type {
   /** @generated */
@@ -78,7 +78,7 @@ public class WikipediaLink_Type extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.ty
     if (lowLevelTypeChecks)
       return ll_cas.ll_getStringArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_WikiDataHyponyms), i, true);
     jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_WikiDataHyponyms), i);
-	return ll_cas.ll_getStringArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_WikiDataHyponyms), i);
+  return ll_cas.ll_getStringArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_WikiDataHyponyms), i);
   }
    
   /** @generated
