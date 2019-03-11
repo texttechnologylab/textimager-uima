@@ -1,6 +1,6 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.io.File; 
+import java.io.File;   
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -28,6 +28,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+
 
 // TODO replace with new "types" category
 import org.hucompute.services.type.CategoryCoveredTagged;
@@ -65,7 +66,9 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	
 	private MessageDigest md;
 	private long pageIdGlobal = 0;
+	// Variable to add lines of the output file step by step
 	private PrintWriter writer;
+	// To save names of all text files 
 	private HashMap<String, HashSet<String>> folderPages;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
@@ -77,27 +80,33 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	
 	@Override
 	public void destroy() {
-		// Unterordner Seiten aufbauen
+		// To build all sub-pages for texts 
+		
+		//To save all names of files for the Corpus-page 
 		StringBuilder corpusTextBuilder = new StringBuilder();
+		
+		//For each text 
 		for (HashMap.Entry<String, HashSet<String>> entry : folderPages.entrySet()) {
 			StringBuilder textBuilder = new StringBuilder();
 			
+			//read the name of text 
 			for (String page : entry.getValue()) {
 				textBuilder.append("* [[").append(page).append("]]\n");
 			}
-			
+			//Comment for sub-page 
 			String comment = "Generated from directory " + entry.getKey();
-			
+			//Building pages for all text files
 			writePage(entry.getKey(), comment, textBuilder.toString(), nsPage);
-			
+			//Save the name for Corpus-page 
 			if (!entry.getKey().isEmpty()) {
 				corpusTextBuilder.append("'''").append(entry.getKey()).append("'''").append("\n\n");
 			}
 			corpusTextBuilder.append(textBuilder).append("\n\n");
 		}
+		//Building the Corpus-page
 		writePage("Corpus", "Corpus overview", corpusTextBuilder.toString(), nsPage);
 				
-		// Alle DDC Kategorieseiten erstellen
+		//Pages for all DDC-Categories 
 		for (HashMap.Entry<String, String> entry : MediawikiDDCHelper.getAllDDCClasses().entrySet()) {
 			StringBuilder text = new StringBuilder();
 			if (!entry.getKey().endsWith("0")) {
@@ -115,12 +124,14 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		super.destroy();
 	}
 	
+	//To initialize and write the beginning of output file 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
 				
 		File outputDir = new File(targetLocation);
 		outputDir.mkdirs();
+		// To write the file with name: output.wiki.xml
 		File outputDumpFile = new File(targetLocation + "/output.wiki.xml");
 		
 		String sitename = outputDir.getName();
@@ -144,7 +155,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			e.printStackTrace();
 			throw new ResourceInitializationException(e);
 		}
-		
+		//The header part of output file 
 		writer.println(
 				"<mediawiki xmlns=\"http://www.mediawiki.org/xml/export-0.10/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd\" version=\"0.10\" xml:lang=\"en\">");
 		writer.println("<siteinfo>");
@@ -192,19 +203,24 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println("</siteinfo>");
 	}
 	
+	// To write pages for texts, Corpus - overview page and DDC-Categories page 
+	// Title of page, comment for this page, the body text of page  
 	private void writePage(String pageTitle, String comment, String textBufferString, String pageNs) {
 		
+		//Define ID for the pages 
 		String pageId = String.valueOf(pageIdGlobal);
 		pageIdGlobal++;
 		
 		String revisionId = "1";
-		String revParentId = "";	// Gibt keine Revision...
-
+		String revParentId = "";	// No revision...
+		
+		//To save the time 
 		String revTimestamp = Instant.now().toString();
 		
-		// TODO SHA1 vom Text? Oder von allem?
+		// TODO SHA1 from a text? Or from all?
 		String sha1String = Base64.getEncoder().encodeToString((md.digest(textBufferString.getBytes())));
-
+		
+		//The header for all sub-pages
 		writer.println("<page>");
 		writer.println("<title>" + pageTitle + "</title>");
 		writer.println("<ns>" + pageNs + "</ns>");
@@ -226,7 +242,9 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println("</revision>");
 		writer.println("</page>");
 	}
-
+	
+	//This process is to get all information from TextImager-Client about the document, paragraphs, sentences and words
+	// All this information is in jCas 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		
@@ -234,16 +252,16 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 		String pageTitle = meta.getDocumentId().replaceAll(" ", "_").replaceAll("%20", "_");
 
-		// Unterordner trennen und merken um später die Übersichtsseiten zu erstellen
+		// To separate and remember sub-pages to create the overview pages later
 		String[] split = pageTitle.split("/", -1);
-		// Wenn mehr als 1, dann haben wir Unterordner
+		// If it is greater than 1, than there are sub-pages 
 		if (split.length > 1) {
 			String level = "";
-			// Letztes ist der Seitenname...
+			//The last one is the name of page 
 			for (int ind = 0; ind < split.length-1; ++ind) {
 				String s = level + split[ind];
 				
-				// Nächste Tiefere Ebene hinzufügen
+				// To add the next deep level  
 				if (!folderPages.containsKey(s)) {
 					folderPages.put(s, new HashSet<String>());
 				}
@@ -263,8 +281,18 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		StringBuffer textBuffer = new StringBuffer();
 		StringBuffer catBuffer = new StringBuffer();
 		
+		textBuffer.append("\n\n");
+		//Generative information about the document
+		textBuffer.append("{{#textinfo: ").append(" }}");
+		textBuffer.append("\n\n");
+		
+		int paragraphN = 0;
+		int sentenceN = 0;
 		// Inhalt: Paragraphenweise alle Token + Lemma als Tooltip
 		for (Paragraph paragraph : JCasUtil.select(jCas, Paragraph.class)) {
+			
+			//To add START tag of paragraph
+			textBuffer.append("{{#paragraph: ").append(paragraphN).append(" | START");
 			// DDC Kategorien: Von jedem Paragraphen den besten
 			// TODO Seperate Typen für DDC Kategorien und Wikipedia Disambiguation
 			// TODO Disambiguation Links
@@ -275,38 +303,76 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					Collections.sort(paragraphCats, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
 					CategoryCoveredTagged cat = paragraphCats.get(0);
 					catBuffer.append("[[").append(categoryPrefix).append("DDC").append(cat.getValue().replaceAll("__label_ddc__", "")).append("]]\n");
+					// To add DDC information of paragraph to START tag of paragraph 
+					textBuffer.append(" | DDC:").append(cat.getValue().replaceAll("__label_ddc__", ""))
+					.append("_").append(MediawikiDDCHelper.getDDCClassName(cat.getValue().replaceAll("__label_ddc__", "")));
 				}
 			}
-			
-			for (Sentence sentence : JCasUtil.selectCovered(Sentence.class, paragraph)) {
+			textBuffer.append("}} ");
+			textBuffer.append("\n\n");
 
-				textBuffer.append("<span class=\"sentence\">");
+			for (Sentence sentence : JCasUtil.selectCovered(Sentence.class, paragraph)) {
+				
+				textBuffer.append("{{#sentence: ").append(sentenceN).append(" | START }}");
+				
+				//textBuffer.append("<span class=\"sentence\">");
 				
 				for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
+					 
+						textBuffer.append("{{#word: ").append(token.getCoveredText())
+							.append(" |lemma:").append(token.getLemma().getValue())
+							.append(",pos:").append(token.getPos().getPosValue());
+						try{
+							textBuffer.append(",morph:"+token.getMorph().getValue());
+
+						}catch (NullPointerException e){
+							
+
+						}
+						
+						// {{#tip-text:  findest |lemma:finden }}
+						//textBuffer.append("{{#tip-text: ").append(token.getCoveredText())
+						//	.append(" |lemma:").append(token.getLemma().getValue())
+						//	.append(",pos:").append(token.getPos().getPosValue());
+									
 					
-					
-					// {{#tip-text:  findest |lemma:finden }}
-					textBuffer.append("{{#tip-text: ").append(token.getCoveredText())
-					.append(" |lemma:").append(token.getLemma().getValue())
-					.append(",pos:").append(token.getPos().getPosValue());
-								
+				    for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
+
+	                    textBuffer.append(",NE:").append(ne.getValue());
+
+	                } /* for each NamedEntity within the noun phrase */
+				    
+				    textBuffer.append("}} ");
+				}
 				
-					 for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
-
-		                    textBuffer.append(",NE:").append(ne.getValue());
-
-		                } /* for each NamedEntity within the noun phrase */
-					    
-					    textBuffer.append("}} ");
-			}
+				textBuffer.append("{{#sentence: ").append(sentenceN).append(" | END ");
 				
-				textBuffer.append("</span>");
-			}
+				{
+					ArrayList<CategoryCoveredTagged> sentenceCats = new ArrayList<CategoryCoveredTagged>();
+					sentenceCats.addAll(JCasUtil.selectCovered(CategoryCoveredTagged.class, sentence));
+					if (!sentenceCats.isEmpty()) {
+						Collections.sort(sentenceCats, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
+						CategoryCoveredTagged cat = sentenceCats.get(0);
+						textBuffer.append(" | DDC:").append(cat.getValue().replaceAll("__label_ddc__", "")).append("_")
+						.append(MediawikiDDCHelper.getDDCClassName(cat.getValue().replaceAll("__label_ddc__", "")));
 
+						}
+				}
+				
+				textBuffer.append("}} ");
+				sentenceN++;
+				//textBuffer.append("</span>");
+			}
+			
+			textBuffer.append("\n\n");
+			textBuffer.append("{{#paragraph: ").append(paragraphN).append(" | END }} ");
+			paragraphN++;
 			textBuffer.append("\n\n");
 		}
 		
 		textBuffer.append(catBuffer.toString());
+		
+		textBuffer.append("\n\n\n");
 		
 		writePage(pageTitle, comment, textBuffer.toString(), nsPage);
 	}
