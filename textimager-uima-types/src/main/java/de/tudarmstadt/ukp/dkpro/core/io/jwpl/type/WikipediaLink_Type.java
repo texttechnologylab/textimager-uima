@@ -11,7 +11,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** Wikipedia link
- * Updated by JCasGen Mon Jan 21 11:55:13 CET 2019
+ * Updated by JCasGen Tue Apr 16 12:25:25 CEST 2019
  * @generated */
 public class WikipediaLink_Type extends Annotation_Type {
   /** @generated */

@@ -7,6 +7,13 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>textimager-uima-types</artifactId>
+	<repositories>
+		<repository>
+			<id>hu-central</id>
+			<name>alba-releases</name>
+			<url>http://service.hucompute.org/artifactory/libs-snapshot-local</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -18,6 +25,11 @@
 			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.segmentation-asl</artifactId>
 			<version>1.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.texttechnologylab.annotation</groupId>
+			<artifactId>typesystem</artifactId>
+			<version>1.6</version>
 		</dependency>
 	</dependencies>
 </project>

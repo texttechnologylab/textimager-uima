@@ -11,7 +11,7 @@ import org.apache.uima.jcas.cas.StringArray;
 
 
 /** Wikipedia link
- * Updated by JCasGen Mon Jan 21 11:55:13 CET 2019
+ * Updated by JCasGen Tue Apr 16 12:25:25 CEST 2019
  * XML source: /home/ahemati/workspaceGitNew/textimager-uima/textimager-uima-types/src/main/resources/desc/type/wikipediaLink.xml
  * @generated */
 public class WikipediaLink extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink {
@@ -140,6 +140,28 @@ public class WikipediaLink extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.Wi
       jcasType.jcas.throwFeatMissing("WikiDataHyponyms", "org.hucompute.textimager.uima.type.wikipedia.WikipediaLink");
     jcasType.jcas.checkArrayBounds(jcasType.ll_cas.ll_getRefValue(addr, ((WikipediaLink_Type)jcasType).casFeatCode_WikiDataHyponyms), i);
     jcasType.ll_cas.ll_setStringArrayValue(jcasType.ll_cas.ll_getRefValue(addr, ((WikipediaLink_Type)jcasType).casFeatCode_WikiDataHyponyms), i, v);}
+   
+    
+  //*--------------*
+  //* Feature: isInstance
+
+  /** getter for isInstance - gets 
+   * @generated
+   * @return value of the feature 
+   */
+  public boolean getIsInstance() {
+    if (WikipediaLink_Type.featOkTst && ((WikipediaLink_Type)jcasType).casFeat_isInstance == null)
+      jcasType.jcas.throwFeatMissing("isInstance", "org.hucompute.textimager.uima.type.wikipedia.WikipediaLink");
+    return jcasType.ll_cas.ll_getBooleanValue(addr, ((WikipediaLink_Type)jcasType).casFeatCode_isInstance);}
+    
+  /** setter for isInstance - sets  
+   * @generated
+   * @param v value to set into the feature 
+   */
+  public void setIsInstance(boolean v) {
+    if (WikipediaLink_Type.featOkTst && ((WikipediaLink_Type)jcasType).casFeat_isInstance == null)
+      jcasType.jcas.throwFeatMissing("isInstance", "org.hucompute.textimager.uima.type.wikipedia.WikipediaLink");
+    jcasType.ll_cas.ll_setBooleanValue(addr, ((WikipediaLink_Type)jcasType).casFeatCode_isInstance, v);}    
   }
 
     
