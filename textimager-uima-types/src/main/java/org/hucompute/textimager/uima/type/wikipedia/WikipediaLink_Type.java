@@ -10,7 +10,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** Wikipedia link
- * Updated by JCasGen Mon Jan 21 11:55:13 CET 2019
+ * Updated by JCasGen Tue Apr 16 12:25:25 CEST 2019
  * @generated */
 public class WikipediaLink_Type extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink_Type {
   /** @generated */
@@ -95,6 +95,30 @@ public class WikipediaLink_Type extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.ty
     ll_cas.ll_setStringArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_WikiDataHyponyms), i, v);
   }
  
+ 
+  /** @generated */
+  final Feature casFeat_isInstance;
+  /** @generated */
+  final int     casFeatCode_isInstance;
+  /** @generated
+   * @param addr low level Feature Structure reference
+   * @return the feature value 
+   */ 
+  public boolean getIsInstance(int addr) {
+        if (featOkTst && casFeat_isInstance == null)
+      jcas.throwFeatMissing("isInstance", "org.hucompute.textimager.uima.type.wikipedia.WikipediaLink");
+    return ll_cas.ll_getBooleanValue(addr, casFeatCode_isInstance);
+  }
+  /** @generated
+   * @param addr low level Feature Structure reference
+   * @param v value to set 
+   */    
+  public void setIsInstance(int addr, boolean v) {
+        if (featOkTst && casFeat_isInstance == null)
+      jcas.throwFeatMissing("isInstance", "org.hucompute.textimager.uima.type.wikipedia.WikipediaLink");
+    ll_cas.ll_setBooleanValue(addr, casFeatCode_isInstance, v);}
+    
+  
 
 
 
@@ -114,6 +138,10 @@ public class WikipediaLink_Type extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.ty
  
     casFeat_WikiDataHyponyms = jcas.getRequiredFeatureDE(casType, "WikiDataHyponyms", "uima.cas.StringArray", featOkTst);
     casFeatCode_WikiDataHyponyms  = (null == casFeat_WikiDataHyponyms) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_WikiDataHyponyms).getCode();
+
+ 
+    casFeat_isInstance = jcas.getRequiredFeatureDE(casType, "isInstance", "uima.cas.Boolean", featOkTst);
+    casFeatCode_isInstance  = (null == casFeat_isInstance) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_isInstance).getCode();
 
   }
 }
