@@ -45,7 +45,9 @@ public class TagMeAPIAnnotatorTest{
 		paragraph.addToIndexes();
 		
 		AggregateBuilder builder = new AggregateBuilder();
-		builder.add(AnalysisEngineFactory.createEngineDescription(TagMeAPIAnnotator.class,TagMeAPIAnnotator.PARAM_GCUBE_TOKEN,"685b6106-bba0-43e2-87b6-ad8ea0c8f9e2-843339462"));
+		builder.add(AnalysisEngineFactory.createEngineDescription(
+				TagMeAPIAnnotator.class,
+				TagMeAPIAnnotator.PARAM_GCUBE_TOKEN,"685b6106-bba0-43e2-87b6-ad8ea0c8f9e2-843339462"));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 		
 		
