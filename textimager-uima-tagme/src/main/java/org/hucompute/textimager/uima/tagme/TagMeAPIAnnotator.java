@@ -46,11 +46,18 @@ public class TagMeAPIAnnotator
 extends JCasAnnotator_ImplBase
 {
 	/**
-	 * Number of Threads for wiki service call.
+	 * gcube-token
 	 */
 	public static final String PARAM_GCUBE_TOKEN = "gcube-token";
 	@ConfigurationParameter(name = PARAM_GCUBE_TOKEN, mandatory = true)
 	protected String gcube_token;
+	
+	/**
+	 * Trashhold
+	 */
+	public static final String PARAM_RHO = "rho";
+	@ConfigurationParameter(name = PARAM_RHO, mandatory = false, defaultValue = "0.10f")
+	protected float rho;
 
 	@Override
 	public void process(JCas aJCas)
@@ -69,7 +76,7 @@ extends JCasAnnotator_ImplBase
 				for (Object iterable_element : doc.getJSONArray("annotations")) {
 					JSONObject object = (JSONObject)iterable_element;
 					System.out.println(object.toString(4));
-					if(object.getDouble("rho") > 0.10 && JCasUtil.selectCovered(aJCas, WikipediaLink.class, object.getInt("start"), object.getInt("end")).isEmpty()){
+					if(object.getDouble("rho") > rho && JCasUtil.selectCovered(aJCas, WikipediaLink.class, object.getInt("start"), object.getInt("end")).isEmpty()){
 						WikipediaLink wiki = new WikipediaLink(aJCas, object.getInt("start"), object.getInt("end"));
 						if(object.has("title")){
 							wiki.setTarget(object.getString("title").replace(" ", "_"));
@@ -93,7 +100,7 @@ extends JCasAnnotator_ImplBase
 									.get().text());
 							for (Object iterable_element : doc.getJSONArray("annotations")) {
 								JSONObject object = (JSONObject)iterable_element;
-								if(object.getDouble("rho") > 0.10 && JCasUtil.selectCovered(aJCas, WikipediaLink.class, paragraph.getBegin() + object.getInt("start"), paragraph.getBegin() + object.getInt("end")).isEmpty()){
+								if(object.getDouble("rho") > rho && JCasUtil.selectCovered(aJCas, WikipediaLink.class, paragraph.getBegin() + object.getInt("start"), paragraph.getBegin() + object.getInt("end")).isEmpty()){
 									WikipediaLink wiki = new WikipediaLink(aJCas, paragraph.getBegin() + object.getInt("start"), paragraph.getBegin() + object.getInt("end"));
 									wiki.setTarget(object.getString("title").replace(" ", "_"));
 									wiki.setLinkType("internal");
