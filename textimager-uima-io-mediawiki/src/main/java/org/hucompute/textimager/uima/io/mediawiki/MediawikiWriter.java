@@ -3,6 +3,7 @@ package org.hucompute.textimager.uima.io.mediawiki;
 import java.io.File;   
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
@@ -22,6 +23,9 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
 
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
@@ -108,11 +112,37 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				
 		//Pages for all DDC-Categories 
 		for (HashMap.Entry<String, String> entry : MediawikiDDCHelper.getAllDDCClasses().entrySet()) {
+			String id = entry.getKey();
+			String name = MediawikiDDCHelper.getDDCClassName(id);
+			int level = id.substring(2, 3).equals("0") ? (id.substring(1, 2).equals("0") ? 1 : 2) : 3;
 			StringBuilder text = new StringBuilder();
-			if (!entry.getKey().endsWith("0")) {
-				text.append(MediawikiDDCHelper.getDDCClassName(entry.getKey().substring(0, 2) + "0")).append(": ");
+			
+			//Build the header
+			text.append("= ").append(name).append(" (").append(id).append(") =\n");
+			//Build the hierarchy list
+			String firstLevelId = id.substring(0, 1) + "00";
+			String firstLevelName = MediawikiDDCHelper.getDDCClassName(firstLevelId);
+			text.append("* [[:Category:DDC").append(firstLevelId).append("|").append(firstLevelName).append(" (").append(firstLevelId).append(")]]\n");
+			if (level > 1) {
+				String secondLevelId = id.substring(0, 2) + "0";
+				String secondLevelName = MediawikiDDCHelper.getDDCClassName(secondLevelId);
+				text.append("** [[:Category:DDC").append(secondLevelId).append("|").append(secondLevelName).append(" (").append(secondLevelId).append(")]]\n");
 			}
-			text.append(entry.getValue());
+			if (level == 3) {
+				text.append("*** [[:Category:DDC").append(id).append("|").append(name).append(" (").append(id).append(")]]\n");
+			}
+			
+			//List subcategories
+			if (level < 3) {
+				text.append("== Subcategories ==\n");
+				String prefix = id.substring(0, level);
+				String suffix = level == 1 ? id.substring(2, 3) : ""; //id.substring(level == 1 ? 2 : 3, 3);
+				for (int i = 1; i <= 9; i++) {
+					String subcategoryId = prefix + Integer.toString(i) + suffix;
+					String subcategoryName = MediawikiDDCHelper.getDDCClassName(subcategoryId);
+					text.append("* [[:Category:DDC").append(subcategoryId).append("|").append(subcategoryName).append(" (").append(subcategoryId).append(")]]\n");
+				}
+			}
 			writePage(categoryPrefix + "DDC" + entry.getKey(), "Generated DDC categoy", text.toString(), nsCategory);
 		}
 				
@@ -315,10 +345,19 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				
 				textBuffer.append("{{#sentence: ").append(sentenceN).append(" | START }}");
 				
-				//textBuffer.append("<span class=\"sentence\">");
-				
+				StringBuilder namedEntityTitle = new StringBuilder();
+				boolean inNamedEntity = false;
 				for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
 					 
+					    if (token.getPos().getPosValue().equals("NNP")) {
+						    namedEntityTitle.append("_").append(token.getCoveredText());
+						    inNamedEntity = true;
+					    } else if (inNamedEntity) {
+					    	addWikiLink(textBuffer, namedEntityTitle.toString().substring(1));
+					    	inNamedEntity = false;
+					    	namedEntityTitle.delete(0, namedEntityTitle.length());
+					    }
+
 						textBuffer.append("{{#word: ").append(token.getCoveredText())
 							.append(" |lemma:").append(token.getLemma().getValue())
 							.append(",pos:").append(token.getPos().getPosValue());
@@ -335,7 +374,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 						//	.append(" |lemma:").append(token.getLemma().getValue())
 						//	.append(",pos:").append(token.getPos().getPosValue());
 									
-					
 				    for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
 
 	                    textBuffer.append(",NE:").append(ne.getValue());
@@ -343,6 +381,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	                } /* for each NamedEntity within the noun phrase */
 				    
 				    textBuffer.append("}} ");
+
+				}
+				if (inNamedEntity) {
+			    	addWikiLink(textBuffer, namedEntityTitle.toString().substring(1));
 				}
 				
 				textBuffer.append("{{#sentence: ").append(sentenceN).append(" | END ");
@@ -361,7 +403,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				
 				textBuffer.append("}} ");
 				sentenceN++;
-				//textBuffer.append("</span>");
 			}
 			
 			textBuffer.append("\n\n");
@@ -376,4 +417,38 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		
 		writePage(pageTitle, comment, textBuffer.toString(), nsPage);
 	}
+
+	private String getWikidataId(String language, String title) throws JSONException, IOException {
+		if (title.contains("#")) {
+			return null;
+		}
+		String url = "https://" + language + ".wikipedia.org/w/api.php?action=query&titles=" +
+			title + "&ppprop=wikibase_item&prop=pageprops&format=json&redirects";
+		JSONObject json = new JSONObject(Jsoup.connect(url).ignoreContentType(true).execute().body());
+
+		if (!json.getJSONObject("query").has("pages")) {
+			return null;
+		}
+
+		String key = json.getJSONObject("query").getJSONObject("pages").keySet().iterator().next();
+		if (json.getJSONObject("query").getJSONObject("pages").getJSONObject(key).has("pageprops")) {
+			return (json.getJSONObject("query").getJSONObject("pages").getJSONObject(key).getJSONObject("pageprops").getString("wikibase_item"));
+		} else {
+			return null;
+		}
+	}
+	
+	private StringBuffer addWikiLink(StringBuffer textBuffer, String wikiTitle) {
+	    try{
+			String lang = "en"; // TODO get real language
+		    String wikidataId = getWikidataId(lang, wikiTitle);
+		    if (wikidataId != null) {
+			    textBuffer.append("[https://").append(lang).append(".wikipedia.org/wiki/").append(wikiTitle).append("] ");
+		    } else {
+				System.out.println(" INFO | MediawikiWriter got no WikiData ID for " + wikiTitle);
+			}
+	    }catch (Exception e) {}
+	    return textBuffer;
+	}
+
 }
