@@ -15,6 +15,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.TreeSet;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -38,6 +39,34 @@ import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import org.hucompute.services.type.CategoryCoveredTagged;
 
 public class MediawikiWriter extends JCasConsumer_ImplBase{
+
+	private class LemmaInText {
+		public String text;
+		public String leftContext;
+		public String rightContext;
+		public String keyword;
+		public int sentence;
+		public LemmaInText(String text, int sentence, String leftContext, String keyword, String rightContext) {
+			this.text = text;
+			this.sentence = sentence;
+			this.leftContext = leftContext;
+			this.rightContext = rightContext;
+			this.keyword = keyword;
+		}
+	}
+
+	private class OccuranceInText {
+		public String text;
+		public int paragraph, sentence;
+		public String occurance;
+		public OccuranceInText(String text, int paragraph, int sentence, String occurance) {
+			this.text = text;
+			this.paragraph = paragraph;
+			this.sentence = sentence;
+			this.occurance = occurance.replace("\n", " ");
+		}
+	}
+		
 		
 	/**
 	 * Output directory
@@ -74,14 +103,23 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private PrintWriter writer;
 	// To save names of all text files 
 	private HashMap<String, HashSet<String>> folderPages;
+	// To save every text belonging to a DDC
+	private HashMap<String, ArrayList<String>> ddcTexts;
+	private HashMap<String, ArrayList<OccuranceInText>> ddcSentences;
+	private HashMap<String, ArrayList<OccuranceInText>> ddcParagraphs;
+	// To create lemma pages with links to all texts
+	private HashMap<String, ArrayList<LemmaInText>> lemmaFolders;
+	private HashMap<String, Boolean> validWikipediaLemmas;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
 	
 	private static final String nsPage = "0";
 	private static final String nsCategory = "14";
-	
+	private static final String nsLemma = "102";	
+
 	private static final String categoryPrefix = "Category:";
-	
+	private static final String lemmaPrefix = "Lemma:";
+
 	@Override
 	public void destroy() {
 		// To build all sub-pages for texts 
@@ -111,39 +149,31 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writePage("Corpus", "Corpus overview", corpusTextBuilder.toString(), nsPage);
 				
 		//Pages for all DDC-Categories 
-		for (HashMap.Entry<String, String> entry : MediawikiDDCHelper.getAllDDCClasses().entrySet()) {
-			String id = entry.getKey();
-			String name = MediawikiDDCHelper.getDDCClassName(id);
-			int level = id.substring(2, 3).equals("0") ? (id.substring(1, 2).equals("0") ? 1 : 2) : 3;
+		writeDDCPages();
+
+		//Pages for all Lemmas
+		for (String lemma : lemmaFolders.keySet()) {
+			ArrayList<LemmaInText> textOccurances = lemmaFolders.get(lemma);
 			StringBuilder text = new StringBuilder();
-			
-			//Build the header
-			text.append("= ").append(name).append(" (").append(id).append(") =\n");
-			//Build the hierarchy list
-			String firstLevelId = id.substring(0, 1) + "00";
-			String firstLevelName = MediawikiDDCHelper.getDDCClassName(firstLevelId);
-			text.append("* [[:Category:DDC").append(firstLevelId).append("|").append(firstLevelName).append(" (").append(firstLevelId).append(")]]\n");
-			if (level > 1) {
-				String secondLevelId = id.substring(0, 2) + "0";
-				String secondLevelName = MediawikiDDCHelper.getDDCClassName(secondLevelId);
-				text.append("** [[:Category:DDC").append(secondLevelId).append("|").append(secondLevelName).append(" (").append(secondLevelId).append(")]]\n");
+			text.append("== Concordance ==\n")
+				.append(textOccurances.size()).append(" entries total<br/>\n")
+				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n")
+				.append("!bgcolor=#F2F2F2 align=\"center\"|Sentence\n")
+				.append("!bgcolor=#F2F2F2 align=\"center\"|Left Context\n")
+				.append("!bgcolor=#F2F2F2 align=\"center\"|Keyword\n")
+				.append("!bgcolor=#F2F2F2 align=\"center\"|Right Context\n");
+			for (LemmaInText occurance : textOccurances) {
+				text.append("|-\n")
+					.append("|align=\"left\"|[[").append(occurance.text).append("#sen").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
+					.append("|align=\"right\"|").append(occurance.sentence).append("\n")
+					.append("|align=\"right\"|").append(occurance.leftContext).append("\n")
+					.append("|align=\"center\"|").append(occurance.keyword).append("\n")
+					.append("|align=\"left\"|").append(occurance.rightContext).append("\n");
 			}
-			if (level == 3) {
-				text.append("*** [[:Category:DDC").append(id).append("|").append(name).append(" (").append(id).append(")]]\n");
-			}
-			
-			//List subcategories
-			if (level < 3) {
-				text.append("== Subcategories ==\n");
-				String prefix = id.substring(0, level);
-				String suffix = level == 1 ? id.substring(2, 3) : ""; //id.substring(level == 1 ? 2 : 3, 3);
-				for (int i = 1; i <= 9; i++) {
-					String subcategoryId = prefix + Integer.toString(i) + suffix;
-					String subcategoryName = MediawikiDDCHelper.getDDCClassName(subcategoryId);
-					text.append("* [[:Category:DDC").append(subcategoryId).append("|").append(subcategoryName).append(" (").append(subcategoryId).append(")]]\n");
-				}
-			}
-			writePage(categoryPrefix + "DDC" + entry.getKey(), "Generated DDC categoy", text.toString(), nsCategory);
+			text.append("|}\n");
+			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
+			writePage("Lemma:" + lemma, "Generated Lemma page", text.toString(), nsLemma);
 		}
 				
 		writer.println("</mediawiki>");
@@ -169,6 +199,11 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		String base = outputDir.getAbsolutePath().replaceAll(" ", "_");
 		
 		folderPages = new HashMap<String, HashSet<String>>();
+		ddcTexts = new HashMap<String, ArrayList<String>>();
+		ddcSentences = new HashMap<String, ArrayList<OccuranceInText>>();
+		ddcParagraphs = new HashMap<String, ArrayList<OccuranceInText>>();
+		lemmaFolders = new HashMap<String, ArrayList<LemmaInText>>();
+		validWikipediaLemmas = new HashMap<String, Boolean>();
 		
 		pageIdGlobal = startPageId;
 		
@@ -215,6 +250,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println("<namespace key=\"15\" case=\"first-letter\">Category talk</namespace>");
 		writer.println("<namespace key=\"100\" case=\"first-letter\">Portal</namespace>");
 		writer.println("<namespace key=\"101\" case=\"first-letter\">Portal talk</namespace>");
+		writer.println("<namespace key=\"102\" case=\"first-letter\">Lemma</namespace>");
+		writer.println("<namespace key=\"103\" case=\"first-letter\">Lemma talk</namespace>");
 		writer.println("<namespace key=\"108\" case=\"first-letter\">Book</namespace>");
 		writer.println("<namespace key=\"109\" case=\"first-letter\">Book talk</namespace>");
 		writer.println("<namespace key=\"118\" case=\"first-letter\">Draft</namespace>");
@@ -233,6 +270,92 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println("</siteinfo>");
 	}
 	
+	/** Write a page for every DDC. */
+	private void writeDDCPages() {
+		for (HashMap.Entry<String, String> entry : MediawikiDDCHelper.getAllDDCClasses().entrySet()) {
+			String id = entry.getKey();
+			String name = MediawikiDDCHelper.getDDCClassName(id);
+			int level = id.substring(2, 3).equals("0") ? (id.substring(1, 2).equals("0") ? 1 : 2) : 3;
+			StringBuilder pageBuilder = new StringBuilder();
+			
+			// Build the header
+			pageBuilder.append("= ").append(name).append(" (").append(id).append(") =\n");
+			// Build the hierarchy list
+			String firstLevelId = id.substring(0, 1) + "00";
+			String firstLevelName = MediawikiDDCHelper.getDDCClassName(firstLevelId);
+			pageBuilder.append("* [[:Category:DDC").append(firstLevelId).append("|").append(firstLevelName).append(" (").append(firstLevelId).append(")]]\n");
+			if (level > 1) {
+				String secondLevelId = id.substring(0, 2) + "0";
+				String secondLevelName = MediawikiDDCHelper.getDDCClassName(secondLevelId);
+				pageBuilder.append("** [[:Category:DDC").append(secondLevelId).append("|").append(secondLevelName).append(" (").append(secondLevelId).append(")]]\n");
+			}
+			if (level == 3) {
+				pageBuilder.append("*** [[:Category:DDC").append(id).append("|").append(name).append(" (").append(id).append(")]]\n");
+			}
+			
+			// List subcategories
+			if (level < 3) {
+				pageBuilder.append("== Subcategories ==\n");
+				String prefix = id.substring(0, level);
+				String suffix = level == 1 ? id.substring(2, 3) : ""; //id.substring(level == 1 ? 2 : 3, 3);
+				for (int i = 1; i <= 9; i++) {
+					String subcategoryId = prefix + Integer.toString(i) + suffix;
+					String subcategoryName = MediawikiDDCHelper.getDDCClassName(subcategoryId);
+					pageBuilder.append("* [[:Category:DDC").append(subcategoryId).append("|").append(subcategoryName).append(" (").append(subcategoryId).append(")]]\n");
+				}
+			}
+
+			// List texts of this category
+			ArrayList<String> texts = ddcTexts.get(id);
+			pageBuilder.append("== Texts ==\n")
+				.append(texts != null ? texts.size() : 0).append(" entries total<br/>\n")
+				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n");
+			if (texts != null) {
+				for (String text : texts) {
+					pageBuilder.append("|-\n");
+					pageBuilder.append("|align=\"left\"|[[").append(text).append("]]\n");
+				}
+			}
+			pageBuilder.append("|}\n");
+
+			// List paragraphs of this category
+			ArrayList<OccuranceInText> paragraphs = ddcParagraphs.get(id);
+			pageBuilder.append("== Paragraphs ==\n")
+				.append(paragraphs != null ? paragraphs.size() : 0).append(" entries total<br/>\n")
+				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Paragraph\n");
+			if (paragraphs != null) {
+				for (OccuranceInText occurance : ddcParagraphs.get(id)) {
+					pageBuilder.append("|-\n");
+					pageBuilder.append("|align=\"left\"|[[").append(occurance.text).append("#par").append(occurance.paragraph).append("|").append(occurance.text).append("]]\n")
+						.append("|align=\"left\"|").append(occurance.occurance).append("\n");
+				}
+			}
+			pageBuilder.append("|}\n");
+
+			// List sentences of this category
+			ArrayList<OccuranceInText> sentences = ddcSentences.get(id);
+			pageBuilder.append("== Sentences ==\n")
+				.append(sentences != null ? sentences.size() : 0).append(" entries total<br/>\n")
+				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Sentence\n");
+			if (sentences != null) {
+				for (OccuranceInText occurance : ddcSentences.get(id)) {
+					pageBuilder.append("|-\n");
+					pageBuilder.append("|align=\"left\"|[[").append(occurance.text).append("#sen").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
+						.append("|align=\"left\"|").append(occurance.occurance).append("\n");
+				}
+			}
+			pageBuilder.append("|}\n");
+
+			// List texts for this category
+			writePage(categoryPrefix + "DDC" + entry.getKey(), "Generated DDC category", pageBuilder.toString(), nsCategory);
+		}
+	}
+
 	// To write pages for texts, Corpus - overview page and DDC-Categories page 
 	// Title of page, comment for this page, the body text of page  
 	private void writePage(String pageTitle, String comment, String textBufferString, String pageNs) {
@@ -267,7 +390,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println("<comment>" + comment + "</comment>");
 		writer.println("<model>wikitext</model>");
 		writer.println("<format>text/x-wiki</format>");
-		writer.println("<text xml:space=\"preserve\">" + textBufferString + "</text>");
+		writer.println("<text xml:space=\"preserve\"><![CDATA[" + textBufferString + "]]></text>");
 		writer.println("<sha1>" + sha1String + "</sha1>");
 		writer.println("</revision>");
 		writer.println("</page>");
@@ -281,6 +404,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		DocumentMetaData meta = DocumentMetaData.get(jCas);		 
 
 		String pageTitle = meta.getDocumentId().replaceAll(" ", "_").replaceAll("%20", "_");
+		pageTitle = pageTitle.replace(".txt", "");
 
 		// To separate and remember sub-pages to create the overview pages later
 		String[] split = pageTitle.split("/", -1);
@@ -308,66 +432,87 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 		String comment = "Generated from file " + meta.getDocumentUri();
 		
-		StringBuffer textBuffer = new StringBuffer();
-		StringBuffer catBuffer = new StringBuffer();
+		StringBuilder pageBuilder = new StringBuilder();
+		HashSet<String> categories = new HashSet<String>();
 		
-		textBuffer.append("\n\n");
 		//Generative information about the document
-		textBuffer.append("{{#textinfo: ").append(" }}");
-		textBuffer.append("\n\n");
+		//TODO get DDCs and add text to ddcTexts
+		pageBuilder.append("\n\n")
+			.append("{{#textinfo: DDC:");
+		TreeSet<String> ddcs = new TreeSet<String>();
+		for (CategoryCoveredTagged cat : JCasUtil.select(jCas, CategoryCoveredTagged.class)) {
+			ddcs.add(cat.getValue().replaceAll("__label_ddc__", ""));
+		}
+		for (String cat : ddcs) {
+			pageBuilder.append(cat).append(" ").append(MediawikiDDCHelper.getDDCClassName(cat)).append("|");
+			addToMappedList(ddcTexts, cat, pageTitle);
+		}
+		pageBuilder.append(" }}\n\n");
 		
 		int paragraphN = 0;
 		int sentenceN = 0;
 		// Inhalt: Paragraphenweise alle Token + Lemma als Tooltip
 		for (Paragraph paragraph : JCasUtil.select(jCas, Paragraph.class)) {
-			
-			//To add START tag of paragraph
-			textBuffer.append("{{#paragraph: ").append(paragraphN).append(" | START");
-			// DDC Kategorien: Von jedem Paragraphen den besten
+			StringBuilder paragraphBuilder = new StringBuilder();
+			paragraphBuilder.append("<span id=\"par").append(paragraphN).append("\"></span>");
+			paragraphBuilder.append("{{#paragraph: ").append(paragraphN).append(" | START");
 			// TODO Seperate Typen für DDC Kategorien und Wikipedia Disambiguation
 			// TODO Disambiguation Links
+			// DDC Kategorien: Von jedem Paragraphen den besten
+			String paragraphCategory = null;
 			{
 				ArrayList<CategoryCoveredTagged> paragraphCats = new ArrayList<CategoryCoveredTagged>();
 				paragraphCats.addAll(JCasUtil.selectCovered(CategoryCoveredTagged.class, paragraph));
 				if (!paragraphCats.isEmpty()) {
 					Collections.sort(paragraphCats, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
-					CategoryCoveredTagged cat = paragraphCats.get(0);
-					catBuffer.append("[[").append(categoryPrefix).append("DDC").append(cat.getValue().replaceAll("__label_ddc__", "")).append("]]\n");
+					paragraphCategory = paragraphCats.get(0).getValue().replaceAll("__label_ddc__", "");
+					categories.add("[[" + categoryPrefix + "DDC" + paragraphCategory + "]]");
 					// To add DDC information of paragraph to START tag of paragraph 
-					textBuffer.append(" | DDC:").append(cat.getValue().replaceAll("__label_ddc__", ""))
-					.append("_").append(MediawikiDDCHelper.getDDCClassName(cat.getValue().replaceAll("__label_ddc__", "")));
+					paragraphBuilder.append(" | DDC:").append(paragraphCategory)
+						.append("_").append(MediawikiDDCHelper.getDDCClassName(paragraphCategory));
 				}
 			}
-			textBuffer.append("}} ");
-			textBuffer.append("\n\n");
+			paragraphBuilder.append("}} \n");
 
 			for (Sentence sentence : JCasUtil.selectCovered(Sentence.class, paragraph)) {
+				StringBuilder sentenceBuilder = new StringBuilder();
+				paragraphBuilder.append("<span id=\"sen").append(sentenceN).append("\"></span>");
+				sentenceBuilder.append("{{#sentence: ").append(sentenceN).append(" | START }}");
 				
-				textBuffer.append("{{#sentence: ").append(sentenceN).append(" | START }}");
-				
-				StringBuilder namedEntityTitle = new StringBuilder();
+				ArrayList<String> sentenceTokens = new ArrayList<String>();
+				ArrayList<String> sentenceLemmas = new ArrayList<String>();
+
+				StringBuilder namedEntityBuilder = new StringBuilder();
+				int firstNamedEntityToken = -1;
+
 				boolean inNamedEntity = false;
+
+				int tokenN = 0;
 				for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
-					 
-					    if (token.getPos().getPosValue().equals("NNP")) {
-						    namedEntityTitle.append("_").append(token.getCoveredText());
-						    inNamedEntity = true;
-					    } else if (inNamedEntity) {
-					    	addWikiLink(textBuffer, namedEntityTitle.toString().substring(1));
-					    	inNamedEntity = false;
-					    	namedEntityTitle.delete(0, namedEntityTitle.length());
-					    }
+					StringBuilder tokenBuilder = new StringBuilder();
+					String text = token.getCoveredText();
+					String lemma = token.getLemma().getValue();
+					String pos = token.getPos().getPosValue();
 
-						textBuffer.append("{{#word: ").append(token.getCoveredText())
-							.append(" |lemma:").append(token.getLemma().getValue())
-							.append(",pos:").append(token.getPos().getPosValue());
-						try{
-							textBuffer.append(",morph:"+token.getMorph().getValue());
-
-						}catch (NullPointerException e){
-							
-
+					if (pos.equals("NNP")) {
+						if (firstNamedEntityToken == -1) {
+							firstNamedEntityToken = tokenN;
 						}
+						namedEntityBuilder.append("_").append(text);
+					} else if (firstNamedEntityToken != -1) {
+						addWikiLink(tokenBuilder, namedEntityBuilder.toString().substring(1));
+						namedEntityBuilder.delete(0, namedEntityBuilder.length());
+						firstNamedEntityToken = -1;
+					}
+
+					tokenBuilder.append("[[Lemma:").append(lemma).append("_").append(pos).append("|");
+					 
+					tokenBuilder.append("{{#word: ").append(text)
+						.append(" |lemma:").append(lemma)
+						.append(",pos:").append(pos);
+					try{
+						tokenBuilder.append(",morph:"+token.getMorph().getValue());
+					}catch (NullPointerException e) {}
 						
 						// {{#tip-text:  findest |lemma:finden }}
 						//textBuffer.append("{{#tip-text: ").append(token.getCoveredText())
@@ -375,47 +520,73 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 						//	.append(",pos:").append(token.getPos().getPosValue());
 									
 				    for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
-
-	                    textBuffer.append(",NE:").append(ne.getValue());
-
-	                } /* for each NamedEntity within the noun phrase */
+	                    tokenBuilder.append(",NE:").append(ne.getValue());
+	                }
 				    
-				    textBuffer.append("}} ");
+				    tokenBuilder.append("}}]] ");
 
+					String tokenString = tokenBuilder.toString();
+					sentenceLemmas.add(lemma + "_" + pos);
+					sentenceTokens.add(tokenString);
+					// append the token to the complete text
+					sentenceBuilder.append(tokenString);
+					tokenN++;
 				}
 				if (inNamedEntity) {
-			    	addWikiLink(textBuffer, namedEntityTitle.toString().substring(1));
+					String namedEntityBuilderString = namedEntityBuilder.toString().substring(1);
+					StringBuilder lastToken = new StringBuilder(sentenceTokens.get(sentenceTokens.size() - 1));
+					sentenceTokens.set(sentenceTokens.size() - 1, addWikiLink(lastToken, namedEntityBuilderString).toString());
+			    	addWikiLink(sentenceBuilder, namedEntityBuilderString);
+				}
+
+				// create entries for every keyword in the sentence
+				StringBuilder leftContext = new StringBuilder();
+				for (int i = 0; i < sentenceLemmas.size(); i++) {
+					StringBuilder rightContext = new StringBuilder();
+					for (int j = i + 1; j < sentenceLemmas.size(); j++) {
+						rightContext.append(sentenceTokens.get(j));
+					}
+					addToMappedList(lemmaFolders, sentenceLemmas.get(i), new LemmaInText(pageTitle, sentenceN, leftContext.toString(), sentenceTokens.get(i), rightContext.toString()));
+					leftContext.append(sentenceTokens.get(i));
 				}
 				
-				textBuffer.append("{{#sentence: ").append(sentenceN).append(" | END ");
-				
+				sentenceBuilder.append("{{#sentence: ").append(sentenceN).append(" | END ");
+				String sentenceCategory = null;
 				{
 					ArrayList<CategoryCoveredTagged> sentenceCats = new ArrayList<CategoryCoveredTagged>();
 					sentenceCats.addAll(JCasUtil.selectCovered(CategoryCoveredTagged.class, sentence));
 					if (!sentenceCats.isEmpty()) {
 						Collections.sort(sentenceCats, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
-						CategoryCoveredTagged cat = sentenceCats.get(0);
-						textBuffer.append(" | DDC:").append(cat.getValue().replaceAll("__label_ddc__", "")).append("_")
-						.append(MediawikiDDCHelper.getDDCClassName(cat.getValue().replaceAll("__label_ddc__", "")));
-
-						}
+						sentenceCategory = sentenceCats.get(0).getValue().replaceAll("__label_ddc__", "");
+						sentenceBuilder.append(" | DDC:").append(sentenceCategory).append("_")
+							.append(MediawikiDDCHelper.getDDCClassName(sentenceCategory));
+					}
 				}
 				
-				textBuffer.append("}} ");
+				sentenceBuilder.append("}} ");
+				String sentenceString = sentenceBuilder.toString();
+				if (sentenceCategory != null) {
+					addToMappedList(ddcSentences, sentenceCategory, new OccuranceInText(pageTitle, paragraphN, sentenceN, sentenceString));
+				}
+				paragraphBuilder.append(sentenceString);
 				sentenceN++;
 			}
 			
-			textBuffer.append("\n\n");
-			textBuffer.append("{{#paragraph: ").append(paragraphN).append(" | END }} ");
+			paragraphBuilder.append("\n")
+				.append("{{#paragraph: ").append(paragraphN).append(" | END }} ");
+			String paragraphString = paragraphBuilder.toString();
+			if (paragraphCategory != null) {
+				addToMappedList(ddcParagraphs, paragraphCategory, new OccuranceInText(pageTitle, paragraphN, -1, paragraphString));
+			}
+			pageBuilder.append(paragraphString).append("\n\n");
 			paragraphN++;
-			textBuffer.append("\n\n");
 		}
 		
-		textBuffer.append(catBuffer.toString());
-		
-		textBuffer.append("\n\n\n");
-		
-		writePage(pageTitle, comment, textBuffer.toString(), nsPage);
+		for (String category : categories) {
+			pageBuilder.append(category).append("\n");
+		}
+		pageBuilder.append("\n\n\n");
+		writePage(pageTitle, comment, pageBuilder.toString(), nsPage);
 	}
 
 	private String getWikidataId(String language, String title) throws JSONException, IOException {
@@ -438,17 +609,32 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		}
 	}
 	
-	private StringBuffer addWikiLink(StringBuffer textBuffer, String wikiTitle) {
+	private <T> void addToMappedList(HashMap<String, ArrayList<T>> mappedList, String key, T value) {
+		if (!mappedList.containsKey(key)) {
+			mappedList.put(key, new ArrayList<T>());
+		}
+		mappedList.get(key).add(value);
+	}
+	
+	private StringBuilder addWikiLink(StringBuilder textBuilder, String wikiTitle) {
 	    try{
 			String lang = "en"; // TODO get real language
-		    String wikidataId = getWikidataId(lang, wikiTitle);
-		    if (wikidataId != null) {
-			    textBuffer.append("[https://").append(lang).append(".wikipedia.org/wiki/").append(wikiTitle).append("] ");
-		    } else {
-				System.out.println(" INFO | MediawikiWriter got no WikiData ID for " + wikiTitle);
+			boolean gotId = false;
+			if (validWikipediaLemmas.containsKey(wikiTitle)) {
+				gotId = validWikipediaLemmas.get(wikiTitle);
+			} else {
+		    	gotId = getWikidataId(lang, wikiTitle) != null;
+				validWikipediaLemmas.put(wikiTitle, gotId);
+				if (!gotId) {
+					System.out.println(" INFO | MediawikiWriter got no WikiData ID for " + wikiTitle);
+					return textBuilder;
+				}
+			}
+		    if (gotId) {
+			    textBuilder.append("[https://").append(lang).append(".wikipedia.org/wiki/").append(wikiTitle).append("] ");
 			}
 	    }catch (Exception e) {}
-	    return textBuffer;
+	    return textBuilder;
 	}
 
 }
