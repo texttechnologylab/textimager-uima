@@ -32,6 +32,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 
 
@@ -52,6 +53,23 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			this.leftContext = leftContext;
 			this.rightContext = rightContext;
 			this.keyword = keyword;
+		}
+	}
+	
+	private class LemmaFrequency {
+		public String lemma;
+		public int frequency;
+		public int textFrequency;
+		public LemmaFrequency(String lemma) {
+			this.lemma = lemma;
+			frequency = 1;
+			textFrequency = 1;
+		}
+		public void incrementFrequency() {
+			frequency++;
+		}
+		public void incrementTextFrequency() {
+			textFrequency++;
 		}
 	}
 
@@ -110,6 +128,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	// To create lemma pages with links to all texts
 	private HashMap<String, ArrayList<LemmaInText>> lemmaFolders;
 	private HashMap<String, Boolean> validWikipediaLemmas;
+	// Count Frequencies and Text Frequencies of Lemmas
+	private HashMap<String, LemmaFrequency> lemmaFrequencies;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
 	
@@ -155,6 +175,9 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		for (String lemma : lemmaFolders.keySet()) {
 			ArrayList<LemmaInText> textOccurances = lemmaFolders.get(lemma);
 			StringBuilder text = new StringBuilder();
+			test.append("== Frequencies ==\n")
+				.append("Frequency: ").append(Integer.toString(lemmaFrequencies.get(lemma).frequency.))
+				.append("\n");
 			text.append("== Concordance ==\n")
 				.append(textOccurances.size()).append(" entries total<br/>\n")
 				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
@@ -493,7 +516,14 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					String text = token.getCoveredText();
 					String lemma = token.getLemma().getValue();
 					String pos = token.getPos().getPosValue();
-
+					
+					// count lemma
+					if(lemmaFrequencies.get(lemma) == null) {
+						lemmaFrequencies.put(lemma, new LemmaFrequency(lemma))
+					} else {
+						lemmaFrequencies.put(lemma, lemmaFrequencies.get(lemma).incrementFrequency();
+					}
+					
 					if (pos.equals("NNP")) {
 						if (firstNamedEntityToken == -1) {
 							firstNamedEntityToken = tokenN;
