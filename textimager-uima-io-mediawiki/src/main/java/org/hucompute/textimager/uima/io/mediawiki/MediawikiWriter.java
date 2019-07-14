@@ -6,9 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.Math;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -33,6 +35,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Document;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 
 
@@ -57,19 +60,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	}
 	
 	private class LemmaFrequency {
-		public String lemma;
-		public int frequency;
-		public int textFrequency;
-		public LemmaFrequency(String lemma) {
-			this.lemma = lemma;
-			frequency = 1;
-			textFrequency = 1;
-		}
-		public void incrementFrequency() {
-			frequency++;
-		}
-		public void incrementTextFrequency() {
-			textFrequency++;
+		public int frequency = 1;
+		public TreeSet<String> texts = new TreeSet<String>();
+		public double getInverseDocumentFrequency(int docCount) {
+			return Math.log(docCount / (1 + texts.size()));
 		}
 	}
 
@@ -140,6 +134,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private static final String categoryPrefix = "Category:";
 	private static final String lemmaPrefix = "Lemma:";
 
+	private int documentCount = 0;
+
 	@Override
 	public void destroy() {
 		// To build all sub-pages for texts 
@@ -172,32 +168,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writeDDCPages();
 
 		//Pages for all Lemmas
-		for (String lemma : lemmaFolders.keySet()) {
-			ArrayList<LemmaInText> textOccurances = lemmaFolders.get(lemma);
-			StringBuilder text = new StringBuilder();
-			test.append("== Frequencies ==\n")
-				.append("Frequency: ").append(Integer.toString(lemmaFrequencies.get(lemma).frequency.))
-				.append("\n");
-			text.append("== Concordance ==\n")
-				.append(textOccurances.size()).append(" entries total<br/>\n")
-				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
-				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n")
-				.append("!bgcolor=#F2F2F2 align=\"center\"|Sentence\n")
-				.append("!bgcolor=#F2F2F2 align=\"center\"|Left Context\n")
-				.append("!bgcolor=#F2F2F2 align=\"center\"|Keyword\n")
-				.append("!bgcolor=#F2F2F2 align=\"center\"|Right Context\n");
-			for (LemmaInText occurance : textOccurances) {
-				text.append("|-\n")
-					.append("|align=\"left\"|[[").append(occurance.text).append("#sen").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
-					.append("|align=\"right\"|").append(occurance.sentence).append("\n")
-					.append("|align=\"right\"|").append(occurance.leftContext).append("\n")
-					.append("|align=\"center\"|").append(occurance.keyword).append("\n")
-					.append("|align=\"left\"|").append(occurance.rightContext).append("\n");
-			}
-			text.append("|}\n");
-			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
-			writePage("Lemma:" + lemma, "Generated Lemma page", text.toString(), nsLemma);
-		}
+		writeLemmaPages();
 				
 		writer.println("</mediawiki>");
 
@@ -226,6 +197,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		ddcSentences = new HashMap<String, ArrayList<OccuranceInText>>();
 		ddcParagraphs = new HashMap<String, ArrayList<OccuranceInText>>();
 		lemmaFolders = new HashMap<String, ArrayList<LemmaInText>>();
+		lemmaFrequencies = new HashMap<String, LemmaFrequency>();
 		validWikipediaLemmas = new HashMap<String, Boolean>();
 		
 		pageIdGlobal = startPageId;
@@ -379,9 +351,68 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		}
 	}
 
+	/** Write a page for every lemma. */
+	private void writeLemmaPages() {
+		System.out.println("INFO | MediaWikiWriter write lemma pages for " + documentCount + " documents");
+		for (HashMap.Entry<String, ArrayList<LemmaInText>> entry : lemmaFolders.entrySet()) {
+			String[] lemmapos = entry.getKey().split("_");
+			String lemma = entry.getKey(), pos = "";
+			if (lemmapos.length == 2) {
+				lemma = lemmapos[0];
+				pos = lemmapos[1];
+			} else {
+				System.out.println("BUG  | MediaWikiWriter got malformed Lemma_POS: " + entry.getKey());
+			}
+			ArrayList<LemmaInText> textOccurances = entry.getValue();
+			LemmaFrequency frequency = lemmaFrequencies.get(entry.getKey());
+			if (frequency == null) {
+				System.out.println("BUG  | MediaWikiWriter got a lemma but no frequency for it: " + lemma);
+				frequency = new LemmaFrequency();
+				frequency.frequency = 0;
+			}
+
+			StringBuilder text = new StringBuilder();
+			text.append("{{#lemmainfo: ")
+				.append("Name:").append(lemma).append(",")
+				.append("Part of Speech:").append(pos).append(",")
+				.append("SyntacticWords:").append(",") // TODO calculate syntactic words
+				.append("Frequency Class:").append(",") // TODO calculate frequency class
+				.append("Frequency:").append(frequency.frequency).append(",")
+				.append("Text Frequency:").append(frequency.texts.size()).append(",")
+				.append("Inverse Document Frequency:").append((new DecimalFormat("0.0")).format(frequency.getInverseDocumentFrequency(documentCount))).append(",")
+				.append("Wiktionary:WIKTIONARY en ").append(lemma) // TODO get right language
+				.append("}}\n\n")
+				.append("== Concordance ==\n")
+				.append(textOccurances.size()).append(" entries total<br/>\n")
+				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n")
+				.append("!bgcolor=#F2F2F2 align=\"center\"|Sentence\n")
+				.append("!bgcolor=#F2F2F2 align=\"center\"|Left Context\n")
+				.append("!bgcolor=#F2F2F2 align=\"center\"|Keyword\n")
+				.append("!bgcolor=#F2F2F2 align=\"center\"|Right Context\n");
+			for (LemmaInText occurance : textOccurances) {
+				text.append("|-\n")
+					.append("|align=\"left\"|[[").append(occurance.text).append("#sen").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
+					.append("|align=\"right\"|").append(occurance.sentence).append("\n")
+					.append("|align=\"right\"|").append(occurance.leftContext).append("\n")
+					.append("|align=\"center\"|").append(occurance.keyword).append("\n")
+					.append("|align=\"left\"|").append(occurance.rightContext).append("\n");
+			}
+			text.append("|}\n");
+			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
+			writePage("Lemma:" + entry.getKey(), "Generated Lemma page", text.toString(), nsLemma);
+		}
+	}
+
 	// To write pages for texts, Corpus - overview page and DDC-Categories page 
 	// Title of page, comment for this page, the body text of page  
 	private void writePage(String pageTitle, String comment, String textBufferString, String pageNs) {
+		if (pageTitle == null || pageTitle.equals("")) {
+			System.out.println("BUG  | MediaWikiWriter tries to create a page with no title:");
+			System.out.println("     | Namespace: " + pageNs);
+			System.out.println("     | Comment:   " + comment);
+			System.out.println("     | Text:      " + textBufferString != null ? textBufferString.substring(0, 20) : null);
+		}
 		
 		//Define ID for the pages 
 		String pageId = String.valueOf(pageIdGlobal);
@@ -398,24 +429,24 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		
 		//The header for all sub-pages
 		writer.println("<page>");
-		writer.println("<title>" + pageTitle + "</title>");
-		writer.println("<ns>" + pageNs + "</ns>");
-		writer.println("<id>" + pageId + "</id>");
-		writer.println("<revision>");
-		writer.println("<id>" + revisionId + "</id>");
-		writer.println("<parentid>" + revParentId + "</parentid>");
-		writer.println("<timestamp>" + revTimestamp + "</timestamp>");
-		writer.println("<contributor>");
-		writer.println("<username>" + username + "</username>");
-		writer.println("<id>" + userid + "</id>");
-		writer.println("</contributor>");
-		writer.println("<minor />");
-		writer.println("<comment>" + comment + "</comment>");
-		writer.println("<model>wikitext</model>");
-		writer.println("<format>text/x-wiki</format>");
-		writer.println("<text xml:space=\"preserve\"><![CDATA[" + textBufferString + "]]></text>");
-		writer.println("<sha1>" + sha1String + "</sha1>");
-		writer.println("</revision>");
+		writer.println(" <title>" + pageTitle + "</title>");
+		writer.println(" <ns>" + pageNs + "</ns>");
+		writer.println(" <id>" + pageId + "</id>");
+		writer.println(" <revision>");
+		writer.println("  <id>" + revisionId + "</id>");
+		writer.println("  <parentid>" + revParentId + "</parentid>");
+		writer.println("  <timestamp>" + revTimestamp + "</timestamp>");
+		writer.println("  <contributor>");
+		writer.println("   <username>" + username + "</username>");
+		writer.println("   <id>" + userid + "</id>");
+		writer.println("  </contributor>");
+		writer.println("  <minor />");
+		writer.println("  <comment>" + comment + "</comment>");
+		writer.println("  <model>wikitext</model>");
+		writer.println("  <format>text/x-wiki</format>");
+		writer.println("  <text xml:space=\"preserve\"><![CDATA[" + textBufferString + "]]></text>");
+		writer.println("  <sha1>" + sha1String + "</sha1>");
+		writer.println(" </revision>");
 		writer.println("</page>");
 	}
 	
@@ -425,6 +456,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		
 		DocumentMetaData meta = DocumentMetaData.get(jCas);		 
+//		String lang = jCas.getDocumentLanguage();
+		String lang = meta.getLanguage();
 
 		String pageTitle = meta.getDocumentId().replaceAll(" ", "_").replaceAll("%20", "_");
 		pageTitle = pageTitle.replace(".txt", "");
@@ -460,14 +493,25 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		
 		//Generative information about the document
 		//TODO get DDCs and add text to ddcTexts
-		pageBuilder.append("\n\n")
-			.append("{{#textinfo: DDC:");
+		
 		TreeSet<String> ddcs = new TreeSet<String>();
-		for (CategoryCoveredTagged cat : JCasUtil.select(jCas, CategoryCoveredTagged.class)) {
+		for (CategoryCoveredTagged cat : JCasUtil.selectCovered(CategoryCoveredTagged.class, meta)) { // FIXME this creates no hits
+			System.out.println("=> Got category from meta: " + cat.getValue()); // FIXME
 			ddcs.add(cat.getValue().replaceAll("__label_ddc__", ""));
 		}
+		for (Document doc : JCasUtil.select(jCas, Document.class)) { // FIXME this creates too many hits
+			System.out.println("=> Document: " + doc.getStart() + ":" + doc.getEnd());
+			for (CategoryCoveredTagged cat : JCasUtil.selectCovered(CategoryCoveredTagged.class, doc)) {
+				System.out.println("=> Got category from doc: " + cat.getValue()); // FIXME
+				ddcs.add(cat.getValue().replaceAll("__label_ddc__", ""));
+			}
+		}
+//		pageBuilder.append("\n\n");
+//		pageBuilder.append("{{#textinfo: ").append(" }}");
+//		pageBuilder.append("\n\n");
+		pageBuilder.append("{{#textinfo: DDC");
 		for (String cat : ddcs) {
-			pageBuilder.append(cat).append(" ").append(MediawikiDDCHelper.getDDCClassName(cat)).append("|");
+			pageBuilder.append(":DDC").append(cat).append(" ").append(MediawikiDDCHelper.getDDCClassName(cat).replace(";", ",").replace(":", " -")).append(";");
 			addToMappedList(ddcTexts, cat, pageTitle);
 		}
 		pageBuilder.append(" }}\n\n");
@@ -517,12 +561,13 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					String lemma = token.getLemma().getValue();
 					String pos = token.getPos().getPosValue();
 					
-					// count lemma
-					if(lemmaFrequencies.get(lemma) == null) {
-						lemmaFrequencies.put(lemma, new LemmaFrequency(lemma))
+					// count lemma frequency
+					if(lemmaFrequencies.get(lemma + "_" + pos) == null) {
+						lemmaFrequencies.put(lemma + "_" + pos, new LemmaFrequency());
 					} else {
-						lemmaFrequencies.put(lemma, lemmaFrequencies.get(lemma).incrementFrequency();
+						lemmaFrequencies.get(lemma + "_" + pos).frequency++;
 					}
+					lemmaFrequencies.get(lemma + "_" + pos).texts.add(pageTitle);
 					
 					if (pos.equals("NNP")) {
 						if (firstNamedEntityToken == -1) {
@@ -530,7 +575,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 						}
 						namedEntityBuilder.append("_").append(text);
 					} else if (firstNamedEntityToken != -1) {
-						addWikiLink(tokenBuilder, namedEntityBuilder.toString().substring(1));
+						addWikiLink(lang, tokenBuilder, namedEntityBuilder.toString().substring(1));
 						namedEntityBuilder.delete(0, namedEntityBuilder.length());
 						firstNamedEntityToken = -1;
 					}
@@ -565,8 +610,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				if (inNamedEntity) {
 					String namedEntityBuilderString = namedEntityBuilder.toString().substring(1);
 					StringBuilder lastToken = new StringBuilder(sentenceTokens.get(sentenceTokens.size() - 1));
-					sentenceTokens.set(sentenceTokens.size() - 1, addWikiLink(lastToken, namedEntityBuilderString).toString());
-			    	addWikiLink(sentenceBuilder, namedEntityBuilderString);
+					sentenceTokens.set(sentenceTokens.size() - 1, addWikiLink(lang, lastToken, namedEntityBuilderString).toString());
+					addWikiLink(lang, sentenceBuilder, namedEntityBuilderString);
 				}
 
 				// create entries for every keyword in the sentence
@@ -617,6 +662,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		}
 		pageBuilder.append("\n\n\n");
 		writePage(pageTitle, comment, pageBuilder.toString(), nsPage);
+		documentCount++;
 	}
 
 	private String getWikidataId(String language, String title) throws JSONException, IOException {
@@ -646,9 +692,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		mappedList.get(key).add(value);
 	}
 	
-	private StringBuilder addWikiLink(StringBuilder textBuilder, String wikiTitle) {
+	private StringBuilder addWikiLink(String lang, StringBuilder textBuilder, String wikiTitle) {
 	    try{
-			String lang = "en"; // TODO get real language
 			boolean gotId = false;
 			if (validWikipediaLemmas.containsKey(wikiTitle)) {
 				gotId = validWikipediaLemmas.get(wikiTitle);
