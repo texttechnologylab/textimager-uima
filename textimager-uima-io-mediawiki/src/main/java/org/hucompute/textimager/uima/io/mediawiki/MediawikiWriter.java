@@ -37,6 +37,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Document;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
 
 
 // TODO replace with new "types" category
@@ -491,6 +492,9 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		StringBuilder pageBuilder = new StringBuilder();
 		HashSet<String> categories = new HashSet<String>();
 		
+		// Get all wikipedia links from TagMeLocalAnnotator
+		ArrayList<WikipediaLink> wikipediaLinks = new ArrayList<WikipediaLink>();
+		wikipediaLinks.addAll(JCasUtil.select(jCas, WikipediaLink.class));
 		//Generative information about the document
 		//TODO get DDCs and add text to ddcTexts
 		
@@ -553,8 +557,22 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				boolean inNamedEntity = false;
 
 				int tokenN = 0;
+				boolean inLink = false, closeLink = false;
 				for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
+					System.out.println("Token: " + token.getCoveredText() + " (" + token.getStart() + "-" + token.getEnd());
 					StringBuilder tokenBuilder = new StringBuilder();
+					if (wikipediaLinks.size() > 0) {
+						if (!inLink && wikipediaLinks.get(0).getStart() == token.getStart()) {
+							tokenBuilder.append("[").append("https://").append(lang).append(".wikipedia.org/wiki/").append(wikipediaLinks.get(0).getTarget());
+							inLink = true;
+							System.out.println("WikiLink: " + wikipediaLinks.get(0).getCoveredText() + " (" + wikipediaLinks.get(0).getStart() + "-" + wikipediaLinks.get(0).getEnd());
+							if (token.getEnd() >= wikipediaLinks.get(0).getEnd()) {
+								closeLink = true;
+							}
+						} else if (inLink && token.getEnd() >= wikipediaLinks.get(0).getEnd()) {
+							closeLink = true;
+						}
+					}
 					String text = token.getCoveredText();
 					String lemma = token.getLemma().getValue();
 					String pos = token.getPos().getPosValue();
@@ -567,19 +585,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					}
 					lemmaFrequencies.get(lemma + "_" + pos).texts.add(pageTitle);
 					
-					if (pos.equals("NNP")) {
-						if (firstNamedEntityToken == -1) {
-							firstNamedEntityToken = tokenN;
-						}
-						namedEntityBuilder.append("_").append(text);
-					} else if (firstNamedEntityToken != -1) {
-						addWikiLink(lang, tokenBuilder, namedEntityBuilder.toString().substring(1));
-						namedEntityBuilder.delete(0, namedEntityBuilder.length());
-						firstNamedEntityToken = -1;
-					}
-
-					tokenBuilder.append("[[Lemma:").append(lemma).append("_").append(pos).append("|");
-					 
 					tokenBuilder.append("{{#word: ").append(text)
 						.append(" |lemma:").append(lemma)
 						.append(",pos:").append(pos);
@@ -596,7 +601,13 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	                    tokenBuilder.append(",NE:").append(ne.getValue());
 	                }
 				    
-				    tokenBuilder.append("}}]] ");
+					tokenBuilder.append("}}");
+					if (closeLink) {
+						tokenBuilder.append("]");
+						inLink = closeLink = false;
+						wikipediaLinks.remove(0);
+					}
+					tokenBuilder.append(" ");
 
 					String tokenString = tokenBuilder.toString();
 					sentenceLemmas.add(lemma + "_" + pos);
