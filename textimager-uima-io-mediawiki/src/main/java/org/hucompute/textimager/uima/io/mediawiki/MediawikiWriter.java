@@ -324,7 +324,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			if (paragraphs != null) {
 				for (OccuranceInText occurance : ddcParagraphs.get(id)) {
 					pageBuilder.append("|-\n");
-					pageBuilder.append("|align=\"left\"|[[").append(occurance.text).append("#par").append(occurance.paragraph).append("|").append(occurance.text).append("]]\n")
+					pageBuilder.append("|align=\"left\"|[[").append(occurance.text).append("#PARAGRAPH_").append(occurance.paragraph).append("|").append(occurance.text).append("]]\n")
 						.append("|align=\"left\"|").append(occurance.occurance).append("\n");
 				}
 			}
@@ -340,7 +340,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			if (sentences != null) {
 				for (OccuranceInText occurance : ddcSentences.get(id)) {
 					pageBuilder.append("|-\n");
-					pageBuilder.append("|align=\"left\"|[[").append(occurance.text).append("#sen").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
+					pageBuilder.append("|align=\"left\"|[[").append(occurance.text).append("#SENTENCE_").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
 						.append("|align=\"left\"|").append(occurance.occurance).append("\n");
 				}
 			}
@@ -392,7 +392,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append("!bgcolor=#F2F2F2 align=\"center\"|Right Context\n");
 			for (LemmaInText occurance : textOccurances) {
 				text.append("|-\n")
-					.append("|align=\"left\"|[[").append(occurance.text).append("#sen").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
+					.append("|align=\"left\"|[[").append(occurance.text).append("#SENTENCE_").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
 					.append("|align=\"right\"|").append(occurance.sentence).append("\n")
 					.append("|align=\"right\"|").append(occurance.leftContext).append("\n")
 					.append("|align=\"center\"|").append(occurance.keyword).append("\n")
@@ -521,7 +521,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		// Inhalt: Paragraphenweise alle Token + Lemma als Tooltip
 		for (Paragraph paragraph : JCasUtil.select(jCas, Paragraph.class)) {
 			StringBuilder paragraphBuilder = new StringBuilder();
-			paragraphBuilder.append("<span id=\"par").append(paragraphN).append("\"></span>");
 			paragraphBuilder.append("{{#paragraph: ").append(paragraphN).append(" | START");
 			// TODO Seperate Typen für DDC Kategorien und Wikipedia Disambiguation
 			// TODO Disambiguation Links
@@ -543,7 +542,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 			for (Sentence sentence : JCasUtil.selectCovered(Sentence.class, paragraph)) {
 				StringBuilder sentenceBuilder = new StringBuilder();
-				paragraphBuilder.append("<span id=\"sen").append(sentenceN).append("\"></span>");
 				sentenceBuilder.append("{{#sentence: ").append(sentenceN).append(" | START }}");
 				
 				ArrayList<String> sentenceTokens = new ArrayList<String>();
