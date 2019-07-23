@@ -605,8 +605,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				StringBuilder namedEntityBuilder = new StringBuilder();
 				int firstNamedEntityToken = -1;
 
-				boolean inNamedEntity = false;
-
 				int tokenN = 0;
 				boolean inLink = false, closeLink = false;
 				for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
@@ -671,12 +669,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					sentenceBuilder.append(tokenString);
 					tokenN++;
 				}
-				if (inNamedEntity) {
-					String namedEntityBuilderString = namedEntityBuilder.toString().substring(1);
-					StringBuilder lastToken = new StringBuilder(sentenceTokens.get(sentenceTokens.size() - 1));
-					sentenceTokens.set(sentenceTokens.size() - 1, addWikiLink(lang, lastToken, namedEntityBuilderString).toString());
-					addWikiLink(lang, sentenceBuilder, namedEntityBuilderString);
-				}
 
 				// create entries for every keyword in the sentence
 				StringBuilder leftContext = new StringBuilder();
@@ -729,26 +721,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		documentCount++;
 	}
 
-	private String getWikidataId(String language, String title) throws JSONException, IOException {
-		if (title.contains("#")) {
-			return null;
-		}
-		String url = "https://" + language + ".wikipedia.org/w/api.php?action=query&titles=" +
-			title + "&ppprop=wikibase_item&prop=pageprops&format=json&redirects";
-		JSONObject json = new JSONObject(Jsoup.connect(url).ignoreContentType(true).execute().body());
-
-		if (!json.getJSONObject("query").has("pages")) {
-			return null;
-		}
-
-		String key = json.getJSONObject("query").getJSONObject("pages").keySet().iterator().next();
-		if (json.getJSONObject("query").getJSONObject("pages").getJSONObject(key).has("pageprops")) {
-			return (json.getJSONObject("query").getJSONObject("pages").getJSONObject(key).getJSONObject("pageprops").getString("wikibase_item"));
-		} else {
-			return null;
-		}
-	}
-	
 	private <K,T> void addToMappedList(HashMap<K, ArrayList<T>> mappedList, K key, T value) {
 		if (!mappedList.containsKey(key)) {
 			mappedList.put(key, new ArrayList<T>());
@@ -761,26 +733,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			mappedList.put(key, new TreeSet<T>());
 		}
 		mappedList.get(key).add(value);
-	}
-
-	private StringBuilder addWikiLink(String lang, StringBuilder textBuilder, String wikiTitle) {
-	    try{
-			boolean gotId = false;
-			if (validWikipediaLemmas.containsKey(wikiTitle)) {
-				gotId = validWikipediaLemmas.get(wikiTitle);
-			} else {
-		    	gotId = getWikidataId(lang, wikiTitle) != null;
-				validWikipediaLemmas.put(wikiTitle, gotId);
-				if (!gotId) {
-					System.out.println(" INFO | MediawikiWriter got no WikiData ID for " + wikiTitle);
-					return textBuilder;
-				}
-			}
-		    if (gotId) {
-			    textBuilder.append("[https://").append(lang).append(".wikipedia.org/wiki/").append(wikiTitle).append("] ");
-			}
-	    }catch (Exception e) {}
-	    return textBuilder;
 	}
 
 }
