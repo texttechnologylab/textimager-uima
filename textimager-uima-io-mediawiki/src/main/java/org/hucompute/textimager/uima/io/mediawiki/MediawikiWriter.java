@@ -17,6 +17,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.uima.UimaContext;
@@ -31,6 +32,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
@@ -65,6 +67,21 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		public TreeSet<String> texts = new TreeSet<String>();
 		public double getInverseDocumentFrequency(int docCount) {
 			return Math.log(docCount / (1 + texts.size()));
+		}
+	}
+
+	private class LemmaPos {
+		public String lemma;
+		public String pos;
+		public LemmaPos(Token token) {
+			lemma = token.getLemma().getValue();
+			pos = token.getPos().getPosValue();
+		}
+		public boolean equals(Object obj) {
+			return obj instanceof LemmaPos && toString().equals(((LemmaPos) obj).toString());
+		}
+		public String toString() {
+			return lemma + "_" + pos;
 		}
 	}
 
@@ -116,7 +133,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private PrintWriter writer;
 	// To save names of all text files 
 	private HashMap<String, HashSet<String>> folderPages;
-	// To save every text belonging to a DDC
+	// To save every entity belonging to a DDC
 	private HashMap<String, ArrayList<String>> ddcTexts;
 	private HashMap<String, ArrayList<OccuranceInText>> ddcSentences;
 	private HashMap<String, ArrayList<OccuranceInText>> ddcParagraphs;
@@ -125,6 +142,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private HashMap<String, Boolean> validWikipediaLemmas;
 	// Count Frequencies and Text Frequencies of Lemmas
 	private HashMap<String, LemmaFrequency> lemmaFrequencies;
+	// Collect morphological features for every lemma
+	private HashMap<LemmaPos, Set<MorphologicalFeatures>> lemmaMorphologicalFeatures;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
 	
@@ -200,6 +219,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		lemmaFolders = new HashMap<String, ArrayList<LemmaInText>>();
 		lemmaFrequencies = new HashMap<String, LemmaFrequency>();
 		validWikipediaLemmas = new HashMap<String, Boolean>();
+		lemmaMorphologicalFeatures = new HashMap<LemmaPos, Set<MorphologicalFeatures>>();
 		
 		pageIdGlobal = startPageId;
 		
@@ -364,6 +384,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			} else {
 				System.out.println("BUG  | MediaWikiWriter got malformed Lemma_POS: " + entry.getKey());
 			}
+			boolean isVerb = pos.equals("V");
 			ArrayList<LemmaInText> textOccurances = entry.getValue();
 			LemmaFrequency frequency = lemmaFrequencies.get(entry.getKey());
 			if (frequency == null) {
@@ -371,18 +392,48 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				frequency = new LemmaFrequency();
 				frequency.frequency = 0;
 			}
+			Set<MorphologicalFeatures> morph = lemmaMorphologicalFeatures.get(lemma);
+			if (morph == null) {
+				morph = new TreeSet<MorphologicalFeatures>();
+			}
 
 			StringBuilder text = new StringBuilder();
 			text.append("{{#lemmainfo: ")
 				.append("Name:").append(lemma).append(",")
 				.append("Part of Speech:").append(pos).append(",")
-				.append("SyntacticWords:").append(",") // TODO calculate syntactic words
+				.append("SyntacticWords:").append(morph.size()).append(",")
 				.append("Frequency Class:").append(",") // TODO calculate frequency class
 				.append("Frequency:").append(frequency.frequency).append(",")
 				.append("Text Frequency:").append(frequency.texts.size()).append(",")
 				.append("Inverse Document Frequency:").append((new DecimalFormat("0.0")).format(frequency.getInverseDocumentFrequency(documentCount))).append(",")
-				.append("Wiktionary:WIKTIONARY en ").append(lemma) // TODO get right language
+				.append("Wiktionary:WIKTIONARY en ").append(lemma) // TODO needs right language but does its job nonetheless
 				.append("}}\n\n")
+				.append("== Morphology ==\n")
+				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing\"0\" cellpadding=\"5\" valign=\"top\"\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|form\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|").append(isVerb ? "mood" : "case").append("\n")
+				.append(isVerb ? "" : "!bgcolor=#F2F2F2 align=\"left\"|gender\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|number\n")
+				.append(isVerb ? "!bgcolor=#F2F2F2 align=\"left\"|person\n" : "")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|pos\n")
+				.append(isVerb ? "!bgcolor=#F2F2F2 align=\"left\"|tense\n" : "");
+			for (MorphologicalFeatures features : morph) {
+				text.append("|-\n")
+					.append("|align=\"left\"|").append(features.getVerbForm()).append("\n")
+					.append("|align=\"left\"|").append(isVerb ? features.getMood() : features.getCase()).append("\n");
+				if (!isVerb) {
+					text.append("|align=\"left\"|").append(features.getGender()).append("\n");
+				}
+				text.append("|align=\"left\"|").append(features.getNumber()).append("\n");
+				if (isVerb) {
+					text.append("|align=\"left\"|").append(features.getPerson()).append("\n");
+				}
+				text.append("|align=\"left\"|").append(pos).append("\n");
+				if (isVerb) {
+					text.append("|align=\"left\"|").append(features.getTense()).append("\n");
+				}
+			}
+			text.append("|}\n")
 				.append("== Concordance ==\n")
 				.append(textOccurances.size()).append(" entries total<br/>\n")
 				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
@@ -576,6 +627,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					String text = token.getCoveredText();
 					String lemma = token.getLemma().getValue();
 					String pos = token.getPos().getPosValue();
+					LemmaPos lemmapos = new LemmaPos(token);
+
+					// collect morphological features
+					//addToMappedSet(lemmaMorphologicalFeatures, lemmapos, token.getMorphologicalFeatures());
 					
 					// count lemma frequency
 					if(lemmaFrequencies.get(lemma + "_" + pos) == null) {
@@ -694,13 +749,20 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		}
 	}
 	
-	private <T> void addToMappedList(HashMap<String, ArrayList<T>> mappedList, String key, T value) {
+	private <K,T> void addToMappedList(HashMap<K, ArrayList<T>> mappedList, K key, T value) {
 		if (!mappedList.containsKey(key)) {
 			mappedList.put(key, new ArrayList<T>());
 		}
 		mappedList.get(key).add(value);
 	}
-	
+
+	private <K,T> void addToMappedSet(HashMap<K, Set<T>> mappedList, K key, T value) {
+		if (!mappedList.containsKey(key)) {
+			mappedList.put(key, new TreeSet<T>());
+		}
+		mappedList.get(key).add(value);
+	}
+
 	private StringBuilder addWikiLink(String lang, StringBuilder textBuilder, String wikiTitle) {
 	    try{
 			boolean gotId = false;
