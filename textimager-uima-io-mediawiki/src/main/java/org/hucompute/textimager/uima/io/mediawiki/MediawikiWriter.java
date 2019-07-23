@@ -138,10 +138,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private HashMap<String, ArrayList<OccuranceInText>> ddcSentences;
 	private HashMap<String, ArrayList<OccuranceInText>> ddcParagraphs;
 	// To create lemma pages with links to all texts
-	private HashMap<String, ArrayList<LemmaInText>> lemmaFolders;
-	private HashMap<String, Boolean> validWikipediaLemmas;
+	private HashMap<LemmaPos, ArrayList<LemmaInText>> lemmaFolders;
+	private HashMap<LemmaPos, Boolean> validWikipediaLemmas;
 	// Count Frequencies and Text Frequencies of Lemmas
-	private HashMap<String, LemmaFrequency> lemmaFrequencies;
+	private HashMap<LemmaPos, LemmaFrequency> lemmaFrequencies;
 	// Collect morphological features for every lemma
 	private HashMap<LemmaPos, Set<MorphologicalFeatures>> lemmaMorphologicalFeatures;
 	
@@ -216,9 +216,9 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		ddcTexts = new HashMap<String, ArrayList<String>>();
 		ddcSentences = new HashMap<String, ArrayList<OccuranceInText>>();
 		ddcParagraphs = new HashMap<String, ArrayList<OccuranceInText>>();
-		lemmaFolders = new HashMap<String, ArrayList<LemmaInText>>();
-		lemmaFrequencies = new HashMap<String, LemmaFrequency>();
-		validWikipediaLemmas = new HashMap<String, Boolean>();
+		lemmaFolders = new HashMap<LemmaPos, ArrayList<LemmaInText>>();
+		lemmaFrequencies = new HashMap<LemmaPos, LemmaFrequency>();
+		validWikipediaLemmas = new HashMap<LemmaPos, Boolean>();
 		lemmaMorphologicalFeatures = new HashMap<LemmaPos, Set<MorphologicalFeatures>>();
 		
 		pageIdGlobal = startPageId;
@@ -375,15 +375,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	/** Write a page for every lemma. */
 	private void writeLemmaPages() {
 		System.out.println("INFO | MediaWikiWriter write lemma pages for " + documentCount + " documents");
-		for (HashMap.Entry<String, ArrayList<LemmaInText>> entry : lemmaFolders.entrySet()) {
-			String[] lemmapos = entry.getKey().split("_");
-			String lemma = entry.getKey(), pos = "";
-			if (lemmapos.length == 2) {
-				lemma = lemmapos[0];
-				pos = lemmapos[1];
-			} else {
-				System.out.println("BUG  | MediaWikiWriter got malformed Lemma_POS: " + entry.getKey());
-			}
+		for (HashMap.Entry<LemmaPos, ArrayList<LemmaInText>> entry : lemmaFolders.entrySet()) {
+			String lemma = entry.getKey().lemma, pos = entry.getKey().pos;
 			boolean isVerb = pos.equals("V");
 			ArrayList<LemmaInText> textOccurances = entry.getValue();
 			LemmaFrequency frequency = lemmaFrequencies.get(entry.getKey());
@@ -600,7 +593,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				sentenceBuilder.append("{{#sentence: ").append(sentenceN).append(" | START }}");
 				
 				ArrayList<String> sentenceTokens = new ArrayList<String>();
-				ArrayList<String> sentenceLemmas = new ArrayList<String>();
+				ArrayList<LemmaPos> sentenceLemmas = new ArrayList<LemmaPos>();
 
 				StringBuilder namedEntityBuilder = new StringBuilder();
 				int firstNamedEntityToken = -1;
@@ -631,12 +624,12 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					//addToMappedSet(lemmaMorphologicalFeatures, lemmapos, token.getMorphologicalFeatures());
 					
 					// count lemma frequency
-					if(lemmaFrequencies.get(lemma + "_" + pos) == null) {
-						lemmaFrequencies.put(lemma + "_" + pos, new LemmaFrequency());
+					if(lemmaFrequencies.get(lemmapos) == null) {
+						lemmaFrequencies.put(lemmapos, new LemmaFrequency());
 					} else {
-						lemmaFrequencies.get(lemma + "_" + pos).frequency++;
+						lemmaFrequencies.get(lemmapos).frequency++;
 					}
-					lemmaFrequencies.get(lemma + "_" + pos).texts.add(pageTitle);
+					lemmaFrequencies.get(lemmapos).texts.add(pageTitle);
 					
 					tokenBuilder.append("{{#word: ").append(text)
 						.append(" |lemma:").append(lemma)
@@ -663,7 +656,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					tokenBuilder.append(" ");
 
 					String tokenString = tokenBuilder.toString();
-					sentenceLemmas.add(lemma + "_" + pos);
+					sentenceLemmas.add(lemmapos);
 					sentenceTokens.add(tokenString);
 					// append the token to the complete text
 					sentenceBuilder.append(tokenString);
