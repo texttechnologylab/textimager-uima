@@ -92,6 +92,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private static final String nsPage = "0";
 	private static final String nsCategory = "14";
 	private static final String nsLemma = "102";
+	private static final String nsTooltip = "104";
 
 	private static final String categoryPrefix = "Category:";
 	private static final String lemmaPrefix = "Lemma:";
@@ -128,6 +129,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writePage("Corpus", "Corpus overview", corpusTextBuilder.toString(), nsPage);
 		writeDDCPages();
 		writeLemmaPages();
+		writeLemmaTooltips();
 				
 		writer.println("</mediawiki>");
 
@@ -362,6 +364,37 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			text.append("|}\n");
 			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
 			writePage("Lemma:" + entry.getKey(), "Generated Lemma page", text.toString(), nsLemma);
+		}
+	}
+
+	/** Write a tooltip for every lemma. */
+	private void writeLemmaTooltips() {
+		for (HashMap.Entry<LemmaInfos.LemmaPos, LemmaInfos.LemmaInfo> entry : lemmaInfos.entrySet()) {
+			LemmaInfos.LemmaPos lemmapos = entry.getKey();
+			LemmaInfos.LemmaInfo info = entry.getValue();
+
+			StringBuilder text = new StringBuilder();
+			text.append("{|\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Name\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|POS\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Syntactic Words\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Frequency\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|F. Class\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Text F.\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Inverse Document F.\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|Wiktionary\n")
+				.append("|-\n")
+				.append("|[[Lemma:").append(lemmapos).append("|").append(lemmapos.lemma).append("]]\n")
+				.append("|").append(lemmapos.pos).append("\n")
+				.append("|").append(info.morphologicalFeatures.size()).append("\n")
+				.append("|").append(info.frequency).append("\n")
+				.append("|").append(info.getFrequencyClass()).append("\n")
+				.append("|").append(info.getDocumentFrequency()).append("\n")
+				.append("|").append(info.getInverseDocumentFrequencyAsString(documentCount)).append("\n")
+				.append("|WIKTIONARY en ").append(lemmapos.lemma) // TODO needs right language but does its job nonetheless
+				.append("|}");
+			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
+			writePage("Tooltip:" + lemmapos, "Generated Lemma tooltip", text.toString(), nsTooltip);
 		}
 	}
 
