@@ -11,7 +11,6 @@ import java.lang.Math;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -31,8 +30,8 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
@@ -47,105 +46,6 @@ import org.hucompute.services.type.CategoryCoveredTagged;
 
 public class MediawikiWriter extends JCasConsumer_ImplBase{
 
-	/** Rank CategoryCoveredTagged by their plausibility. */
-	private class CategoryCoveredTaggedPlausibilityComparator implements Comparator<CategoryCoveredTagged> {
-		/** This will order objects from high to low. */
-		public int compare(CategoryCoveredTagged o1, CategoryCoveredTagged o2) {
-			if (o1 != null && o2 != null) {
-				return (int)((o2.getScore() * 100) - (o1.getScore() * 100));
-			} else if (o1 == null) {
-				return -1;
-			} else {
-				return +1;
-			}
-		}
-		public boolean equals(Object obj) {
-			return obj == this;
-		}
-	}
-
-	/** Wrapper for MorphologicalFeatures to store them in a set. */
-	private class ComparableMorphologicalFeatures extends MorphologicalFeatures implements Comparable {
-		public ComparableMorphologicalFeatures(JCas jCas, MorphologicalFeatures f) {
-			super(jCas, f.getStart(), f.getEnd());
-			setVerbForm(f.getVerbForm());
-			setMood(f.getMood());
-			setCase(f.getCase());
-			setGender(f.getGender());
-			setNumber(f.getNumber());
-			setPerson(f.getPerson());
-			setTense(f.getTense());
-		}
-		public int compareTo(Object obj) {
-			return equals(obj) ? 0 : -1;
-		}
-		public boolean equals(Object obj) {
-			if (!(obj instanceof MorphologicalFeatures)) return false;
-			MorphologicalFeatures f = (MorphologicalFeatures) obj;
-			return ((f.getVerbForm() == null && getVerbForm() == null) || f.getVerbForm().equals(getVerbForm())) &&
-				((f.getMood() == null && getMood() == null) || f.getMood().equals(getMood())) &&
-				f.getCase().equals(getCase()) &&
-				f.getGender().equals(getGender()) &&
-				f.getNumber().equals(getNumber()) &&
-				f.getPerson().equals(getPerson()) &&
-				f.getTense().equals(getTense());
-		}
-	}
-
-	/** Occurance of a lemma in a sentence. */
-	private class LemmaInText {
-		public String text;
-		public String leftContext;
-		public String rightContext;
-		public String keyword;
-		public int sentence;
-		public LemmaInText(String text, int sentence, String leftContext, String keyword, String rightContext) {
-			this.text = text;
-			this.sentence = sentence;
-			this.leftContext = leftContext;
-			this.rightContext = rightContext;
-			this.keyword = keyword;
-		}
-	}
-	
-	/** The frequency of a lemma. */
-	private class LemmaFrequency {
-		public int frequency = 1;
-		public TreeSet<String> texts = new TreeSet<String>();
-		public double getInverseDocumentFrequency(int docCount) {
-			return Math.log(docCount / (1 + texts.size()));
-		}
-	}
-
-	/** A combination of lemma and POS. */
-	private class LemmaPos {
-		public String lemma;
-		public String pos;
-		public LemmaPos(Token token) {
-			lemma = token.getLemma().getValue();
-			pos = token.getPos().getPosValue();
-		}
-		public boolean equals(Object obj) {
-			return obj instanceof LemmaPos && toString().equals(((LemmaPos) obj).toString());
-		}
-		public String toString() {
-			return lemma + "_" + pos;
-		}
-	}
-
-	private class OccuranceInText {
-		public String text;
-		public int paragraph, sentence;
-		public String occurance;
-		public OccuranceInText(String text, int paragraph, int sentence, String occurance) {
-			this.text = text;
-			this.paragraph = paragraph;
-			this.sentence = sentence;
-			this.occurance = occurance.replace("\n", " ");
-		}
-	}
-		
-		
 	/**
 	 * Output directory
 	 */
@@ -173,7 +73,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	public static final String PARAM_START_PAGEID = "startPageId";
 	@ConfigurationParameter(name = PARAM_START_PAGEID, mandatory = false, defaultValue = "0")
 	protected long startPageId;
-	
+
+
 	
 	private MessageDigest md;
 	private long pageIdGlobal = 0;
@@ -181,23 +82,16 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private PrintWriter writer;
 	// To save names of all text files 
 	private HashMap<String, HashSet<String>> folderPages;
-	// To save every entity belonging to a DDC
-	private HashMap<String, ArrayList<String>> ddcTexts;
-	private HashMap<String, ArrayList<OccuranceInText>> ddcSentences;
-	private HashMap<String, ArrayList<OccuranceInText>> ddcParagraphs;
-	// To create lemma pages with links to all texts
-	private HashMap<LemmaPos, ArrayList<LemmaInText>> lemmaFolders;
-	private HashMap<LemmaPos, Boolean> validWikipediaLemmas;
-	// Count Frequencies and Text Frequencies of Lemmas
-	private HashMap<LemmaPos, LemmaFrequency> lemmaFrequencies;
-	// Collect morphological features for every lemma
-	private HashMap<LemmaPos, Set<ComparableMorphologicalFeatures>> lemmaMorphologicalFeatures;
+	// Collect occurances for every ddc
+	private DDCInfos ddcInfos;
+	// Collect features for every lemma
+	private LemmaInfos lemmaInfos;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
 	
 	private static final String nsPage = "0";
 	private static final String nsCategory = "14";
-	private static final String nsLemma = "102";	
+	private static final String nsLemma = "102";
 
 	private static final String categoryPrefix = "Category:";
 	private static final String lemmaPrefix = "Lemma:";
@@ -229,13 +123,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			}
 			corpusTextBuilder.append(textBuilder).append("\n\n");
 		}
-		//Building the Corpus-page
-		writePage("Corpus", "Corpus overview", corpusTextBuilder.toString(), nsPage);
-				
-		//Pages for all DDC-Categories 
-		writeDDCPages();
 
-		//Pages for all Lemmas
+		// Special pages
+		writePage("Corpus", "Corpus overview", corpusTextBuilder.toString(), nsPage);
+		writeDDCPages();
 		writeLemmaPages();
 				
 		writer.println("</mediawiki>");
@@ -261,13 +152,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		String base = outputDir.getAbsolutePath().replaceAll(" ", "_");
 		
 		folderPages = new HashMap<String, HashSet<String>>();
-		ddcTexts = new HashMap<String, ArrayList<String>>();
-		ddcSentences = new HashMap<String, ArrayList<OccuranceInText>>();
-		ddcParagraphs = new HashMap<String, ArrayList<OccuranceInText>>();
-		lemmaFolders = new HashMap<LemmaPos, ArrayList<LemmaInText>>();
-		lemmaFrequencies = new HashMap<LemmaPos, LemmaFrequency>();
-		validWikipediaLemmas = new HashMap<LemmaPos, Boolean>();
-		lemmaMorphologicalFeatures = new HashMap<LemmaPos, Set<ComparableMorphologicalFeatures>>();
+		ddcInfos = new DDCInfos();
+		lemmaInfos = new LemmaInfos();
 		
 		pageIdGlobal = startPageId;
 		
@@ -339,9 +225,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		for (HashMap.Entry<String, String> entry : MediawikiDDCHelper.getAllDDCClasses().entrySet()) {
 			String id = entry.getKey();
 			String name = MediawikiDDCHelper.getDDCClassName(id);
-			int level = id.substring(2, 3).equals("0") ? (id.substring(1, 2).equals("0") ? 1 : 2) : 3;
+			int level = MediawikiDDCHelper.getDDCLevel(id);
+			DDCInfos.DDCInfo info = ddcInfos.get(id);
+
 			StringBuilder pageBuilder = new StringBuilder();
-			
 			// Build the header
 			pageBuilder.append("= ").append(name).append(" (").append(id).append(") =\n");
 			// Build the hierarchy list
@@ -370,84 +257,65 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			}
 
 			// List texts of this category
-			ArrayList<String> texts = ddcTexts.get(id);
 			pageBuilder.append("== Texts ==\n")
-				.append(texts != null ? texts.size() : 0).append(" entries total<br/>\n")
+				.append(info.documents.size()).append(" entries total<br/>\n")
 				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n");
-			if (texts != null) {
-				for (String text : texts) {
-					pageBuilder.append("|-\n");
-					pageBuilder.append("|align=\"left\"|[[").append(text).append("]]\n");
-				}
+			for (String documentTitle : info.documents) {
+				pageBuilder.append("|-\n");
+				pageBuilder.append("|align=\"left\"|[[").append(documentTitle).append("]]\n");
 			}
 			pageBuilder.append("|}\n");
 
 			// List paragraphs of this category
-			ArrayList<OccuranceInText> paragraphs = ddcParagraphs.get(id);
 			pageBuilder.append("== Paragraphs ==\n")
-				.append(paragraphs != null ? paragraphs.size() : 0).append(" entries total<br/>\n")
+				.append(info.paragraphs.size()).append(" entries total<br/>\n")
 				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Paragraph\n");
-			if (paragraphs != null) {
-				for (OccuranceInText occurance : ddcParagraphs.get(id)) {
-					pageBuilder.append("|-\n");
-					pageBuilder.append("|align=\"left\"|[[").append(occurance.text).append("#PARAGRAPH_").append(occurance.paragraph).append("|").append(occurance.text).append("]]\n")
-						.append("|align=\"left\"|").append(occurance.occurance).append("\n");
-				}
+			for (DDCInfos.DDCOccurance occurance : info.paragraphs) {
+				pageBuilder.append("|-\n");
+				pageBuilder.append("|align=\"left\"|[[").append(occurance.documentTitle).append("#PARAGRAPH_").append(occurance.paragraph).append("|").append(occurance.documentTitle).append("]]\n")
+					.append("|align=\"left\"|").append(occurance.text).append("\n");
 			}
 			pageBuilder.append("|}\n");
 
 			// List sentences of this category
-			ArrayList<OccuranceInText> sentences = ddcSentences.get(id);
 			pageBuilder.append("== Sentences ==\n")
-				.append(sentences != null ? sentences.size() : 0).append(" entries total<br/>\n")
+				.append(info.sentences.size()).append(" entries total<br/>\n")
 				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Sentence\n");
-			if (sentences != null) {
-				for (OccuranceInText occurance : ddcSentences.get(id)) {
-					pageBuilder.append("|-\n");
-					pageBuilder.append("|align=\"left\"|[[").append(occurance.text).append("#SENTENCE_").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
-						.append("|align=\"left\"|").append(occurance.occurance).append("\n");
-				}
+			for (DDCInfos.DDCOccurance occurance : info.sentences) {
+				pageBuilder.append("|-\n");
+				pageBuilder.append("|align=\"left\"|[[").append(occurance.documentTitle).append("#SENTENCE_").append(occurance.sentence).append("|").append(occurance.documentTitle).append("]]\n")
+					.append("|align=\"left\"|").append(occurance.text).append("\n");
 			}
 			pageBuilder.append("|}\n");
 
 			// List texts for this category
-			writePage(categoryPrefix + "DDC" + entry.getKey(), "Generated DDC category", pageBuilder.toString(), nsCategory);
+			writePage(categoryPrefix + "DDC" + id, "Generated DDC category", pageBuilder.toString(), nsCategory);
 		}
 	}
 
 	/** Write a page for every lemma. */
 	private void writeLemmaPages() {
 		System.out.println("INFO | MediaWikiWriter write lemma pages for " + documentCount + " documents");
-		for (HashMap.Entry<LemmaPos, ArrayList<LemmaInText>> entry : lemmaFolders.entrySet()) {
-			String lemma = entry.getKey().lemma, pos = entry.getKey().pos;
-			boolean isVerb = pos.equals("V");
-			ArrayList<LemmaInText> textOccurances = entry.getValue();
-			LemmaFrequency frequency = lemmaFrequencies.get(entry.getKey());
-			if (frequency == null) {
-				System.out.println(" BUG  | MediaWikiWriter got a lemma but no frequency for it: " + lemma);
-				frequency = new LemmaFrequency();
-				frequency.frequency = 0;
-			}
-			Set<ComparableMorphologicalFeatures> morph = lemmaMorphologicalFeatures.get(lemma);
-			if (morph == null) {
-				morph = new TreeSet<ComparableMorphologicalFeatures>();
-			}
+		for (HashMap.Entry<LemmaInfos.LemmaPos, LemmaInfos.LemmaInfo> entry : lemmaInfos.entrySet()) {
+			LemmaInfos.LemmaPos lemmapos = entry.getKey();
+			LemmaInfos.LemmaInfo info = entry.getValue();
+			boolean isVerb = lemmapos.pos.equals("V");
 
 			StringBuilder text = new StringBuilder();
 			text.append("{{#lemmainfo: ")
-				.append("Name:").append(lemma).append(",")
-				.append("Part of Speech:").append(pos).append(",")
-				.append("SyntacticWords:").append(morph.size()).append(",")
-				.append("Frequency Class:").append(",") // TODO calculate frequency class
-				.append("Frequency:").append(frequency.frequency).append(",")
-				.append("Text Frequency:").append(frequency.texts.size()).append(",")
-				.append("Inverse Document Frequency:").append((new DecimalFormat("0.0")).format(frequency.getInverseDocumentFrequency(documentCount))).append(",")
-				.append("Wiktionary:WIKTIONARY en ").append(lemma) // TODO needs right language but does its job nonetheless
+				.append("Name:").append(lemmapos.lemma).append(",")
+				.append("Part of Speech:").append(lemmapos.pos).append(",")
+				.append("SyntacticWords:").append(info.morphologicalFeatures.size()).append(",")
+				.append("Frequency Class:").append(info.getFrequencyClass()).append(",")
+				.append("Frequency:").append(info.frequency).append(",")
+				.append("Text Frequency:").append(info.getDocumentFrequency()).append(",")
+				.append("Inverse Document Frequency:").append(info.getInverseDocumentFrequencyAsString(documentCount)).append(",")
+				.append("Wiktionary:WIKTIONARY en ").append(lemmapos.lemma) // TODO needs right language but does its job nonetheless
 				.append("}}\n\n")
 				.append("== Morphology ==\n")
 				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing\"0\" cellpadding=\"5\" valign=\"top\"\n")
@@ -458,7 +326,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append(isVerb ? "!bgcolor=#F2F2F2 align=\"left\"|person\n" : "")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|pos\n")
 				.append(isVerb ? "!bgcolor=#F2F2F2 align=\"left\"|tense\n" : "");
-			for (MorphologicalFeatures features : morph) {
+			for (MorphologicalFeatures features : info.morphologicalFeatures) {
 				text.append("|-\n")
 					.append("|align=\"left\"|").append(features.getVerbForm()).append("\n")
 					.append("|align=\"left\"|").append(isVerb ? features.getMood() : features.getCase()).append("\n");
@@ -469,21 +337,21 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				if (isVerb) {
 					text.append("|align=\"left\"|").append(features.getPerson()).append("\n");
 				}
-				text.append("|align=\"left\"|").append(pos).append("\n");
+				text.append("|align=\"left\"|").append(lemmapos.pos).append("\n");
 				if (isVerb) {
 					text.append("|align=\"left\"|").append(features.getTense()).append("\n");
 				}
 			}
 			text.append("|}\n")
 				.append("== Concordance ==\n")
-				.append(textOccurances.size()).append(" entries total<br/>\n")
+				.append(info.occurances.size()).append(" entries total<br/>\n")
 				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n")
 				.append("!bgcolor=#F2F2F2 align=\"center\"|Sentence\n")
 				.append("!bgcolor=#F2F2F2 align=\"center\"|Left Context\n")
 				.append("!bgcolor=#F2F2F2 align=\"center\"|Keyword\n")
 				.append("!bgcolor=#F2F2F2 align=\"center\"|Right Context\n");
-			for (LemmaInText occurance : textOccurances) {
+			for (LemmaInfos.LemmaInText occurance : info.occurances) {
 				text.append("|-\n")
 					.append("|align=\"left\"|[[").append(occurance.text).append("#SENTENCE_").append(occurance.sentence).append("|").append(occurance.text).append("]]\n")
 					.append("|align=\"right\"|").append(occurance.sentence).append("\n")
@@ -591,22 +459,17 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		//TODO get DDCs and add text to ddcTexts
 		
 		// Get all categories for the document (sorted by their plausibility)
-		TreeSet<CategoryCoveredTagged> ddcs = new TreeSet<CategoryCoveredTagged>(new CategoryCoveredTaggedPlausibilityComparator());
+		SortedDDCSet ddcs = new SortedDDCSet();
 		for (CategoryCoveredTagged cct : JCasUtil.select(jCas, CategoryCoveredTagged.class)) {
 			if (cct.getStart() == 0 && cct.getEnd() == jCas.getDocumentText().length()) {
 				ddcs.add(cct);
 			}
 		}
-		// Because CategoryCoveredTagged sometimes get added multiple times we check if we already listed them
-		TreeSet<String> usedDDCs = new TreeSet<String>();
 		pageBuilder.append("{{#textinfo: DDC");
 		for (CategoryCoveredTagged cct : ddcs) {
 			String ddc = cct.getValue().replaceAll("__label_ddc__", "");
-			if (!usedDDCs.contains(ddc)) {
-				pageBuilder.append(":DDC").append(ddc).append(" ").append(MediawikiDDCHelper.getDDCClassName(ddc).replace(";", ",").replace(":", " -")).append(";");
-				addToMappedList(ddcTexts, ddc, pageTitle);
-				usedDDCs.add(ddc);
-			}
+			pageBuilder.append(":DDC").append(ddc).append(" ").append(MediawikiDDCHelper.getDDCClassName(ddc).replace(";", ",").replace(":", " -")).append(";");
+			ddcInfos.get(ddc).documents.add(pageTitle);
 		}
 		pageBuilder.append(" }}\n\n");
 		
@@ -621,10 +484,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			// DDC Kategorien: Von jedem Paragraphen den besten
 			String paragraphCategory = null;
 			{
-				ArrayList<CategoryCoveredTagged> paragraphCats = new ArrayList<CategoryCoveredTagged>();
+				SortedDDCSet paragraphCats = new SortedDDCSet();
 				paragraphCats.addAll(JCasUtil.selectCovered(CategoryCoveredTagged.class, paragraph));
 				if (!paragraphCats.isEmpty()) {
-					Collections.sort(paragraphCats, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
+//					Collections.sort(paragraphCats, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
 					paragraphCategory = paragraphCats.get(0).getValue().replaceAll("__label_ddc__", "");
 					categories.add("[[" + categoryPrefix + "DDC" + paragraphCategory + "]]");
 					// To add DDC information of paragraph to START tag of paragraph 
@@ -639,7 +502,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				sentenceBuilder.append("{{#sentence: ").append(sentenceN).append(" | START }}");
 				
 				ArrayList<String> sentenceTokens = new ArrayList<String>();
-				ArrayList<LemmaPos> sentenceLemmas = new ArrayList<LemmaPos>();
+				ArrayList<LemmaInfos.LemmaPos> sentenceLemmas = new ArrayList<LemmaInfos.LemmaPos>();
+				ArrayList<LemmaInfos.LemmaInfo> sentenceLemmaInfos = new ArrayList<LemmaInfos.LemmaInfo>();
 
 				StringBuilder namedEntityBuilder = new StringBuilder();
 				int firstNamedEntityToken = -1;
@@ -662,28 +526,22 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 						}
 					}
 					String text = token.getCoveredText();
-					String lemma = token.getLemma().getValue();
-					String pos = token.getPos().getPosValue();
-					LemmaPos lemmapos = new LemmaPos(token);
+					LemmaInfos.LemmaPos lemmapos = lemmaInfos.createLemmaPos(token);
+					LemmaInfos.LemmaInfo lemmaInfo = lemmaInfos.get(lemmapos);
 
 					// collect morphological features
-					//addToMappedSet(lemmaMorphologicalFeatures, lemmapos, token.getMorphologicalFeatures());
 					List<MorphologicalFeatures> morphFeatures = JCasUtil.selectCovered(MorphologicalFeatures.class, token);
 					if (morphFeatures != null && morphFeatures.size() > 0) {
-						addToMappedSet(lemmaMorphologicalFeatures, lemmapos, new ComparableMorphologicalFeatures(jCas, morphFeatures.get(0)));
+						lemmaInfo.addMorphologicalFeatures(jCas, morphFeatures.get(0));
 					}
 					
 					// count lemma frequency
-					if(lemmaFrequencies.get(lemmapos) == null) {
-						lemmaFrequencies.put(lemmapos, new LemmaFrequency());
-					} else {
-						lemmaFrequencies.get(lemmapos).frequency++;
-					}
-					lemmaFrequencies.get(lemmapos).texts.add(pageTitle);
+					lemmaInfo.frequency++;
+					lemmaInfo.containingDocuments.add(pageTitle);
 					
 					tokenBuilder.append("{{#word: ").append(text)
-						.append(" |lemma:").append(lemma)
-						.append(",pos:").append(pos);
+						.append(" |lemma:").append(lemmapos.lemma)
+						.append(",pos:").append(lemmapos.pos);
 					try{
 						tokenBuilder.append(",morph:"+token.getMorph().getValue());
 					}catch (NullPointerException e) {}
@@ -707,6 +565,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 					String tokenString = tokenBuilder.toString();
 					sentenceLemmas.add(lemmapos);
+					sentenceLemmaInfos.add(lemmaInfo);
 					sentenceTokens.add(tokenString);
 					// append the token to the complete text
 					sentenceBuilder.append(tokenString);
@@ -720,7 +579,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					for (int j = i + 1; j < sentenceLemmas.size(); j++) {
 						rightContext.append(sentenceTokens.get(j));
 					}
-					addToMappedList(lemmaFolders, sentenceLemmas.get(i), new LemmaInText(pageTitle, sentenceN, leftContext.toString(), sentenceTokens.get(i), rightContext.toString()));
+					lemmaInfos.get(sentenceLemmas.get(i)).addOccurance(pageTitle, sentenceN, leftContext.toString(), sentenceTokens.get(i), rightContext.toString());
 					leftContext.append(sentenceTokens.get(i));
 				}
 				
@@ -740,7 +599,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				sentenceBuilder.append("}} ");
 				String sentenceString = sentenceBuilder.toString();
 				if (sentenceCategory != null) {
-					addToMappedList(ddcSentences, sentenceCategory, new OccuranceInText(pageTitle, paragraphN, sentenceN, sentenceString));
+					ddcInfos.get(sentenceCategory).addToSentences(pageTitle, paragraphN, sentenceN, sentenceString);
 				}
 				paragraphBuilder.append(sentenceString);
 				sentenceN++;
@@ -750,7 +609,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append("{{#paragraph: ").append(paragraphN).append(" | END }} ");
 			String paragraphString = paragraphBuilder.toString();
 			if (paragraphCategory != null) {
-				addToMappedList(ddcParagraphs, paragraphCategory, new OccuranceInText(pageTitle, paragraphN, -1, paragraphString));
+				ddcInfos.get(paragraphCategory).addToParagraphs(pageTitle, paragraphN, paragraphString);
 			}
 			pageBuilder.append(paragraphString).append("\n\n");
 			paragraphN++;
