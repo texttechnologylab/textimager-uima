@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.Comparable;
 import java.lang.Math;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -17,6 +18,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -43,6 +45,34 @@ import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
 import org.hucompute.services.type.CategoryCoveredTagged;
 
 public class MediawikiWriter extends JCasConsumer_ImplBase{
+
+	/** Wrapper for MorphologicalFeatures to store them in a set. */
+	private class ComparableMorphologicalFeatures extends MorphologicalFeatures implements Comparable {
+		public ComparableMorphologicalFeatures(JCas jCas, MorphologicalFeatures f) {
+			super(jCas, f.getStart(), f.getEnd());
+			setVerbForm(f.getVerbForm());
+			setMood(f.getMood());
+			setCase(f.getCase());
+			setGender(f.getGender());
+			setNumber(f.getNumber());
+			setPerson(f.getPerson());
+			setTense(f.getTense());
+		}
+		public int compareTo(Object obj) {
+			return equals(obj) ? 0 : -1;
+		}
+		public boolean equals(Object obj) {
+			if (!(obj instanceof MorphologicalFeatures)) return false;
+			MorphologicalFeatures f = (MorphologicalFeatures) obj;
+			return ((f.getVerbForm() == null && getVerbForm() == null) || f.getVerbForm().equals(getVerbForm())) &&
+				((f.getMood() == null && getMood() == null) || f.getMood().equals(getMood())) &&
+				f.getCase().equals(getCase()) &&
+				f.getGender().equals(getGender()) &&
+				f.getNumber().equals(getNumber()) &&
+				f.getPerson().equals(getPerson()) &&
+				f.getTense().equals(getTense());
+		}
+	}
 
 	private class LemmaInText {
 		public String text;
@@ -140,7 +170,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	// Count Frequencies and Text Frequencies of Lemmas
 	private HashMap<LemmaPos, LemmaFrequency> lemmaFrequencies;
 	// Collect morphological features for every lemma
-	private HashMap<LemmaPos, Set<MorphologicalFeatures>> lemmaMorphologicalFeatures;
+	private HashMap<LemmaPos, Set<ComparableMorphologicalFeatures>> lemmaMorphologicalFeatures;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
 	
@@ -216,7 +246,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		lemmaFolders = new HashMap<LemmaPos, ArrayList<LemmaInText>>();
 		lemmaFrequencies = new HashMap<LemmaPos, LemmaFrequency>();
 		validWikipediaLemmas = new HashMap<LemmaPos, Boolean>();
-		lemmaMorphologicalFeatures = new HashMap<LemmaPos, Set<MorphologicalFeatures>>();
+		lemmaMorphologicalFeatures = new HashMap<LemmaPos, Set<ComparableMorphologicalFeatures>>();
 		
 		pageIdGlobal = startPageId;
 		
@@ -382,9 +412,9 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				frequency = new LemmaFrequency();
 				frequency.frequency = 0;
 			}
-			Set<MorphologicalFeatures> morph = lemmaMorphologicalFeatures.get(lemma);
+			Set<ComparableMorphologicalFeatures> morph = lemmaMorphologicalFeatures.get(lemma);
 			if (morph == null) {
-				morph = new TreeSet<MorphologicalFeatures>();
+				morph = new TreeSet<ComparableMorphologicalFeatures>();
 			}
 
 			StringBuilder text = new StringBuilder();
@@ -619,6 +649,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 					// collect morphological features
 					//addToMappedSet(lemmaMorphologicalFeatures, lemmapos, token.getMorphologicalFeatures());
+					List<MorphologicalFeatures> morphFeatures = JCasUtil.selectCovered(MorphologicalFeatures.class, token);
+					if (morphFeatures != null && morphFeatures.size() > 0) {
+						addToMappedSet(lemmaMorphologicalFeatures, lemmapos, new ComparableMorphologicalFeatures(jCas, morphFeatures.get(0)));
+					}
 					
 					// count lemma frequency
 					if(lemmaFrequencies.get(lemmapos) == null) {
