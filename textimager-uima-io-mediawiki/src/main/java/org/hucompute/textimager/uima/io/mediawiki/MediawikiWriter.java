@@ -15,6 +15,7 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,6 +46,23 @@ import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
 import org.hucompute.services.type.CategoryCoveredTagged;
 
 public class MediawikiWriter extends JCasConsumer_ImplBase{
+
+	/** Rank CategoryCoveredTagged by their plausibility. */
+	private class CategoryCoveredTaggedPlausibilityComparator implements Comparator<CategoryCoveredTagged> {
+		/** This will order objects from high to low. */
+		public int compare(CategoryCoveredTagged o1, CategoryCoveredTagged o2) {
+			if (o1 != null && o2 != null) {
+				return (int)((o2.getScore() * 100) - (o1.getScore() * 100));
+			} else if (o1 == null) {
+				return -1;
+			} else {
+				return +1;
+			}
+		}
+		public boolean equals(Object obj) {
+			return obj == this;
+		}
+	}
 
 	/** Wrapper for MorphologicalFeatures to store them in a set. */
 	private class ComparableMorphologicalFeatures extends MorphologicalFeatures implements Comparable {
@@ -572,25 +590,23 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		//Generative information about the document
 		//TODO get DDCs and add text to ddcTexts
 		
-		TreeSet<String> ddcs = new TreeSet<String>();
-		for (CategoryCoveredTagged cat : JCasUtil.selectCovered(CategoryCoveredTagged.class, meta)) { // FIXME this creates no hits
-			System.out.println("=> Got category from meta: " + cat.getValue()); // FIXME
-			ddcs.add(cat.getValue().replaceAll("__label_ddc__", ""));
-		}
-		for (Document doc : JCasUtil.select(jCas, Document.class)) { // FIXME this creates too many hits
-			System.out.println("=> Document: " + doc.getStart() + ":" + doc.getEnd());
-			for (CategoryCoveredTagged cat : JCasUtil.selectCovered(CategoryCoveredTagged.class, doc)) {
-				System.out.println("=> Got category from doc: " + cat.getValue()); // FIXME
-				ddcs.add(cat.getValue().replaceAll("__label_ddc__", ""));
+		// Get all categories for the document (sorted by their plausibility)
+		TreeSet<CategoryCoveredTagged> ddcs = new TreeSet<CategoryCoveredTagged>(new CategoryCoveredTaggedPlausibilityComparator());
+		for (CategoryCoveredTagged cct : JCasUtil.select(jCas, CategoryCoveredTagged.class)) {
+			if (cct.getStart() == 0 && cct.getEnd() == jCas.getDocumentText().length()) {
+				ddcs.add(cct);
 			}
 		}
-//		pageBuilder.append("\n\n");
-//		pageBuilder.append("{{#textinfo: ").append(" }}");
-//		pageBuilder.append("\n\n");
+		// Because CategoryCoveredTagged sometimes get added multiple times we check if we already listed them
+		TreeSet<String> usedDDCs = new TreeSet<String>();
 		pageBuilder.append("{{#textinfo: DDC");
-		for (String cat : ddcs) {
-			pageBuilder.append(":DDC").append(cat).append(" ").append(MediawikiDDCHelper.getDDCClassName(cat).replace(";", ",").replace(":", " -")).append(";");
-			addToMappedList(ddcTexts, cat, pageTitle);
+		for (CategoryCoveredTagged cct : ddcs) {
+			String ddc = cct.getValue().replaceAll("__label_ddc__", "");
+			if (!usedDDCs.contains(ddc)) {
+				pageBuilder.append(":DDC").append(ddc).append(" ").append(MediawikiDDCHelper.getDDCClassName(ddc).replace(";", ",").replace(":", " -")).append(";");
+				addToMappedList(ddcTexts, ddc, pageTitle);
+				usedDDCs.add(ddc);
+			}
 		}
 		pageBuilder.append(" }}\n\n");
 		
