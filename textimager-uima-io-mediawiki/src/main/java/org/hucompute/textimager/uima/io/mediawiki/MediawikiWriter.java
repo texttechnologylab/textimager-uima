@@ -74,6 +74,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		}
 	}
 
+	/** Occurance of a lemma in a sentence. */
 	private class LemmaInText {
 		public String text;
 		public String leftContext;
@@ -89,6 +90,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		}
 	}
 	
+	/** The frequency of a lemma. */
 	private class LemmaFrequency {
 		public int frequency = 1;
 		public TreeSet<String> texts = new TreeSet<String>();
@@ -97,6 +99,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		}
 	}
 
+	/** A combination of lemma and POS. */
 	private class LemmaPos {
 		public String lemma;
 		public String pos;
@@ -408,7 +411,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			ArrayList<LemmaInText> textOccurances = entry.getValue();
 			LemmaFrequency frequency = lemmaFrequencies.get(entry.getKey());
 			if (frequency == null) {
-				System.out.println("BUG  | MediaWikiWriter got a lemma but no frequency for it: " + lemma);
+				System.out.println(" BUG  | MediaWikiWriter got a lemma but no frequency for it: " + lemma);
 				frequency = new LemmaFrequency();
 				frequency.frequency = 0;
 			}
@@ -628,13 +631,13 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				int tokenN = 0;
 				boolean inLink = false, closeLink = false;
 				for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
-					System.out.println("Token: " + token.getCoveredText() + " (" + token.getStart() + "-" + token.getEnd());
+//					System.out.println("Token: " + token.getCoveredText() + " (" + token.getStart() + "-" + token.getEnd() + ")");
 					StringBuilder tokenBuilder = new StringBuilder();
 					if (wikipediaLinks.size() > 0) {
 						if (!inLink && wikipediaLinks.get(0).getStart() == token.getStart()) {
 							tokenBuilder.append("[").append("https://").append(lang).append(".wikipedia.org/wiki/").append(wikipediaLinks.get(0).getTarget());
 							inLink = true;
-							System.out.println("WikiLink: " + wikipediaLinks.get(0).getCoveredText() + " (" + wikipediaLinks.get(0).getStart() + "-" + wikipediaLinks.get(0).getEnd());
+//							System.out.println("WikiLink: " + wikipediaLinks.get(0).getCoveredText() + " (" + wikipediaLinks.get(0).getStart() + "-" + wikipediaLinks.get(0).getEnd() + ")");
 							if (token.getEnd() >= wikipediaLinks.get(0).getEnd()) {
 								closeLink = true;
 							}
