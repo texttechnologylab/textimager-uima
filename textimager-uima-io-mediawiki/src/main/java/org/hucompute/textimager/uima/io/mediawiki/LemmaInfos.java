@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+//import java.lang.InvalidArgumentException;
 
 import org.apache.uima.jcas.JCas;
 
@@ -38,13 +39,13 @@ public class LemmaInfos {
 		public boolean equals(Object obj) {
 			if (!(obj instanceof MorphologicalFeatures)) return false;
 			MorphologicalFeatures f = (MorphologicalFeatures) obj;
-			return ((f.getVerbForm() == null && getVerbForm() == null) || f.getVerbForm().equals(getVerbForm())) &&
-				((f.getMood() == null && getMood() == null) || f.getMood().equals(getMood())) &&
-				f.getCase().equals(getCase()) &&
-				f.getGender().equals(getGender()) &&
-				f.getNumber().equals(getNumber()) &&
-				f.getPerson().equals(getPerson()) &&
-				f.getTense().equals(getTense());
+			return (f.getVerbForm() == null ? getVerbForm() == null : f.getVerbForm().equals(getVerbForm())) &&
+				(f.getMood() == null ? getMood() == null : f.getMood().equals(getMood())) &&
+				(f.getCase() == null ? getCase() == null : f.getCase().equals(getCase())) &&
+				(f.getGender() == null ? getGender() == null : f.getGender().equals(getGender())) &&
+				(f.getNumber() == null ? getNumber() == null : f.getNumber().equals(getNumber())) &&
+				(f.getPerson() == null ? getPerson() == null : f.getPerson().equals(getPerson())) &&
+				(f.getPerson() == null ? getPerson() == null : f.getTense().equals(getTense()));
 		}
 	}
 
@@ -122,6 +123,10 @@ public class LemmaInfos {
 			return obj instanceof LemmaPos && toString().equals(((LemmaPos) obj).toString());
 		}
 
+		public int hashCode() {
+			return toString().hashCode();
+		}
+
 		public String toString() {
 			return lemma + "_" + pos;
 		}
@@ -136,6 +141,9 @@ public class LemmaInfos {
 	}
 	
 	public LemmaInfo get(LemmaPos lemmapos) {
+		if (lemmapos == null) {
+			throw new IllegalArgumentException("lemmapos can not be null");
+		}
 		LemmaInfo info = map.get(lemmapos);
 		if (info == null) {
 			info = new LemmaInfo();
