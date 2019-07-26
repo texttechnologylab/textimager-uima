@@ -488,6 +488,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		// Get all wikipedia links from TagMeLocalAnnotator
 		ArrayList<WikipediaLink> wikipediaLinks = new ArrayList<WikipediaLink>();
 		wikipediaLinks.addAll(JCasUtil.select(jCas, WikipediaLink.class));
+		int startingWikipediaLinksSize = wikipediaLinks.size();
+		System.out.println("Got " + wikipediaLinks.size() + " Wikipedia links from TagMe for text " + pageTitle);
 		//Generative information about the document
 		//TODO get DDCs and add text to ddcTexts
 		
@@ -547,10 +549,9 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 //					System.out.println("Token: " + token.getCoveredText() + " (" + token.getStart() + "-" + token.getEnd() + ")");
 					StringBuilder tokenBuilder = new StringBuilder();
 					if (wikipediaLinks.size() > 0) {
-						if (!inLink && wikipediaLinks.get(0).getStart() == token.getStart()) {
+						if (!inLink && wikipediaLinks.get(0).getStart() <= token.getStart()) {
 							tokenBuilder.append("[").append("https://").append(lang).append(".wikipedia.org/wiki/").append(wikipediaLinks.get(0).getTarget());
 							inLink = true;
-//							System.out.println("WikiLink: " + wikipediaLinks.get(0).getCoveredText() + " (" + wikipediaLinks.get(0).getStart() + "-" + wikipediaLinks.get(0).getEnd() + ")");
 							if (token.getEnd() >= wikipediaLinks.get(0).getEnd()) {
 								closeLink = true;
 							}
@@ -647,6 +648,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			pageBuilder.append(paragraphString).append("\n\n");
 			paragraphN++;
 		}
+
+		System.out.println("Used " + (startingWikipediaLinksSize - wikipediaLinks.size()) + " Wikipedia links");
 		
 		for (String category : categories) {
 			pageBuilder.append(category).append("\n");
