@@ -11,6 +11,7 @@ import java.lang.Math;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -86,6 +87,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private DDCInfos ddcInfos;
 	// Collect features for every lemma
 	private LemmaInfos lemmaInfos;
+	private Word2VecHelper word2VecHelper;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
 	
@@ -156,6 +158,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		folderPages = new HashMap<String, HashSet<String>>();
 		ddcInfos = new DDCInfos();
 		lemmaInfos = new LemmaInfos();
+		word2VecHelper = new Word2VecHelper("word2vec/de.bin"); // get right language
 		
 		pageIdGlobal = startPageId;
 		
@@ -361,7 +364,21 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					.append("|align=\"center\"|").append(occurance.keyword).append("\n")
 					.append("|align=\"left\"|").append(occurance.rightContext).append("\n");
 			}
-			text.append("|}\n");
+			text.append("|}\n")
+				.append("== Paradigmatic Similarity (Word2Vec) ==\n")
+				.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
+				.append("== Feature Vectors ==\n")
+				.append("<div class=\"mw-collapsible mv-collapsed\" style=\"width:100%;overflow:auto;\">\n")
+				.append("<div style=\"font-weight:bold;line-height:1.6;\">Paradigmatic Similarity (Word2Vec)</div>\n")
+				.append("<div class=\"mw-collapsible-content mv-collapsed\" style=\"display:none;\">[ ");
+			DecimalFormat decimalFormat = new DecimalFormat("0.00");
+			double[] vector = word2VecHelper.getWordVector(lemmapos.lemma);
+			if (vector != null && vector.length > 0) {
+				for (double d : word2VecHelper.getWordVector(lemmapos.lemma)) {
+					text.append(decimalFormat.format(d)).append(", ");
+				}
+			}
+			text.append("]</div></div>\n");
 			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
 			writePage("Lemma:" + entry.getKey(), "Generated Lemma page", text.toString(), nsLemma);
 		}
