@@ -158,7 +158,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		folderPages = new HashMap<String, HashSet<String>>();
 		ddcInfos = new DDCInfos();
 		lemmaInfos = new LemmaInfos();
-		word2VecHelper = new Word2VecHelper("word2vec/de.bin"); // get right language
+		word2VecHelper = new Word2VecHelper("word2vec/de.bin"); // TODO get right language
 		
 		pageIdGlobal = startPageId;
 		
@@ -305,7 +305,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 	/** Write a page for every lemma. */
 	private void writeLemmaPages() {
-		System.out.println("INFO | MediaWikiWriter write lemma pages for " + documentCount + " documents");
+		System.out.println(" INFO | MediaWikiWriter write lemma pages for " + documentCount + " documents");
 		for (HashMap.Entry<LemmaInfos.LemmaPos, LemmaInfos.LemmaInfo> entry : lemmaInfos.entrySet()) {
 			LemmaInfos.LemmaPos lemmapos = entry.getKey();
 			LemmaInfos.LemmaInfo info = entry.getValue();
@@ -419,10 +419,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	// Title of page, comment for this page, the body text of page  
 	private void writePage(String pageTitle, String comment, String textBufferString, String pageNs) {
 		if (pageTitle == null || pageTitle.equals("")) {
-			System.out.println("BUG  | MediaWikiWriter tries to create a page with no title:");
-			System.out.println("     | Namespace: " + pageNs);
-			System.out.println("     | Comment:   " + comment);
-			System.out.println("     | Text:      " + textBufferString != null ? textBufferString.substring(0, 20) : null);
+			System.out.println(" BUG  | MediaWikiWriter tries to create a page with no title:");
+			System.out.println("      | Namespace: " + pageNs);
+			System.out.println("      | Comment:   " + comment);
+			System.out.println("      | Text:      " + textBufferString != null ? textBufferString.substring(0, 20).replace("\n", " ") : null);
 		}
 		
 		//Define ID for the pages 
@@ -506,7 +506,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		ArrayList<WikipediaLink> wikipediaLinks = new ArrayList<WikipediaLink>();
 		wikipediaLinks.addAll(JCasUtil.select(jCas, WikipediaLink.class));
 		int startingWikipediaLinksSize = wikipediaLinks.size();
-		System.out.println("Got " + wikipediaLinks.size() + " Wikipedia links from TagMe for text " + pageTitle);
+		System.out.println(" INFO | MediawikiWriter got " + wikipediaLinks.size() + " Wikipedia links from TagMeAnnotator for text " + pageTitle);
 		//Generative information about the document
 		//TODO get DDCs and add text to ddcTexts
 		
@@ -563,7 +563,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				int tokenN = 0;
 				boolean inLink = false, closeLink = false;
 				for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
-//					System.out.println("Token: " + token.getCoveredText() + " (" + token.getStart() + "-" + token.getEnd() + ")");
 					StringBuilder tokenBuilder = new StringBuilder();
 					if (wikipediaLinks.size() > 0) {
 						if (!inLink && wikipediaLinks.get(0).getStart() <= token.getStart()) {
@@ -682,8 +681,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			paragraphN++;
 		}
 
-		System.out.println("Used " + (startingWikipediaLinksSize - wikipediaLinks.size()) + " Wikipedia links");
-		
 		for (String category : categories) {
 			pageBuilder.append(category).append("\n");
 		}
