@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-//import java.lang.InvalidArgumentException;
 
 import org.apache.uima.jcas.JCas;
 
@@ -19,52 +18,28 @@ public class LemmaInfos {
 
 	private HashMap<LemmaPos, LemmaInfo> map = new HashMap<LemmaPos, LemmaInfo>();
 
-	/** Wrapper for MorphologicalFeatures to store them in a set. */
-	public class ComparableMorphologicalFeatures extends MorphologicalFeatures implements Comparable {
-		public ComparableMorphologicalFeatures(JCas jCas, MorphologicalFeatures f) {
-			super(jCas, f.getStart(), f.getEnd());
-			setVerbForm(f.getVerbForm());
-			setMood(f.getMood());
-			setCase(f.getCase());
-			setGender(f.getGender());
-			setNumber(f.getNumber());
-			setPerson(f.getPerson());
-			setTense(f.getTense());
-		}
-
-		public int compareTo(Object obj) {
-			return equals(obj) ? 0 : -1;
-		}
-
-		public boolean equals(Object obj) {
-			if (!(obj instanceof MorphologicalFeatures)) return false;
-			MorphologicalFeatures f = (MorphologicalFeatures) obj;
-			return (f.getVerbForm() == null ? getVerbForm() == null : f.getVerbForm().equals(getVerbForm())) &&
-				(f.getMood() == null ? getMood() == null : f.getMood().equals(getMood())) &&
-				(f.getCase() == null ? getCase() == null : f.getCase().equals(getCase())) &&
-				(f.getGender() == null ? getGender() == null : f.getGender().equals(getGender())) &&
-				(f.getNumber() == null ? getNumber() == null : f.getNumber().equals(getNumber())) &&
-				(f.getPerson() == null ? getPerson() == null : f.getPerson().equals(getPerson())) &&
-				(f.getPerson() == null ? getPerson() == null : f.getTense().equals(getTense()));
-		}
-	}
-
 	/** Different features of a lemma. */
 	public class LemmaInfo {
 		public TreeSet<String> containingDocuments;
 		public int frequency;
-		public Set<ComparableMorphologicalFeatures> morphologicalFeatures;
+		public Set<EnhancedMorphologicalFeatures> morphologicalFeatures;
 		public List<LemmaInText> occurances;
 
 		public LemmaInfo() {
 			containingDocuments = new TreeSet<String>();
 			frequency = 0;
-			morphologicalFeatures = new TreeSet<ComparableMorphologicalFeatures>();
+			morphologicalFeatures = new TreeSet<EnhancedMorphologicalFeatures>();
 			occurances = new ArrayList<LemmaInText>();
 		}
 
-		public void addMorphologicalFeatures(JCas jCas, MorphologicalFeatures features) {
-			morphologicalFeatures.add(new ComparableMorphologicalFeatures(jCas, features));
+		public EnhancedMorphologicalFeatures addMorphologicalFeatures(String token, MorphologicalFeatures features) {
+			EnhancedMorphologicalFeatures morph = new EnhancedMorphologicalFeatures(token, features);
+			morphologicalFeatures.add(morph);
+			int i = 1;
+			for (EnhancedMorphologicalFeatures feat : morphologicalFeatures) {
+				System.out.println(token + " " + (i++) + ": " + feat); // FIXME delete
+			}
+			return morph;
 		}
 
 		public void addOccurance(String pageTitle, int sentence, String leftContext, String keyword, String rightContext) {
