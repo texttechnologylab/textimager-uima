@@ -331,7 +331,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append(isVerb ? "!bgcolor=#F2F2F2 align=\"left\"|person\n" : "")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|pos\n")
 				.append(isVerb ? "!bgcolor=#F2F2F2 align=\"left\"|tense\n" : "");
-			for (MorphologicalFeatures features : info.morphologicalFeatures) {
+			for (EnhancedMorphologicalFeatures features : info.morphologicalFeatures) {
 				text.append("|-\n")
 					.append("|align=\"left\"|").append(features.getVerbForm()).append("\n")
 					.append("|align=\"left\"|").append(isVerb ? features.getMood() : features.getCase()).append("\n");
@@ -580,12 +580,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					LemmaInfos.LemmaPos lemmapos = lemmaInfos.createLemmaPos(token);
 					LemmaInfos.LemmaInfo lemmaInfo = lemmaInfos.get(lemmapos);
 
-					// collect morphological features
-					List<MorphologicalFeatures> morphFeatures = JCasUtil.selectCovered(MorphologicalFeatures.class, token);
-					if (morphFeatures != null && morphFeatures.size() > 0) {
-						lemmaInfo.addMorphologicalFeatures(jCas, morphFeatures.get(0));
-					}
-					
 					// count lemma frequency
 					lemmaInfo.frequency++;
 					lemmaInfo.containingDocuments.add(pageTitle);
@@ -593,9 +587,31 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					tokenBuilder.append("{{#word: ").append(text)
 						.append(" |lemma:").append(lemmapos.lemma)
 						.append(",pos:").append(lemmapos.pos);
-					try{
-						tokenBuilder.append(",morph:"+token.getMorph().getValue());
-					}catch (NullPointerException e) {}
+
+					// collect morphological features
+					try {
+						// try to get features from token.getMorph()
+						EnhancedMorphologicalFeatures morph = lemmaInfo.addMorphologicalFeatures(text, token.getMorph());
+						tokenBuilder.append(",morph:" + morph.getValue());
+						System.out.println(text + ":" + lemmapos +"-1: " + morph); // FIXME delete
+					} catch (Exception e) {
+						// try to get features from covered
+						List<MorphologicalFeatures> morphFeatures = JCasUtil.selectCovered(MorphologicalFeatures.class, token);
+						boolean gotMorphologicalFeatures = false;
+						if (morphFeatures != null && morphFeatures.size() > 0) {
+							for (MorphologicalFeatures morph : morphFeatures) {
+								try {
+									EnhancedMorphologicalFeatures m = lemmaInfo.addMorphologicalFeatures(text, morph);
+									System.out.println(text + ":" + lemmapos +"-2: " + m); // FIXME delete
+									gotMorphologicalFeatures = true;
+									break;
+								} catch (IllegalArgumentException iae) {}
+							}
+						}
+						if (!gotMorphologicalFeatures) {
+							System.out.println(" WARN | MediawikiWriter could not get morphological features for " + text + " (Lemma_POS: " + lemmapos + ")");
+						}
+					}
 						
 						// {{#tip-text:  findest |lemma:finden }}
 						//textBuffer.append("{{#tip-text: ").append(token.getCoveredText())
