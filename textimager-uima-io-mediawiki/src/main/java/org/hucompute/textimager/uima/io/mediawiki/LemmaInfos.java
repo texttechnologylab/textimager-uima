@@ -35,10 +35,10 @@ public class LemmaInfos {
 		public EnhancedMorphologicalFeatures addMorphologicalFeatures(String token, MorphologicalFeatures features) {
 			EnhancedMorphologicalFeatures morph = new EnhancedMorphologicalFeatures(token, features);
 			morphologicalFeatures.add(morph);
-			int i = 1;
-			for (EnhancedMorphologicalFeatures feat : morphologicalFeatures) {
-				System.out.println(token + " " + (i++) + ": " + feat); // FIXME delete
-			}
+//			int i = 1;
+//			for (EnhancedMorphologicalFeatures feat : morphologicalFeatures) {
+//				System.out.println(token + " " + (i++) + ": " + feat); // FIXME delete
+//			}
 			return morph;
 		}
 

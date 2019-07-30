@@ -88,6 +88,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	// Collect features for every lemma
 	private LemmaInfos lemmaInfos;
 	private Word2VecHelper word2VecHelper;
+	private Set<LemmaInfos.LemmaPos> failedLemmaPosMorphologicalFeatures;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
 	
@@ -158,6 +159,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		folderPages = new HashMap<String, HashSet<String>>();
 		ddcInfos = new DDCInfos();
 		lemmaInfos = new LemmaInfos();
+		failedLemmaPosMorphologicalFeatures = new HashSet<LemmaInfos.LemmaPos>();
 		word2VecHelper = new Word2VecHelper("word2vec/de.bin"); // TODO get right language
 		
 		pageIdGlobal = startPageId;
@@ -592,7 +594,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 						// try to get features from token.getMorph()
 						EnhancedMorphologicalFeatures morph = lemmaInfo.addMorphologicalFeatures(text, token.getMorph());
 						tokenBuilder.append(",morph:" + morph.getValue());
-						System.out.println(text + ":" + lemmapos +"-1: " + morph); // FIXME delete
+//						System.out.println(text + ":" + lemmapos +"-1: " + morph); // FIXME delete
 					} catch (Exception e) {
 						// try to get features from covered
 						List<MorphologicalFeatures> morphFeatures = JCasUtil.selectCovered(MorphologicalFeatures.class, token);
@@ -601,13 +603,14 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 							for (MorphologicalFeatures morph : morphFeatures) {
 								try {
 									EnhancedMorphologicalFeatures m = lemmaInfo.addMorphologicalFeatures(text, morph);
-									System.out.println(text + ":" + lemmapos +"-2: " + m); // FIXME delete
+//									System.out.println(text + ":" + lemmapos +"-2: " + m); // FIXME delete
 									gotMorphologicalFeatures = true;
 									break;
 								} catch (IllegalArgumentException iae) {}
 							}
 						}
-						if (!gotMorphologicalFeatures) {
+						if (!gotMorphologicalFeatures && !failedLemmaPosMorphologicalFeatures.contains(lemmapos)) {
+							failedLemmaPosMorphologicalFeatures.add(lemmapos);
 							System.out.println(" WARN | MediawikiWriter could not get morphological features for " + text + " (Lemma_POS: " + lemmapos + ")");
 						}
 					}
