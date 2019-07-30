@@ -15,6 +15,7 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
@@ -381,6 +382,20 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				}
 			}
 			text.append("]</div></div>\n");
+			
+			// Add Word Embeddings ListView as Collapsible
+			text.append("== Word Embeddings ==\n)")
+				.append("<div class=\"mw-collapsible mv-collapsed\" style=\"width:100%;overflow:auto;\">\n")
+				.append("<div style=\"font-weight:bold;line-height:1.6;\">Paradigmatic Similarity (Word2Vec)</div>\n")
+				.append("<div class=\"mw-collapsible-content mv-collapsed\" style=\"display:none;\">[ ");
+			Collection<String> wordEmbeddings = word2VecHelper.getWordsNearest(lemmapos.lemma, 10);
+			if (!wordEmbeddings.isEmpty()) {
+				for (String word: wordEmbeddings) {
+					text.append(word).append(", ");
+				}
+			}
+			text.append("]</div></div>\n");
+			
 			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
 			writePage("Lemma:" + entry.getKey(), "Generated Lemma page", text.toString(), nsLemma);
 		}
