@@ -76,8 +76,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	@ConfigurationParameter(name = PARAM_START_PAGEID, mandatory = false, defaultValue = "0")
 	protected long startPageId;
 
-
-	
+	private static final int LEMMA_PAGES_NEAREST_WORDS_COUNT = 30;
 	private MessageDigest md;
 	private long pageIdGlobal = 0;
 	// Variable to add lines of the output file step by step
@@ -88,7 +87,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private DDCInfos ddcInfos;
 	// Collect features for every lemma
 	private LemmaInfos lemmaInfos;
-	private Word2VecHelper word2VecHelper;
+	private Word2VecHelper word2VecParadigmatic;
+	private Word2VecHelper word2VecSyntactic;
 	private Set<LemmaInfos.LemmaPos> failedLemmaPosMorphologicalFeatures;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
@@ -134,7 +134,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writeDDCPages();
 		writeLemmaPages();
 		writeLemmaTooltips();
-				
+
 		writer.println("</mediawiki>");
 
 		writer.flush();
@@ -161,7 +161,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		ddcInfos = new DDCInfos();
 		lemmaInfos = new LemmaInfos();
 		failedLemmaPosMorphologicalFeatures = new HashSet<LemmaInfos.LemmaPos>();
-		word2VecHelper = new Word2VecHelper("word2vec/de.bin"); // TODO get right language
+		word2VecParadigmatic = new Word2VecHelper("word2vec/de.bin"); // TODO get right language
+		word2VecSyntactic = new Word2VecHelper("word2vec/de.bin"); // TODO get right language
 		
 		pageIdGlobal = startPageId;
 		
@@ -315,6 +316,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			boolean isVerb = lemmapos.pos.equals("V");
 
 			StringBuilder text = new StringBuilder();
+			// General info
 			text.append("{{#lemmainfo: ")
 				.append("Name:").append(lemmapos.lemma).append(",")
 				.append("Part of Speech:").append(lemmapos.pos).append(",")
@@ -324,9 +326,12 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append("Text Frequency:").append(info.getDocumentFrequency()).append(",")
 				.append("Inverse Document Frequency:").append(info.getInverseDocumentFrequencyAsString(documentCount)).append(",")
 				.append("Wiktionary:WIKTIONARY en ").append(lemmapos.lemma) // TODO needs right language but does its job nonetheless
-				.append("}}\n\n")
-				.append("== Morphology ==\n")
+				.append("}}\n\n");
+
+			// Morphological features
+			text.append("== Morphology ==\n")
 				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing\"0\" cellpadding=\"5\" valign=\"top\"\n")
+				.append("!bgcolor=#F2F2F2 align=\"left\"|token\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|form\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|").append(isVerb ? "mood" : "case").append("\n")
 				.append(isVerb ? "" : "!bgcolor=#F2F2F2 align=\"left\"|gender\n")
@@ -336,6 +341,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append(isVerb ? "!bgcolor=#F2F2F2 align=\"left\"|tense\n" : "");
 			for (EnhancedMorphologicalFeatures features : info.morphologicalFeatures) {
 				text.append("|-\n")
+					.append("|align=\"left\"|").append(features.getToken()).append("\n")
 					.append("|align=\"left\"|").append(features.getVerbForm()).append("\n")
 					.append("|align=\"left\"|").append(isVerb ? features.getMood() : features.getCase()).append("\n");
 				if (!isVerb) {
@@ -350,8 +356,40 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					text.append("|align=\"left\"|").append(features.getTense()).append("\n");
 				}
 			}
-			text.append("|}\n")
-				.append("== Concordance ==\n")
+			text.append("|}\n");
+
+			// Paradigmatic similarity
+			text.append("== Paradigmatic Similarity (Word2Vec) ==\n")
+				.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
+				.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
+				.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
+				.append("<div class=\"mw-collapsible-content\">");
+			Collection<String> nearestWords = word2VecParadigmatic.getWordsNearest(lemmapos.lemma, LEMMA_PAGES_NEAREST_WORDS_COUNT); // TODO if the model is trained on Lemma+POS we use .toString()
+			if (nearestWords != null && !nearestWords.isEmpty()) {
+				for (String word : nearestWords) {
+					text.append(word).append(", "); // TODO if the model is trained on Lemma+POS we can create links
+				}
+				text.replace(text.length() - 2, text.length(), "");
+			}
+			text.append("</div></div>\n");
+			
+			// Syntactic similarity
+			text.append("== Syntactic Similarity (Word2Vec) ==\n")
+				.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
+				.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
+				.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
+				.append("<div class=\"mw-collapsible-content\">");
+			nearestWords = word2VecSyntactic.getWordsNearest(lemmapos.lemma, LEMMA_PAGES_NEAREST_WORDS_COUNT); // TODO if the model is trained on Lemma+POS we use .toString()
+			if (nearestWords != null && !nearestWords.isEmpty()) {
+				for (String word : nearestWords) {
+					text.append(word).append(", "); // TODO if the model is trained on Lemma+POS we can create links
+				}
+				text.replace(text.length() - 2, text.length(), "");
+			}
+			text.append("</div></div>\n");
+			
+			// Concordance
+			text.append("== Concordance ==\n")
 				.append(info.occurances.size()).append(" entries total<br/>\n")
 				.append("{| class=\"mw-collapsible\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" valign=\"top\"\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Document\n")
@@ -367,34 +405,33 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					.append("|align=\"center\"|").append(occurance.keyword).append("\n")
 					.append("|align=\"left\"|").append(occurance.rightContext).append("\n");
 			}
-			text.append("|}\n")
-				.append("== Paradigmatic Similarity (Word2Vec) ==\n")
-				.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
-				.append("== Feature Vectors ==\n")
+			text.append("|}\n");
+
+			// Feature vectors
+			DecimalFormat decimalFormat = new DecimalFormat("0.00");
+			text.append("== Feature Vectors ==\n")
 				.append("<div class=\"mw-collapsible mv-collapsed\" style=\"width:100%;overflow:auto;\">\n")
 				.append("<div style=\"font-weight:bold;line-height:1.6;\">Paradigmatic Similarity (Word2Vec)</div>\n")
 				.append("<div class=\"mw-collapsible-content mv-collapsed\" style=\"display:none;\">[ ");
-			DecimalFormat decimalFormat = new DecimalFormat("0.00");
-			double[] vector = word2VecHelper.getWordVector(lemmapos.lemma);
+			double[] vector = word2VecParadigmatic.getWordVector(lemmapos.lemma); // TODO if the model is trained on Lemma+POS we use .toString()
 			if (vector != null && vector.length > 0) {
-				for (double d : word2VecHelper.getWordVector(lemmapos.lemma)) {
+				for (double d : vector) {
 					text.append(decimalFormat.format(d)).append(", ");
 				}
+				text.replace(text.length() - 2, text.length(), "");
 			}
-			text.append("]</div></div>\n");
-			
-			// Add Word Embeddings ListView as Collapsible
-			text.append("== Word Embeddings ==\n)")
+			text.append(" ]</div></div>\n")
 				.append("<div class=\"mw-collapsible mv-collapsed\" style=\"width:100%;overflow:auto;\">\n")
-				.append("<div style=\"font-weight:bold;line-height:1.6;\">Paradigmatic Similarity (Word2Vec)</div>\n")
+				.append("<div style=\"font-weight:bold;line-height:1.6;\">Syntactic Similarity (Word2Vec)</div>\n")
 				.append("<div class=\"mw-collapsible-content mv-collapsed\" style=\"display:none;\">[ ");
-			Collection<String> wordEmbeddings = word2VecHelper.getWordsNearest(lemmapos.lemma, 10);
-			if (!wordEmbeddings.isEmpty()) {
-				for (String word: wordEmbeddings) {
-					text.append(word).append(", ");
+			vector = word2VecSyntactic.getWordVector(lemmapos.lemma); // TODO if the model is trained on Lemma+POS we use .toString()
+			if (vector != null && vector.length > 0) {
+				for (double d : vector) {
+					text.append(decimalFormat.format(d)).append(", ");
 				}
+				text.replace(text.length() - 2, text.length(), "");
 			}
-			text.append("]</div></div>\n");
+			text.append(" ]</div></div>\n");
 			
 			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
 			writePage("Lemma:" + entry.getKey(), "Generated Lemma page", text.toString(), nsLemma);
@@ -440,6 +477,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			System.out.println("      | Namespace: " + pageNs);
 			System.out.println("      | Comment:   " + comment);
 			System.out.println("      | Text:      " + textBufferString != null ? textBufferString.substring(0, 20).replace("\n", " ") : null);
+			return;
 		}
 		
 		//Define ID for the pages 
@@ -609,7 +647,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 						// try to get features from token.getMorph()
 						EnhancedMorphologicalFeatures morph = lemmaInfo.addMorphologicalFeatures(text, token.getMorph());
 						tokenBuilder.append(",morph:" + morph.getValue());
-//						System.out.println(text + ":" + lemmapos +"-1: " + morph); // FIXME delete
 					} catch (Exception e) {
 						// try to get features from covered
 						List<MorphologicalFeatures> morphFeatures = JCasUtil.selectCovered(MorphologicalFeatures.class, token);
@@ -618,7 +655,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 							for (MorphologicalFeatures morph : morphFeatures) {
 								try {
 									EnhancedMorphologicalFeatures m = lemmaInfo.addMorphologicalFeatures(text, morph);
-//									System.out.println(text + ":" + lemmapos +"-2: " + m); // FIXME delete
 									gotMorphologicalFeatures = true;
 									break;
 								} catch (IllegalArgumentException iae) {}
