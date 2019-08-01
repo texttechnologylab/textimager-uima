@@ -19,7 +19,7 @@ public class LemmaInfos {
 	private HashMap<LemmaPos, LemmaInfo> map = new HashMap<LemmaPos, LemmaInfo>();
 
 	/** Different features of a lemma. */
-	public class LemmaInfo {
+	public static class LemmaInfo {
 		public TreeSet<String> containingDocuments;
 		public int frequency;
 		public Set<EnhancedMorphologicalFeatures> morphologicalFeatures;
@@ -68,7 +68,7 @@ public class LemmaInfos {
 	}
 
 	/** Occurance of a lemma in a sentence. */
-	public class LemmaInText {
+	public static class LemmaInText {
 		public String text;
 		public String leftContext;
 		public String rightContext;
@@ -85,11 +85,23 @@ public class LemmaInfos {
 	}
 
 	/** A combination of lemma and POS. */
-	public class LemmaPos {
+	public static class LemmaPos {
 		public String lemma;
 		public String pos;
 
+		public LemmaPos(String lemmapos) {
+			if (lemmapos == null)
+				throw new IllegalArgumentException("lemmapos must not be null");
+			String split[] = lemmapos.split("_", 2);
+			if (split.length != 2)
+				throw new IllegalArgumentException("lemmapos needs format LEMMA_POS");
+			lemma = split[0];
+			pos = split[1];
+		}
+
 		public LemmaPos(Token token) {
+			if (token == null)
+				throw new IllegalArgumentException("token must not be null");
 			lemma = token.getLemma().getValue();
 			pos = token.getPos().getPosValue();
 		}
@@ -103,7 +115,11 @@ public class LemmaInfos {
 		}
 
 		public String toString() {
-			return lemma + "_" + pos;
+			return toString("_");
+		}
+
+		public String toString(String seperator) {
+			return lemma + seperator + pos;
 		}
 	}
 
