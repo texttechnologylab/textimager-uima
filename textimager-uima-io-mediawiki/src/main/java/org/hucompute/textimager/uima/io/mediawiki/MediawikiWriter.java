@@ -130,7 +130,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		// Special pages
 		writePage("Corpus", "Corpus overview", corpusTextBuilder.toString(), nsPage);
 		writeDDCPages();
-		writeLemmaPages();
+		writeLemmaPages("de"); // TODO get right language
 		writeLemmaTooltips();
 
 		writer.println("</mediawiki>");
@@ -304,10 +304,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	}
 
 	/** Write a page for every lemma. */
-	private void writeLemmaPages() {
+	private void writeLemmaPages(String lang) {
 		System.out.println(" INFO | MediaWikiWriter write lemma pages for " + documentCount + " documents");
-		Word2VecHelper word2VecParadigmatic = new Word2VecHelper("word2vec/paradigmatic-de.vec"); // TODO get right language
-		Word2VecHelper word2VecSyntactic = new Word2VecHelper("word2vec/syntagmatic-de.vec"); // TODO get right language
+		Word2VecHelper word2VecParadigmatic = new Word2VecHelper("word2vec/paradigmatic-" + lang + ".vec");
+		Word2VecHelper word2VecSyntactic = new Word2VecHelper("word2vec/syntagmatic-" + lang + ".vec");
 		for (HashMap.Entry<LemmaInfos.LemmaPos, LemmaInfos.LemmaInfo> entry : lemmaInfos.entrySet()) {
 			LemmaInfos.LemmaPos lemmapos = entry.getKey();
 			LemmaInfos.LemmaInfo info = entry.getValue();
@@ -323,7 +323,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append("Frequency:").append(info.frequency).append(",")
 				.append("Text Frequency:").append(info.getDocumentFrequency()).append(",")
 				.append("Inverse Document Frequency:").append(info.getInverseDocumentFrequencyAsString(documentCount)).append(",")
-				.append("Wiktionary:WIKTIONARY en ").append(lemmapos.lemma) // TODO needs right language but does its job nonetheless
+				.append("Wiktionary:WIKTIONARY ").append(lang).append(" ").append(lemmapos.lemma)
 				.append("}}\n\n");
 
 			// Morphological features
@@ -357,34 +357,40 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			text.append("|}\n");
 
 			// Paradigmatic similarity
-			text.append("== Paradigmatic Similarity (Word2Vec) ==\n")
-				.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
-				.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
-				.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
-				.append("<div class=\"mw-collapsible-content\">");
-			Collection<String> nearestWords = word2VecParadigmatic.getWordsNearest(lemmapos.lemma, LEMMA_PAGES_NEAREST_WORDS_COUNT); // TODO if the model is trained on Lemma+POS we use .toString()
+			Collection<String> nearestWords = word2VecParadigmatic.getWordsNearest(lemmapos.toString(), LEMMA_PAGES_NEAREST_WORDS_COUNT);
+			text.append("== Paradigmatic Similarity (Word2Vec) ==\n");
 			if (nearestWords != null && !nearestWords.isEmpty()) {
+				text.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
+					.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
+					.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
+					.append("<div class=\"mw-collapsible-content\">");
 				for (String word : nearestWords) {
-					text.append(word).append(", "); // TODO if the model is trained on Lemma+POS we can create links
+					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(word);
+					text.append("[[Lemma:").append(wordLemmaPos).append("|").append(wordLemmaPos.toString(" ")).append("]], ");
 				}
 				text.replace(text.length() - 2, text.length(), "");
+				text.append("</div></div>\n");
+			} else {
+				text.append("''Nothing found''\n");
 			}
-			text.append("</div></div>\n");
 			
 			// Syntactic similarity
-			text.append("== Syntactic Similarity (Word2Vec) ==\n")
-				.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
-				.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
-				.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
-				.append("<div class=\"mw-collapsible-content\">");
-			nearestWords = word2VecSyntactic.getWordsNearest(lemmapos.lemma, LEMMA_PAGES_NEAREST_WORDS_COUNT); // TODO if the model is trained on Lemma+POS we use .toString()
+			nearestWords = word2VecSyntactic.getWordsNearest(lemmapos.toString(), LEMMA_PAGES_NEAREST_WORDS_COUNT);
+			text.append("== Syntactic Similarity (Word2Vec) ==\n");
 			if (nearestWords != null && !nearestWords.isEmpty()) {
+				text.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
+					.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
+					.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
+					.append("<div class=\"mw-collapsible-content\">");
 				for (String word : nearestWords) {
-					text.append(word).append(", "); // TODO if the model is trained on Lemma+POS we can create links
+					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(word);
+					text.append("[[Lemma:").append(wordLemmaPos).append("|").append(wordLemmaPos.toString(" ")).append("]], ");
 				}
 				text.replace(text.length() - 2, text.length(), "");
+				text.append("</div></div>\n");
+			} else {
+				text.append("''Nothing found''\n");
 			}
-			text.append("</div></div>\n");
 			
 			// Concordance
 			text.append("== Concordance ==\n")
@@ -411,7 +417,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append("<div class=\"mw-collapsible mv-collapsed\" style=\"width:100%;overflow:auto;\">\n")
 				.append("<div style=\"font-weight:bold;line-height:1.6;\">Paradigmatic Similarity (Word2Vec)</div>\n")
 				.append("<div class=\"mw-collapsible-content mv-collapsed\" style=\"display:none;\">[ ");
-			double[] vector = word2VecParadigmatic.getWordVector(lemmapos.lemma); // TODO if the model is trained on Lemma+POS we use .toString()
+			double[] vector = word2VecParadigmatic.getWordVector(lemmapos.toString());
 			if (vector != null && vector.length > 0) {
 				for (double d : vector) {
 					text.append(decimalFormat.format(d)).append(", ");
@@ -422,7 +428,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append("<div class=\"mw-collapsible mv-collapsed\" style=\"width:100%;overflow:auto;\">\n")
 				.append("<div style=\"font-weight:bold;line-height:1.6;\">Syntactic Similarity (Word2Vec)</div>\n")
 				.append("<div class=\"mw-collapsible-content mv-collapsed\" style=\"display:none;\">[ ");
-			vector = word2VecSyntactic.getWordVector(lemmapos.lemma); // TODO if the model is trained on Lemma+POS we use .toString()
+			vector = word2VecSyntactic.getWordVector(lemmapos.toString());
 			if (vector != null && vector.length > 0) {
 				for (double d : vector) {
 					text.append(decimalFormat.format(d)).append(", ");
