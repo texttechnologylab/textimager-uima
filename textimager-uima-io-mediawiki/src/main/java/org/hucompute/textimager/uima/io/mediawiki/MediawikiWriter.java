@@ -87,8 +87,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private DDCInfos ddcInfos;
 	// Collect features for every lemma
 	private LemmaInfos lemmaInfos;
-	private Word2VecHelper word2VecParadigmatic;
-	private Word2VecHelper word2VecSyntactic;
 	private Set<LemmaInfos.LemmaPos> failedLemmaPosMorphologicalFeatures;
 	
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
@@ -161,8 +159,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		ddcInfos = new DDCInfos();
 		lemmaInfos = new LemmaInfos();
 		failedLemmaPosMorphologicalFeatures = new HashSet<LemmaInfos.LemmaPos>();
-		word2VecParadigmatic = new Word2VecHelper("word2vec/de.bin"); // TODO get right language
-		word2VecSyntactic = new Word2VecHelper("word2vec/de.bin"); // TODO get right language
 		
 		pageIdGlobal = startPageId;
 		
@@ -310,6 +306,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	/** Write a page for every lemma. */
 	private void writeLemmaPages() {
 		System.out.println(" INFO | MediaWikiWriter write lemma pages for " + documentCount + " documents");
+		Word2VecHelper word2VecParadigmatic = new Word2VecHelper("word2vec/paradigmatic-de.vec"); // TODO get right language
+		Word2VecHelper word2VecSyntactic = new Word2VecHelper("word2vec/syntagmatic-de.vec"); // TODO get right language
 		for (HashMap.Entry<LemmaInfos.LemmaPos, LemmaInfos.LemmaInfo> entry : lemmaInfos.entrySet()) {
 			LemmaInfos.LemmaPos lemmapos = entry.getKey();
 			LemmaInfos.LemmaInfo info = entry.getValue();
