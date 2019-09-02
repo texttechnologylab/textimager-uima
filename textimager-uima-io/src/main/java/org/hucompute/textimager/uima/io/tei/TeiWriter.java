@@ -395,17 +395,20 @@ extends JCasFileWriter_ImplBase
 			if (t.getMorph() != null) {
 				attributes.add(xmlef.createAttribute("morph", t.getMorph().getValue()));
 			}
-			Dependency c = depIndexTokens.get(t);
-			if ("ROOT".equals(c.getDependencyType()) || "--".equals(c.getDependencyType())) {
-				attributes.add(xmlef.createAttribute("depType", "--"));
-			}
-			else
-				attributes.add(xmlef.createAttribute("depHead", Integer.toString(depIndex.get(c.getGovernor()))));
-			if (c.getDependencyType() != null) {
-				attributes.add(xmlef.createAttribute("depType", c.getDependencyType()));
-			}
-			attributes.add(xmlef.createAttribute("depIndex", Integer.toString(depIndex.get(c.getDependent()))));
 
+			Dependency c = depIndexTokens.get(t);
+			if(c != null){
+				if ("ROOT".equals(c.getDependencyType()) || "--".equals(c.getDependencyType())) {
+					attributes.add(xmlef.createAttribute("depType", "--"));
+				}
+				else{
+					attributes.add(xmlef.createAttribute("depHead", Integer.toString(depIndex.get(c.getGovernor()))));
+				}
+				if (c.getDependencyType() != null) {
+					attributes.add(xmlef.createAttribute("depType", c.getDependencyType()));
+				}
+				attributes.add(xmlef.createAttribute("depIndex", Integer.toString(depIndex.get(c.getDependent()))));
+			}
 
 		}
 		else if (aAnnotation instanceof NamedEntity) {
@@ -414,9 +417,9 @@ extends JCasFileWriter_ImplBase
 		}
 		else if (aAnnotation instanceof Constituent) {
 			Constituent c = (Constituent) aAnnotation;
-//			if ("ROOT".equals(c.getConstituentType())) {
-//				System.out.println();
-//			}
+			//			if ("ROOT".equals(c.getConstituentType())) {
+			//				System.out.println();
+			//			}
 			if (c.getConstituentType() != null) {
 				attributes.add(xmlef.createAttribute(ATTR_TYPE, c.getConstituentType()));
 			}
@@ -446,9 +449,9 @@ extends JCasFileWriter_ImplBase
 	{
 		if (aAnnotation instanceof Constituent) {
 			Constituent c = (Constituent) aAnnotation;
-			if ("ROOT".equals(c.getConstituentType())) {
-				System.out.println();
-			}
+//			if ("ROOT".equals(c.getConstituentType())) {
+//				System.out.println();
+//			}
 		}
 
 		if (aAnnotation.getTypeIndexID() == Token.type) {

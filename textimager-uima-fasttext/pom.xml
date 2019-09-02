@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>textimager-uima-fasttext</artifactId>
-	<build>
+<!--	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -27,7 +27,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-	</build>
+	</build>-->
 	<dependencies>
 		<dependency>
 			<groupId>com.github.vinhkhuc</groupId>

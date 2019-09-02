@@ -72,7 +72,11 @@ public class LanguageIdentification extends JCasAnnotator_ImplBase{
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
         modelProvider.configure(aJCas.getCas());
 		JFastText.ProbLabel probLabel = modelProvider.getResource().predictProba(aJCas.getDocumentText());
-		DocumentMetaData.get(aJCas).setLanguage(probLabel.label.replace("__label__", ""));
+		try{
+			DocumentMetaData.get(aJCas).setLanguage(probLabel.label.replace("__label__", ""));
+		}catch(IllegalArgumentException e){
+			e.printStackTrace();
+		}
 		aJCas.setDocumentLanguage(probLabel.label.replace("__label__", ""));
 	}
 
