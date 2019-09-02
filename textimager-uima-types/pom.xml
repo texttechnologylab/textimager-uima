@@ -13,6 +13,10 @@
 			<name>alba-releases</name>
 			<url>http://service.hucompute.org/artifactory/libs-snapshot-local</url>
 		</repository>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -27,9 +31,9 @@
 			<version>1.9.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.texttechnologylab.annotation</groupId>
-			<artifactId>typesystem</artifactId>
-			<version>1.6</version>
+			<groupId>com.github.texttechnologylab</groupId>
+			<artifactId>UIMATypeSystem</artifactId>
+			<version>547f4a97b2</version>
 		</dependency>
 	</dependencies>
 </project>
