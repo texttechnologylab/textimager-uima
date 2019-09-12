@@ -24,6 +24,10 @@ class Word2VecHelper {
 		return word2Vec != null ? word2Vec.getWordVectorMatrix(word) : null;
 	}
 
+	public double getSimilarity(LemmaInfos.LemmaPos lp1, LemmaInfos.LemmaPos lp2) {
+		return getSimilarity(lp1.toString(), lp2.toString());
+	}
+
 	public double getSimilarity(String word1, String word2) {
 		return word2Vec != null ? word2Vec.similarity(word1, word2) : null;
 	}
@@ -38,6 +42,10 @@ class Word2VecHelper {
 
 	public Collection<String> getWordsNearest(String word, int count) {
 		return word2Vec != null ? word2Vec.wordsNearest(word, count) : null;
+	}
+
+	public Collection<String> getWordsNearest(LemmaInfos.LemmaPos lemmapos, int count) {
+		return getWordsNearest(lemmapos.toString(), count);
 	}
 
 	public double[] getWordVector(String word) {
