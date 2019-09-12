@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<collectionReaderDescription xmlns="http://uima.apache.org/resourceSpecifier">
+	<frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+	<implementationName>org.hucompute.textimager.uima.io.html.EnhancedHtmlReader
+	</implementationName>
+	<processingResourceMetaData>
+		<name>HTML Reader</name>
+		<configurationParameters>
+			<configurationParameter>
+				<name>sourceEncoding</name>
+				<description />
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>sourceLocation</name>
+				<description>Location from which the input is read.</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>patterns</name>
+				<description>A set of Ant-like include/exclude patterns. A pattern
+					starts with #INCLUDE_PREFIX [+]
+					if it is an include pattern and with #EXCLUDE_PREFIX [-] if it is an
+					exclude pattern.
+					The wildcard &lt;code&gt;&amp;#47;**&amp;#47;&lt;/code&gt; can be used
+					to address any number of sub-directories.
+					The wildcard * can be used to a address a part of a name.
+				</description>
+				<type>String</type>
+				<multiValued>true</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>useDefaultExcludes</name>
+				<description>Use the default excludes.</description>
+				<type>Boolean</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>includeHidden</name>
+				<description>Include hidden files and directories.</description>
+				<type>Boolean</type>
+				<multiValued>false</multiValued>
+				<mandatory>true</mandatory>
+			</configurationParameter>
+			<configurationParameter>
+				<name>language</name>
+				<description>Name of optional configuration parameter that contains
+					the language of the documents in the
+					input directory. If specified, this information will be added to the
+					CAS.
+				</description>
+				<type>String</type>
+				<multiValued>false</multiValued>
+				<mandatory>false</mandatory>
+			</configurationParameter>
+		</configurationParameters>
+		<configurationParameterSettings>
+			<nameValuePair>
+				<name>sourceEncoding</name>
+				<value>
+					<string>auto</string>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>useDefaultExcludes</name>
+				<value>
+					<boolean>true</boolean>
+				</value>
+			</nameValuePair>
+			<nameValuePair>
+				<name>includeHidden</name>
+				<value>
+					<boolean>false</boolean>
+				</value>
+			</nameValuePair>
+		</configurationParameterSettings>
+		<typeSystemDescription>
+			<imports>
+				<import location="../TypeSystem.xml" />
+			</imports>
+		</typeSystemDescription>
+		<fsIndexCollection />
+		<capabilities>
+			<capability>
+				<inputs />
+				<outputs>
+					<type>de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData
+					</type>
+					<type>de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Heading
+					</type>
+					<type>de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph
+					</type>
+					<type>de.tudarmstadt.ukp.dkpro.core.api.metadata.type.MetaDataStringField
+					</type>
+				</outputs>
+				<languagesSupported />
+			</capability>
+		</capabilities>
+		<operationalProperties>
+			<modifiesCas>true</modifiesCas>
+			<multipleDeploymentAllowed>false</multipleDeploymentAllowed>
+			<outputsNewCASes>true</outputsNewCASes>
+		</operationalProperties>
+	</processingResourceMetaData>
+	<externalResourceDependencies>
+		<externalResourceDependency>
+			<key>resolver</key>
+			<description>Name of optional external (UIMA) resource that contains
+				the Locator for a (Spring)
+				ResourcePatternResolver implementation for locating (spring) resources.
+			</description>
+			<interfaceName>java.lang.Object</interfaceName>
+			<optional>true</optional>
+		</externalResourceDependency>
+	</externalResourceDependencies>
+</collectionReaderDescription>

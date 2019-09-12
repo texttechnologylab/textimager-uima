@@ -46,16 +46,12 @@
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-types</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 			<artifactId>de.tudarmstadt.ukp.dkpro.core.testing-asl</artifactId>
 			<scope>test</scope>
-			<version>1.8.0</version>
-		</dependency>
-		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.tokit-asl</artifactId>
 			<version>1.8.0</version>
 		</dependency>
 		
