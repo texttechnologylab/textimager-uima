@@ -1,0 +1,21 @@
+# Catch-all rule
+*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+$(=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PUNC
+$,=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PUNC
+$.=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PUNC
+V=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V
+ADJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADJ
+NN=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.NN
+NP=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.NP
+NE=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.NP
+ADV=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADV
+PRO=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR
+ORD=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+NUM=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+DIST=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CARD
+FM=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+CON=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ
+AP=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PP
+ITJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+XY=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O
+PTC=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.O

@@ -34,7 +34,7 @@
         </dependency>
     </dependencies>
     <modules>
-        <module>textimager-uima-base-annotators</module>
+<!--         <module>textimager-uima-base-annotators</module> -->
 <!--         <module>textimager-uima-marmot</module> -->
         <module>textimager-uima-wiki</module>
         <module>textimager-uima-types</module>
@@ -48,5 +48,8 @@
 <!--         <module>textimager-uima-cltk</module> -->
         <module>textimager-uima-io</module>
         <!--<module>textimager-uima-fasttext</module>-->
+        <module>textimager-uima-tagme</module>
+        <module>textimager-uima-HUComputeNER</module>
+<!--         <module>textimager-uima-disambiguation</module> -->
     </modules>
 </project>

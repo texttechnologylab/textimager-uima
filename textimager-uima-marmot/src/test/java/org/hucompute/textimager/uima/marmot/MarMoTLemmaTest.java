@@ -16,11 +16,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.tokit.BreakIteratorSegmenter;
 
 public class MarMoTLemmaTest {
 
-//	@Test
+	@Test
 	public void simpleExampleDE() throws UIMAException{
 		JCas cas = JCasFactory.createText("Das ist ein guter Test.", "de");
 		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
@@ -42,27 +41,27 @@ public class MarMoTLemmaTest {
 	}
 	
 //	@Test
-	public void simpleExampleLa() throws UIMAException{
-		JCas cas = JCasFactory.createText("Hoc senatusconsulti genus in usu fuit a tempore Gracchorum usque ad secundum triumviratum (43 a.C.n.).");
-//		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
+//	public void simpleExampleLa() throws UIMAException{
+//		JCas cas = JCasFactory.createText("Hoc senatusconsulti genus in usu fuit a tempore Gracchorum usque ad secundum triumviratum (43 a.C.n.).");
+////		new Sentence(cas,0,cas.getDocumentText().length()).addToIndexes();
+////
+////		new Token(cas,0,6).addToIndexes();
+////		new Token(cas,7,14).addToIndexes();
+////		new Token(cas,15,18).addToIndexes();
+////		new Token(cas,18,19).addToIndexes();
 //
-//		new Token(cas,0,6).addToIndexes();
-//		new Token(cas,7,14).addToIndexes();
-//		new Token(cas,15,18).addToIndexes();
-//		new Token(cas,18,19).addToIndexes();
-
-		AggregateBuilder builder = new AggregateBuilder();
-		builder.add(createEngineDescription(
-				BreakIteratorSegmenter.class
-				));
-		builder.add(createEngineDescription(
-				MarMoTLemma.class
-				));
-		
-		SimplePipeline.runPipeline(cas,builder.createAggregate());
-		
-		assertLemma(new String[]{"magnus","stultus","sum","."}, JCasUtil.select(cas, Lemma.class));
-
-	}
+//		AggregateBuilder builder = new AggregateBuilder();
+//		builder.add(createEngineDescription(
+//				BreakIteratorSegmenter.class
+//				));
+//		builder.add(createEngineDescription(
+//				MarMoTLemma.class
+//				));
+//		
+//		SimplePipeline.runPipeline(cas,builder.createAggregate());
+//		
+//		assertLemma(new String[]{"magnus","stultus","sum","."}, JCasUtil.select(cas, Lemma.class));
+//
+//	}
 
 }
