@@ -16,8 +16,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -77,6 +77,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	protected long startPageId;
 
 	private static final int LEMMA_PAGES_NEAREST_WORDS_COUNT = 30;
+	private static final int LEMMA_TOOLTIP_PAGES_NEAREST_WORDS_COUNT = 10;
 	private MessageDigest md;
 	private long pageIdGlobal = 0;
 	// Variable to add lines of the output file step by step
@@ -88,9 +89,9 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	// Collect features for every lemma
 	private LemmaInfos lemmaInfos;
 	private Set<LemmaInfos.LemmaPos> failedLemmaPosMorphologicalFeatures;
-	
+
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
-	
+
 	private static final String nsPage = "0";
 	private static final String nsCategory = "14";
 	private static final String nsLemma = "102";
@@ -104,14 +105,14 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	@Override
 	public void destroy() {
 		// To build all sub-pages for texts 
-		
+
 		//To save all names of files for the Corpus-page 
 		StringBuilder corpusTextBuilder = new StringBuilder();
-		
+
 		//For each text 
 		for (HashMap.Entry<String, HashSet<String>> entry : folderPages.entrySet()) {
 			StringBuilder textBuilder = new StringBuilder();
-			
+
 			//read the name of text 
 			for (String page : entry.getValue()) {
 				textBuilder.append("* [[").append(page).append("]]\n");
@@ -131,16 +132,15 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writePage("Corpus", "Corpus overview", corpusTextBuilder.toString(), nsPage);
 		writeDDCPages();
 		writeLemmaPages("de"); // TODO get right language
-		writeLemmaTooltips();
 
 		writer.println("</mediawiki>");
 
 		writer.flush();
 		writer.close();
-		
+
 		super.destroy();
 	}
-	
+
 	//To initialize and write the beginning of output file 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
@@ -150,25 +150,25 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		outputDir.mkdirs();
 		// To write the file with name: output.wiki.xml
 		File outputDumpFile = new File(targetLocation + "/output.wiki.xml");
-		
+
 		String sitename = outputDir.getName();
 		String dbname = outputDir.getName().toLowerCase().replaceAll(" ", "_");
 		String base = outputDir.getAbsolutePath().replaceAll(" ", "_");
-		
+
 		folderPages = new HashMap<String, HashSet<String>>();
 		ddcInfos = new DDCInfos();
 		lemmaInfos = new LemmaInfos();
 		failedLemmaPosMorphologicalFeatures = new HashSet<LemmaInfos.LemmaPos>();
-		
+
 		pageIdGlobal = startPageId;
-		
+
 		try {
 			md = MessageDigest.getInstance("SHA-1");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			throw new ResourceInitializationException(e);
 		}
-		
+
 		try {
 			writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outputDumpFile), Charset.forName("UTF-8")));
 		} catch (FileNotFoundException e) {
@@ -207,6 +207,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println("<namespace key=\"101\" case=\"first-letter\">Portal talk</namespace>");
 		writer.println("<namespace key=\"102\" case=\"first-letter\">Lemma</namespace>");
 		writer.println("<namespace key=\"103\" case=\"first-letter\">Lemma talk</namespace>");
+		writer.println("<namespace key=\"104\" case=\"first-letter\">Tooltip</namespace>");
+		writer.println("<namespace key=\"105\" case=\"first-letter\">Tooltip talk</namespace>");
 		writer.println("<namespace key=\"108\" case=\"first-letter\">Book</namespace>");
 		writer.println("<namespace key=\"109\" case=\"first-letter\">Book talk</namespace>");
 		writer.println("<namespace key=\"118\" case=\"first-letter\">Draft</namespace>");
@@ -224,7 +226,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println("</namespaces>");
 		writer.println("</siteinfo>");
 	}
-	
+
 	/** Write a page for every DDC. */
 	private void writeDDCPages() {
 		for (HashMap.Entry<String, String> entry : MediawikiDDCHelper.getAllDDCClasses().entrySet()) {
@@ -308,12 +310,15 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		System.out.println(" INFO | MediaWikiWriter write lemma pages for " + documentCount + " documents");
 		Word2VecHelper word2VecParadigmatic = new Word2VecHelper("word2vec/paradigmatic-" + lang + ".vec");
 		Word2VecHelper word2VecSyntactic = new Word2VecHelper("word2vec/syntagmatic-" + lang + ".vec");
+		GraphHelper graph = new GraphHelper();
+		StringBuilder text = new StringBuilder();
+
 		for (HashMap.Entry<LemmaInfos.LemmaPos, LemmaInfos.LemmaInfo> entry : lemmaInfos.entrySet()) {
 			LemmaInfos.LemmaPos lemmapos = entry.getKey();
 			LemmaInfos.LemmaInfo info = entry.getValue();
 			boolean isVerb = lemmapos.pos.equals("V");
+			text.replace(0, text.length(), "");
 
-			StringBuilder text = new StringBuilder();
 			// General info
 			text.append("{{#lemmainfo: ")
 				.append("Name:").append(lemmapos.lemma).append(",")
@@ -360,8 +365,22 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			Collection<String> nearestWords = word2VecParadigmatic.getWordsNearest(lemmapos.toString(), LEMMA_PAGES_NEAREST_WORDS_COUNT);
 			text.append("== Paradigmatic Similarity (Word2Vec) ==\n");
 			if (nearestWords != null && !nearestWords.isEmpty()) {
-				text.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
-					.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
+				// Create graph with nodes and edges
+				graph.start(lemmapos);
+				graph.add(nearestWords);
+				String words[] = nearestWords.toArray(new String[0]);
+				for (int i = 0; i < words.length - 1; i++) {
+					LemmaInfos.LemmaPos s = new LemmaInfos.LemmaPos(words[i]);
+					graph.add(lemmapos, s, word2VecParadigmatic.getSimilarity(lemmapos, s));
+					for (int j = i + 1; j < words.length; j++) {
+						LemmaInfos.LemmaPos t = new LemmaInfos.LemmaPos(words[j]);
+						graph.add(s, t, word2VecParadigmatic.getSimilarity(s, t));
+					}
+				}
+				text.append(graph.end());
+
+				// Create a word list with hyperlinks
+				text.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
 					.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
 					.append("<div class=\"mw-collapsible-content\">");
 				for (String word : nearestWords) {
@@ -373,13 +392,27 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			} else {
 				text.append("''Nothing found''\n");
 			}
-			
+
 			// Syntactic similarity
 			nearestWords = word2VecSyntactic.getWordsNearest(lemmapos.toString(), LEMMA_PAGES_NEAREST_WORDS_COUNT);
 			text.append("== Syntactic Similarity (Word2Vec) ==\n");
 			if (nearestWords != null && !nearestWords.isEmpty()) {
-				text.append("<div class\"graph\" style=\"border:1px solid black;height:500px;width:800px\"></div>\n")
-					.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
+				// Create graph with nodes and edges
+				graph.start(lemmapos);
+				graph.add(nearestWords);
+				String words[] = nearestWords.toArray(new String[0]);
+				for (int i = 0; i < words.length - 1; i++) {
+					LemmaInfos.LemmaPos s = new LemmaInfos.LemmaPos(words[i]);
+					graph.add(lemmapos, s, word2VecSyntactic.getSimilarity(lemmapos, s));
+					for (int j = i + 1; j < words.length; j++) {
+						LemmaInfos.LemmaPos t = new LemmaInfos.LemmaPos(words[j]);
+						graph.add(s, t, word2VecSyntactic.getSimilarity(s, t));
+					}
+				}
+				text.append(graph.end());
+
+				// Create a word list with hyperlinks
+				text.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
 					.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
 					.append("<div class=\"mw-collapsible-content\">");
 				for (String word : nearestWords) {
@@ -391,7 +424,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			} else {
 				text.append("''Nothing found''\n");
 			}
-			
+
 			// Concordance
 			text.append("== Concordance ==\n")
 				.append(info.occurances.size()).append(" entries total<br/>\n")
@@ -438,17 +471,12 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			text.append(" ]</div></div>\n");
 			
 			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
-			writePage("Lemma:" + entry.getKey(), "Generated Lemma page", text.toString(), nsLemma);
-		}
-	}
+			writePage(lemmaPrefix + lemmapos, "Generated Lemma page", text.toString(), nsLemma);
 
-	/** Write a tooltip for every lemma. */
-	private void writeLemmaTooltips() {
-		for (HashMap.Entry<LemmaInfos.LemmaPos, LemmaInfos.LemmaInfo> entry : lemmaInfos.entrySet()) {
-			LemmaInfos.LemmaPos lemmapos = entry.getKey();
-			LemmaInfos.LemmaInfo info = entry.getValue();
-
-			StringBuilder text = new StringBuilder();
+			/*
+			 * Create a tooltip for this lemma
+			 */
+			text.replace(0, text.length(), "");
 			text.append("{|\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Name\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|POS\n")
@@ -457,7 +485,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append("!bgcolor=#F2F2F2 align=\"left\"|F. Class\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Text F.\n")
 				.append("!bgcolor=#F2F2F2 align=\"left\"|Inverse Document F.\n")
-				.append("!bgcolor=#F2F2F2 align=\"left\"|Wiktionary\n")
 				.append("|-\n")
 				.append("|[[Lemma:").append(lemmapos).append("|").append(lemmapos.lemma).append("]]\n")
 				.append("|").append(lemmapos.pos).append("\n")
@@ -466,10 +493,38 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append("|").append(info.getFrequencyClass()).append("\n")
 				.append("|").append(info.getDocumentFrequency()).append("\n")
 				.append("|").append(info.getInverseDocumentFrequencyAsString(documentCount)).append("\n")
-				.append("|WIKTIONARY en ").append(lemmapos.lemma) // TODO needs right language but does its job nonetheless
-				.append("|}");
+				.append("|}\n");
+
+			// Paradigmatic similarity
+			nearestWords = word2VecParadigmatic.getWordsNearest(lemmapos.toString(), LEMMA_TOOLTIP_PAGES_NEAREST_WORDS_COUNT);
+			text.append("== Paradigmatic Similarity ==\n");
+			if (nearestWords != null && !nearestWords.isEmpty()) {
+				// Create a word list with hyperlinks
+				for (String word : nearestWords) {
+					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(word);
+					text.append("[[Lemma:").append(wordLemmaPos).append("|").append(wordLemmaPos.toString(" ")).append("]], ");
+				}
+				text.replace(text.length() - 2, text.length(), "\n");
+			} else {
+				text.append("''Nothing found''\n");
+			}
+
+			// Syntactic similarity
+			nearestWords = word2VecSyntactic.getWordsNearest(lemmapos.toString(), LEMMA_TOOLTIP_PAGES_NEAREST_WORDS_COUNT);
+			text.append("== Syntactic Similarity ==\n");
+			if (nearestWords != null && !nearestWords.isEmpty()) {
+				// Create a word list with hyperlinks
+				for (String word : nearestWords) {
+					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(word);
+					text.append("[[Lemma:").append(wordLemmaPos).append("|").append(wordLemmaPos.toString(" ")).append("]], ");
+				}
+				text.replace(text.length() - 2, text.length(), "\n");
+			} else {
+				text.append("''Nothing found''\n");
+			}
+
 			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
-			writePage("Tooltip:" + lemmapos, "Generated Lemma tooltip", text.toString(), nsTooltip);
+			writePage("Tooltip:Lemma_" + lemmapos, "Generated Lemma tooltip", text.toString(), nsTooltip);
 		}
 	}
 
@@ -483,20 +538,20 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			System.out.println("      | Text:      " + textBufferString != null ? textBufferString.substring(0, 20).replace("\n", " ") : null);
 			return;
 		}
-		
+
 		//Define ID for the pages 
 		String pageId = String.valueOf(pageIdGlobal);
 		pageIdGlobal++;
-		
+
 		String revisionId = "1";
 		String revParentId = "";	// No revision...
-		
+
 		//To save the time 
 		String revTimestamp = Instant.now().toString();
-		
+
 		// TODO SHA1 from a text? Or from all?
 		String sha1String = Base64.getEncoder().encodeToString((md.digest(textBufferString.getBytes())));
-		
+
 		//The header for all sub-pages
 		writer.println("<page>");
 		writer.println(" <title>" + pageTitle + "</title>");
@@ -519,12 +574,12 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println(" </revision>");
 		writer.println("</page>");
 	}
-	
+
 	//This process is to get all information from TextImager-Client about the document, paragraphs, sentences and words
 	// All this information is in jCas 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
-		
+
 		DocumentMetaData meta = DocumentMetaData.get(jCas);		 
 //		String lang = jCas.getDocumentLanguage();
 		String lang = meta.getLanguage();
@@ -557,18 +612,16 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		}
 
 		String comment = "Generated from file " + meta.getDocumentUri();
-		
+
 		StringBuilder pageBuilder = new StringBuilder();
 		HashSet<String> categories = new HashSet<String>();
-		
+
 		// Get all wikipedia links from TagMeLocalAnnotator
 		ArrayList<WikipediaLink> wikipediaLinks = new ArrayList<WikipediaLink>();
 		wikipediaLinks.addAll(JCasUtil.select(jCas, WikipediaLink.class));
 		int startingWikipediaLinksSize = wikipediaLinks.size();
 		System.out.println(" INFO | MediawikiWriter got " + wikipediaLinks.size() + " Wikipedia links from TagMeAnnotator for text " + pageTitle);
-		//Generative information about the document
-		//TODO get DDCs and add text to ddcTexts
-		
+
 		// Get all categories for the document (sorted by their plausibility)
 		SortedDDCSet ddcs = new SortedDDCSet();
 		for (CategoryCoveredTagged cct : JCasUtil.select(jCas, CategoryCoveredTagged.class)) {
@@ -583,7 +636,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			ddcInfos.get(ddc).documents.add(pageTitle);
 		}
 		pageBuilder.append(" }}\n\n");
-		
+
 		int paragraphN = 0;
 		int sentenceN = 0;
 		// Inhalt: Paragraphenweise alle Token + Lemma als Tooltip
@@ -598,7 +651,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				SortedDDCSet paragraphCats = new SortedDDCSet();
 				paragraphCats.addAll(JCasUtil.selectCovered(CategoryCoveredTagged.class, paragraph));
 				if (!paragraphCats.isEmpty()) {
-//					Collections.sort(paragraphCats, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
 					paragraphCategory = paragraphCats.get(0).getValue().replaceAll("__label_ddc__", "");
 					categories.add("[[" + categoryPrefix + "DDC" + paragraphCategory + "]]");
 					// To add DDC information of paragraph to START tag of paragraph 
@@ -611,7 +663,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			for (Sentence sentence : JCasUtil.selectCovered(Sentence.class, paragraph)) {
 				StringBuilder sentenceBuilder = new StringBuilder();
 				sentenceBuilder.append("{{#sentence: ").append(sentenceN).append(" | START }}");
-				
+
 				ArrayList<String> sentenceTokens = new ArrayList<String>();
 				ArrayList<LemmaInfos.LemmaPos> sentenceLemmas = new ArrayList<LemmaInfos.LemmaPos>();
 				ArrayList<LemmaInfos.LemmaInfo> sentenceLemmaInfos = new ArrayList<LemmaInfos.LemmaInfo>();
@@ -641,7 +693,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					// count lemma frequency
 					lemmaInfo.frequency++;
 					lemmaInfo.containingDocuments.add(pageTitle);
-					
+
 					tokenBuilder.append("{{#word: ").append(text)
 						.append(" |lemma:").append(lemmapos.lemma)
 						.append(",pos:").append(lemmapos.pos);
@@ -669,16 +721,11 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 							System.out.println(" WARN | MediawikiWriter could not get morphological features for " + text + " (Lemma_POS: " + lemmapos + ")");
 						}
 					}
-						
-						// {{#tip-text:  findest |lemma:finden }}
-						//textBuffer.append("{{#tip-text: ").append(token.getCoveredText())
-						//	.append(" |lemma:").append(token.getLemma().getValue())
-						//	.append(",pos:").append(token.getPos().getPosValue());
-									
+
 				    for (NamedEntity ne : JCasUtil.selectCovered(NamedEntity.class, token)) {
-	                    tokenBuilder.append(",NE:").append(ne.getValue());
-	                }
-				    
+						tokenBuilder.append(",NE:").append(ne.getValue());
+					}
+
 					tokenBuilder.append("}}");
 					if (closeLink) {
 						tokenBuilder.append("]");
@@ -706,7 +753,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					lemmaInfos.get(sentenceLemmas.get(i)).addOccurance(pageTitle, sentenceN, leftContext.toString(), sentenceTokens.get(i), rightContext.toString());
 					leftContext.append(sentenceTokens.get(i));
 				}
-				
+
 				sentenceBuilder.append("{{#sentence: ").append(sentenceN).append(" | END ");
 				String sentenceCategory = null;
 				{
@@ -719,7 +766,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 							.append(MediawikiDDCHelper.getDDCClassName(sentenceCategory));
 					}
 				}
-				
+
 				sentenceBuilder.append("}} ");
 				String sentenceString = sentenceBuilder.toString();
 				if (sentenceCategory != null) {
@@ -728,7 +775,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				paragraphBuilder.append(sentenceString);
 				sentenceN++;
 			}
-			
+
 			paragraphBuilder.append("\n")
 				.append("{{#paragraph: ").append(paragraphN).append(" | END }} ");
 			String paragraphString = paragraphBuilder.toString();
