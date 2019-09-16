@@ -30,10 +30,5 @@
 			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.segmentation-asl</artifactId>
 			<version>1.9.0</version>
 		</dependency>
-		<dependency>
-			<groupId>com.github.texttechnologylab</groupId>
-			<artifactId>UIMATypeSystem</artifactId>
-			<version>547f4a97b2</version>
-		</dependency>
 	</dependencies>
 </project>
