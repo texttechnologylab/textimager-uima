@@ -75,10 +75,5 @@
 			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 			<version>1.8.0</version>
 		</dependency>
-		<dependency>
-			<groupId>com.github.texttechnologylab</groupId>
-			<artifactId>UIMATypeSystem</artifactId>
-			<version>547f4a97b2</version>
-		</dependency>
 	</dependencies>
 </project>
