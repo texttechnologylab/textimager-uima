@@ -311,7 +311,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 	/** Write a page for every lemma. */
 	private void writeLemmaPages(String lang) {
-		System.out.println(" INFO | MediaWikiWriter write lemma pages for " + documentCount + " documents");
+		System.out.println(" INFO | MediaWikiWriter write " + lemmaInfos.size() + " lemma pages for " + documentCount + " documents");
 		Word2VecHelper word2VecParadigmatic = new Word2VecHelper("word2vec/paradigmatic-" + lang + ".vec");
 		Word2VecHelper word2VecSyntactic = new Word2VecHelper("word2vec/syntagmatic-" + lang + ".vec");
 		GraphHelper graph = new GraphHelper();
@@ -573,7 +573,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println("  <comment>" + comment + "</comment>");
 		writer.println("  <model>wikitext</model>");
 		writer.println("  <format>text/x-wiki</format>");
-		writer.println("  <text xml:space=\"preserve\"><![CDATA[" + textBufferString + "]]></text>");
+		writer.println("  <text xml:space=\"preserve\"><![CDATA[\n" + textBufferString.replace("]]>", "]] >").trim() + "\n]]></text>");
 		writer.println("  <sha1>" + sha1String + "</sha1>");
 		writer.println(" </revision>");
 		writer.println("</page>");
@@ -585,7 +585,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 
 		DocumentMetaData meta = DocumentMetaData.get(jCas);		 
-//		String lang = jCas.getDocumentLanguage();
 		String lang = meta.getLanguage();
 
 		String pageTitle = meta.getDocumentId().replaceAll(" ", "_").replaceAll("%20", "_");
@@ -681,9 +680,11 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					StringBuilder tokenBuilder = new StringBuilder();
 					if (wikipediaLinks.size() > 0) {
 						if (!inLink && wikipediaLinks.get(0).getStart() <= token.getStart()) {
+							// start a new link
 							tokenBuilder.append("[").append("https://").append(lang).append(".wikipedia.org/wiki/").append(wikipediaLinks.get(0).getTarget());
 							inLink = true;
 							if (token.getEnd() >= wikipediaLinks.get(0).getEnd()) {
+								// close the link, because it is just one token long
 								closeLink = true;
 							}
 						} else if (inLink && token.getEnd() >= wikipediaLinks.get(0).getEnd()) {
@@ -706,7 +707,6 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 					try {
 						// try to get features from token.getMorph()
 						EnhancedMorphologicalFeatures morph = lemmaInfo.addMorphologicalFeatures(text, token.getMorph());
-						tokenBuilder.append(",morph:" + morph.getValue());
 					} catch (Exception e) {
 						// try to get features from covered
 						List<MorphologicalFeatures> morphFeatures = JCasUtil.selectCovered(MorphologicalFeatures.class, token);
@@ -732,8 +732,9 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 
 					tokenBuilder.append("}}");
 					if (closeLink) {
+						inLink = false;
+						closeLink = false;
 						tokenBuilder.append("]");
-						inLink = closeLink = false;
 						wikipediaLinks.remove(0);
 					}
 					tokenBuilder.append(" ");
