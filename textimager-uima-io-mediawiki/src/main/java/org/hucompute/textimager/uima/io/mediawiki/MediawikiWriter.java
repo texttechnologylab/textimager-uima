@@ -76,8 +76,12 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	@ConfigurationParameter(name = PARAM_START_PAGEID, mandatory = false, defaultValue = "0")
 	protected long startPageId;
 
-	private static final int LEMMA_PAGES_NEAREST_WORDS_COUNT = 30;
-	private static final int LEMMA_TOOLTIP_PAGES_NEAREST_WORDS_COUNT = 10;
+	// How many Word2Vec hits should be shown in graphs
+	private static final int LEMMA_GRAPH_NEAREST_WORDS_COUNT = 10;
+	// How many Word2Vec hits should be shown in word lists (this must be higher then graphs and tooltips)
+	private static final int LEMMA_PAGE_NEAREST_WORDS_COUNT = 30;
+	// How many Word2Vec hits should be shown in tooltips
+	private static final int LEMMA_TOOLTIP_NEAREST_WORDS_COUNT = 10;
 	private MessageDigest md;
 	private long pageIdGlobal = 0;
 	// Variable to add lines of the output file step by step
@@ -361,21 +365,30 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			}
 			text.append("|}\n");
 
+			// Get nearest words
+			String wordsParadigmatic[] = null, wordsSyntactic[] = null;
+			int max_nearest_words_count = Math.max(
+					Math.max(LEMMA_PAGE_NEAREST_WORDS_COUNT, LEMMA_GRAPH_NEAREST_WORDS_COUNT),
+					LEMMA_TOOLTIP_NEAREST_WORDS_COUNT);
+			String nearestWordsParadigmatic[] = word2VecParadigmatic.getWordsNearestAsArray(lemmapos, max_nearest_words_count);
+			String nearestWordsSyntactic[] = word2VecSyntactic.getWordsNearestAsArray(lemmapos, max_nearest_words_count);
+
+			// Get the right counts for every Word2Vec presentation
+			int graphNearestWordsCountParadigmatic = nearestWordsParadigmatic != null ? Math.min(nearestWordsParadigmatic.length, LEMMA_GRAPH_NEAREST_WORDS_COUNT) : 0;
+			int graphNearestWordsCountSyntactic = nearestWordsSyntactic != null ? Math.min(nearestWordsParadigmatic.length, LEMMA_GRAPH_NEAREST_WORDS_COUNT) : 0;
+			int pageNearestWordsCountParadigmatic = nearestWordsParadigmatic != null ? Math.min(nearestWordsParadigmatic.length, LEMMA_PAGE_NEAREST_WORDS_COUNT) : 0;
+			int pageNearestWordsCountSyntactic = nearestWordsSyntactic != null ? Math.min(nearestWordsParadigmatic.length, LEMMA_PAGE_NEAREST_WORDS_COUNT) : 0;
+			int tooltipNearestWordsCountParadigmatic = nearestWordsParadigmatic != null ? Math.min(nearestWordsParadigmatic.length, LEMMA_TOOLTIP_NEAREST_WORDS_COUNT) : 0;
+			int tooltipNearestWordsCountSyntactic = nearestWordsSyntactic != null ? Math.min(nearestWordsParadigmatic.length, LEMMA_TOOLTIP_NEAREST_WORDS_COUNT) : 0;
+
 			// Paradigmatic similarity
-			Collection<String> nearestWords = word2VecParadigmatic.getWordsNearest(lemmapos.toString(), LEMMA_PAGES_NEAREST_WORDS_COUNT);
 			text.append("== Paradigmatic Similarity (Word2Vec) ==\n");
-			if (nearestWords != null && !nearestWords.isEmpty()) {
+			if (graphNearestWordsCountParadigmatic > 0) {
 				// Create graph with nodes and edges
+				LemmaInfos.LemmaPos words[] = new LemmaInfos.LemmaPos[graphNearestWordsCountParadigmatic];
 				graph.start(lemmapos);
-				graph.add(nearestWords);
-				String words[] = nearestWords.toArray(new String[0]);
-				for (int i = 0; i < words.length - 1; i++) {
-					LemmaInfos.LemmaPos s = new LemmaInfos.LemmaPos(words[i]);
-					graph.add(lemmapos, s, word2VecParadigmatic.getSimilarity(lemmapos, s));
-					for (int j = i + 1; j < words.length; j++) {
-						LemmaInfos.LemmaPos t = new LemmaInfos.LemmaPos(words[j]);
-						graph.add(s, t, word2VecParadigmatic.getSimilarity(s, t));
-					}
+				for (int i = 0; i < graphNearestWordsCountParadigmatic; i++) {
+					graph.add(new LemmaInfos.LemmaPos(nearestWordsParadigmatic[i]), word2VecParadigmatic);
 				}
 				text.append(graph.end());
 
@@ -383,8 +396,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				text.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
 					.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
 					.append("<div class=\"mw-collapsible-content\">");
-				for (String word : nearestWords) {
-					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(word);
+				for (int i = 0; i < pageNearestWordsCountParadigmatic; i++) {
+					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(nearestWordsParadigmatic[i]);
 					text.append("[[Lemma:").append(wordLemmaPos).append("|").append(wordLemmaPos.toString(" ")).append("]], ");
 				}
 				text.replace(text.length() - 2, text.length(), "");
@@ -394,20 +407,13 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			}
 
 			// Syntactic similarity
-			nearestWords = word2VecSyntactic.getWordsNearest(lemmapos.toString(), LEMMA_PAGES_NEAREST_WORDS_COUNT);
 			text.append("== Syntactic Similarity (Word2Vec) ==\n");
-			if (nearestWords != null && !nearestWords.isEmpty()) {
+			if (graphNearestWordsCountSyntactic > 0) {
 				// Create graph with nodes and edges
+				LemmaInfos.LemmaPos words[] = new LemmaInfos.LemmaPos[graphNearestWordsCountSyntactic];
 				graph.start(lemmapos);
-				graph.add(nearestWords);
-				String words[] = nearestWords.toArray(new String[0]);
-				for (int i = 0; i < words.length - 1; i++) {
-					LemmaInfos.LemmaPos s = new LemmaInfos.LemmaPos(words[i]);
-					graph.add(lemmapos, s, word2VecSyntactic.getSimilarity(lemmapos, s));
-					for (int j = i + 1; j < words.length; j++) {
-						LemmaInfos.LemmaPos t = new LemmaInfos.LemmaPos(words[j]);
-						graph.add(s, t, word2VecSyntactic.getSimilarity(s, t));
-					}
+				for (int i = 0; i < graphNearestWordsCountSyntactic; i++) {
+					graph.add(new LemmaInfos.LemmaPos(nearestWordsSyntactic[i]), word2VecSyntactic);
 				}
 				text.append(graph.end());
 
@@ -415,8 +421,8 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				text.append("<div class=\"mw-collapsible\" style=\"width:100%;overflow:auto;\">\n")
 					.append("<div style=\"font-weight:bold;line-height:1.6;\">Word List</div>\n")
 					.append("<div class=\"mw-collapsible-content\">");
-				for (String word : nearestWords) {
-					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(word);
+				for (int i = 0; i < pageNearestWordsCountSyntactic; i++) {
+					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(nearestWordsSyntactic[i]);
 					text.append("[[Lemma:").append(wordLemmaPos).append("|").append(wordLemmaPos.toString(" ")).append("]], ");
 				}
 				text.replace(text.length() - 2, text.length(), "");
@@ -496,12 +502,11 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 				.append("|}\n");
 
 			// Paradigmatic similarity
-			nearestWords = word2VecParadigmatic.getWordsNearest(lemmapos.toString(), LEMMA_TOOLTIP_PAGES_NEAREST_WORDS_COUNT);
 			text.append("== Paradigmatic Similarity ==\n");
-			if (nearestWords != null && !nearestWords.isEmpty()) {
+			if (tooltipNearestWordsCountParadigmatic > 0) {
 				// Create a word list with hyperlinks
-				for (String word : nearestWords) {
-					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(word);
+				for (int i = 0; i < tooltipNearestWordsCountParadigmatic; i++) {
+					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(nearestWordsParadigmatic[i]);
 					text.append("[[Lemma:").append(wordLemmaPos).append("|").append(wordLemmaPos.toString(" ")).append("]], ");
 				}
 				text.replace(text.length() - 2, text.length(), "\n");
@@ -510,12 +515,11 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			}
 
 			// Syntactic similarity
-			nearestWords = word2VecSyntactic.getWordsNearest(lemmapos.toString(), LEMMA_TOOLTIP_PAGES_NEAREST_WORDS_COUNT);
 			text.append("== Syntactic Similarity ==\n");
-			if (nearestWords != null && !nearestWords.isEmpty()) {
+			if (tooltipNearestWordsCountSyntactic > 0) {
 				// Create a word list with hyperlinks
-				for (String word : nearestWords) {
-					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(word);
+				for (int i = 0; i < tooltipNearestWordsCountSyntactic; i++) {
+					LemmaInfos.LemmaPos wordLemmaPos = new LemmaInfos.LemmaPos(nearestWordsSyntactic[i]);
 					text.append("[[Lemma:").append(wordLemmaPos).append("|").append(wordLemmaPos.toString(" ")).append("]], ");
 				}
 				text.replace(text.length() - 2, text.length(), "\n");
