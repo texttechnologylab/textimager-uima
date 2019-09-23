@@ -35,10 +35,6 @@ public class LemmaInfos {
 		public EnhancedMorphologicalFeatures addMorphologicalFeatures(String token, MorphologicalFeatures features) {
 			EnhancedMorphologicalFeatures morph = new EnhancedMorphologicalFeatures(token, features);
 			morphologicalFeatures.add(morph);
-//			int i = 1;
-//			for (EnhancedMorphologicalFeatures feat : morphologicalFeatures) {
-//				System.out.println(token + " " + (i++) + ": " + feat); // FIXME delete
-//			}
 			return morph;
 		}
 
@@ -51,11 +47,11 @@ public class LemmaInfos {
 		}
 
 		public int getFrequencyClass() {
-			return 0; // TODO calculate frequency class
+			return 0; // TODO calculate frequency class (task in Taiga)
 		}
 
 		public double getInverseDocumentFrequency(int docCount) {
-			return Math.log(docCount / (1 + containingDocuments.size())); // TODO is this right?
+			return Math.log(docCount / (1 + containingDocuments.size())); // TODO check if this is right?
 		}
 
 		public String getInverseDocumentFrequencyAsString(int docCount) {
@@ -141,5 +137,9 @@ public class LemmaInfos {
 			map.put(lemmapos, info);
 		}
 		return info;
+	}
+
+	public int size() {
+		return map.size();
 	}
 }
