@@ -1,8 +1,8 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.util.Collection;
 import java.util.HashMap;
 
+/** A helper class to build graphs from Word2Vec data. */
 public class GraphHelper {
 	
 	StringBuilder nodes = new StringBuilder();
@@ -10,59 +10,39 @@ public class GraphHelper {
 	HashMap<LemmaInfos.LemmaPos,Integer> indices = new HashMap<LemmaInfos.LemmaPos,Integer>();
 	int index = 0;
 
+	/** Create an empty graph. Use start() to start it. */
 	public GraphHelper() {
 	}
 
+	/** Create a graph with an initial node. */
 	public GraphHelper(LemmaInfos.LemmaPos center) {
 		start(center);
 	}
 
-	public void add(LemmaInfos.LemmaPos lemmapos) {
+	/** Add a node and create edges to every existing node. */
+	public void add(LemmaInfos.LemmaPos lemmapos, Word2VecHelper word2Vec) {
+		// add the node
 		nodes.append("{\"color\":\"#C0C0C0\",\"size\":1,\"name\":\"")
 			.append(lemmapos.toString(" "))
 			.append("\",\"href\":\"/index.php/Lemma:")
 			.append(lemmapos.toString())
 			.append("\"},");
+
+		// add edges to all contained nodes
+		for (HashMap.Entry<LemmaInfos.LemmaPos,Integer> entry : indices.entrySet()) {
+			edges.append("{\"source\":")
+				.append(entry.getValue())
+				.append(",\"value\":")
+				.append(word2Vec.getSimilarity(entry.getKey(), lemmapos))
+				.append(",\"target\":")
+				.append(index)
+				.append("},");
+		}
 		indices.put(lemmapos, index);
 		index++;
 	}
 
-	public void add(String word) {
-		add(new LemmaInfos.LemmaPos(word));
-	}
-
-	public void add(Collection<String> words) {
-		for (String word : words) {
-			add(word);
-		}
-	}
-
-	public void add(String words[]) {
-		for (String word : words) {
-			add(word);
-		}
-	}
-
-	public void add(LemmaInfos.LemmaPos source, LemmaInfos.LemmaPos target, double value) {
-		Integer sourceIndex = indices.get(source);
-		Integer targetIndex = indices.get(target);
-		if (sourceIndex != null && targetIndex != null) {
-			edges.append("{\"source\":")
-				.append(sourceIndex)
-				.append(",\"value\":")
-				.append(value)
-				.append(",\"target\":")
-				.append(targetIndex)
-				.append("},");
-		} else {
-			throw new IllegalArgumentException("source and target have to be added first");
-		}
-	}
-
-	public void add(String source, String target, double value) {
-		add(new LemmaInfos.LemmaPos(source), new LemmaInfos.LemmaPos(target), value);
-	}
-
+	/** Clear this object to start a new graph. */
 	public void clear() {
 		nodes.replace(0, nodes.length(), "");
 		edges.replace(0, edges.length(), "");
@@ -70,6 +50,7 @@ public class GraphHelper {
 		index = 0;
 	}
 
+	/** Return a text representation of the full graph. */
 	public String end() {
 		StringBuffer text = new StringBuffer();
 		text.append("<div class=\"mw-collapsible\">")
@@ -87,6 +68,7 @@ public class GraphHelper {
 		return text.toString();
 	}
 
+	/** Start a new graph with an initial node. */
 	public void start(LemmaInfos.LemmaPos center) {
 		clear();
 		if (center != null) {
