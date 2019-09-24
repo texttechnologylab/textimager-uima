@@ -37,11 +37,11 @@
 			<artifactId>de.tudarmstadt.ukp.dkpro.core.io.jwpl-asl</artifactId>
 			<version>1.8.0</version>
 		</dependency>
-		<!--dependency>
+		<dependency>
 			<groupId>org.deeplearning4j</groupId>
 			<artifactId>deeplearning4j-core</artifactId>
 			<version>1.0.0-beta4</version>
-		</dependency-->
+		</dependency>
 		<dependency>
 			<groupId>org.deeplearning4j</groupId>
 			<artifactId>deeplearning4j-nlp</artifactId>
