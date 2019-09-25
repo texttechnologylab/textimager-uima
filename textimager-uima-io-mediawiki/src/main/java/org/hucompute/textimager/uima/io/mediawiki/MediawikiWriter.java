@@ -97,6 +97,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	private static final String generatorVersion = "org.hucompute.textimager.uima.io.mediawiki.MediawikiWriter 1.1";
 
 	private static final String nsPage = "0";
+	private static final String nsMediaWiki = "8";
 	private static final String nsCategory = "14";
 	private static final String nsLemma = "102";
 	private static final String nsTooltip = "104";
@@ -109,6 +110,13 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	@Override
 	public void destroy() {
 		// To build all sub-pages for texts 
+
+		// Write Common.js
+		String common = "// Any JavaScript here will be loaded for all users on every page load.\n";
+		common += "mw.loader.using('graph');\n";
+		common += "mw.loader.using('tooltip');\n";
+		common += "mw.loader.using('wikification');\n";
+		writePage("Common.js", "javascript", common, nsMediaWiki, "javascript");
 
 		//To save all names of files for the Corpus-page 
 		StringBuilder corpusTextBuilder = new StringBuilder();
@@ -535,6 +543,10 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 	// To write pages for texts, Corpus - overview page and DDC-Categories page 
 	// Title of page, comment for this page, the body text of page  
 	private void writePage(String pageTitle, String comment, String textBufferString, String pageNs) {
+		writePage(pageTitle, comment, textBufferString, pageNs, "wikitext");
+	}
+
+	private void writePage(String pageTitle, String comment, String textBufferString, String pageNs, String model) {
 		if (pageTitle == null || pageTitle.equals("")) {
 			System.out.println(" BUG  | MediaWikiWriter tries to create a page with no title:");
 			System.out.println("      | Namespace: " + pageNs);
@@ -571,8 +583,12 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		writer.println("  </contributor>");
 		writer.println("  <minor />");
 		writer.println("  <comment>" + comment + "</comment>");
-		writer.println("  <model>wikitext</model>");
-		writer.println("  <format>text/x-wiki</format>");
+		writer.println("  <model>" + model + "</model>");
+		if (model == "wikitext") {
+			writer.println("  <format>text/x-wiki</format>");
+		} else {
+			writer.println("  <format>text/" + model + "</format>");
+		}
 		writer.println("  <text xml:space=\"preserve\"><![CDATA[\n" + textBufferString.replace("]]>", "]] >").trim() + "\n]]></text>");
 		writer.println("  <sha1>" + sha1String + "</sha1>");
 		writer.println(" </revision>");
