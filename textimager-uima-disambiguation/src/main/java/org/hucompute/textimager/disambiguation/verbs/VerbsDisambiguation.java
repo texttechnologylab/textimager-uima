@@ -1,5 +1,6 @@
 package org.hucompute.textimager.disambiguation.verbs;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import com.github.jfasttext.JFastText;
 import com.github.jfasttext.JFastText.ProbLabel;
 
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
@@ -33,6 +35,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.CCOMP;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tuebingen.uni.sfs.germanet.api.GermaNet;
+import de.tuebingen.uni.sfs.germanet.api.LexUnit;
 import de.tuebingen.uni.sfs.germanet.api.WordCategory;
 
 
@@ -65,6 +68,8 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 
 	HashMap<String, HashSet<String>>verbLemmaIds = new HashMap<>();
 	GermaNet gnet;
+
+	HashSet<String> eindeutigReflexiv = new HashSet<>();
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
@@ -106,7 +111,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 				lines = IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("org/hucompute/textimager/disambiguation/verbs/lib/verbLemmaIds"));
 			else
 				lines = FileUtils.readLines(new File(verblemmaIdsPath));
-			
+
 			for (String string : lines) {
 				String[]split = string.split("\t");
 				HashSet<String>ids = new HashSet<>();
@@ -120,6 +125,55 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 			e.printStackTrace();
 		}
 
+
+		try {
+			eindeutigReflexiv = getReflexivVerbs(gnet);
+		} catch (XMLStreamException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public static HashSet<String>getReflexivVerbs(GermaNet gnet ) throws FileNotFoundException, XMLStreamException, IOException{
+		if(gnet == null)		
+			gnet = new GermaNet("src/main/resources/GN_V140.zip");
+
+		HashSet<String>notWorking = new HashSet<>();
+		notWorking.add("verirren");
+		notWorking.add("einfetten");
+		notWorking.add("enthalten");
+		notWorking.add("hineinfressen");
+		notWorking.add("kontrahieren");
+		notWorking.add("rumtreiben");
+		notWorking.add("hineinmischen");
+		notWorking.add("überwerfen");
+		notWorking.add("kaufen");
+		notWorking.add("assoziieren");
+		notWorking.add("gesellen");
+		notWorking.add("versammeln");
+		notWorking.add("zanken");
+		notWorking.add("abwaschen");
+		notWorking.add("zieren");
+
+		HashSet<String>containsR = new HashSet<>();
+		HashSet<String>allFramesContainsR = new HashSet<>();
+		HashSet<String>doubled = new HashSet<>();
+
+		for (LexUnit lex : gnet.getLexUnits(WordCategory.verben)) {
+			if(lex.getFrames().stream().anyMatch(x -> x.toString().toLowerCase().contains("ar")||x.toString().toLowerCase().contains("dr"))&& gnet.getLexUnits(lex.getOrthForm(),WordCategory.verben).size() == 2)
+			{
+				if(containsR.contains(lex.getOrthForm()))
+					doubled.add(lex.getOrthForm());
+
+				if(lex.getFrames().stream().allMatch(x -> x.toString().toLowerCase().contains("ar")||x.toString().toLowerCase().contains("dr")))
+					allFramesContainsR.add(lex.getOrthForm());
+				containsR.add(lex.getOrthForm());
+			}
+		}
+		allFramesContainsR.removeAll(doubled);
+		allFramesContainsR.removeAll(notWorking);
+		return allFramesContainsR;
 	}
 
 	@Override
@@ -149,35 +203,68 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 					continue;
 				}
 
-				if(token.getPos().getClass() == V.class && verbLemmaIds.containsKey(lemma)){
-
-					String toAnalize = sentence.getCoveredText();
-					for (String string : sentence.getCoveredText().split(",|;|:| und ")) {
-						if(sentence.getCoveredText().indexOf(string) <= (token.getBegin()-sentence.getBegin()) && sentence.getCoveredText().indexOf(string)+string.length() >= token.getEnd()-sentence.getBegin())
-						{
-							toAnalize = (string);
-							break;
-						}
+				if(token.getPos().getClass() == V.class){
+					
+					if(gnet.getLexUnits(lemma, WordCategory.verben).isEmpty()){
+						WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
+						sense.setValue(Integer.toString(-1));
+						sense.addToIndexes();
 					}
-					toAnalize = toAnalize.replace("\"", " \"")
-							.replace(",", " ,")
-							.replace(".", " . ")
-							.replace(":", " :")
-							.replace(";", " ;")
-							.replace("?", " ?")
-							.replace("!", " !")
-							.replace("(", " (")
-							.replace(")", " )")
-							.replace("-", " -")
-							.replaceAll(" -(\\w)", " - $1").trim();
-					System.out.println(toAnalize);
-					List<ProbLabel> probLabel = modelProvider.getResource().predictProba(toAnalize,100000);
-					for (ProbLabel probLabel2 : probLabel) {
-						if(verbLemmaIds.get(lemma).contains(probLabel2.label.replace("__label__", ""))){
-							WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
-							sense.setValue(probLabel2.label.replace("__label__", ""));
-							sense.addToIndexes();
-							break;
+					else if(eindeutigReflexiv.contains(lemma)){
+						boolean containsPRF = false;
+						for (PR pr: JCasUtil.selectCovered(PR.class,sentence)) {
+							if(pr.getPosValue().equals("PRF") && lemma.contains(JCasUtil.selectCovered(Dependency.class, pr).get(0).getGovernor().getLemma().getValue()))
+							{
+								containsPRF = true;
+							}
+						}
+
+						for (LexUnit lexUnit : gnet.getLexUnits(lemma, WordCategory.verben)) {
+							if(containsPRF && lexUnit.getFrames().stream().anyMatch(x -> x.toString().toLowerCase().contains("ar")||x.toString().toLowerCase().contains("dr")))
+							{
+								WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
+								sense.setValue(Integer.toString(lexUnit.getId()));
+								sense.addToIndexes();
+								break;
+							}
+							if(!containsPRF && !lexUnit.getFrames().stream().anyMatch(x -> x.toString().toLowerCase().contains("ar")||x.toString().toLowerCase().contains("dr")))
+							{
+								WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
+								sense.setValue(Integer.toString(lexUnit.getId()));
+								sense.addToIndexes();
+								break;
+							}							
+						};
+					}
+					else if(verbLemmaIds.containsKey(lemma)){
+						String toAnalize = sentence.getCoveredText();
+						for (String string : sentence.getCoveredText().split(",|;|:| und ")) {
+							if(sentence.getCoveredText().indexOf(string) <= (token.getBegin()-sentence.getBegin()) && sentence.getCoveredText().indexOf(string)+string.length() >= token.getEnd()-sentence.getBegin())
+							{
+								toAnalize = (string);
+								break;
+							}
+						}
+						toAnalize = toAnalize.replace("\"", " \"")
+								.replace(",", " ,")
+								.replace(".", " . ")
+								.replace(":", " :")
+								.replace(";", " ;")
+								.replace("?", " ?")
+								.replace("!", " !")
+								.replace("(", " (")
+								.replace(")", " )")
+								.replace("-", " -")
+								.replaceAll(" -(\\w)", " - $1").trim();
+						System.out.println(toAnalize);
+						List<ProbLabel> probLabel = modelProvider.getResource().predictProba(toAnalize,100000);
+						for (ProbLabel probLabel2 : probLabel) {
+							if(verbLemmaIds.get(lemma).contains(probLabel2.label.replace("__label__", ""))){
+								WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
+								sense.setValue(probLabel2.label.replace("__label__", ""));
+								sense.addToIndexes();
+								break;
+							}
 						}
 					}
 				}
