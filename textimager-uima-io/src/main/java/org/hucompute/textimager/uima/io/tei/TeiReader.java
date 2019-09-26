@@ -20,7 +20,9 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -39,13 +41,12 @@ import org.apache.uima.collection.CollectionException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.fit.util.FSCollectionFactory;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.StringArray;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Logger;
-import org.apache.uima.util.Progress;
-import org.apache.uima.util.ProgressImpl;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -53,6 +54,7 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.SAXWriter;
 import org.hucompute.textimager.uima.type.Wikify;
 import org.hucompute.textimager.uima.type.WikipediaInformation;
+import org.hucompute.textimager.uima.type.segmentation.Div;
 import org.hucompute.textimager.uima.type.segmentation.Head;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
@@ -242,7 +244,7 @@ extends ResourceCollectionReaderBase
 	private static final String TAG_HEADUNIT = "head";
 	private static final String TAG_PUBLICATIONSTMT = "publicationStmt";
 	private static final String TAG_IDNO = "idno";
-	
+
 
 	int size = 0;
 
@@ -259,7 +261,7 @@ extends ResourceCollectionReaderBase
 		try {
 			// Init with an empty iterator
 			teiElementIterator = asList(new Element[0]).iterator();
-			
+
 			// Make sure we know about the first element;
 			nextTeiElement();
 		}
@@ -273,7 +275,7 @@ extends ResourceCollectionReaderBase
 		posMappingProvider = MappingProviderFactory.createPosMappingProvider(mappingPosLocation,
 				posTagset, getLanguage());
 	}
-	
+
 	//	@Override
 	//	public Progress[] getProgress()
 	//	{
@@ -410,7 +412,6 @@ extends ResourceCollectionReaderBase
 		finally {
 			closeQuietly(is);
 		}
-
 		// Move currentTeiElement to the next text
 		nextTeiElement();
 		processed++;
@@ -448,6 +449,24 @@ extends ResourceCollectionReaderBase
 		}
 	}
 
+	private class DivDataHolder{
+
+		private int divStart = -1;
+		private String divTyp = null;
+		private String divId = null;
+		private String divSection = null;
+		private String divUser = null;
+		private String divTimestamp = null;
+		
+		public DivDataHolder(int divStart, String divTyp, String divId, String divSection, String divUser, String divTimestamp){
+			this.divStart = divStart;
+			this.divTyp = divTyp;
+			this.divId = divId;
+			this.divSection = divSection;
+			this.divUser = divUser;
+			this.divTimestamp = divTimestamp;
+		}
+	}
 
 
 	public class TeiHandler
@@ -480,12 +499,15 @@ extends ResourceCollectionReaderBase
 		private String depType = null; 
 		private String depHead = null;
 
-		private int divStart = -1;
-		private String divTyp = null;
-		private String divId = null;
-		private String divSection = null;
-		private String divUser = null;
-		private String divTimestamp = null;
+//		private int divStart = -1;
+//		private String divTyp = null;
+//		private String divId = null;
+//		private String divSection = null;
+//		private String divUser = null;
+//		private String divTimestamp = null;
+		
+		Deque<DivDataHolder> divStack = new ArrayDeque<DivDataHolder>();
+
 
 		private int headStart = -1;
 		private String headTyp = null;
@@ -567,12 +589,14 @@ extends ResourceCollectionReaderBase
 				kategories = new ArrayList<>();
 			}
 			else if(TAG_DIVUNIT.equals(aName)){
-				divStart = getBuffer().length();
-				divTyp = aAttributes.getValue(ATTR_TYPE);
-				divId = aAttributes.getValue("id");
-				divSection = aAttributes.getValue("section");
-				divUser = aAttributes.getValue("user");
-				divTimestamp = aAttributes.getValue("timestamp");
+				
+				int divStart = getBuffer().length();
+				String divTyp = aAttributes.getValue(ATTR_TYPE);
+				String divId = aAttributes.getValue("id");
+				String divSection = aAttributes.getValue("section");
+				String divUser = aAttributes.getValue("user");
+				String divTimestamp = aAttributes.getValue("timestamp");
+				divStack.push(new DivDataHolder(divStart, divTyp, divId, divSection, divUser, divTimestamp));				
 			}
 			else if(TAG_HEADUNIT.equals(aName)){
 				headStart = getBuffer().length();
@@ -681,16 +705,16 @@ extends ResourceCollectionReaderBase
 				captureText = false;
 				inTextElement = false;
 			}
-//			else if (captureText && TAG_DIVUNIT.equals(aName)) {
-//				Div div = new Div(getJCas(), divStart, getBuffer().length());
-//				div.setTyp(divTyp);
-//				div.setId(divId);
-//				div.setSection(divSection);
-//				div.setUser(divUser);
-//				div.setTimestamp(divTimestamp);
-//				div.addToIndexes();
-//				divStart = -1;
-//			}
+			else if (captureText && TAG_DIVUNIT.equals(aName)) {
+				DivDataHolder dataholder = divStack.pop();
+				Div div = new Div(getJCas(), dataholder.divStart, getBuffer().length());
+				div.setTyp(dataholder.divTyp);
+				div.setId(dataholder.divId);
+				div.setSection(dataholder.divSection);
+				div.setUser(dataholder.divUser);
+				div.setTimestamp(dataholder.divTimestamp);
+				div.addToIndexes();
+			}
 			else if (captureText && TAG_HEADUNIT.equals(aName)) {
 				if(headStart >-1 &&(getBuffer().substring(headStart).trim().contains("Literatur") || 
 						getBuffer().substring(headStart).trim().contains("Siehe auch")) && 
@@ -722,7 +746,8 @@ extends ResourceCollectionReaderBase
 			else if (inTextElement && TAG_PARAGRAPH.equals(aName)) {
 				if (readParagraph && getBuffer().length()>0) {
 					try{
-						new Paragraph(getJCas(), paragraphStart, getBuffer().length()).addToIndexes();
+						if(paragraphStart >= 0)
+							new Paragraph(getJCas(), paragraphStart, getBuffer().length()).addToIndexes();
 					}catch(NullPointerException|ClassCastException e){
 						e.printStackTrace();
 					}
@@ -753,6 +778,7 @@ extends ResourceCollectionReaderBase
 					rootWrapper.constituent.setChildren(FSCollectionFactory.createFSArray(
 							getJCas(), rootWrapper.children));
 					rootWrapper.constituent.addToIndexes();
+					JCasUtil.select(getJCas(), Token.class);
 				}
 			}
 			else if (inTextElement
@@ -872,7 +898,8 @@ extends ResourceCollectionReaderBase
 				wiki.setCategories(categories);
 				wiki.addToIndexes();
 				captureText = false;
-			}else if(TAG_IDNO.equals(aName) && idnoType!=null){
+			}
+			else if(TAG_IDNO.equals(aName) && idnoType!=null){
 				switch (idnoType) {
 				case "pageURL":
 					pageURL = getBuffer().substring(idnoStart);

@@ -1,0 +1,144 @@
+Q729	Animal_Fauna
+#fictional
+Q15702752	Animal_Fauna
+Q3542731	Animal_Fauna
+
+Q929302	Attribute_Property
+Q2722260	Attribute_Property
+Q937228	Attribute_Property
+Q758238	Attribute_Property
+Q107715	Attribute_Property
+Q11348	Attribute_Property
+
+Q17781690	Body_Corpus
+Q4936952	Body_Corpus
+Q25570959	Body_Corpus
+
+Q11024	Communication
+Q190539	Communication
+Q189756	Communication
+
+
+Q1656682	Event_Happening
+Q1190554	Event_Happening
+Q18669875	Event_Happening
+Q3249551	Event_Happening
+#fictional
+Q14136353	Event_Happening
+
+Q205555	Feeling_Emotion
+Q9415	Feeling_Emotion
+
+Q181394	Food
+Q2095	Food
+Q44	Food
+#fictional
+Q15731648	Food
+
+Q16887380	Group_Collection
+#fictional
+Q14514600	Group_Collection
+
+Q649732	Cognition_Ideation
+Q131841	Cognition_Ideation
+Q41689629	Cognition_Ideation
+Q108163	Cognition_Ideation
+Q29651519	Cognition_Ideation
+Q9081	Cognition_Ideation
+Q4330518	Cognition_Ideation
+Q781413	Cognition_Ideation
+Q151885	Cognition_Ideation
+Q1151067	Cognition_Ideation
+
+Q17334923	Location_Place
+Q6256	Location_Place
+Q515	Location_Place
+Q15642541	Location_Place
+Q7275	Location_Place
+Q82794	Location_Place
+Q2221906	Location_Place
+Q618123	Location_Place
+#fictional
+Q3895768	Location_Place
+
+
+Q644302	Motive
+Q4583280	Motive
+
+Q29651224	NaturalObject
+Q19577	NaturalObject
+Q1621273	NaturalObject
+Q19549	NaturalObject
+
+Q1322005	NaturalObject
+
+Q5	Person_HumanBeing
+Q215627	Person_HumanBeing
+#Fictional
+Q95074	Person_HumanBeing
+Q15632617	Person_HumanBeing
+
+
+Q756	Plant_Flora
+Q131449	Plant_Flora
+#fictional
+Q3244549	Plant_Flora
+Q22442634	Plant_Flora
+
+Q6498684	Possession_Property
+Q829909	Possession_Property
+
+Q309314	Quantity_Amount
+
+Q930933	Relation
+
+Q207961	Shape
+
+Q8425	Society
+Q170161	Society
+Q17148672	Society
+Q1639378	Society
+
+Q813912	State_Condition
+
+Q223557	Substance
+Q214609	Substance
+Q27166344	Substance
+Q3366856	Substance
+Q43460564	Substance
+Q1621273	Substance
+#fictional
+Q15053464	Substance
+
+Q11471	Time
+Q186081	Time
+Q26907166	Time
+Q14795564	Time
+
+
+Q7184903	abstract
+Q11461	abstract
+
+
+Q7239	animate
+#fictional
+Q21192438	animate
+
+Q15621286	Artifact
+Q8205328	Artifact
+Q16686448	Artifact
+Q386724	Artifact
+Q17537576	Artifact
+Q11019	Artifact
+Q39546	Artifact
+
+
+Q1368	currency
+Q8142	currency
+
+Q43229	Group_Collection
+
+Q42889	Vehicle
+Q11460	garment
+Q11402	force
+Q4406616	concrete
