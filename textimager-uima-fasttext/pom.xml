@@ -30,6 +30,11 @@
 	</build>
 	<dependencies>
 		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-core</artifactId>
+		    <version>2.11.2</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.vinhkhuc</groupId>
 			<artifactId>jfasttext</artifactId>
 			<version>0.4</version>
@@ -53,6 +58,11 @@
 		<dependency>
 			<groupId>org.hucompute.services</groupId>
 			<artifactId>services-types</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-types</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
