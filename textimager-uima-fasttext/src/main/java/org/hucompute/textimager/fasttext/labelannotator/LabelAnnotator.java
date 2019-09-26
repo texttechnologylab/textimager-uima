@@ -86,7 +86,7 @@ public class LabelAnnotator extends BaseAnnotator {
 	            		if (fields.length == 2) {
 	            			String id = fields[0];
 	            			String name = fields[1];
-	            			ddcNames.put(id, name);
+	            			ddcNames.put("__label_ddc__" + id.toString(), name);
 	            		}
 	            	}
 	            }
@@ -117,7 +117,6 @@ public class LabelAnnotator extends BaseAnnotator {
             Collection<CategoryCoveredTagged> ddcCats = JCasUtil.select(jCas, CategoryCoveredTagged.class);
             ArrayList<CategoryCoveredTagged> ddcCatsSorted = new ArrayList<>();
             for (CategoryCoveredTagged ddcCat : ddcCats) {
-            	logger.debug("found ddc: " + ddcCat.getValue() + ", " + ddcCat.getTags());
                 if (ddcCat.getTags().equals(appendDDC)) {
                     ddcCatsSorted.add(ddcCat);
                 }
