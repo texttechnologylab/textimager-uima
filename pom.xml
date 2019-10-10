@@ -47,7 +47,7 @@
 <!--         <module>textimager-uima-NeuralnetworkNER</module> -->
 <!--         <module>textimager-uima-cltk</module> -->
         <module>textimager-uima-io</module>
-        <module>textimager-uima-fasttext</module>
+<!--         <module>textimager-uima-fasttext</module> -->
         <module>textimager-uima-tagme</module>
         <module>textimager-uima-HUComputeNER</module>
         <module>textimager-uima-disambiguation</module>
