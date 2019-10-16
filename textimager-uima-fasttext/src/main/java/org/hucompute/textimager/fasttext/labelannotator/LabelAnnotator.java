@@ -67,7 +67,7 @@ public class LabelAnnotator extends BaseAnnotator {
     @ConfigurationParameter(name = PARAM_DDC_CLASS_NAMES_FILENAME, mandatory = false, defaultValue = "")
     protected String ddcClassNamesFilename;
 
-    private HashMap<String, String> ddcNames;
+    private HashMap<String, HashMap<String, String>> ddcNames;
 
     @Override
     public void initialize(UimaContext aContext) throws ResourceInitializationException {
@@ -75,26 +75,37 @@ public class LabelAnnotator extends BaseAnnotator {
 
         ddcNames = new HashMap<>();
         if (!appendDDC.isEmpty()) {
-            logger.debug("loading ddc class names...");
-			try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(ddcClassNamesFilename), Charset.forName("UTF-8")));
-	            String line;
-	            while ((line = reader.readLine()) != null) {
-	            	line = line.trim();
-	            	if (!line.isEmpty()) {
-	            		String[] fields = line.split("\t");
-	            		if (fields.length == 2) {
-	            			String id = fields[0];
-	            			String name = fields[1];
-	            			ddcNames.put("__label_ddc__" + id.toString(), name);
-	            		}
-	            	}
-	            }
-	            reader.close();
-			} catch (IOException e) {
-				throw new ResourceInitializationException(e);
-			}
-			logger.debug("loaded " + ddcNames.size() + " ddc class names.");
+        	String[] ddcClassNamesFilenames = ddcClassNamesFilename.split(",", -1);
+        	for (String entry : ddcClassNamesFilenames) {
+        		String[] entryFields = entry.split(":", 2);
+        		String lang = entryFields[0].trim();
+        		String filename = entryFields[1].trim();
+        		
+	            logger.debug("loading ddc class names for language " + lang + " from file " + filename + "...");
+				try {
+					ddcNames.put(lang, new HashMap<>());
+					
+					BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename), Charset.forName("UTF-8")));
+		            String line;
+		            while ((line = reader.readLine()) != null) {
+		            	line = line.trim();
+		            	if (!line.isEmpty()) {
+		            		String[] fields = line.split("\t");
+		            		if (fields.length == 2) {
+		            			String id = fields[0];
+		            			String name = fields[1];
+		            			ddcNames.get(lang).put("__label_ddc__" + id.toString(), name);
+		            		}
+		            	}
+		            }
+		            reader.close();
+				} catch (IOException e) {
+					throw new ResourceInitializationException(e);
+				}
+				logger.debug("loaded " + ddcNames.get(lang).size() + " ddc class names.");
+	        }
+
+			logger.debug("loaded ddc class names for " + ddcNames.size() + " languages.");
         }
     }
     
@@ -135,8 +146,10 @@ public class LabelAnnotator extends BaseAnnotator {
 
                     for (int i = 0; i < 10; ++i) {
                         ddcsSB.append(" ").append(ddcLabelToFeature(topCat.getValue()));
-                        if (ddcNames.containsKey(topCat.getValue())) {
-                            ddcsSB.append(" ").append(ddcNames.get(topCat.getValue()));
+                        if (ddcNames.containsKey(jCas.getDocumentLanguage())) {
+	                        if (ddcNames.get(jCas.getDocumentLanguage()).containsKey(topCat.getValue())) {
+	                            ddcsSB.append(" ").append(ddcNames.get(jCas.getDocumentLanguage()).get(topCat.getValue()));
+	                        }
                         }
                     }
                 } else if (appendDDCVariant.equals("top_scorex")) {
@@ -151,8 +164,10 @@ public class LabelAnnotator extends BaseAnnotator {
 
                     for (int i = 0; i < reps; ++i) {
                         ddcsSB.append(" ").append(ddcLabelToFeature(topCat.getValue()));
-                        if (ddcNames.containsKey(topCat.getValue())) {
-                            ddcsSB.append(" ").append(ddcNames.get(topCat.getValue()));
+                        if (ddcNames.containsKey(jCas.getDocumentLanguage())) {
+	                        if (ddcNames.get(jCas.getDocumentLanguage()).containsKey(topCat.getValue())) {
+	                            ddcsSB.append(" ").append(ddcNames.get(jCas.getDocumentLanguage()).get(topCat.getValue()));
+	                        }
                         }
                     }
                 } else if (appendDDCVariant.equals("top_text_length_x")) {
@@ -171,8 +186,10 @@ public class LabelAnnotator extends BaseAnnotator {
 
                     for (int i = 0; i < reps; ++i) {
                         ddcsSB.append(" ").append(ddcLabelToFeature(topCat.getValue()));
-                        if (ddcNames.containsKey(topCat.getValue())) {
-                            ddcsSB.append(" ").append(ddcNames.get(topCat.getValue()));
+                        if (ddcNames.containsKey(jCas.getDocumentLanguage())) {
+	                        if (ddcNames.get(jCas.getDocumentLanguage()).containsKey(topCat.getValue())) {
+	                            ddcsSB.append(" ").append(ddcNames.get(jCas.getDocumentLanguage()).get(topCat.getValue()));
+	                        }
                         }
                     }
                 }
