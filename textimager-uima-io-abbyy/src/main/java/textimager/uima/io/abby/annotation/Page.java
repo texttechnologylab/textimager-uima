@@ -1,9 +1,9 @@
 package textimager.uima.io.abby.annotation;
 
-import biofid.utility.Util;
 import org.apache.uima.jcas.JCas;
 import org.texttechnologylab.annotation.ocr.OCRPage;
 import org.xml.sax.Attributes;
+import textimager.uima.io.abby.utility.Util;
 
 public class Page extends Annotation {
 	private Integer width;

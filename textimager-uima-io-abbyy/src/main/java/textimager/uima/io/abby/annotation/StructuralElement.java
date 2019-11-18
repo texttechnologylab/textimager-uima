@@ -1,7 +1,7 @@
 package textimager.uima.io.abby.annotation;
 
-import biofid.utility.Util;
 import org.xml.sax.Attributes;
+import textimager.uima.io.abby.utility.Util;
 
 public class StructuralElement extends Annotation {
 	
