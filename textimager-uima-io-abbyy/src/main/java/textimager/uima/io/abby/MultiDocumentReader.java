@@ -1,16 +1,14 @@
 package textimager.uima.io.abby;
 
+import com.google.common.io.Files;
 import de.tudarmstadt.ukp.dkpro.core.api.anomaly.type.Anomaly;
 import de.tudarmstadt.ukp.dkpro.core.api.anomaly.type.SuggestedAction;
-import de.tudarmstadt.ukp.dkpro.core.api.io.ResourceCollectionReaderBase;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.uima.UIMA_UnsupportedOperationException;
 import org.apache.uima.UimaContext;
-import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -29,25 +27,21 @@ import textimager.uima.io.abby.annotation.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static textimager.uima.io.abby.utility.Util.*;
 
 /**
- * JCasCollectionReader to read a single article from multiple XML files.
+ * JCasCollectionReader_ImplBase to read a multiple articles in subdirectories of the given source location.
  */
-public class DocumentReader extends JCasCollectionReader_ImplBase {
+public class MultiDocumentReader extends JCasCollectionReader_ImplBase {
 	/**
-	 * Folder path containing all article pages as ABBYY FineReader XML files.
+	 * Root path of the document locations.
 	 */
 	public static final String PARAM_SOURCE_LOCATION = ComponentParameters.PARAM_SOURCE_LOCATION;
 	@ConfigurationParameter(name = PARAM_SOURCE_LOCATION)
@@ -121,22 +115,26 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 	 * Word dictionary to extend the isWordFromDictionary annotation
 	 */
 	private HashSet<String> dict;
-	private ProgressImpl progress;
-	private String documentId;
-	private ArrayList<String> inputFiles;
+	private ProgressImpl xmlProgress;
+	private ProgressImpl documentProgress;
 	private boolean stillHasNext = true;
+	private Iterator<Map.Entry<String, ArrayList<String>>> documentIterator;
 	
 	
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
 		
-		inputFiles = new ArrayList<>();
-		try (Stream<Path> files = Files.list(Paths.get(sourceLocation))) {
-			files.forEachOrdered(f -> inputFiles.add(f.toString()));
-			progress = new ProgressImpl(0, inputFiles.size(), "XMLs");
-		} catch (Exception e) {
-			throw new ResourceInitializationException(e);
+		HashMap<String, ArrayList<String>> documentFolderMap = new HashMap<>();
+		for (File file : Files.fileTraverser().depthFirstPreOrder(new File(sourceLocation))) {
+			if (file.isDirectory() && isLeafDir.test(file) && Objects.nonNull(file.listFiles())) {
+				documentFolderMap.put(file.getName(), Arrays.stream(file.listFiles()).map(File::toPath).map(Path::toString).collect(Collectors.toCollection(ArrayList::new)));
+			}
 		}
+		documentProgress = new ProgressImpl(0, documentFolderMap.size(), "documents");
+		int xmlCount = documentFolderMap.values().stream().mapToInt(List::size).sum();
+		xmlProgress = new ProgressImpl(0, xmlCount, "XMLs");
+		
+		documentIterator = documentFolderMap.entrySet().iterator();
 	}
 	
 	public void process(JCas jCas, ArrayList<String> inputFiles, String documentId) throws IOException, ParserConfigurationException, SAXException {
@@ -220,7 +218,7 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 					}
 				}
 			}
-			progress.increment(1);
+			xmlProgress.increment(1);
 		}
 		OCRDocument ocrDocument = new OCRDocument(jCas);
 		ocrDocument.setBegin(0);
@@ -262,7 +260,7 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 			
 			boolean letterTable = weirdLetterTable.matcher(coveredText).matches();
 			bool &= !letterTable;
-
+			
 			if (!bool) {
 //				String description = String.format("letterRatio:%03f, charactersPerToken:%03f, alnumRatio:%03f, weirdNumberTable:%b", letterRatio, charactersPerToken, alnumRatio, !(numberTable && letterRatio >= pMinLineLetterRatio * 2));
 				String description = String.format("weirdNumberTable:%b, weirdLetterTable:%b", numberTable, letterTable);
@@ -276,11 +274,14 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 	@Override
 	public void getNext(JCas jCAS) throws IOException, CollectionException {
 		try {
+			Map.Entry<String, ArrayList<String>> entry = documentIterator.next();
+			String documentId = entry.getKey();
+			ArrayList<String> inputFiles = entry.getValue();
+			
 			DocumentMetaData documentMetaData = DocumentMetaData.create(jCAS);
 			documentMetaData.setDocumentId(documentId);
 			jCAS.setDocumentLanguage(language);
 			process(jCAS, inputFiles, documentId);
-			stillHasNext = false;
 		} catch (SAXException | ParserConfigurationException e) {
 			throw new IOException(e);
 		}
@@ -289,11 +290,11 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 	
 	@Override
 	public boolean hasNext() throws IOException, CollectionException {
-		return stillHasNext;
+		return documentIterator.hasNext();
 	}
 	
 	@Override
 	public Progress[] getProgress() {
-		return new Progress[]{progress};
+		return new Progress[]{xmlProgress};
 	}
 }
