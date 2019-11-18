@@ -1,12 +1,12 @@
 package textimager.uima.io.abby.annotation;
 
-import biofid.utility.Util;
 import com.google.common.collect.Lists;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.StringList;
 import org.texttechnologylab.annotation.ocr.OCRToken;
 import org.xml.sax.Attributes;
+import textimager.uima.io.abby.utility.Util;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;

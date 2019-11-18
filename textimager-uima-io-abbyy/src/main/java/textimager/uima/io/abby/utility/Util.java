@@ -3,7 +3,6 @@ package textimager.uima.io.abby.utility;
 import com.google.common.base.Strings;
 import de.tudarmstadt.ukp.dkpro.core.api.anomaly.type.SpellingAnomaly;
 import org.apache.uima.jcas.JCas;
-import org.jetbrains.annotations.NotNull;
 import org.languagetool.JLanguageTool;
 import org.languagetool.rules.RuleMatch;
 import org.texttechnologylab.annotation.ocr.OCRDocument;
@@ -11,6 +10,7 @@ import org.texttechnologylab.annotation.ocr.OCRToken;
 import org.xml.sax.SAXException;
 import textimager.uima.io.abby.FineReaderExportHandler;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.parsers.SAXParser;
 import java.io.*;
 import java.nio.charset.StandardCharsets;

@@ -6,13 +6,11 @@ import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.uima.UIMAException;
 import org.apache.uima.UIMA_UnsupportedOperationException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -44,7 +42,7 @@ import static textimager.uima.io.abby.utility.Util.*;
 /**
  * JCasCollectionReader to read a single article from multiple XML files.
  */
-public class ArticleReader extends JCasCollectionReader_ImplBase {
+public class DocumentReader extends JCasCollectionReader_ImplBase {
 	/**
 	 * Folder path containing all article pages as ABBYY FineReader XML files.
 	 */
@@ -87,122 +85,120 @@ public class ArticleReader extends JCasCollectionReader_ImplBase {
 	protected Boolean pUnescapeHTML;
 	private HashSet<String> dict;
 	private ProgressImpl progress;
+	private String documentId;
+	private ArrayList<String> inputFiles;
+	private boolean stillHasNext = true;
 	
 	
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
 		
-		ArrayList<String> inputFiles = new ArrayList<>();
+		inputFiles = new ArrayList<>();
 		try (Stream<Path> files = Files.list(Paths.get(sourceLocation))) {
 			files.forEachOrdered(f -> inputFiles.add(f.toString()));
 			progress = new ProgressImpl(0, inputFiles.size(), "XMLs");
-			process(inputFiles, Paths.get(sourceLocation).getFileName().toString());
+			documentId = Paths.get(sourceLocation).getFileName().toString();
 		} catch (Exception e) {
 			throw new ResourceInitializationException(e);
 		}
 	}
 	
-	public void process(ArrayList<String> pInputPaths, String documentId) throws UIMAException {
-		try {
-			if (!pDictPath.isEmpty()) {
-				dict = loadDict(pDictPath);
-			}
+	public void process(JCas jCas) throws IOException, ParserConfigurationException, SAXException {
+		if (!pDictPath.isEmpty()) {
+			dict = loadDict(pDictPath);
+		}
 //			JLanguageTool langTool = new JLanguageTool(new org.languagetool.language.GermanyGerman()); // FIXME: LanguageTool error
-			SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-			SAXParser saxParser = saxParserFactory.newSAXParser();
+		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+		SAXParser saxParser = saxParserFactory.newSAXParser();
+		
+		final HashMap<String, FineReaderExportHandler> pages = new HashMap<>(inputFiles.size());
+		boolean lastTokenWasSpace = false;
+		
+		for (String pagePath : inputFiles) {
+			FineReaderExportHandler fineReaderExportHandler = getExportHandler(saxParser, pagePath, pCharLeftMax, pBlockTopMin, lastTokenWasSpace);
+			pages.put(pagePath, fineReaderExportHandler);
+			lastTokenWasSpace = fineReaderExportHandler.lastTokenWasSpace;
+		}
+		
+		// Check if any of the files contains more than one document. TODO: implement multi page documents
+		if (pages.values().stream().anyMatch(page -> page.pages.size() > 1)) {
+			String invalidPages = pages.entrySet().stream().filter(entry -> entry.getValue().pages.size() > 1).map(Map.Entry::getKey).collect(Collectors.joining("; "));
+			throw new UIMA_UnsupportedOperationException(new NotImplementedException("Input documents may not contain more than one page.\nDocuments in question: " + invalidPages));
+		}
+		
+		// build collection SOFA string from individual pages
+		final StringBuilder textBuilder = new StringBuilder();
+		for (String pagePath : inputFiles) {
+			textBuilder.append(pages.get(pagePath).tokens.stream().map(Token::getTokenString).collect(Collectors.joining("")));
+		}
+		String text = textBuilder.toString();
+		
+		// Remove HTML escapes
+		if (pUnescapeHTML) {
+			text = StringEscapeUtils.unescapeHtml4(text);
+		}
+		
+		// Set SOFA string
+		jCas.setDocumentText(text);
+		
+		int lastOffset = 0;
+		for (int i = 0; i < inputFiles.size(); i++) {
+			String pageInputPath = inputFiles.get(i);
+			FineReaderExportHandler fineReaderExportHandler = pages.get(pageInputPath);
+			String pageId = Paths.get(pageInputPath).getFileName().toString();
 			
-			final HashMap<String, FineReaderExportHandler> pages = new HashMap<>(pInputPaths.size());
-			boolean lastTokenWasSpace = false;
+			Page page = fineReaderExportHandler.pages.get(0);
+			page.pageId = pageId;
+			page.pageNumber = i;
+			OCRPage ocrPage = page.wrap(jCas, lastOffset);
+			jCas.addFsToIndexes(ocrPage);
 			
-			for (String pagePath : pInputPaths) {
-				FineReaderExportHandler fineReaderExportHandler = getExportHandler(saxParser, pagePath, pCharLeftMax, pBlockTopMin, lastTokenWasSpace);
-				pages.put(pagePath, fineReaderExportHandler);
-				lastTokenWasSpace = fineReaderExportHandler.lastTokenWasSpace;
+			for (Block block : fineReaderExportHandler.blocks) {
+				jCas.addFsToIndexes(block.wrap(jCas, lastOffset));
 			}
-			
-			// Check if any of the files contains more than one document. TODO: implement multi page documents
-			if (pages.values().stream().anyMatch(page -> page.pages.size() > 1)) {
-				String invalidPages = pages.entrySet().stream().filter(entry -> entry.getValue().pages.size() > 1).map(Map.Entry::getKey).collect(Collectors.joining("; "));
-				throw new UIMA_UnsupportedOperationException(new NotImplementedException("Input documents may not contain more than one page.\nDocuments in question: " + invalidPages));
+			for (Paragraph paragraph : fineReaderExportHandler.paragraphs) {
+				jCas.addFsToIndexes(paragraph.wrap(jCas, lastOffset));
 			}
-			
-			// build collection SOFA string from individual pages
-			final StringBuilder textBuilder = new StringBuilder();
-			for (String pagePath : pInputPaths) {
-				textBuilder.append(pages.get(pagePath).tokens.stream().map(Token::getTokenString).collect(Collectors.joining("")));
+			for (Line line : fineReaderExportHandler.lines) {
+				OCRLine ocrLine = line.wrap(jCas, lastOffset);
+				jCas.addFsToIndexes(ocrLine);
+				detectGarbageLine(jCas, ocrLine);
 			}
-			String text = textBuilder.toString();
-			
-			// Remove HTML escapes
-			if (pUnescapeHTML) {
-				text = StringEscapeUtils.unescapeHtml4(text);
-			}
-			
-			// Set SOFA string
-			JCas jCas = JCasFactory.createText(text);
-			
-			int lastOffset = 0;
-			for (int i = 0; i < pInputPaths.size(); i++) {
-				String pageInputPath = pInputPaths.get(i);
-				FineReaderExportHandler fineReaderExportHandler = pages.get(pageInputPath);
-				String pageId = Paths.get(pageInputPath).getFileName().toString();
+			for (Token token : fineReaderExportHandler.tokens) {
+				if (token.isSpace())
+					continue;
 				
-				Page page = fineReaderExportHandler.pages.get(0);
-				page.pageId = pageId;
-				page.pageNumber = i;
-				OCRPage ocrPage = page.wrap(jCas, lastOffset);
-				jCas.addFsToIndexes(ocrPage);
+				OCRToken ocrToken = token.wrap(jCas, lastOffset);
+				jCas.addFsToIndexes(ocrToken);
 				
-				for (Block block : fineReaderExportHandler.blocks) {
-					jCas.addFsToIndexes(block.wrap(jCas, lastOffset));
+				for (OCRToken subtoken : token.wrapSubtokens(jCas, lastOffset)) {
+					jCas.addFsToIndexes(subtoken);
 				}
-				for (Paragraph paragraph : fineReaderExportHandler.paragraphs) {
-					jCas.addFsToIndexes(paragraph.wrap(jCas, lastOffset));
-				}
-				for (Line line : fineReaderExportHandler.lines) {
-					OCRLine ocrLine = line.wrap(jCas, lastOffset);
-					jCas.addFsToIndexes(ocrLine);
-					detectGarbageLine(jCas, ocrLine);
-				}
-				for (Token token : fineReaderExportHandler.tokens) {
-					if (token.isSpace())
-						continue;
-					
-					OCRToken ocrToken = token.wrap(jCas, lastOffset);
-					jCas.addFsToIndexes(ocrToken);
-					
-					for (OCRToken subtoken : token.wrapSubtokens(jCas, lastOffset)) {
-						jCas.addFsToIndexes(subtoken);
+				
+				if (dict != null) {
+					boolean inDict = inDict(token.getTokenString(), dict);
+					if (!inDict && (token.getAverageCharConfidence() < pMinTokenConfidence || !(token.isWordNormal || token.isWordFromDictionary || token.isWordNumeric))) {
+						tagGarbageLine(jCas, String.format("AvgTokenConfidence:%f, isWordNormal:%b, isWordFromDictionary:%b, inDict:%b, isWordNumeric:%b, suspiciousChars:%d",
+								token.getAverageCharConfidence(), token.isWordNormal, token.isWordFromDictionary, inDict, token.isWordNumeric, token.suspiciousChars), token.start, token.end, "BioFID_Abby_Token_Heuristic", token.getTokenString());
 					}
-					
-					if (dict != null) {
-						boolean inDict = inDict(token.getTokenString(), dict);
-						if (!inDict && (token.getAverageCharConfidence() < pMinTokenConfidence || !(token.isWordNormal || token.isWordFromDictionary || token.isWordNumeric))) {
-							tagGarbageLine(jCas, String.format("AvgTokenConfidence:%f, isWordNormal:%b, isWordFromDictionary:%b, inDict:%b, isWordNumeric:%b, suspiciousChars:%d",
-									token.getAverageCharConfidence(), token.isWordNormal, token.isWordFromDictionary, inDict, token.isWordNumeric, token.suspiciousChars), token.start, token.end, "BioFID_Abby_Token_Heuristic", token.getTokenString());
-						}
-					}
+				}
 //					else if (false && token.containsHyphen() || token.subTokenStrings().size() > 1) { // FIXME
 //						NamedEntity annotation = new NamedEntity(jCas, token.start, token.end);
 //						annotation.setValue(String.format("AvgTokenConfidence:%f, isWordNormal:%b, isWordFromDictionary:%b, inDict:%b, isWordNumeric:%b, suspiciousChars:%d, containsHyphen:%b, subTokens:%s",
 //								token.getAverageCharConfidence(), token.isWordNormal, token.isWordFromDictionary, inDict, token.isWordNumeric, token.suspiciousChars, token.containsHyphen(), token.subTokenStrings()));
 //						jCas.addFsToIndexes(annotation);
 //					}
-				}
-				progress.increment(1);
 			}
-			OCRDocument ocrDocument = new OCRDocument(jCas);
-			ocrDocument.setBegin(0);
-			ocrDocument.setEnd(jCas.getDocumentText().length());
-			ocrDocument.setDocumentname(documentId);
-			
-			// FIXME: LanguageTool
-			if (pUseLanguageTool) {
+			progress.increment(1);
+		}
+		OCRDocument ocrDocument = new OCRDocument(jCas);
+		ocrDocument.setBegin(0);
+		ocrDocument.setEnd(jCas.getDocumentText().length());
+		ocrDocument.setDocumentname(documentId);
+		
+		// FIXME: LanguageTool
+		if (pUseLanguageTool) {
 //				languageToolSpellcheck(jCas, langTool, text);
-			}
-			
-		} catch (SAXException | ParserConfigurationException | IOException e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -261,12 +257,17 @@ public class ArticleReader extends JCasCollectionReader_ImplBase {
 	
 	@Override
 	public void getNext(JCas jCas) throws IOException, CollectionException {
-	
+		try {
+			process(jCas);
+			stillHasNext = false;
+		} catch (SAXException | ParserConfigurationException e) {
+			throw new IOException(e);
+		}
 	}
 	
 	@Override
 	public boolean hasNext() throws IOException, CollectionException {
-		return false;
+		return stillHasNext;
 	}
 	
 	@Override

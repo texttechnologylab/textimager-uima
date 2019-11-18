@@ -1,10 +1,10 @@
 package textimager.uima.io.abby.annotation;
 
-import biofid.utility.Util;
 import com.google.common.base.Strings;
 import org.apache.uima.jcas.JCas;
 import org.texttechnologylab.annotation.ocr.OCRParagraph;
 import org.xml.sax.Attributes;
+import textimager.uima.io.abby.utility.Util;
 
 public class Paragraph extends Annotation {
 	

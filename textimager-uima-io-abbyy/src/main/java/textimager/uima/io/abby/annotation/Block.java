@@ -5,21 +5,21 @@ import org.texttechnologylab.annotation.ocr.OCRBlock;
 import org.xml.sax.Attributes;
 
 public class Block extends StructuralElement {
-
+	
 	public blockTypeEnum blockType; //  FIXME
 	public final String blockName;
 	public boolean valid;
-
+	
 	public enum blockTypeEnum {
 		Text, Table, Picture, Barcode, Separator, SeparatorsBox, INVALID
 	}
-
+	
 	public Block(int top, int bottom, int left, int right, String blockType, String blockName) {
 		super(top, bottom, left, right);
 		this.blockType = blockTypeEnum.valueOf(blockType);
 		this.blockName = blockName;
 	}
-
+	
 	public Block(Attributes attributes) {
 		super(attributes);
 		try {
@@ -31,7 +31,7 @@ public class Block extends StructuralElement {
 		}
 		this.blockName = attributes.getValue("blockName");
 	}
-
+	
 	@Override
 	public OCRBlock wrap(JCas jCas, int offset) {
 		OCRBlock ocrBlock = new OCRBlock(jCas, start + offset, end + offset);
