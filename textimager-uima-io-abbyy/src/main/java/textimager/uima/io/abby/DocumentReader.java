@@ -2,14 +2,16 @@ package textimager.uima.io.abby;
 
 import de.tudarmstadt.ukp.dkpro.core.api.anomaly.type.Anomaly;
 import de.tudarmstadt.ukp.dkpro.core.api.anomaly.type.SuggestedAction;
+import de.tudarmstadt.ukp.dkpro.core.api.io.ResourceCollectionReaderBase;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.uima.UIMA_UnsupportedOperationException;
 import org.apache.uima.UimaContext;
+import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionException;
-import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
@@ -42,7 +44,7 @@ import static textimager.uima.io.abby.utility.Util.*;
 /**
  * JCasCollectionReader to read a single article from multiple XML files.
  */
-public class DocumentReader extends JCasCollectionReader_ImplBase {
+public class DocumentReader extends ResourceCollectionReaderBase {
 	/**
 	 * Folder path containing all article pages as ABBYY FineReader XML files.
 	 */
@@ -50,39 +52,73 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 	@ConfigurationParameter(name = PARAM_SOURCE_LOCATION)
 	private String sourceLocation;
 	
+	/**
+	 * Set this as the language of the produced documents. Default "de".
+	 */
+	public static final String PARAM_LANGUAGE = ComponentParameters.PARAM_LANGUAGE;
+	@ConfigurationParameter(name = PARAM_LANGUAGE, defaultValue = "de")
+	private String language;
+	
+	/**
+	 * Path to a dictionary of common words.
+	 */
 	public static final String PARAM_DICT_PATH = "pDictPath";
 	@ConfigurationParameter(name = PARAM_DICT_PATH, mandatory = false, defaultValue = "")
 	protected String pDictPath;
+	
+	/**
+	 * Minimum average confidence for a Token. Tokens with less confidence are tagged as anomalies.
+	 */
 	public static final String PARAM_MIN_TOKEN_CONFIDENCE = "pMinTokenConfidence";
 	@ConfigurationParameter(name = PARAM_MIN_TOKEN_CONFIDENCE, mandatory = false, defaultValue = "80")
 	protected Integer pMinTokenConfidence;
+	
+	/**
+	 * If true, use LanguageTool spellcheck for anomaly detection. Currently broken so this parameter does nothing.
+	 */
 	public static final String PARAM_USE_LANGUAGE_TOOL = "pUseLanguageTool";
 	@ConfigurationParameter(name = PARAM_USE_LANGUAGE_TOOL, mandatory = false, defaultValue = "false")
 	protected Boolean pUseLanguageTool;
+	
+	/**
+	 * Maximum pixel offset for a characters left boundary.
+	 */
 	public static final String PARAM_CHAR_LEFT_MAX = "pCharLeftMax";
 	@ConfigurationParameter(name = PARAM_CHAR_LEFT_MAX, mandatory = false, defaultValue = "99999")
 	protected Integer pCharLeftMax;
+	
+	/**
+	 * Minimum pixel offset for a blocks upper boundary.
+	 */
 	public static final String PARAM_BLOCK_TOP_MIN = "pBlockTopMin";
 	@ConfigurationParameter(name = PARAM_BLOCK_TOP_MIN, mandatory = false, defaultValue = "0")
 	protected Integer pBlockTopMin;
+	
+	@Deprecated
 	public static final String PARAM_MIN_LINE_LETTER_RATIO = "pMinLineLetterRatio";
 	@ConfigurationParameter(name = PARAM_MIN_LINE_LETTER_RATIO, mandatory = false, defaultValue = "1")
 	protected Double pMinLineLetterRatio;
+	
+	@Deprecated
 	public static final String PARAM_MIN_LINE_ALNUM_RATIO = "pMinLineAlnumRatio";
 	@ConfigurationParameter(name = PARAM_MIN_LINE_ALNUM_RATIO, mandatory = false, defaultValue = "2")
 	protected Double pMinLineAlnumRatio;
+	
+	@Deprecated
 	public static final String PARAM_MIN_CHARACTERS_PER_TOKEN = "pMinCharactersPerToken";
 	@ConfigurationParameter(name = PARAM_MIN_CHARACTERS_PER_TOKEN, mandatory = false, defaultValue = "3")
 	protected Double pMinCharactersPerToken;
-	public static final String PARAM_MULTI_DOC = "pMultiDoc";
-	@ConfigurationParameter(name = PARAM_MULTI_DOC, mandatory = false, defaultValue = "false")
-	protected Boolean pMultiDoc;
-	public static final String PARAM_USE_OLD_GARBAGE_DETECTION = "pUseOldGarbageDetection";
-	@ConfigurationParameter(name = PARAM_USE_OLD_GARBAGE_DETECTION, mandatory = false, defaultValue = "false")
-	protected Boolean pUseOldGarbageDetection;
+	
+	/**
+	 * Some characters may be escaped HTML sequences. Set this parameter to true to unescape them during parsing.
+	 */
 	public static final String PARAM_UNESCAPE_HTML = "pUnescapeHTML";
 	@ConfigurationParameter(name = PARAM_UNESCAPE_HTML, mandatory = false, defaultValue = "true")
 	protected Boolean pUnescapeHTML;
+	
+	/**
+	 * Word dictionary to extend the isWordFromDictionary annotation
+	 */
 	private HashSet<String> dict;
 	private ProgressImpl progress;
 	private String documentId;
@@ -141,6 +177,7 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 		// Set SOFA string
 		jCas.setDocumentText(text);
 		
+		// Iterate over pages
 		int lastOffset = 0;
 		for (int i = 0; i < inputFiles.size(); i++) {
 			String pageInputPath = inputFiles.get(i);
@@ -182,12 +219,6 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 								token.getAverageCharConfidence(), token.isWordNormal, token.isWordFromDictionary, inDict, token.isWordNumeric, token.suspiciousChars), token.start, token.end, "BioFID_Abby_Token_Heuristic", token.getTokenString());
 					}
 				}
-//					else if (false && token.containsHyphen() || token.subTokenStrings().size() > 1) { // FIXME
-//						NamedEntity annotation = new NamedEntity(jCas, token.start, token.end);
-//						annotation.setValue(String.format("AvgTokenConfidence:%f, isWordNormal:%b, isWordFromDictionary:%b, inDict:%b, isWordNumeric:%b, suspiciousChars:%d, containsHyphen:%b, subTokens:%s",
-//								token.getAverageCharConfidence(), token.isWordNormal, token.isWordFromDictionary, inDict, token.isWordNumeric, token.suspiciousChars, token.containsHyphen(), token.subTokenStrings()));
-//						jCas.addFsToIndexes(annotation);
-//					}
 			}
 			progress.increment(1);
 		}
@@ -232,19 +263,6 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 			boolean letterTable = weirdLetterTable.matcher(coveredText).matches();
 			bool &= !letterTable;
 
-//			int letterCount = countMatches(letterPattern.matcher(coveredText));
-//			int otherCount = countMatches(otherPattern.matcher(coveredText));
-//			double letterRatio = letterCount / (1d * otherCount);
-//			bool &= letterRatio >= pMinLineLetterRatio;
-//
-//			double charactersPerToken = coveredText.length() / (1d * coveredText.split("\\s+").length);
-//			bool &= charactersPerToken >= pMinCharactersPerToken;
-//
-//			int alnumCount = countMatches(alnumPattern.matcher(coveredText));
-//			int nonAlnumCount = countMatches(nonAlnumPattern.matcher(coveredText));
-//			double alnumRatio = alnumCount * 1d / nonAlnumCount;
-//			bool &= alnumRatio >= pMinLineAlnumRatio;
-			
 			if (!bool) {
 //				String description = String.format("letterRatio:%03f, charactersPerToken:%03f, alnumRatio:%03f, weirdNumberTable:%b", letterRatio, charactersPerToken, alnumRatio, !(numberTable && letterRatio >= pMinLineLetterRatio * 2));
 				String description = String.format("weirdNumberTable:%b, weirdLetterTable:%b", numberTable, letterTable);
@@ -256,14 +274,18 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 	}
 	
 	@Override
-	public void getNext(JCas jCas) throws IOException, CollectionException {
+	public void getNext(CAS aCAS) throws IOException, CollectionException {
 		try {
-			process(jCas);
+			aCAS.setDocumentLanguage(language);
+			process(aCAS.getJCas());
 			stillHasNext = false;
 		} catch (SAXException | ParserConfigurationException e) {
 			throw new IOException(e);
+		} catch (CASException e) {
+			throw new CollectionException(e);
 		}
 	}
+	
 	
 	@Override
 	public boolean hasNext() throws IOException, CollectionException {
