@@ -19,9 +19,9 @@
 			<version>1.8.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-fasttext</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<groupId>com.github.vinhkhuc</groupId>
+			<artifactId>jfasttext</artifactId>
+			<version>0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
