@@ -53,7 +53,7 @@ extends JCasAnnotator_ImplBase
 	protected String gcube_token;
 	
 	/**
-	 * Trashhold
+	 * Threshold
 	 */
 	public static final String PARAM_RHO = "rho";
 	@ConfigurationParameter(name = PARAM_RHO, mandatory = false, defaultValue = "0.10f")
@@ -72,7 +72,7 @@ extends JCasAnnotator_ImplBase
 						.ignoreContentType(true)
 						.validateTLSCertificates(false)
 						.timeout(0)
-						.get().text());
+						.post().text());
 				for (Object iterable_element : doc.getJSONArray("annotations")) {
 					JSONObject object = (JSONObject)iterable_element;
 					System.out.println(object.toString(4));
@@ -97,7 +97,7 @@ extends JCasAnnotator_ImplBase
 									.ignoreContentType(true)
 									.validateTLSCertificates(false)
 									.timeout(0)
-									.get().text());
+									.post().text());
 							for (Object iterable_element : doc.getJSONArray("annotations")) {
 								JSONObject object = (JSONObject)iterable_element;
 								if(object.getDouble("rho") > rho && JCasUtil.selectCovered(aJCas, WikipediaLink.class, paragraph.getBegin() + object.getInt("start"), paragraph.getBegin() + object.getInt("end")).isEmpty()){
