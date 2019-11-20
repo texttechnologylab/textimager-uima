@@ -23,7 +23,9 @@ public class MultiDocumentReaderTest {
 			System.out.println(path);
 			CollectionReader reader = CollectionReaderFactory.createReader(MultiDocumentReader.class,
 					MultiDocumentReader.PARAM_SOURCE_LOCATION, path);
-			AnalysisEngineDescription engine1 = AnalysisEngineFactory.createEngineDescription(JCas2JSONConsumer.class);
+			AnalysisEngineDescription engine1 = AnalysisEngineFactory.createEngineDescription(
+					JCas2JSONWriter.class,
+					JCas2JSONWriter.PARAM_TARGET_LOCATION, "/tmp/MultiDocumentReaderTest.json");
 			SimplePipeline.runPipeline(reader, engine1);
 		} catch (UIMAException | IOException e) {
 			e.printStackTrace();
