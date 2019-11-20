@@ -5,7 +5,6 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.junit.Test;
-import textimager.uima.io.abby.DocumentReader;
 import textimager.uima.io.abby.MultiDocumentReader;
 
 import java.io.IOException;
@@ -24,7 +23,7 @@ public class MultiDocumentReaderTest {
 			System.out.println(path);
 			CollectionReader reader = CollectionReaderFactory.createReader(MultiDocumentReader.class,
 					MultiDocumentReader.PARAM_SOURCE_LOCATION, path);
-			AnalysisEngineDescription engine1 = AnalysisEngineFactory.createEngineDescription(DummyCasConsumer.class);
+			AnalysisEngineDescription engine1 = AnalysisEngineFactory.createEngineDescription(JCas2JSONConsumer.class);
 			SimplePipeline.runPipeline(reader, engine1);
 		} catch (UIMAException | IOException e) {
 			e.printStackTrace();

@@ -23,7 +23,7 @@ public class DocumentReaderTest {
 			System.out.println(path);
 			CollectionReader reader = CollectionReaderFactory.createReader(DocumentReader.class,
 					DocumentReader.PARAM_SOURCE_LOCATION, path);
-			AnalysisEngineDescription engine1 = AnalysisEngineFactory.createEngineDescription(DummyCasConsumer.class);
+			AnalysisEngineDescription engine1 = AnalysisEngineFactory.createEngineDescription(JCas2JSONConsumer.class);
 			SimplePipeline.runPipeline(reader, engine1);
 		} catch (UIMAException | IOException e) {
 			e.printStackTrace();
