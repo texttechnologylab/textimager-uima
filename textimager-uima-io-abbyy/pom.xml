@@ -86,6 +86,12 @@
             <version>0.9.11</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hucompute.textimager.uima</groupId>
+            <artifactId>deep-eos-uima</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
