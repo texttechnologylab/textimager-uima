@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Thu Oct 12 17:21:27 CEST 2017 */
+/* First created by JCasGen Tue Jan 21 12:20:14 CET 2020 */
 package de.tudarmstadt.ukp.dkpro.core.io.jwpl.type;
 
 import org.apache.uima.jcas.JCas;
@@ -11,7 +11,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** Wikipedia link
- * Updated by JCasGen Tue Apr 16 12:25:25 CEST 2019
+ * Updated by JCasGen Tue Jan 21 12:20:14 CET 2020
  * @generated */
 public class WikipediaLink_Type extends Annotation_Type {
   /** @generated */

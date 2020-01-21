@@ -8,13 +8,15 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.hucompute.services.type.Language;
 import org.junit.Test;
 
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Language;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 
 import static org.junit.Assert.*;
+
+import java.util.Iterator;
 
 
 public class LanguageIdentificationPercentageTest {
@@ -33,6 +35,9 @@ public class LanguageIdentificationPercentageTest {
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 		System.out.println(JCasUtil.select(cas, Language.class));
 		assertEquals(JCasUtil.select(cas, Language.class).size(),2);
+		Iterator<Language> iter = JCasUtil.select(cas, Language.class).iterator();
+		assertEquals(iter.next().getValue(), "de");
+		assertEquals(iter.next().getValue(), "en");
 	}
 	
 	

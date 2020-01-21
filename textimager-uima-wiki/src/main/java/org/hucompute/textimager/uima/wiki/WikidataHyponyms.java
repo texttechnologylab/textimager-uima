@@ -29,6 +29,7 @@ import org.mapdb.Serializer;
 
 import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
 
+
 public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 
 	/**

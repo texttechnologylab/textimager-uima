@@ -4,30 +4,9 @@
 	<parent>
 		<groupId>org.hucompute.textimager.uima</groupId>
 		<artifactId>textimager-uima</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2</version>
 	</parent>
 	<artifactId>textimager-uima-fasttext</artifactId>
-<!--	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.6</version>		
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>-->
 	<dependencies>
 		<dependency>
 			<groupId>com.github.vinhkhuc</groupId>
@@ -35,25 +14,9 @@
 			<version>0.4</version>
 		</dependency>
 		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.metadata-asl</artifactId>
-			<version>1.8.0</version>
-		</dependency>
-		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.resources-asl</artifactId>
-			<version>1.8.0</version>
-		</dependency>
-		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.testing-asl</artifactId>
-			<scope>test</scope>
-			<version>1.8.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hucompute.services</groupId>
-			<artifactId>services-types</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-types</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>
