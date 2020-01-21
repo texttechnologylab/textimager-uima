@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Thu Oct 12 17:21:27 CEST 2017 */
+/* First created by JCasGen Tue Jan 21 12:20:14 CET 2020 */
 package org.hucompute.textimager.uima.type.wikipedia;
 
 import org.apache.uima.jcas.JCas;
@@ -10,7 +10,7 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** Wikipedia link
- * Updated by JCasGen Tue Apr 16 12:25:25 CEST 2019
+ * Updated by JCasGen Tue Jan 21 12:20:14 CET 2020
  * @generated */
 public class WikipediaLink_Type extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink_Type {
   /** @generated */
@@ -78,7 +78,7 @@ public class WikipediaLink_Type extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.ty
     if (lowLevelTypeChecks)
       return ll_cas.ll_getStringArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_WikiDataHyponyms), i, true);
     jcas.checkArrayBounds(ll_cas.ll_getRefValue(addr, casFeatCode_WikiDataHyponyms), i);
-  return ll_cas.ll_getStringArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_WikiDataHyponyms), i);
+	return ll_cas.ll_getStringArrayValue(ll_cas.ll_getRefValue(addr, casFeatCode_WikiDataHyponyms), i);
   }
    
   /** @generated

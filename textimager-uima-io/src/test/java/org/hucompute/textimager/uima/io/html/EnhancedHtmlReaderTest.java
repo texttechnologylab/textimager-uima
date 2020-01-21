@@ -1,6 +1,5 @@
 package org.hucompute.textimager.uima.io.html;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDescription;
 
 import java.io.File;
@@ -8,12 +7,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.uima.UIMAException;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
-import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.xml.sax.SAXException;
 
-import de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiWriter;
 
 public class EnhancedHtmlReaderTest {
     public static void main(String[] args) throws UIMAException, IOException, SAXException {
