@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <name>TextTechnologyAttribution</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <imports>
+        <import name="desc.type.TextTechnologyGraph"/>
+    </imports>
+    <types>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.Attribution</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.type.AnnotationNode</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.attribution.type.Smaler</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.Attribution</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.attribution.type.Bigger</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.Attribution</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.attribution.type.Louder</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.Attribution</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.attribution.type.Quieter</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.Attribution</supertypeName>
+        </typeDescription>
+    </types>
+</typeSystemDescription>

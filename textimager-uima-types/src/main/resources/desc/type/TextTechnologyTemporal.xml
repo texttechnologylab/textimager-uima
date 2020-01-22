@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <name>TextTechnologyTemporal</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <imports>
+        <import name="desc.type.TextTechnologyGraph"/>
+    </imports>
+    <types>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.Temporal</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.type.AnnotationNode</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.temporal.type.Before</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.Temporal</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.temporal.type.After</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.Temporal</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.temporal.type.During</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.Temporal</supertypeName>
+        </typeDescription>
+    </types>
+</typeSystemDescription>
