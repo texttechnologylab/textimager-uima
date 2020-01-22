@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <name>TextTechnologyKnowledgeEntry</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <imports>
+        <import name="desc.type.TextTechnologyGraph"/>
+    </imports>
+    <types>
+        <typeDescription>
+            <name>org.texttechnologielab.annotation.type.KnowledgeEntry</name>
+            <description/>
+            <supertypeName>org.texttechnologielab.annotation.type.Node</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>identifier</name>
+                    <description/>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>source</name>
+                    <description/>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>reference</name>
+                    <description/>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>parentEntity</name>
+                    <description/>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+    </types>
+</typeSystemDescription>
