@@ -1,7 +1,7 @@
 package org.hucompute.textimager.uima.marmot;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static de.tudarmstadt.ukp.dkpro.core.testing.AssertAnnotations.assertPOS;
+import static org.dkpro.core.testing.AssertAnnotations.assertPOS;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.fit.factory.AggregateBuilder;

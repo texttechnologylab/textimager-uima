@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;
 
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.unihd.dbs.uima.annotator.heideltime.resources.Language;
 import de.unihd.dbs.uima.annotator.heideltime.resources.NormalizationManager;
 import de.unihd.dbs.uima.annotator.heideltime.resources.RePatternManager;
@@ -16,8 +18,6 @@ import de.unihd.dbs.uima.annotator.heideltime.utilities.Logger;
 import de.unihd.dbs.uima.annotator.heideltime.utilities.Toolbox;
 import de.unihd.dbs.uima.types.heideltime.Timex3;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 /**
  * 
  * This class contains methods that work with the dependence of a subject with its
@@ -385,7 +385,7 @@ public class ContextAnalyzer {
 		for (Integer tokEnd : tmToken.keySet()) {
 			if (tokEnd < timex.getBegin()) {
 				Token token = tmToken.get(tokEnd);
-				
+				System.out.println("GET LAST TENSE: string:"+token.getCoveredText()+" pos:"+token.getPosValue());
 				Logger.printDetail("GET LAST TENSE: string:"+token.getCoveredText()+" pos:"+token.getPosValue());
 				Logger.printDetail("hmAllRePattern.containsKey(tensePos4PresentFuture):"+rpm.get("tensePos4PresentFuture"));
 				Logger.printDetail("hmAllRePattern.containsKey(tensePos4Future):"+rpm.get("tensePos4Future"));
