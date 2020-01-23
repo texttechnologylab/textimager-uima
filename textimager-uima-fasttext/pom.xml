@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>textimager-uima-fasttext</artifactId>
-<!--	<build>
+	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -27,8 +27,13 @@
 				</configuration>
 			</plugin>
 		</plugins>
-	</build>-->
+	</build>
 	<dependencies>
+		<dependency>
+		    <groupId>log4j</groupId>
+		    <artifactId>log4j</artifactId>
+		    <version>1.2.17</version>
+		</dependency>
 		<dependency>
 			<groupId>com.github.vinhkhuc</groupId>
 			<artifactId>jfasttext</artifactId>
@@ -49,6 +54,11 @@
 			<artifactId>de.tudarmstadt.ukp.dkpro.core.testing-asl</artifactId>
 			<scope>test</scope>
 			<version>1.8.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-types</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.services</groupId>
