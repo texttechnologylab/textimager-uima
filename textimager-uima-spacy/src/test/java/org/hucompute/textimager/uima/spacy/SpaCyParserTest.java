@@ -40,7 +40,7 @@
 //		t9.addToIndexes();
 //		
 //		AnalysisEngineDescription spacyParser = createEngineDescription(SpaCyParser.class,
-//				SpaCyParser.PARAM_DOCKER_IMAGE,"textimager-spacy");
+//				SpaCyParser.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy");
 //		
 //		SimplePipeline.runPipeline(cas, spacyParser);
 //		

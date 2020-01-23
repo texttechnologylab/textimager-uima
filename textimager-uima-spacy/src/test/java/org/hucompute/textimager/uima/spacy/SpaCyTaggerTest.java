@@ -39,8 +39,8 @@
 //		Token t9 = new Token(cas, 39, 40);
 //		t9.addToIndexes();
 //		
-//		AnalysisEngineDescription spacyTagger = createEngineDescription(SpaCyTagger.class,
-//				SpaCyTagger.PARAM_DOCKER_IMAGE,"textimager-spacy");
+//		AnalysisEngineDescription spacyTagger = createEngineDescription(SpaCyTagger.class
+//				,SpaCyParser.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy");
 //		
 //		SimplePipeline.runPipeline(cas, spacyTagger);
 //		
