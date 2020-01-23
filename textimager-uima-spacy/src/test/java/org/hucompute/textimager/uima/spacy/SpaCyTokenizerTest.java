@@ -19,8 +19,8 @@
 //		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
 //		cas.setDocumentLanguage("de");
 //
-//		AnalysisEngineDescription spacyTokenizer = createEngineDescription(SpaCyTokenizer.class,
-//				SpaCyTagger.PARAM_DOCKER_IMAGE,"textimager-spacy");
+//		AnalysisEngineDescription spacyTokenizer = createEngineDescription(SpaCyTokenizer.class
+//				,SpaCyParser.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy");
 //		
 //		SimplePipeline.runPipeline(cas, spacyTokenizer);
 //		

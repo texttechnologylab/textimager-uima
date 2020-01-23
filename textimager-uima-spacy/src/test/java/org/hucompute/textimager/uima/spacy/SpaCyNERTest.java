@@ -33,8 +33,8 @@
 //		Token t6 = new Token(cas, 23, 28);
 //		t6.addToIndexes();
 //		
-//		AnalysisEngineDescription spacyNer = createEngineDescription(SpaCyNER.class,
-//				SpaCyNER.PARAM_DOCKER_IMAGE,"textimager-spacy");
+//		AnalysisEngineDescription spacyNer = createEngineDescription(SpaCyNER.class
+//				,SpaCyParser.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy");
 //		
 //		SimplePipeline.runPipeline(cas, spacyNer);
 //		
