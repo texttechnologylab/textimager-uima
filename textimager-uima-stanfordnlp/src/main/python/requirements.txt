@@ -1,0 +1,2 @@
+jep==3.9.0
+stanfordnlp==0.2.0
