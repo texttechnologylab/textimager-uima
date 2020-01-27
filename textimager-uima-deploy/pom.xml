@@ -152,6 +152,17 @@
 					<artifactId>dkpro-core-opennlp-asl</artifactId>
 				</dependency>
 
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-gate-asl</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-asl</artifactId>
+					<version>${dkpro.core.version}</version>
+				</dependency>
+
 			</dependencies>
 		</profile>
 
@@ -1467,6 +1478,74 @@
 					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-token-sv-maxent</artifactId>
 					<version>20120616.1</version>
+				</dependency>
+
+				<!-- Gate -->
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.gate-model-lemmatizer-en-default</artifactId>
+					<version>20160531.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.gate-model-tagger-en-annie</artifactId>
+					<version>20160531.0</version>
+				</dependency>
+
+				<!-- UDPipe -->
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-bin</artifactId>
+					<version>20170425.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-multiple-en-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-multiple-no-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-parser-en-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-parser-no-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-segmenter-en-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-segmenter-no-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-tagger-en-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-tagger-no-ud</artifactId>
+					<version>20160523.1</version>
 				</dependency>
 			</dependencies>
 		</profile>

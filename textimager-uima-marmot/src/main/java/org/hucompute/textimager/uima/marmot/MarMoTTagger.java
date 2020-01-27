@@ -152,8 +152,9 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 			for (int i = 0; i < tags.size(); i++) {
 				//Add the POS
 				if(writePos){
-					Type posTag = mappingProvider.getTagType(tags.get(i).get(0));
-					POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, tokens.get(i).getBegin(), tokens.get(i).getEnd());
+//					Type posTag = mappingProvider.getTagType(tags.get(i).get(0));
+//					POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, tokens.get(i).getBegin(), tokens.get(i).getEnd());
+					POS posAnno = new POS(aJCas,tokens.get(i).getBegin(), tokens.get(i).getEnd());
 					posAnno.setPosValue(tags.get(i).get(0));
 					posAnno.addToIndexes();
 					tokens.get(i).setPos(posAnno);

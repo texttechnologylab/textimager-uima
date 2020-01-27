@@ -5,10 +5,12 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import jep.Jep;
 import jep.JepException;
 import jep.MainInterpreter;
 import jep.PyConfig;
 import jep.SharedInterpreter;
+import jep.SubInterpreter;
 
 public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	/**
@@ -30,18 +32,23 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
+		System.out.println("init: " +this.getClass().getName());
 
 		try {
 			if (!pythonHome.isEmpty()) {
 				PyConfig config = new PyConfig();
 				config.setPythonHome(pythonHome);
-				MainInterpreter.setInitParams(config);
+				try{
+					MainInterpreter.setInitParams(config);
+				}
+				catch(JepException e){
+
+				}
 			}
 
 			if (libjepPath!= null && !libjepPath.isEmpty()) {
 				MainInterpreter.setJepLibraryPath(libjepPath);
 			}
-
 			interp = new SharedInterpreter();
 		}
 		catch (Exception ex) {

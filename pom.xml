@@ -21,7 +21,6 @@
 	</build>
 	<packaging>pom</packaging>
 
-
 	<properties>
 		<dkpro.core.version>1.12.0</dkpro.core.version>
 	</properties>
