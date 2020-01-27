@@ -38,4 +38,9 @@ public class MediawikiDDCHelper {
 
 		return "[UNKNOWN_ID]";
 	}
+	
+	public static int getDDCLevel(String id) {
+		if (id == null) return -1;
+		return id.substring(2, 3).equals("0") ? (id.substring(1, 2).equals("0") ? 1 : 2) : 3;
+	}
 }

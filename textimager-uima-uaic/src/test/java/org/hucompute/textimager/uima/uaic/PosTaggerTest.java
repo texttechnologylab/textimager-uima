@@ -1,6 +1,8 @@
 package org.hucompute.textimager.uima.uaic;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.*;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.NN;
+
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -24,9 +26,9 @@ public class PosTaggerTest {
         String testText = "Luceafarul este un poem romantic scris de Mihai Eminescu";
 
         Object[][] results = new Object[][] {
-                {"Luceafarul", NN.type}, {"este", V.type}, {"un", ART.type},
-                {"poem", NN.type}, {"romantic", ADJ.type}, {"scris", ADJ.type},
-                {"de", PP.type}, {"Mihai Eminescu", NP.type}
+                {"Luceafarul", POS_NOUN.type}, {"este", POS_VERB.type}, {"un", POS.type},
+                {"poem", NN.type}, {"romantic", POS_ADJ.type}, {"scris", POS_ADJ.type},
+                {"de", POS.type}, {"Mihai Eminescu", POS_NOUN.type}
         };
 
         //  AnalysisEngineDescription sentenceSplitter = createEngineDescription(SentenceSplitter.class);

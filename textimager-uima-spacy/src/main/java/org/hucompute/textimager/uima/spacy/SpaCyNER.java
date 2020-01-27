@@ -41,7 +41,7 @@ public class SpaCyNER extends SpaCyBase {
 					+ "    print(name,proc)\n"
 					+ "    if name == 'ner':\n"
 					+ "        doc = proc(doc)");
-			interp.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label}for ent in doc.ents]");
+			interp.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
 
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 			poss.forEach(p -> {
