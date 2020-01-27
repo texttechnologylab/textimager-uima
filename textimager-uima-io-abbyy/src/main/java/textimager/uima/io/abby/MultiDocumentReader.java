@@ -218,12 +218,14 @@ public class MultiDocumentReader extends JCasCollectionReader_ImplBase {
 					}
 				}
 			}
+			lastOffset = ocrPage.getEnd();
 			xmlProgress.increment(1);
 		}
 		OCRDocument ocrDocument = new OCRDocument(jCas);
 		ocrDocument.setBegin(0);
 		ocrDocument.setEnd(jCas.getDocumentText().length());
 		ocrDocument.setDocumentname(documentId);
+		jCas.addFsToIndexes(ocrDocument);
 		
 		// FIXME: LanguageTool
 		if (pUseLanguageTool) {
