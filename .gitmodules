@@ -1,0 +1,3 @@
+[submodule "deep-eos-uima"]
+	path = deep-eos-uima
+	url = https://github.com/m-stoeckel/deep-eos-uima

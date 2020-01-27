@@ -52,5 +52,6 @@
         <module>textimager-uima-HUComputeNER</module>
         <module>textimager-uima-disambiguation</module>
         <module>textimager-uima-io-abbyy</module>
+        <module>deep-eos-uima</module>
     </modules>
 </project>
