@@ -78,6 +78,15 @@ extends JCasAnnotator_ImplBase
 			TagmeParser parser = null;
 
 			String lang = aJCas.getDocumentLanguage();
+			
+			switch (lang) {
+			case "en":
+				lang = "en";
+				break;
+			default:
+				lang = "de";
+				break;
+			}
 
 			rel = RelatednessMeasure.create(lang);
 			try {
