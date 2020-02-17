@@ -85,9 +85,10 @@
 		<module>textimager-uima-fasttext</module>
 		<module>textimager-uima-tagme</module>
 		<module>textimager-uima-HUComputeNER</module>
-		<!-- <module>textimager-uima-disambiguation</module> -->
+		<module>textimager-uima-disambiguation</module>
 		<!-- <module>textimager-uima-io-abbyy</module> -->
 		<!-- <module>textimager-uima-deploy</module> -->
 		<module>textimager-uima-heideltime</module>
+		<module>textimager-uima-biofid-gazetteer</module>
 	</modules>
 </project>
