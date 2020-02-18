@@ -1,6 +1,3 @@
-[submodule "deep-eos-uima"]
-	path = deep-eos-uima
-	url = https://github.com/m-stoeckel/deep-eos-uima
 [submodule "textimager-uima-biofid-gazetteer"]
 	path = textimager-uima-biofid-gazetteer
 	url = https://github.com/m-stoeckel/biofid-gazetteer.git
