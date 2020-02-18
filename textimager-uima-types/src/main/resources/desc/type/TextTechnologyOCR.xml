@@ -5,7 +5,7 @@
     <version>1.0</version>
     <vendor/>
     <imports>
-        <import name="desc.type.LexicalUnits"/>
+        <import name="desc.type.LexicalUnits_customized"/>
     </imports>
     <types>
         <typeDescription>
