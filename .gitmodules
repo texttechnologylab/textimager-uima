@@ -7,3 +7,6 @@
 [submodule "textimager-uima-agreement"]
 	path = textimager-uima-agreement
 	url = https://github.com/texttechnologylab/UIMA-Agreement.git
+[submodule "textimager-uima-deep-eos"]
+	path = textimager-uima-deep-eos
+	url = https://github.com/m-stoeckel/deep-eos-uima.git

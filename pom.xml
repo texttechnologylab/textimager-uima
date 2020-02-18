@@ -91,5 +91,6 @@
 		<module>textimager-uima-heideltime</module>
 		<module>textimager-uima-agreement</module>
 		<module>textimager-uima-biofid-gazetteer</module>
+		<module>textimager-uima-deep-eos</module>
 	</modules>
 </project>
