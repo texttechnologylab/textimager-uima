@@ -89,9 +89,9 @@
 		<!-- <module>textimager-uima-io-abbyy</module> -->
 		<!-- <module>textimager-uima-deploy</module> -->
 		<module>textimager-uima-heideltime</module>
-		<module>textimager-uima-agreement</module>
-		<module>textimager-uima-biofid-gazetteer</module>
-		<module>textimager-uima-deep-eos</module>
+		<!-- <module>textimager-uima-agreement</module>-->
+		<!-- <module>textimager-uima-biofid-gazetteer</module>-->
+		<!-- <module>textimager-uima-deep-eos</module>-->
 		<module>textimager-uima-similarity</module>
 	</modules>
 </project>
