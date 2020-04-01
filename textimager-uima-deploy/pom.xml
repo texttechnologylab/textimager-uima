@@ -97,14 +97,24 @@
 					<artifactId>textimager-uima-spacy</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-<!-- 				<dependency> -->
-<!-- 					<groupId>org.hucompute.textimager.uima</groupId> -->
-<!-- 					<artifactId>textimager-uima-biofid-gazetteer</artifactId> -->
-<!-- 					<version>${project.version}</version> -->
-<!-- 				</dependency> -->
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-biofid-gazetteer</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-similarity</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-io</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-database</artifactId>
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>
