@@ -27,6 +27,15 @@
 
 	<repositories>
 		<repository>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>https://repo.maven.apache.org/maven2</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
 			<id>ukp-oss-model-releases</id>
 			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-model-releases-local</url>
 		</repository>
@@ -89,9 +98,9 @@
 		<!-- <module>textimager-uima-io-abbyy</module> -->
 		<!-- <module>textimager-uima-deploy</module> -->
 		<module>textimager-uima-heideltime</module>
-		<!-- <module>textimager-uima-agreement</module>-->
-		<!-- <module>textimager-uima-biofid-gazetteer</module>-->
-		<!-- <module>textimager-uima-deep-eos</module>-->
+		<!-- <module>textimager-uima-agreement</module> -->
+		<!-- <module>textimager-uima-biofid-gazetteer</module> -->
+		<!-- <module>textimager-uima-deep-eos</module> -->
 		<module>textimager-uima-similarity</module>
 	</modules>
 </project>
