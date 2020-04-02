@@ -7,7 +7,12 @@
 		<version>0.0.2</version>
 	</parent>
 	<artifactId>textimager-uima-types</artifactId>
-
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.dkpro.core</groupId>
@@ -40,6 +45,11 @@
 		<dependency>
 			<groupId>org.dkpro.core</groupId>
 			<artifactId>dkpro-core-api-anomaly-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.texttechnologylab</groupId>
+			<artifactId>UIMATypeSystem</artifactId>
+			<version>1.8.2</version>
 		</dependency>
 	</dependencies>
 </project>
