@@ -1,19 +1,20 @@
 package org.hucompute.textimager.uima.base;
 
-import org.apache.log4j.Logger;
+import jep.JepException;
+import jep.MainInterpreter;
+import jep.PyConfig;
+import jep.SharedInterpreter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import jep.JepException;
-import jep.MainInterpreter;
-import jep.PyConfig;
-import jep.SharedInterpreter;
+import java.io.File;
+import java.io.FileFilter;
+import java.nio.file.Paths;
 
 public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
-    private final static Logger logger = Logger.getLogger(JepAnnotator.class);
-    
 	/**
 	 * The Python home directory
 	 */
@@ -33,27 +34,32 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		
-		logger.debug("initializing...");
+		System.out.println("init: " + this.getClass().getName());
 		
 		try {
+			
 			if (!pythonHome.isEmpty()) {
-				logger.info("setting python home path to: " + pythonHome);
+				// Workaround for loading python library files
+				File libDir = Paths.get(pythonHome, "lib").toAbsolutePath().toFile();
+				FileFilter libpythonFilter = new RegexFileFilter("libpython*");
+				for (File file : libDir.listFiles(libpythonFilter)) {
+					System.load(file.getAbsolutePath());
+				}
 				
 				PyConfig config = new PyConfig();
 				config.setPythonHome(pythonHome);
-				MainInterpreter.setInitParams(config);
+				try {
+					MainInterpreter.setInitParams(config);
+				} catch (JepException e) {
+				
+				}
 			}
 			
-			if (!libjepPath.isEmpty()) {
-				logger.info("setting libjep path to: " + libjepPath);
-				
+			if (libjepPath != null && !libjepPath.isEmpty()) {
 				MainInterpreter.setJepLibraryPath(libjepPath);
 			}
-			
 			interp = new SharedInterpreter();
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new ResourceInitializationException(ex);
 		}
@@ -61,8 +67,6 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	
 	@Override
 	public void destroy() {
-		logger.debug("shutting down...");
-		
 		try {
 			interp.close();
 		} catch (JepException e) {

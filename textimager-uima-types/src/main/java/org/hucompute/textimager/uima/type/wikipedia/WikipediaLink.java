@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Thu Oct 12 17:21:27 CEST 2017 */
+/* First created by JCasGen Tue Jan 21 12:20:14 CET 2020 */
 package org.hucompute.textimager.uima.type.wikipedia;
 
 import org.apache.uima.jcas.JCas; 
@@ -11,7 +11,7 @@ import org.apache.uima.jcas.cas.StringArray;
 
 
 /** Wikipedia link
- * Updated by JCasGen Tue Apr 16 12:25:25 CEST 2019
+ * Updated by JCasGen Tue Jan 21 12:20:14 CET 2020
  * XML source: /home/ahemati/workspaceGitNew/textimager-uima/textimager-uima-types/src/main/resources/desc/type/wikipediaLink.xml
  * @generated */
 public class WikipediaLink extends de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink {

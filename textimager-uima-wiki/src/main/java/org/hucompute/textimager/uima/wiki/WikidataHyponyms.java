@@ -3,6 +3,7 @@ package org.hucompute.textimager.uima.wiki;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
 
 import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
+
 
 public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 
@@ -244,9 +246,15 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 				"OPTIONAL { ?item wdt:P279 ?linkTo}"+
 				"}";
 		System.out.println(query);
-		//		String url = "https://query.wikidata.org/sparql?query="+URLEncoder.encode(query,"UTF-8")+"&format=json";
-		String url = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query="+URLEncoder.encode(query)+"&format=json";
-		String response = Jsoup.connect(url).userAgent("Mozilla").ignoreHttpErrors(true).ignoreContentType(true).execute().body();
+
+		String response = null;
+		try{
+			String url = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query="+URLEncoder.encode(query)+"&format=json";
+			response = Jsoup.connect(url).userAgent("Mozilla").ignoreHttpErrors(true).ignoreContentType(true).execute().body();
+		}catch (ConnectException e) {
+			String url = "https://query.wikidata.org/sparql?query="+URLEncoder.encode(query,"UTF-8")+"&format=json";
+			response = Jsoup.connect(url).userAgent("Mozilla").ignoreHttpErrors(true).ignoreContentType(true).execute().body();
+		}
 		JSONObject jsonHyponyms = new JSONObject(response);
 		HashSet<WikidataHyponymObject>objects = json2Wikidata(jsonHyponyms,depthOffset);
 		return objects;
@@ -269,9 +277,14 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 				"}";
 
 		System.out.println(query);
-		//		String url = "https://query.wikidata.org/sparql?query="+URLEncoder.encode(query)+"&format=json";
-		String url = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query="+URLEncoder.encode(query)+"&format=json";
-		JSONObject jsonHyponyms = new JSONObject(Jsoup.connect(url).ignoreContentType(true).execute().body());
+		JSONObject jsonHyponyms = null;
+		try{
+			String url = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query="+URLEncoder.encode(query)+"&format=json";
+			jsonHyponyms= new JSONObject(Jsoup.connect(url).ignoreContentType(true).execute().body());
+		}catch (ConnectException e) {
+			String url = "https://query.wikidata.org/sparql?query="+URLEncoder.encode(query)+"&format=json";
+			jsonHyponyms = new JSONObject(Jsoup.connect(url).ignoreContentType(true).execute().body());
+		}
 		HashSet<WikidataHyponymObject>objects = json2Wikidata(jsonHyponyms,depthOffset);
 		return objects;
 	}
@@ -281,11 +294,14 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 			return allInstances.get(wikidataId);
 		}
 
-		//		String sparqleInstanceOf = "https://query.wikidata.org/sparql?query=SELECT+%3Fitem+%3FitemLabel+%3FlinkTo+%7B%0A++wd:"+wikidataId+"+wdt:P31+%3Fitem%0A++OPTIONAL+%7B+%3Fitem+wdt:P279+%3FlinkTo+%7D%0A++SERVICE+wikibase:label+%7Bbd:serviceParam+wikibase:language+%22en%22+%7D%0A%7D&format=json";
-		//		String sparqleInstanceOf = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query=SELECT%20%3FlinkTo%20%7B%0Awd%3A"+wikidataId+"%20wdt%3AP31%20%3FlinkTo%0A%7D&format=json";
-		//		String sparqleInstanceOf = "https://query.wikidata.org/sparql?query=SELECT%20%3FlinkTo%20%7B%0Awd%3A"+wikidataId+"%20wdt%3AP31%20%3FlinkTo%0A%7D&format=json";
-		String sparqleInstanceOf = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query=SELECT%20%3FlinkTo%20%7B%0Awd%3A"+wikidataId+"%20wdt%3AP31%20%3FlinkTo%0A%7D&format=json";
-		JSONObject jsonHyponymsInstanceOf = new JSONObject(Jsoup.connect(sparqleInstanceOf).ignoreContentType(true).execute().body());
+		JSONObject jsonHyponymsInstanceOf = null;
+		try{
+			String sparqleInstanceOf = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query=SELECT%20%3FlinkTo%20%7B%0Awd%3A"+wikidataId+"%20wdt%3AP31%20%3FlinkTo%0A%7D&format=json";
+			jsonHyponymsInstanceOf = new JSONObject(Jsoup.connect(sparqleInstanceOf).ignoreContentType(true).execute().body());
+		}catch (ConnectException e) {
+			String sparqleInstanceOf = "https://query.wikidata.org/sparql?query=SELECT%20%3FlinkTo%20%7B%0Awd%3A"+wikidataId+"%20wdt%3AP31%20%3FlinkTo%0A%7D&format=json";
+			jsonHyponymsInstanceOf = new JSONObject(Jsoup.connect(sparqleInstanceOf).ignoreContentType(true).execute().body());
+		}
 		HashSet<WikidataHyponymObject>objects = json2Wikidata(jsonHyponymsInstanceOf,1);
 		allInstances.put(wikidataId, objects);
 		return objects;

@@ -14,13 +14,13 @@ import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.resources.ResourceUtils;
+import org.dkpro.core.io.pdf.internal.Pdf2CasConverter;
+import org.dkpro.core.io.pdf.internal.SubstitutionTrieParser;
+import org.dkpro.core.io.pdf.internal.Trie;
 
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Heading;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
-import de.tudarmstadt.ukp.dkpro.core.io.pdf.Pdf2CasConverter;
-import de.tudarmstadt.ukp.dkpro.core.io.pdf.SubstitutionTrieParser;
-import de.tudarmstadt.ukp.dkpro.core.io.pdf.Trie;
 
 /**
  * Collection reader for PDF files. Uses simple heuristics to detect headings and paragraphs.

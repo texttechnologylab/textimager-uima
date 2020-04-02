@@ -1,7 +1,6 @@
 package org.hucompute.textimager.fasttext;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.*;
-import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
@@ -23,8 +22,6 @@ import java.util.HashMap;
  * Basis Klasse für fastText Annotatoren
  */
 public abstract class BaseAnnotator extends JCasAnnotator_ImplBase {
-    private final static Logger logger = Logger.getLogger(BaseAnnotator.class);
-
     /**
      * Comma separated list of Language and Location and Num Labels of the model.
      * EX: de,model_de.bin,100,en,en_model1.bin,93...
@@ -136,12 +133,12 @@ public abstract class BaseAnnotator extends JCasAnnotator_ImplBase {
     public void initialize(UimaContext aContext) throws ResourceInitializationException {
         super.initialize(aContext);
 
-        logger.debug("initializing...");
-        logger.debug("- useLemma: " + useLemma);
-        logger.debug("- addPOS: " + addPOS);
-        logger.debug("- removePunct: " + removePunct);
-        logger.debug("- removeFunctionwords: " + removeFunctionwords);
-        logger.debug("- ignoreMissingLemmaPOS: " + ignoreMissingLemmaPOS);
+        System.out.println("initializing...");
+        System.out.println("- useLemma: " + useLemma);
+        System.out.println("- addPOS: " + addPOS);
+        System.out.println("- removePunct: " + removePunct);
+        System.out.println("- removeFunctionwords: " + removeFunctionwords);
+        System.out.println("- ignoreMissingLemmaPOS: " + ignoreMissingLemmaPOS);
 
         // TODO weitere Vorbedingungen prüfen!
 
@@ -159,12 +156,12 @@ public abstract class BaseAnnotator extends JCasAnnotator_ImplBase {
 
         fasttext = new FastTextBridge(fasttextLocation, language_models_labels, lazyLoad, lazyLoadMax);
 
-        logger.debug("initializing done.");
+        System.out.println("initializing done.");
     }
 
     @Override
     public void destroy() {
-        logger.debug("destroying...");
+    	System.out.println("destroying...");
 
         fasttext.exit();
 
@@ -342,7 +339,7 @@ public abstract class BaseAnnotator extends JCasAnnotator_ImplBase {
     }
 
     protected void readPOSMappingFile() throws IOException, ResourceInitializationException {
-        logger.info("loading pos map file: " + posmapLocation);
+    	System.out.println("loading pos map file: " + posmapLocation);
 
         posMapping = new HashMap<>();
 

@@ -10,14 +10,14 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.hucompute.services.type.Language;
+import org.dkpro.core.api.parameter.ComponentParameters;
+import org.dkpro.core.api.resources.CasConfigurableProviderBase;
+import org.dkpro.core.api.resources.ModelProviderBase;
+import org.dkpro.core.api.resources.ResourceUtils;
 
 import com.github.jfasttext.JFastText;
 
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ModelProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Language;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 
 
@@ -79,7 +79,7 @@ public class LanguageIdentificationPercentage extends JCasAnnotator_ImplBase{
 			Language lang = new Language(aJCas);
 			lang.setBegin(sentence.getBegin());
 			lang.setEnd(sentence.getEnd());
-			lang.setLanguage(foundLanguage);
+			lang.setValue(foundLanguage);
 			lang.addToIndexes(aJCas);
 		}	
 	}

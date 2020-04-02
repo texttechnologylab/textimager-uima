@@ -1,6 +1,5 @@
 package org.hucompute.textimager.fasttext.labelannotator;
 
-import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
@@ -22,8 +21,6 @@ import java.util.HashMap;
  * Führt DDC2 und DDC3 durch, multipliziert dann die Ergebnisse
  */
 public class LabelAnnotatorDDCMul extends BaseAnnotator {
-    private final static Logger logger = Logger.getLogger(LabelAnnotatorDDCMul.class);
-
     /**
      * Comma separated list of Language and Location and Num Labels of the model.
      * EX: de,model_de.bin,100,en,en_model1.bin,93...
@@ -94,7 +91,7 @@ public class LabelAnnotatorDDCMul extends BaseAnnotator {
 
         super.initialize(aContext);
 
-        logger.debug("initializing additional fastText for DDC3");
+        System.out.println("initializing additional fastText for DDC3");
 
         fasttext_ddc3 = new FastTextBridge(fasttextLocation, language_models_labels_ddc3, lazyLoad, lazyLoadMax);
 
@@ -105,7 +102,7 @@ public class LabelAnnotatorDDCMul extends BaseAnnotator {
 
     @Override
     public void destroy() {
-        logger.debug("destroying...");
+    	System.out.println("destroying...");
 
         fasttext_ddc3.exit();
 
@@ -131,7 +128,7 @@ public class LabelAnnotatorDDCMul extends BaseAnnotator {
     protected void processCoveredWithFastText(JCas jCas, Annotation ref) throws AnalysisEngineProcessException {
 
         String documentText = getTextWithDisambig(jCas, ref, useLemma, addPOS, removePunct, removeFunctionwords, disambigTag, disambigLabelReplace, disambigLabelReplaceWith, ignoreMissingLemmaPOS);
-        logger.debug(documentText);
+        System.out.println(documentText);
 
         // Begin und End setzen, entweder passend zu Ref oder kompletter Text
         int begin = (ref != null ? ref.getBegin() : 0);

@@ -17,15 +17,15 @@ import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.lexmorph.morph.MorphologicalFeaturesParser;
+import org.dkpro.core.api.parameter.ComponentParameters;
+import org.dkpro.core.api.resources.CasConfigurableProviderBase;
+import org.dkpro.core.api.resources.MappingProvider;
+import org.dkpro.core.api.resources.MappingProviderFactory;
+import org.dkpro.core.api.resources.ModelProviderBase;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.morph.MorphologicalFeaturesParser;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ModelProviderBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import marmot.morph.MorphTagger;
@@ -118,7 +118,7 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 				return (MorphTagger) object;
 			}
 		};
-		mappingProvider = MappingProviderFactory.createPosMappingProvider(posMappingLocation,
+		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation,
 				language,modelProvider);
 		mappingProvider.setDefaultVariantsLocation(
 				"classpath:/org/hucompute/textimager/uima/marmot/lib/pos-default-variants.map");
@@ -152,8 +152,9 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 			for (int i = 0; i < tags.size(); i++) {
 				//Add the POS
 				if(writePos){
-					Type posTag = mappingProvider.getTagType(tags.get(i).get(0));
-					POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, tokens.get(i).getBegin(), tokens.get(i).getEnd());
+//					Type posTag = mappingProvider.getTagType(tags.get(i).get(0));
+//					POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, tokens.get(i).getBegin(), tokens.get(i).getEnd());
+					POS posAnno = new POS(aJCas,tokens.get(i).getBegin(), tokens.get(i).getEnd());
 					posAnno.setPosValue(tags.get(i).get(0));
 					posAnno.addToIndexes();
 					tokens.get(i).setPos(posAnno);
