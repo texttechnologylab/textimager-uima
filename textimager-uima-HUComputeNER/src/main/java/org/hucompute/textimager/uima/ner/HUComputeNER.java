@@ -19,6 +19,9 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.parameter.ComponentParameters;
+import org.dkpro.core.api.resources.MappingProvider;
+import org.dkpro.core.dictionaryannotator.PhraseTree;
 import org.hucompute.textimager.uima.type.wikidata.WikiDataHyponym;
 import org.hucompute.textimager.uima.type.wikipedia.WikipediaLink;
 import org.texttechnologylab.annotation.AbstractNamedEntity;
@@ -31,17 +34,14 @@ import org.texttechnologylab.annotation.type.concept.Attribute_Property;
 import org.texttechnologylab.annotation.type.concept.Cognition_Ideation;
 import org.texttechnologylab.annotation.type.concept.Taxon;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADJ;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADV;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.CONJ;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PP;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADJ;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADV;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_CONJ;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.dictionaryannotator.PhraseTree;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.PP;
 import de.unihd.dbs.uima.types.heideltime.Timex3;
 
 /**
@@ -198,7 +198,7 @@ extends JCasAnnotator_ImplBase
 									}
 									break;
 								case "MISC":
-									if(token.getBegin() == ent.getBegin() && token.getEnd() == ent.getEnd() && (token.getPos().getClass() == ADJ.class || token.getPos().getClass() == PP.class || token.getPos().getClass() == V.class ))
+									if(token.getBegin() == ent.getBegin() && token.getEnd() == ent.getEnd() && (token.getPos().getClass() == POS_ADJ.class || token.getPos().getClass() == POS_VERB.class ))
 										ent.removeFromIndexes();
 									else{
 										Other other = new Other(aJCas,ent.getBegin(),ent.getEnd());
@@ -254,7 +254,7 @@ extends JCasAnnotator_ImplBase
 											indexWikidataWikipedia.get(lowestDepth).iterator().next().getWikiData());
 								}
 
-								if(token.getBegin() == ne.getBegin() && token.getEnd() == ne.getEnd() && (token.getPos().getClass() == ADJ.class || token.getPos().getClass() == PP.class || token.getPos().getClass() == V.class || token.getPos().getClass() == CONJ.class|| token.getPos().getClass() == ADV.class)){
+								if(token.getBegin() == ne.getBegin() && token.getEnd() == ne.getEnd() && (token.getPos().getClass() == POS_ADJ.class || token.getPos().getClass() == POS_VERB.class  || token.getPos().getClass() == POS_CONJ.class|| token.getPos().getClass() == POS_ADV.class)){
 									//									System.out.println("is ADJ");
 								}
 								else

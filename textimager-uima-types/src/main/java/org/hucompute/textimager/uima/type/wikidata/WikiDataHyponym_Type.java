@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Thu Mar 14 17:32:38 CET 2019 */
+/* First created by JCasGen Tue Jan 21 12:16:52 CET 2020 */
 package org.hucompute.textimager.uima.type.wikidata;
 
 import org.apache.uima.jcas.JCas;
@@ -11,7 +11,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Tue Apr 16 12:25:39 CEST 2019
+ * Updated by JCasGen Tue Jan 21 12:16:52 CET 2020
  * @generated */
 public class WikiDataHyponym_Type extends Annotation_Type {
   /** @generated */

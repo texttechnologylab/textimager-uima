@@ -1,6 +1,5 @@
 package org.hucompute.textimager.fasttext;
 
-import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
 
@@ -9,8 +8,6 @@ import java.util.*;
 
 // Steuert fastText über StdIn/StdOut
 public class FastTextBridge {
-    private final static Logger logger = Logger.getLogger(FastTextBridge.class);
-
     private class FastTextProcess {
         // fastText Parameter
         private int num_labels;
@@ -45,11 +42,11 @@ public class FastTextBridge {
 
             this.is_loaded = false;
 
-            logger.info("[" + this.language + "] Initialized fastText process");
+            System.out.println("[" + this.language + "] Initialized fastText process");
         }
 
         void start() throws ResourceInitializationException {
-            logger.info("[" + this.language + "] Starting fastText process with location [" + this.fasttext + "], model [" + this.model + "], labels num [" + this.num_labels + "]");
+        	System.out.println("[" + this.language + "] Starting fastText process with location [" + this.fasttext + "], model [" + this.model + "], labels num [" + this.num_labels + "]");
 
             // Starten mit Predict, - zum lesen von stdin und k (Anzahl Ausgaben)
             ProcessBuilder builder = new ProcessBuilder(fasttext, "predict-prob", model, "-", String.valueOf(num_labels));
@@ -64,7 +61,7 @@ public class FastTextBridge {
 
                 this.is_loaded = true;
 
-                logger.info("[" + this.language + "] Successfully started fastText process with location [" + this.fasttext + "], model [" + this.model + "], labels num [" + this.num_labels + "]");
+                System.out.println("[" + this.language + "] Successfully started fastText process with location [" + this.fasttext + "], model [" + this.model + "], labels num [" + this.num_labels + "]");
 
             } catch (Exception e) {
                 throw new ResourceInitializationException("Failed to start fastText process", null, e);
@@ -76,7 +73,7 @@ public class FastTextBridge {
                 return;
             }
 
-            logger.info("[" + this.language + "] Exiting fastText process...");
+            System.out.println("[" + this.language + "] Exiting fastText process...");
 
             this.is_loaded = false;
 
@@ -94,7 +91,7 @@ public class FastTextBridge {
                 in.newLine();
                 in.flush();
             } catch (IOException e) {
-                logger.error(e.getMessage(), e);
+            	System.out.println(e.getMessage());
                 return false;
             }
             return true;
@@ -121,7 +118,7 @@ public class FastTextBridge {
 
     // FastText im "Stdin" Modus starten
     public FastTextBridge(String fasttextLocation, String fastTextLanguageModelsLabels, boolean lazyLoad, int maxLoaded) throws ResourceInitializationException {
-        logger.info("Initializing fastText processes...");
+    	System.out.println("Initializing fastText processes...");
 
         // TODO Später auslagern in DUCC, der kann Annotatoren einfach starten und eine Zeit laufen lassen
         lazy_load = lazyLoad;
@@ -147,19 +144,19 @@ public class FastTextBridge {
 
 
         if (!lazyLoad) {
-            logger.info("Starting fastText processes...");
+        	System.out.println("Starting fastText processes...");
             for (HashMap.Entry<String, ArrayList<FastTextProcess>> ftps : fasttext_procs.entrySet()) {
                 for (FastTextProcess ftp : ftps.getValue()) {
                     ftp.start();
                 }
             }
         } else {
-            logger.info("Not starting fastText processes, lazy loading enabled wit max=" + maxLoaded);
+        	System.out.println("Not starting fastText processes, lazy loading enabled wit max=" + maxLoaded);
         }
     }
 
     public void exit() {
-        logger.info("Exiting fastText processes...");
+    	System.out.println("Exiting fastText processes...");
 
         for (HashMap.Entry<String, ArrayList<FastTextProcess>> ftps : fasttext_procs.entrySet()) {
             for (FastTextProcess ftp : ftps.getValue()) {
@@ -171,8 +168,8 @@ public class FastTextBridge {
     }
 
     public ArrayList<FastTextResult> input(String language, String inputText) throws AnnotatorProcessException {
-        logger.debug("fastText input");
-        logger.debug("!!!" + inputText + "!!!");
+    	System.out.println("fastText input");
+    	System.out.println("!!!" + inputText + "!!!");
 
         // Input Text modifizieren:
         // Wenn der Text weniger als 1000 Zeichen hat alles solange wiederholen bis drüber
@@ -191,12 +188,12 @@ public class FastTextBridge {
         ArrayList<FastTextProcess> ftps;
         if (fasttext_procs.containsKey(language)) {
             ftps = fasttext_procs.get(language);
-            logger.debug("  language ok: " + language);
+            System.out.println("  language ok: " + language);
         } else {
             // Keine Sprache, einfach erstes wählen...
             try {
                 ftps = fasttext_procs.entrySet().iterator().next().getValue();
-                logger.debug("  language not ok, took first available: " + language);
+                System.out.println("  language not ok, took first available: " + language);
             } catch (Exception ex) {
                 throw new AnnotatorProcessException("fastText could not find language [" + language + "]", null, ex);
             }
@@ -221,7 +218,7 @@ public class FastTextBridge {
 
             FastTextResult niceResult = new FastTextResult();
 
-            logger.debug("processing with model [" + ftp.model + "]...");
+            System.out.println("processing with model [" + ftp.model + "]...");
             try {
                 if (ftp.stdin(text)) {
                     ArrayList<String> result = new ArrayList<>();
@@ -236,7 +233,7 @@ public class FastTextBridge {
             } catch (Exception ex) {
                 throw new AnnotatorProcessException("fastText could not get output", null, ex);
             }
-            logger.debug("processing with model [" + ftp.model + "] done.");
+            System.out.println("processing with model [" + ftp.model + "] done.");
 
             results.add(niceResult);
         }

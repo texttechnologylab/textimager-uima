@@ -1,0 +1,1573 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.hucompute.textimager.uima</groupId>
+		<artifactId>textimager-uima</artifactId>
+		<version>0.0.2</version>
+	</parent>
+	<artifactId>textimager-uima-deploy</artifactId>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.6.2</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<filters>
+						<filter>
+							<artifact>*:*</artifact>
+							<excludes>
+								<exclude>META-INF/*.SF</exclude>
+								<exclude>META-INF/*.DSA</exclude>
+								<exclude>META-INF/*.RSA</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>source</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<finalName>${project.artifactId}-${project.version}-source</finalName>
+			</build>
+			<dependencies>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-types</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-fasttext</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-wiki</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-heideltime</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-tagme</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-HUComputeNER</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-marmot</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-spacy</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-biofid-gazetteer</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-similarity</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-io</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-database</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-corenlp-gpl</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-matetools-gpl</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-clearnlp-asl</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-languagetool-asl</artifactId>
+					<exclusions>
+						<exclusion>
+							<groupId>biz.k11i</groupId>
+							<artifactId>xgboost-predictor</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-langdetect-asl</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-tokit-asl</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-rftagger-asl</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-maltparser-asl</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>de.bwaldvogel</groupId>
+					<artifactId>liblinear</artifactId>
+					<version>2.30</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-berkeleyparser-gpl</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-opennlp-asl</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-gate-asl</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-asl</artifactId>
+					<version>${dkpro.core.version}</version>
+				</dependency>
+
+			</dependencies>
+		</profile>
+
+		<profile>
+			<id>models</id>
+			<build>
+				<finalName>${project.artifactId}-${project.version}-models</finalName>
+			</build>
+			<dependencies>
+				<!-- Models -->
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.langdetect-model-languageidentifier-any-wikipedia</artifactId>
+					<version>20141013.1</version>
+				</dependency>
+
+				<!-- Models MateTools -->
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-lemmatizer-de-tiger</artifactId>
+					<version>20140113.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-lemmatizer-en-conll2009</artifactId>
+					<version>20130117.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-lemmatizer-es-conll2009</artifactId>
+					<version>20130117.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-lemmatizer-fr-ftb</artifactId>
+					<version>20130918.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-morphtagger-de-tiger</artifactId>
+					<version>20140113.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-morphtagger-es-conll2009</artifactId>
+					<version>20130117.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-morphtagger-fr-ftb</artifactId>
+					<version>20130918.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-parser-de-crosstrain</artifactId>
+					<version>20100919.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-parser-de-tiger</artifactId>
+					<version>20140113.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-parser-en-conll2009</artifactId>
+					<version>20130117.2</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-parser-es-conll2009</artifactId>
+					<version>20130117.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-parser-fa-parsper</artifactId>
+					<version>20141124.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-parser-fr-ftb</artifactId>
+					<version>20130918.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-parser-zh-conll2009</artifactId>
+					<version>20130117.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-srl-de-tiger</artifactId>
+					<version>20130105.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-srl-en-conll2009</artifactId>
+					<version>20130117.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-srl-es-conll2009</artifactId>
+					<version>20130320.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-srl-zh-conll2009</artifactId>
+					<version>20130117.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-tagger-de-crosstrain</artifactId>
+					<version>20100919.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-tagger-de-tiger</artifactId>
+					<version>20140113.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-tagger-en-conll2009</artifactId>
+					<version>20130117.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-tagger-es-conll2009</artifactId>
+					<version>20130117.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-tagger-fr-ftb</artifactId>
+					<version>20130918.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.matetools-model-tagger-zh-conll2009</artifactId>
+					<version>20130117.1</version>
+				</dependency>
+
+				<!-- Models CoreNlp -->
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-coref-en</artifactId>
+					<version>20120709.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-coref-en-default</artifactId>
+					<version>20181005.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-depparser-de-ud</artifactId>
+					<version>20161213.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-depparser-en-ud</artifactId>
+					<version>20161213.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-depparser-fr-ud</artifactId>
+					<version>20161211.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-de-dewac_175m_600.crf</artifactId>
+					<version>20150130.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-de-germeval2014.hgc_175m_600.crf</artifactId>
+					<version>20180227.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-de-hgc_175m_600.crf</artifactId>
+					<version>20161213.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-de-nemgp</artifactId>
+					<version>20141024.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-de-openminted_ss_model.crf</artifactId>
+					<version>20170125.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-all.3class.caseless.distsim.crf</artifactId>
+					<version>20161213.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-all.3class.distsim.crf</artifactId>
+					<version>20161213.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-all.3class.nodistsim.crf</artifactId>
+					<version>20160110.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-all.4class.distsim.crf</artifactId>
+					<version>20120709.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-conll.4class.caseless.distsim.crf</artifactId>
+					<version>20160110.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-conll.4class.distsim.crf</artifactId>
+					<version>20150420.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-conll.4class.nodistsim.crf</artifactId>
+					<version>20160110.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-conll.distsim.crf</artifactId>
+					<version>20120522.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-muc.7class.caseless.distsim.crf</artifactId>
+					<version>20150129.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-muc.7class.distsim.crf</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-muc.7class.nodistsim.crf</artifactId>
+					<version>20160110.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-muc.distsim.crf</artifactId>
+					<version>20120522.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-nowiki.3class.caseless.distsim.crf</artifactId>
+					<version>20161213.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-nowiki.3class.nodistsim.crf</artifactId>
+					<version>20160110.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-en-openminted_ss_model.crf</artifactId>
+					<version>20170125.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-ner-es-ancora.distsim.s512.crf</artifactId>
+					<version>20161211.1</version>
+				</dependency>
+
+
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-ar-factored</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-ar-sr</artifactId>
+					<version>20180227.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-de-factored</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-de-pcfg</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-de-sr</artifactId>
+					<version>20141031.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-en-factored</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-en-pcfg</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-en-pcfg.caseless</artifactId>
+					<version>20160110.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-en-rnn</artifactId>
+					<version>20140104.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-en-sr</artifactId>
+					<version>20141031.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-en-sr-beam</artifactId>
+					<version>20141031.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-en-wsj-factored</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-en-wsj-pcfg</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-en-wsj-rnn</artifactId>
+					<version>20140104.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-es-pcfg</artifactId>
+					<version>20161211.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-es-sr</artifactId>
+					<version>20161211.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-es-sr-beam</artifactId>
+					<version>20161211.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-fr-factored</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-fr-sr</artifactId>
+					<version>20160114.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-fr-sr-beam</artifactId>
+					<version>20141023.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-zh-factored</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-zh-pcfg</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-zh-sr</artifactId>
+					<version>20141023.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-zh-xinhua-factored</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-parser-zh-xinhua-pcfg</artifactId>
+					<version>20150129.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-ar-accurate</artifactId>
+					<version>20131112.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-ar-default</artifactId>
+					<version>20180103.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-ar-fast</artifactId>
+					<version>20130404.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-de-dewac</artifactId>
+					<version>20140827.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-de-fast</artifactId>
+					<version>20140827.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-de-fast-caseless</artifactId>
+					<version>20140827.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-de-hgc</artifactId>
+					<version>20140827.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-de-ud</artifactId>
+					<version>20161213.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-bidirectional-distsim</artifactId>
+					<version>20181002.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-bidirectional-distsim-wsj-0-18</artifactId>
+					<version>20120709.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-caseless-left3words-distsim</artifactId>
+					<version>20181002.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-fast.41</artifactId>
+					<version>20130730.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-left3words-distsim</artifactId>
+					<version>20181002.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-left3words-distsim-wsj-0-18</artifactId>
+					<version>20120709.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-twitter</artifactId>
+					<version>20130730.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-twitter-fast</artifactId>
+					<version>20130914.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-wsj-0-18-bidirectional-distsim</artifactId>
+					<version>20160110.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-wsj-0-18-bidirectional-nodistsim</artifactId>
+					<version>20131112.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-wsj-0-18-caseless-left3words-distsim</artifactId>
+					<version>20140827.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-wsj-0-18-left3words-distsim</artifactId>
+					<version>20140616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-en-wsj-0-18-left3words-nodistsim</artifactId>
+					<version>20131112.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-es-default</artifactId>
+					<version>20161211.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-es-distsim</artifactId>
+					<version>20161211.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-fr-default</artifactId>
+					<version>20140616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-zh-default</artifactId>
+					<version>20120709.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-zh-distsim</artifactId>
+					<version>20140616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-tagger-zh-nodistsim</artifactId>
+					<version>20140616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-de-ud</artifactId>
+					<version>20161213.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-en-ptb-conll</artifactId>
+					<version>20160119.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-en-sd</artifactId>
+					<version>20150418.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-en-ud</artifactId>
+					<version>20161213.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-en-wsj-sd</artifactId>
+					<version>20150418.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-en-wsj-ud</artifactId>
+					<version>20161213.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-fr-ud</artifactId>
+					<version>20180227.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-zh-ctb-conll</artifactId>
+					<version>20160119.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-zh-ptb-conll</artifactId>
+					<version>20161223.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-model-depparser-zh-ud</artifactId>
+					<version>20161223.1</version>
+				</dependency>
+
+				<!-- ClearNLP -->
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-dictionary-en-default</artifactId>
+					<version>20131111.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-lemma-en-default</artifactId>
+					<version>20131111.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-morph-en-default</artifactId>
+					<version>20130715.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-parser-en-craft</artifactId>
+					<version>20121017.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-parser-en-mayo</artifactId>
+					<version>20131111.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-parser-en-medical</artifactId>
+					<version>20121017.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-parser-en-ontonotes</artifactId>
+					<version>20131128.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-pred-en-mayo</artifactId>
+					<version>20131111.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-pred-en-ontonotes</artifactId>
+					<version>20131128.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-role-en-mayo</artifactId>
+					<version>20131111.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-role-en-ontonotes</artifactId>
+					<version>20131111.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-segmenter-en-default</artifactId>
+					<version>20131111.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-srl-en-mayo</artifactId>
+					<version>20131111.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-srl-en-ontonotes</artifactId>
+					<version>20131128.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-tagger-en-craft</artifactId>
+					<version>20121017.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-tagger-en-mayo</artifactId>
+					<version>20131111.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-tagger-en-medical</artifactId>
+					<version>20121017.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.clearnlp-model-tagger-en-ontonotes</artifactId>
+					<version>20131128.0</version>
+				</dependency>
+
+				<!-- RFTagger -->
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-bin</artifactId>
+					<version>20130430.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-model-morph-cz-cac</artifactId>
+					<version>20150728.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-model-morph-de-tiger</artifactId>
+					<version>20150928.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-model-morph-hu-szeged</artifactId>
+					<version>20150728.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-model-morph-ru-ric</artifactId>
+					<version>20150728.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-model-morph-sk-snk</artifactId>
+					<version>20150728.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-model-morph-sl-jos</artifactId>
+					<version>20150728.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-upstream-morph-cz-cac</artifactId>
+					<version>20150728</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-upstream-morph-de-tiger</artifactId>
+					<version>20150928</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-upstream-morph-hu-szeged</artifactId>
+					<version>20150728</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-upstream-morph-ru-ric</artifactId>
+					<version>20150728</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-upstream-morph-sk-snk</artifactId>
+					<version>20150728</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.rftagger-upstream-morph-sl-jos</artifactId>
+					<version>20150728</version>
+				</dependency>
+
+				<!-- Maltparser -->
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.maltparser-model-parser-en-linear</artifactId>
+					<version>20120312.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.maltparser-model-parser-en-poly</artifactId>
+					<version>20120312.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.maltparser-model-parser-es-linear</artifactId>
+					<version>20130220.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.maltparser-model-parser-fa-linear</artifactId>
+					<version>20130522.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.maltparser-model-parser-fr-linear</artifactId>
+					<version>20120312.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.maltparser-model-parser-pl-linear</artifactId>
+					<version>20120904.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.maltparser-model-parser-sv-linear</artifactId>
+					<version>20120925.2</version>
+				</dependency>
+
+				<!-- Berkeleyparser -->
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.berkeleyparser-model-parser-ar-sm5</artifactId>
+					<version>20090917.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.berkeleyparser-model-parser-bg-sm5</artifactId>
+					<version>20090917.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.berkeleyparser-model-parser-de-sm5</artifactId>
+					<version>20090917.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.berkeleyparser-model-parser-en-sm6</artifactId>
+					<version>20100819.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.berkeleyparser-model-parser-fr-sm5</artifactId>
+					<version>20090917.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.berkeleyparser-model-parser-zh-sm5</artifactId>
+					<version>20090917.1</version>
+				</dependency>
+
+				<!-- Opennlp -->
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-chunker-en-default</artifactId>
+					<version>20100908.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-chunker-en-perceptron-ixa</artifactId>
+					<version>20160205.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-de-nemgp</artifactId>
+					<version>20141024.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-en-date</artifactId>
+					<version>20100907.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-en-location</artifactId>
+					<version>20100907.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-en-money</artifactId>
+					<version>20100907.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-en-organization</artifactId>
+					<version>20100907.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-en-percentage</artifactId>
+					<version>20100907.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-en-person</artifactId>
+					<version>20130624.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-en-time</artifactId>
+					<version>20100907.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-es-location</artifactId>
+					<version>20100908.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-es-misc</artifactId>
+					<version>20100908.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-es-organization</artifactId>
+					<version>20100908.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-es-person</artifactId>
+					<version>20100908.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-nl-location</artifactId>
+					<version>20100908.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-nl-misc</artifactId>
+					<version>20100908.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-nl-organization</artifactId>
+					<version>20100908.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-ner-nl-person</artifactId>
+					<version>20100908.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-parser-en-chunking</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-parser-en-chunking-ixa</artifactId>
+					<version>20140426.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-parser-es-chunking-ixa</artifactId>
+					<version>20140426.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-sentence-da-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-sentence-de-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-sentence-en-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-sentence-it-maxent</artifactId>
+					<version>20130618.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-sentence-nb-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-sentence-nl-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-sentence-pt-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-sentence-sv-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-da-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-da-perceptron</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-de-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-de-perceptron</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-en-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-en-perceptron</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-en-perceptron-ixa</artifactId>
+					<version>20131115.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-es-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-es-maxent-ixa</artifactId>
+					<version>20140425.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-es-maxent-universal</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-es-perceptron</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-es-perceptron-ixa</artifactId>
+					<version>20131115.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-es-perceptron-universal</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-it-perceptron</artifactId>
+					<version>20130618.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-nl-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-nl-perceptron</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-pt-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-pt-mm-maxent</artifactId>
+					<version>20130121.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-pt-mm-perceptron</artifactId>
+					<version>20130121.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-pt-perceptron</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-sv-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-tagger-sv-perceptron</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-token-da-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-token-de-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-token-en-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-token-it-maxent</artifactId>
+					<version>20130618.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-token-nb-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-token-nl-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-token-pt-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-model-token-sv-maxent</artifactId>
+					<version>20120616.1</version>
+				</dependency>
+
+				<!-- Gate -->
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.gate-model-lemmatizer-en-default</artifactId>
+					<version>20160531.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.gate-model-tagger-en-annie</artifactId>
+					<version>20160531.0</version>
+				</dependency>
+
+				<!-- UDPipe -->
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-bin</artifactId>
+					<version>20170425.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-multiple-en-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-multiple-no-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-parser-en-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-parser-no-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-segmenter-en-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-segmenter-no-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-tagger-en-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-udpipe-model-tagger-no-ud</artifactId>
+					<version>20160523.1</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+</project>

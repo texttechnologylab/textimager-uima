@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -24,8 +23,6 @@ import org.hucompute.textimager.fasttext.ProbabilityLabel;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
 
 public class LabelAnnotator extends BaseAnnotator {
-    private final static Logger logger = Logger.getLogger(LabelAnnotator.class);
-
     /**
      * Tag of Disambig Results
      */
@@ -81,7 +78,7 @@ public class LabelAnnotator extends BaseAnnotator {
         		String lang = entryFields[0].trim();
         		String filename = entryFields[1].trim();
         		
-	            logger.debug("loading ddc class names for language " + lang + " from file " + filename + "...");
+	            System.out.println("loading ddc class names for language " + lang + " from file " + filename + "...");
 				try {
 					ddcNames.put(lang, new HashMap<>());
 					
@@ -102,10 +99,10 @@ public class LabelAnnotator extends BaseAnnotator {
 				} catch (IOException e) {
 					throw new ResourceInitializationException(e);
 				}
-				logger.debug("loaded " + ddcNames.get(lang).size() + " ddc class names.");
+				System.out.println("loaded " + ddcNames.get(lang).size() + " ddc class names.");
 	        }
 
-			logger.debug("loaded ddc class names for " + ddcNames.size() + " languages.");
+        	System.out.println("loaded ddc class names for " + ddcNames.size() + " languages.");
         }
     }
     
@@ -117,7 +114,7 @@ public class LabelAnnotator extends BaseAnnotator {
     @Override
     protected void processCoveredWithFastText(JCas jCas, Annotation ref) throws AnalysisEngineProcessException {
         String documentText = getTextWithDisambig(jCas, ref, useLemma, addPOS, removePunct, removeFunctionwords, disambigTag, disambigLabelReplace, disambigLabelReplaceWith, ignoreMissingLemmaPOS);
-        logger.debug(documentText);
+        System.out.println(documentText);
         if (documentText.isEmpty()) {
             return;
         }
@@ -136,13 +133,13 @@ public class LabelAnnotator extends BaseAnnotator {
             if (!ddcCatsSorted.isEmpty()) {
                 Collections.sort(ddcCatsSorted, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
 
-                logger.debug("ddc variant: " + appendDDCVariant);
+                System.out.println("ddc variant: " + appendDDCVariant);
 
                 if (appendDDCVariant.equals("top_10x")) {
                     CategoryCoveredTagged topCat = ddcCatsSorted.get(0);
 
-                    logger.debug("top ddc: " + topCat.getValue());
-                    logger.debug("top score: " + topCat.getScore());
+                    System.out.println("top ddc: " + topCat.getValue());
+                    System.out.println("top score: " + topCat.getScore());
 
                     for (int i = 0; i < 10; ++i) {
                         ddcsSB.append(" ").append(ddcLabelToFeature(topCat.getValue()));
@@ -155,12 +152,12 @@ public class LabelAnnotator extends BaseAnnotator {
                 } else if (appendDDCVariant.equals("top_scorex")) {
                     CategoryCoveredTagged topCat = ddcCatsSorted.get(0);
 
-                    logger.debug("top ddc: " + topCat.getValue());
-                    logger.debug("top score: " + topCat.getScore());
+                    System.out.println("top ddc: " + topCat.getValue());
+                    System.out.println("top score: " + topCat.getScore());
 
                     int reps = Math.max(1, (int)(topCat.getScore()*10));
 
-                    logger.debug("-> reps: " + reps);
+                    System.out.println("-> reps: " + reps);
 
                     for (int i = 0; i < reps; ++i) {
                         ddcsSB.append(" ").append(ddcLabelToFeature(topCat.getValue()));
@@ -173,8 +170,8 @@ public class LabelAnnotator extends BaseAnnotator {
                 } else if (appendDDCVariant.equals("top_text_length_x")) {
                     CategoryCoveredTagged topCat = ddcCatsSorted.get(0);
 
-                    logger.debug("top ddc: " + topCat.getValue());
-                    logger.debug("top score: " + topCat.getScore());
+                    System.out.println("top ddc: " + topCat.getValue());
+                    System.out.println("top score: " + topCat.getScore());
                     
                     int reps = 10;
                     int textLen = documentText.length();
@@ -182,7 +179,7 @@ public class LabelAnnotator extends BaseAnnotator {
                     	reps = Math.max(1, textLen / 100);
                     }
 
-                    logger.debug("-> reps: " + reps);
+                    System.out.println("-> reps: " + reps);
 
                     for (int i = 0; i < reps; ++i) {
                         ddcsSB.append(" ").append(ddcLabelToFeature(topCat.getValue()));
@@ -196,7 +193,7 @@ public class LabelAnnotator extends BaseAnnotator {
             }
 
             String ddcs = ddcsSB.toString();
-            logger.debug("Found DDC Predictions: " + ddcs);
+            System.out.println("Found DDC Predictions: " + ddcs);
 
             documentText += ddcs;
         }

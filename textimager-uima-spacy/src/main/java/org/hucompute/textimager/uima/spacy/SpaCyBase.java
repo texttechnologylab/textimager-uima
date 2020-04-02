@@ -1,23 +1,35 @@
 package org.hucompute.textimager.uima.spacy;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.uima.UimaContext;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.hucompute.textimager.uima.base.DockerRestAnnotator;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.hucompute.textimager.uima.base.JepAnnotator;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import jep.JepException;
 
-public abstract class SpaCyBase extends DockerRestAnnotator {
+public abstract class SpaCyBase extends JepAnnotator {
 	@Override
-    protected String getDefaultDockerImage() {
-    	return "texttechnologylab/textimager-spacy:3";
-    }
+	public void initialize(UimaContext aContext) throws ResourceInitializationException {
+		super.initialize(aContext);
+		try {
+			interp.exec("import os");
+			interp.exec("import sys");
+			interp.exec("import spacy"); 
+			interp.exec("from java.lang import System");
+		} catch (JepException ex) {
+			throw new ResourceInitializationException(ex);
+		}
+	}
 	
 	// Adds the "words" and "spaces" arrays for spaCy to the JSON object
-	protected void jsonAddWordsAndSpaces(JCas aJCas, JSONObject json) {
-		JSONArray jsonWords = new JSONArray();
-		JSONArray jsonSpaces = new JSONArray();
+	protected void jsonAddWordsAndSpaces(JCas aJCas, HashMap<String, Object> json) {
+		ArrayList<String> jsonWords = new ArrayList<>();
+		ArrayList<Boolean> jsonSpaces = new ArrayList<>();
 		
 		Token lastToken = null;
 		for (Token token : JCasUtil.select(aJCas, Token.class)) {
@@ -25,25 +37,25 @@ public abstract class SpaCyBase extends DockerRestAnnotator {
 			if (lastToken != null) {
 				if (lastToken.getEnd() == token.getBegin()) {
 					// No space
-					jsonWords.put(token.getCoveredText());
-					jsonSpaces.put(false);
+					jsonWords.add(token.getCoveredText());
+					jsonSpaces.add(false);
 				} else {
 					int num = token.getBegin() - lastToken.getEnd();
 					if (num > 1) {
 						// Add space to last word
-						jsonSpaces.put(true);
+						jsonSpaces.add(true);
 						// Add "space" token with num-1 spaces
-						jsonWords.put(new String(new char[num-1]).replace("\0", " "));
+						jsonWords.add(new String(new char[num-1]).replace("\0", " "));
 						// ... followed by no space and the next word
-						jsonSpaces.put(false);
-						jsonWords.put(token.getCoveredText());
+						jsonSpaces.add(false);
+						jsonWords.add(token.getCoveredText());
 					} else {
-						jsonWords.put(token.getCoveredText());
-						jsonSpaces.put(true);
+						jsonWords.add(token.getCoveredText());
+						jsonSpaces.add(true);
 					}
 				}
 			} else {
-				jsonWords.put(token.getCoveredText());
+				jsonWords.add(token.getCoveredText());
 			}
 			
 			lastToken = token;
@@ -52,20 +64,27 @@ public abstract class SpaCyBase extends DockerRestAnnotator {
 		// Handle last token
 		if (lastToken != null) {
 			if (aJCas.getDocumentText().length() == lastToken.getEnd())	{
-				jsonSpaces.put(false);
+				jsonSpaces.add(false);
 			} else {
 				int num = aJCas.getDocumentText().length() - lastToken.getEnd();
 				if (num > 1) {
-					jsonSpaces.put(true);
-					jsonWords.put(new String(new char[num-1]).replace("\0", " "));
-					jsonSpaces.put(false);
+					jsonSpaces.add(true);
+					jsonWords.add(new String(new char[num-1]).replace("\0", " "));
+					jsonSpaces.add(false);
 				} else {
-					jsonSpaces.put(true);
+					jsonSpaces.add(true);
 				}
 			}
 		}
-		
 		json.put("words", jsonWords);
 		json.put("spaces", jsonSpaces);
+	}
+	
+
+	protected HashMap<String, Object>  buildJSON(JCas aJCas) {
+		HashMap<String, Object> json = new HashMap<>();
+		json.put("lang", aJCas.getDocumentLanguage());
+		jsonAddWordsAndSpaces(aJCas, json);
+		return json;
 	}
 }

@@ -21,8 +21,6 @@ package org.hucompute.textimage.uima.tagme;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.fit.factory.AggregateBuilder;
@@ -31,7 +29,6 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.hucompute.textimager.uima.tagme.TagMeAPIAnnotator;
 import org.hucompute.textimager.uima.tagme.TagMeLocalAnnotator;
 import org.junit.Test;
 

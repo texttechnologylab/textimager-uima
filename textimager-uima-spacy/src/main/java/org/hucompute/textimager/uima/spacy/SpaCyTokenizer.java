@@ -1,41 +1,38 @@
 package org.hucompute.textimager.uima.spacy;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.apache.uima.resource.ResourceInitializationException;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import jep.JepException;
 
 public class SpaCyTokenizer extends SpaCyBase {
+
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		super.process(aJCas);
-	}
-
-	@Override
-	protected JSONObject buildJSON(JCas aJCas) {
-		return new JSONObject()
-			.put("lang", aJCas.getDocumentLanguage())
-			.put("text", aJCas.getDocumentText());
-	}
-
-	@Override
-	protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
-		JSONArray tokens = jsonResult.getJSONArray("token");
-		tokens.forEach(t -> {
-				JSONObject token = (JSONObject)t;
-				if (!token.getBoolean("is_space")) {
-					int begin = token.getInt("idx");
-					int end = begin + token.getInt("length");
+		try {
+			interp.set("lang", aJCas.getDocumentLanguage());
+			interp.set("text", aJCas.getDocumentText());
+			interp.exec("nlp = spacy.load('en_core_web_sm')");
+			interp.exec("doc = nlp.tokenizer(text)");
+			interp.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space} for token in doc]");
+			interp.exec("System.out.println(tokens)");
+			ArrayList<HashMap<String, Object>> output = (ArrayList<HashMap<String, Object>>) interp.getValue("tokens");
+			for (HashMap<String, Object> token : output) {
+				if (!(Boolean)token.get("is_space")) {
+					int begin = ((Long)token.get("idx")).intValue();
+					int end = begin + ((Long)token.get("length")).intValue();
 					Token casToken = new Token(aJCas, begin, end);
 					casToken.addToIndexes();
 				}
-			});
-	}
-
-	@Override
-	protected String getRestRoute() {
-		return "/tokenizer";
+			}
+		} catch (JepException e) {
+			e.printStackTrace();
+		}
 	}
 }

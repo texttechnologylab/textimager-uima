@@ -4,36 +4,52 @@
 	<parent>
 		<groupId>org.hucompute.textimager.uima</groupId>
 		<artifactId>textimager-uima</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2</version>
 	</parent>
 	<artifactId>textimager-uima-types</artifactId>
 	<repositories>
-		<repository>
-			<id>hu-central</id>
-			<name>alba-releases</name>
-			<url>http://service.hucompute.org/artifactory/libs-snapshot-local</url>
-		</repository>
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
-
 	<dependencies>
 		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.lexmorph-asl</artifactId>
-			<version>1.9.0</version>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-lexmorph-asl</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.segmentation-asl</artifactId>
-			<version>1.9.0</version>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-segmentation-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-syntax-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-semantics-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-ner-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-metadata-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-resources-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-anomaly-asl</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.github.texttechnologylab</groupId>
 			<artifactId>UIMATypeSystem</artifactId>
-			<version>547f4a97b2</version>
+			<version>1.8.2</version>
 		</dependency>
 	</dependencies>
 </project>

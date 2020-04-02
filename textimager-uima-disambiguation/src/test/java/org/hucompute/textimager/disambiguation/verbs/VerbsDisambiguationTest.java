@@ -9,7 +9,7 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 
@@ -29,14 +29,14 @@ public class VerbsDisambiguationTest {
 		String verbString = "gesteht";
 		String verbLemma = "gestehen";
 		
-		V verb = new V(cas, cas.getDocumentText().indexOf(verbString), cas.getDocumentText().indexOf(verbString)+verbString.length());
+		POS_VERB verb = new POS_VERB (cas, cas.getDocumentText().indexOf(verbString), cas.getDocumentText().indexOf(verbString)+verbString.length());
 		verb.addToIndexes();
 		
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
 				VerbsDisambiguation.class,
-				VerbsDisambiguation.PARAM_GERMANET_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/src/main/resources/GN_V140.zip",
-				VerbsDisambiguation.PARAM_VERBLEMMAIDS_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/verbLemmaIds"
+				VerbsDisambiguation.PARAM_GERMANET_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/trunk/src/main/resources/GN_V140.zip",
+				VerbsDisambiguation.PARAM_VERBLEMMAIDS_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/trunk/verbLemmaIds"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	}

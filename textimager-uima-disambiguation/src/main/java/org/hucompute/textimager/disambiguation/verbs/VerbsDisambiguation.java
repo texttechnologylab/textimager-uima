@@ -19,16 +19,16 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.parameter.ComponentParameters;
+import org.dkpro.core.api.resources.CasConfigurableProviderBase;
+import org.dkpro.core.api.resources.ModelProviderBase;
+import org.dkpro.core.api.resources.ResourceUtils;
 
 import com.github.jfasttext.JFastText;
 import com.github.jfasttext.JFastText.ProbLabel;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.PR;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.V;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ModelProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense;
@@ -203,7 +203,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 					continue;
 				}
 
-				if(token.getPos().getClass() == V.class){
+				if(token.getPos().getClass() == POS_VERB.class){
 					
 					if(gnet.getLexUnits(lemma, WordCategory.verben).isEmpty()){
 						WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
@@ -212,7 +212,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 					}
 					else if(eindeutigReflexiv.contains(lemma)){
 						boolean containsPRF = false;
-						for (PR pr: JCasUtil.selectCovered(PR.class,sentence)) {
+						for (POS pr: JCasUtil.selectCovered(POS.class,sentence)) {
 							if(pr.getPosValue().equals("PRF") && lemma.contains(JCasUtil.selectCovered(Dependency.class, pr).get(0).getGovernor().getLemma().getValue()))
 							{
 								containsPRF = true;
