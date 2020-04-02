@@ -2,12 +2,9 @@ package org.hucompute.textimager.uima.wiki;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
