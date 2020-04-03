@@ -102,5 +102,7 @@
 		<module>textimager-uima-biofid-gazetteer</module>
 		<module>textimager-uima-deep-eos</module>
 		<module>textimager-uima-similarity</module>
+		
+		<module>textimager-uima-database</module>
 	</modules>
 </project>
