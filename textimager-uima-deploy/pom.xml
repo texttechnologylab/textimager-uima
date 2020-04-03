@@ -100,7 +100,7 @@
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-biofid-gazetteer</artifactId>
-					<version>${project.version}</version>
+					<version>1.2.1</version>
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>

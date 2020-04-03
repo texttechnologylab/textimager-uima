@@ -49,7 +49,12 @@
 		<dependency>
 			<groupId>com.github.texttechnologylab</groupId>
 			<artifactId>UIMATypeSystem</artifactId>
-			<version>1.8.2</version>
+			<version>b5f2758dbf</version>
 		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.texttechnologylab.annotation</groupId> -->
+		<!-- <artifactId>typesystem</artifactId> -->
+		<!-- <version>1.8.2</version> -->
+		<!-- </dependency> -->
 	</dependencies>
 </project>

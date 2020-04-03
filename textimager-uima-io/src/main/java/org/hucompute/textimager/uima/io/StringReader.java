@@ -16,6 +16,7 @@ import org.dkpro.core.api.parameter.ComponentParameters;
 
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 
+
 @ResourceMetaData(name = "String Reader")
 @TypeCapability(
         outputs = {
