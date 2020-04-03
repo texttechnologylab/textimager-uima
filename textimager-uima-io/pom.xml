@@ -9,11 +9,11 @@
 	<artifactId>textimager-uima-io</artifactId>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-types</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hucompute.textimager.uima</groupId> -->
+<!-- 			<artifactId>textimager-uima-types</artifactId> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.dkpro.core</groupId>
 			<artifactId>dkpro-core-io-tei-asl</artifactId>
