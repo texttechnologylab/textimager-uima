@@ -1,0 +1,2 @@
+TAX=org.texttechnologylab.annotation.type.Taxon
+*=de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity
