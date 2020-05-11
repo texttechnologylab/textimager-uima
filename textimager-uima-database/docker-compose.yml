@@ -1,0 +1,46 @@
+version: '2'
+
+services:
+#  arangodb:
+#    build: ./docker/arangodb
+#    environment:
+#     - ARANGO_ROOT_PASSWORD=root
+
+  basex:
+    build: ./docker/basex
+    ports:
+      - "1984:1984"
+
+#  blazegraph:
+#    build: ./docker/blazegraph
+#    ports:
+#     - "9999:8080"
+
+  cassandra:
+    build: ./docker/cassandra
+    ports:
+      - "9042:9042"
+
+  mongodb:
+    build: ./docker/mongodb
+    ports:
+      - "27017:27017"
+
+#  mysql:
+#    build: ./docker/mysql
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=root
+#      - MYSQL_DATABASE=uimadatabase
+
+#  neo4j:
+#    build: ./docker/neo4j
+#    environment:
+#      - NEO4J_AUTH=none
+#    volumes:
+#      - ./test/neo4j/data:/data
+#    user: "211481:100"
+
+#  solr:
+#    build: ./docker/solr
+#    ports:
+#      - "8983:8983"
