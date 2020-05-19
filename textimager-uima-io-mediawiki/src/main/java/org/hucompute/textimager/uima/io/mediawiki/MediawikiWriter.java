@@ -642,12 +642,20 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 		System.out.println(" INFO | MediawikiWriter got " + wikipediaLinks.size() + " Wikipedia links from TagMeAnnotator for text " + pageTitle);
 
 		// Get all categories for the document (sorted by their plausibility)
-		SortedDDCSet ddcs = new SortedDDCSet();
+		ArrayList<CategoryCoveredTagged>ddcs = new ArrayList<>();
 		for (CategoryCoveredTagged cct : JCasUtil.select(jCas, CategoryCoveredTagged.class)) {
 			if (cct.getStart() == 0 && cct.getEnd() == jCas.getDocumentText().length()) {
 				ddcs.add(cct);
 			}
 		}
+		Collections.sort(ddcs,new Comparator<CategoryCoveredTagged>() {
+
+			@Override
+			public int compare(CategoryCoveredTagged o1, CategoryCoveredTagged o2) {
+				return o1.getValue().compareTo(o2.getValue());
+			}
+		});
+		
 		pageBuilder.append("{{#textinfo: DDC");
 		for (CategoryCoveredTagged cct : ddcs) {
 			String ddc = cct.getValue().replaceAll("__label_ddc__", "");
@@ -667,8 +675,14 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			// DDC Kategorien: Von jedem Paragraphen den besten
 			String paragraphCategory = null;
 			{
-				SortedDDCSet paragraphCats = new SortedDDCSet();
-				paragraphCats.addAll(JCasUtil.selectCovered(CategoryCoveredTagged.class, paragraph));
+				ArrayList<CategoryCoveredTagged>paragraphCats = new ArrayList<CategoryCoveredTagged>(JCasUtil.selectCovered(CategoryCoveredTagged.class, paragraph));
+				Collections.sort(paragraphCats,new Comparator<CategoryCoveredTagged>() {
+
+					@Override
+					public int compare(CategoryCoveredTagged o1, CategoryCoveredTagged o2) {
+						return o1.getValue().compareTo(o2.getValue());
+					}
+				});
 				if (!paragraphCats.isEmpty()) {
 					paragraphCategory = paragraphCats.get(0).getValue().replaceAll("__label_ddc__", "");
 					categories.add("[[" + categoryPrefix + "DDC" + paragraphCategory + "]]");
