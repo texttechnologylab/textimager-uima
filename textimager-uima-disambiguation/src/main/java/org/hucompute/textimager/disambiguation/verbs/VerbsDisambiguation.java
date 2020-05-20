@@ -32,7 +32,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.CCOMP;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tuebingen.uni.sfs.germanet.api.GermaNet;
 import de.tuebingen.uni.sfs.germanet.api.LexUnit;
