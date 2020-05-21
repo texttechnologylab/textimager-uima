@@ -60,7 +60,6 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 	@ConfigurationParameter(name = PARAM_GERMANET_PATH, mandatory = true)
 	protected String germanetPath;
 
-
 	public static final String PARAM_VERBLEMMAIDS_PATH = "VERBLEMMAIDSPath";
 	@ConfigurationParameter(name = PARAM_VERBLEMMAIDS_PATH, mandatory = true)
 	protected String verblemmaIdsPath;
@@ -69,6 +68,8 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 	GermaNet gnet;
 
 	HashSet<String> eindeutigReflexiv = new HashSet<>();
+	
+	TreeReducer tr = null;
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
@@ -92,6 +93,13 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 				setOverride(LOCATION, modelLocation);
 				setOverride(LANGUAGE, "de");
 				setOverride(VARIANT, variant);
+				// Check if we are using the reduced model and initialize reducer
+				 if (variant.contains("reduced")) // Change this to check variant parameter
+				 {
+					 tr = new TreeReducer();
+					 tr.loadgnet(gnet);
+					 tr.reduce();
+				 }
 			}
 
 			@Override
@@ -104,26 +112,29 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 				return fasttext;
 			}
 		};
-		try {
-			List<String> lines;
-			if(verbLemmaIds == null)
-				lines = IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("org/hucompute/textimager/disambiguation/verbs/lib/verbLemmaIds"));
-			else
-				lines = FileUtils.readLines(new File(verblemmaIdsPath));
+		if (tr == null) {
+			try {
+				List<String> lines;
+				if(verbLemmaIds == null)
+					lines = IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("org/hucompute/textimager/disambiguation/verbs/lib/verbLemmaIds"));
+				else
+					lines = FileUtils.readLines(new File(verblemmaIdsPath));
 
-			for (String string : lines) {
-				String[]split = string.split("\t");
-				HashSet<String>ids = new HashSet<>();
-				for (int i = 1; i < split.length; i++) {
-					ids.add(split[i]);
+				for (String string : lines) {
+					String[]split = string.split("\t");
+					HashSet<String>ids = new HashSet<>();
+					for (int i = 1; i < split.length; i++) {
+						ids.add(split[i]);
+					}
+					verbLemmaIds.put(split[0], ids);
 				}
-				verbLemmaIds.put(split[0], ids);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} else {
+			verbLemmaIds = tr.getLemmaIds();
 		}
-
 
 		try {
 			eindeutigReflexiv = getReflexivVerbs(gnet);
@@ -260,7 +271,9 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 						for (ProbLabel probLabel2 : probLabel) {
 							if(verbLemmaIds.get(lemma).contains(probLabel2.label.replace("__label__", ""))){
 								WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
-								sense.setValue(probLabel2.label.replace("__label__", ""));
+								// Do reverse mapping to base GermaNet LexUnit ids
+								if (tr == null) sense.setValue(probLabel2.label.replace("__label__", ""));
+								else sense.setValue(tr.reverseMap(lemma, probLabel2.label.replace("__label__", "")));
 								sense.addToIndexes();
 								break;
 							}
