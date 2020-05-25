@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.hucompute.textimager.uima</groupId>
 	<artifactId>textimager-uima</artifactId>
-	<version>0.2.4</version>
+	<version>0.2.5</version>
 	<name>TextImager UIMA</name>
 	<build>
 		<plugins>
@@ -105,5 +105,7 @@
 		
 		<module>textimager-uima-database</module>
 		<module>textimager-uima-io-mediawiki</module>
+		<module>textimager-uima-tool-test</module>
+		<module>textimager-uima-util</module>
 	</modules>
 </project>

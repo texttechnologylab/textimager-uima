@@ -28,19 +28,19 @@ import de.tuebingen.uni.sfs.germanet.api.LexUnit;
 import de.tuebingen.uni.sfs.germanet.api.WordCategory;
 
 public class FrameEvaluator extends JCasAnnotator_ImplBase {
-	
+
 	public static final String PARAM_GERMANET_PATH = "gnetPath";
-    @ConfigurationParameter(name = PARAM_GERMANET_PATH, mandatory = true, description = "The germanet directory")
-    private String gnetPath;
-    
+	@ConfigurationParameter(name = PARAM_GERMANET_PATH, mandatory = true, description = "The germanet directory")
+	private String gnetPath;
+
 	public static final String PARAM_CRITERIA = "strict";
-    @ConfigurationParameter(name = PARAM_CRITERIA, mandatory = false, description = "Whether to use strict frame matching or not", defaultValue = "true")
-    private boolean strict = true;
-    
-    public static final String PARAM_VERBOSE = "verbose";
-    @ConfigurationParameter(name = PARAM_VERBOSE, mandatory = false, description = "Whether to use verbose console output or not", defaultValue = "false")
+	@ConfigurationParameter(name = PARAM_CRITERIA, mandatory = false, description = "Whether to use strict frame matching or not", defaultValue = "true")
+	private boolean strict = true;
+
+	public static final String PARAM_VERBOSE = "verbose";
+	@ConfigurationParameter(name = PARAM_VERBOSE, mandatory = false, description = "Whether to use verbose console output or not", defaultValue = "false")
 	private boolean verbose = false;
-    
+
 
 	private GermaNet gnet;
 	private HashMap<String, HashSet<String>> senseInventory;
@@ -48,7 +48,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	private HashMap<String, Set<String>> coveredVerbs;
 	private static HashSet<String> implementedFrames = new HashSet<String>(Arrays.asList(
 			"NN", "AN", "DN", "AR", "DR", "PP"));
-	
+
 
 	// Implement only frames which actually exist in the unique sets: NN=4574, AN=1741, AR=895, PP=720, DN=327, BD=269, DS=191, AZ=182, BL=159, DR=114, BM=102, NE=99, FS=65, BR=32, BS=26, BO=25, BT=18, GN=14, NG=12, AI=9, BC=5
 
@@ -60,8 +60,8 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			senseInventory = new HashMap<String, HashSet<String>>();
 			senseCriteria = new HashMap<String, HashSet<String>>();
 			gnet = new GermaNet(gnetPath);
-			
-			
+
+
 			// TODO: Maybe build criteria for all senses here, instead of during predict call? Fewer duplicated operations?
 			// TODO: senseInventory und senseCriteria are misnamed, are simply duplicates of germanet inventory
 			// TODO: MergeMap?
@@ -94,7 +94,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			}
 
 			coveredVerbs = findCoveredVerbs(true);
-			
+
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -105,8 +105,8 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	public GermaNet getGNet() {
 		return gnet;
 	}
-	
-	
+
+
 	private HashSet<String> generateFramesFromTree(HashMap<Token, ArrayList<Token>> childMap, List<Token> p_to_root) {
 		HashSet<String> frames = new HashSet<String>();
 		HashSet<Token> toProcess = new HashSet<Token>();
@@ -251,31 +251,33 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		return outMap;
 	}
 
-	
+
 	public void addAnnotation(JCas cas, Token token, String annotation) {
-		WordSense sense = new WordSense(cas, token.getBegin(), token.getEnd());
-		sense.setValue(annotation);
-		sense.addToIndexes();
+		if(JCasUtil.selectCovered(WordSense.class, token).size() == 0){
+			WordSense sense = new WordSense(cas, token.getBegin(), token.getEnd());
+			sense.setValue(annotation);
+			sense.addToIndexes();
+		}
 	}
-	
+
 	// docId of null means that we are doing a test run and don't want to load a cached cas. 
 	// We still write a cas with id "test", but it will not be loaded and will be overwritten when we do another test run.
 	public void process(JCas cas) {
-		
+
 		for (Sentence sentence : JCasUtil.select(cas, Sentence.class)) {
-			List<Dependency>svps = new ArrayList<>();
-			for (Dependency dependency : JCasUtil.selectCovered(Dependency.class, sentence)) {
-				if(dependency.getDependencyType().equals("SVP"))
-					svps.add(dependency);
-			}
+//			List<Dependency>svps = new ArrayList<>();
+//			for (Dependency dependency : JCasUtil.selectCovered(Dependency.class, sentence)) {
+//				if(dependency.getDependencyType().equals("SVP"))
+//					svps.add(dependency);
+//			}
 			for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
 				String lemma = token.getLemma().getValue();
-				for (Dependency dependency : svps) {
-					if(dependency.getGovernor().equals(token)){
-						lemma = dependency.getDependent().getLemma().getValue()+lemma;
-						token.getLemma().setValue(lemma);
-					}
-				}
+//				for (Dependency dependency : svps) {
+//					if(dependency.getGovernor().equals(token)){
+//						lemma = dependency.getDependent().getLemma().getValue()+lemma;
+//						token.getLemma().setValue(lemma);
+//					}
+//				}
 				if(gnet.getLexUnits(lemma, WordCategory.verben).size() == 1){
 					addAnnotation(cas, token, Integer.toString(gnet.getLexUnits(lemma, WordCategory.verben).get(0).getId()));
 					continue;
@@ -308,7 +310,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 						}
 					}
 					if (candidates.size() == 1) addAnnotation(cas, token, candidates.keySet().iterator().next());
-					
+
 					int overlap = -1;
 					for (String candidate: candidates.keySet()) {
 						Set<Set<String>> candidate_frames = candidates.get(candidate);

@@ -1,4 +1,4 @@
-package org.hucompute.services.util;
+package org.hucompute.textimager.uima.util;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.impl.XmiCasSerializer;

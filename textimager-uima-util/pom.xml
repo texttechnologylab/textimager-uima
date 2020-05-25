@@ -6,11 +6,11 @@
 		<artifactId>textimager-uima</artifactId>
 		<version>0.2.5</version>
 	</parent>
-	<artifactId>textimager-uima-spacy</artifactId>
+	<artifactId>textimager-uima-util</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-base-annotators</artifactId>
+			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

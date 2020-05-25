@@ -1,4 +1,4 @@
-package org.hucompute.services.util;
+package org.hucompute.textimager.uima.util;
 
 import java.io.File;
 import java.io.FileInputStream;

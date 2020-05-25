@@ -519,7 +519,7 @@ public class TreeReducer {
 	
 	public static void main(String...args) throws FileNotFoundException, XMLStreamException, IOException, ExportException {
 		TreeReducer tr = new TreeReducer();
-		tr.loadgnet("C:\\Users\\Dominik Mattern\\eclipse-workspace\\AnnotatorLocal\\GermaNet\\GN_V140\\GN_V140_XML");
+		tr.loadgnet("/resources/nlp/models/disambig/verbs/GN_V140_verbs");
 		tr.exportGraph("gnet.gml");
 		ArrayList<String> subgraphlabels = new ArrayList<String>();
 		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "73510");
