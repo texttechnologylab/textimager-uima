@@ -13,7 +13,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 
-import static org.junit.Assert.*;
 
 
 public class VerbsDisambiguationTest {
@@ -35,8 +34,7 @@ public class VerbsDisambiguationTest {
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
 				VerbsDisambiguation.class,
-				VerbsDisambiguation.PARAM_GERMANET_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/trunk/src/main/resources/GN_V140.zip",
-				VerbsDisambiguation.PARAM_VERBLEMMAIDS_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/trunk/verbLemmaIds"
+				VerbsDisambiguation.PARAM_GERMANET_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/trunk/src/main/resources/GN_V140.zip"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	}
