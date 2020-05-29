@@ -93,8 +93,11 @@ public class SpaCyTagger extends SpaCyBase {
 					posAnno.addToIndexes();
 				}
 			});
+			
+			interp.exec("print('test')");
 		} catch (JepException e) {
 			e.printStackTrace();
 		}
+		
 	}
 }
