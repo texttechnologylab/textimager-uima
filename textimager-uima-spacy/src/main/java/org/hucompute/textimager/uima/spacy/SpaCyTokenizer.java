@@ -31,8 +31,10 @@ public class SpaCyTokenizer extends SpaCyBase {
 					casToken.addToIndexes();
 				}
 			}
+			
 		} catch (JepException e) {
 			e.printStackTrace();
 		}
+		
 	}
 }

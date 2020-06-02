@@ -16,14 +16,17 @@ public abstract class SpaCyBase extends JepAnnotator {
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
+		
 		try {
 			interp.exec("import os");
 			interp.exec("import sys");
 			interp.exec("import spacy"); 
 			interp.exec("from java.lang import System");
+			
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
+		
 	}
 	
 	// Adds the "words" and "spaces" arrays for spaCy to the JSON object

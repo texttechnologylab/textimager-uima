@@ -10,34 +10,47 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.resource.ResourceInitializationException;
 
+
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.file.Paths;
 
 public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
+	
+	
 	/**
 	 * The Python home directory
 	 */
+	
+	//werden eig nicht mehr benötigt müssen aber bleiben da manche Funktionen(z.B createEngineDescription) 
+	// diese zum aufrufen benötigen
+	
 	public static final String PARAM_PYTHON_HOME = "pythonHome";
 	@ConfigurationParameter(name = PARAM_PYTHON_HOME, mandatory = false)
-	protected String pythonHome;
+	protected String pythonHome ;
+	
 	
 	/**
 	 * The path to libjep lib
 	 */
+	
+	
 	public static final String PARAM_LIBJEP_PATH = "libjepPath";
 	@ConfigurationParameter(name = PARAM_LIBJEP_PATH, mandatory = false)
 	protected String libjepPath;
 	
-	protected SharedInterpreter interp;
+	
+	protected SharedInterpreter interp ;
 	
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		System.out.println("init: " + this.getClass().getName());
 		
+		
 		try {
-			
+			/* Code in PublicInter kopiert
+			 * 
 			if (!pythonHome.isEmpty()) {
 				// Workaround for loading python library files
 				File libDir = Paths.get(pythonHome, "lib").toAbsolutePath().toFile();
@@ -58,7 +71,10 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			if (libjepPath != null && !libjepPath.isEmpty()) {
 				MainInterpreter.setJepLibraryPath(libjepPath);
 			}
-			interp = new SharedInterpreter();
+			*/
+			
+			interp = PublicInter.inter;
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new ResourceInitializationException(ex);
