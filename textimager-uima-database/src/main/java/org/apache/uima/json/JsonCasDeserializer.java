@@ -272,14 +272,18 @@ public class JsonCasDeserializer {
 			annotations.put(object.getInt("xid"), sentence);
 			return sentence;
 		case "Paragraph":
-			Paragraph paragraph = new Paragraph(cas, object.getInt("b"), object.getInt("e"));
-			annotations.put(object.getInt("xid"), paragraph);
-			return paragraph;
+			if(object.has("b")&& object.has("e")){
+				Paragraph paragraph = new Paragraph(cas, object.getInt("b"), object.getInt("e"));
+				annotations.put(object.getInt("xid"), paragraph);
+				return paragraph;
+			}
+			else
+				return null;
 			/*
 			 * POS Types
 			 */
-			
-			
+
+
 		case "POS_ADJ":
 			return getPos(new POS_ADJ(cas), object);
 		case "POS_ADP":
