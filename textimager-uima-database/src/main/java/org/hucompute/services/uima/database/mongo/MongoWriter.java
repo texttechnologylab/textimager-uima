@@ -52,6 +52,10 @@ public class MongoWriter extends AbstractWriter {
 			description = "Mongo's WriteConcern SAFE(true) or NORMAL(false)")
 	private boolean safeMode;
 
+	public static final String PARAM_DB_AUTH_SOURCE = "mongo_connection_auth_source";
+	@ConfigurationParameter(name = PARAM_DB_AUTH_SOURCE, mandatory = false, defaultValue = "admin")
+	protected String db_connection_auth_source;
+
 	private DBCollection coll;
 
 	private JsonCasSerializerModified xcs;
@@ -71,7 +75,7 @@ public class MongoWriter extends AbstractWriter {
 //		}
 
 		try {
-			MongoConnection conn = new MongoConnection(db_connection_host,db_connection_dbname,db_connection_collectionname,db_connection_user,db_connection_pw, safeMode);
+			MongoConnection conn = new MongoConnection(db_connection_host,db_connection_dbname,db_connection_collectionname,db_connection_user,db_connection_pw, safeMode, db_connection_auth_source);
 			coll = conn.coll;
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
