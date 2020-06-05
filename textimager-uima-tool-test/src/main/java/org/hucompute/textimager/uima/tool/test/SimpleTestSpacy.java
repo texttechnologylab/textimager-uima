@@ -23,11 +23,11 @@ public class SimpleTestSpacy {
 		JCas cas = JCasFactory.createText("Der Gefangene erhängte sich in seiner Zelle. Die Dorfbewohner erhängten den Viehdieb an einem Baum.","de");
 		
 		AggregateBuilder builder = new AggregateBuilder();
-		builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
-		builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
+		builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
+		builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
 		
 		//aufsetzen des Interpreters
-		PublicInter.setUpInter("C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38");
+		PublicInter.setUpInter("/home/ahemati/miniconda3/envs/spacy");
 		
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
