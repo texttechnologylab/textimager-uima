@@ -27,6 +27,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-stanza</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-util</artifactId>
 			<version>${project.version}</version>
 		</dependency>
