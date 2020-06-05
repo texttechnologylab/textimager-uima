@@ -17,6 +17,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 
 import com.google.common.collect.Sets;
 
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
@@ -140,7 +141,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				}
 			} else if (depType.equals("OA") && (pos.equals("NN") || pos.equals("NE") || pos.equals("PPER") || pos.equals("PDS") || pos.equals("PIS") || pos.equals("PIAT"))) {
 				frames.add("AN");
-			} else if (depType.equals("OP") && (pos.equals("APPR") || pos.equals("APPRART") || pos.equals("APPO"))) {
+			} else if ((depType.equals("OP") || ((Constituent)child.getParent()).getConstituentType().equals("PP")) && (pos.equals("APPR") || pos.equals("APPRART") || pos.equals("APPO"))) {
 				frames.add("PP");
 			}
 			toProcess.remove(child);
