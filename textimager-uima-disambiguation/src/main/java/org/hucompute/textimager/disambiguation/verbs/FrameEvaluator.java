@@ -36,11 +36,11 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_CRITERIA = "strict";
 	@ConfigurationParameter(name = PARAM_CRITERIA, mandatory = false, description = "Whether to use strict frame matching or not", defaultValue = "true")
-	private boolean strict = true;
+	private boolean strict;
 
 	public static final String PARAM_VERBOSE = "verbose";
 	@ConfigurationParameter(name = PARAM_VERBOSE, mandatory = false, description = "Whether to use verbose console output or not", defaultValue = "false")
-	private boolean verbose = false;
+	private boolean verbose;
 
 
 	private GermaNet gnet;
@@ -287,7 +287,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					String label = null;
 
 					HashSet<String> sentence_frames = generateFrames(sentence, lemma, verbose);
-					if (verbose) System.out.println("Generated frames: " + sentence_frames);
+					if (verbose) System.out.println(lemma + ": Generated frames: " + sentence_frames);
 					if (sentence_frames == null || sentence_frames.isEmpty()) continue;
 
 					HashMap<String, HashSet<Set<String>>> criteriaMap = getCandidateCriteria(lemma, strict); 
