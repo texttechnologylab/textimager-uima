@@ -35,8 +35,8 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	private String gnetPath;
 
 	public static final String PARAM_CRITERIA = "strict";
-	@ConfigurationParameter(name = PARAM_CRITERIA, mandatory = false, description = "Whether to use strict frame matching or not", defaultValue = "true")
-	private boolean strict;
+	@ConfigurationParameter(name = PARAM_CRITERIA, mandatory = false, description = "Whether to use strict frame matching. Options 'strict', 'superstrict' or anything else", defaultValue = "strict")
+	private String strict;
 
 	public static final String PARAM_VERBOSE = "verbose";
 	@ConfigurationParameter(name = PARAM_VERBOSE, mandatory = false, description = "Whether to use verbose console output or not", defaultValue = "false")
@@ -199,10 +199,10 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	}
 
 
-	public HashMap<String, HashSet<Set<String>>> getCandidateCriteria(String target, boolean strict) {
+	public HashMap<String, HashSet<Set<String>>> getCandidateCriteria(String target, String strict) {
 		HashMap<String, HashSet<Set<String>>> senseFrameMap_uniques = getUniques(target, true);
 		HashMap<String, HashSet<Set<String>>> outMap = new HashMap<String, HashSet<Set<String>>>();
-		if (strict) {
+		if ("strict".equals(strict)) {
 			outMap = senseFrameMap_uniques;
 		} else {
 			HashMap<String, HashSet<Set<String>>> powerfragments = new HashMap<String, HashSet<Set<String>>>();
@@ -287,7 +287,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					String label = null;
 
 					HashSet<String> sentence_frames = generateFrames(sentence, lemma, verbose);
-					if (verbose) System.out.println(lemma + ": Generated frames: " + sentence_frames);
+					if (verbose) System.out.println("Generated frames: " + sentence_frames);
 					if (sentence_frames == null || sentence_frames.isEmpty()) continue;
 
 					HashMap<String, HashSet<Set<String>>> criteriaMap = getCandidateCriteria(lemma, strict); 
@@ -296,13 +296,18 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					for (String sense : criteriaMap.keySet()) {
 						for (Set<String> gold_frame : criteriaMap.get(sense)) {
 							boolean candidate = true;
-							for (String frag: gold_frame) {
-								if (!sentence_frames.contains(frag)) {
-									candidate = false;
-									break;
+							if ("superstrict".equals(strict)) {
+								candidate = gold_frame.equals(sentence_frames);
+							} else {
+								for (String frag: gold_frame) {
+									if (!sentence_frames.contains(frag)) {
+										candidate = false;
+										break;
+									}
 								}
 							}
 							if (candidate) {
+								// Check if candidate frame is identical to non-ambiguous
 								Set<Set<String>> candidateframes = new HashSet<Set<String>>();
 								if (candidates.containsKey(sense)) candidateframes = candidates.get(sense);
 								candidateframes.add(gold_frame);
