@@ -7,7 +7,6 @@ import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
-import org.hucompute.textimager.uima.spacy.SpaCyTagger;
 import org.hucompute.textimager.uima.spacy.SpaCyTokenizer;
 import org.hucompute.textimager.uima.stanza.StanzaTagger;
 import org.hucompute.textimager.uima.util.XmlFormatter;
@@ -15,7 +14,7 @@ import org.hucompute.textimager.uima.util.XmlFormatter;
 import jep.JepException;
 
 
-public class SimpleTestSpacy {
+public class SimpleTestMultiEnvs {
 
 	public static void main(String[] args) throws UIMAException, JepException {
 
@@ -25,7 +24,7 @@ public class SimpleTestSpacy {
 		AggregateBuilder builder = new AggregateBuilder();
 		
 		builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
-		builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
+		builder.add(createEngineDescription(StanzaTagger.class,StanzaTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/stanza"));
 		
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
