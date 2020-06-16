@@ -107,5 +107,6 @@
 		<module>textimager-uima-io-mediawiki</module>
 		<module>textimager-uima-tool-test</module>
 		<module>textimager-uima-util</module>
+		<module>textimager-uima-stanza</module>
 	</modules>
 </project>
