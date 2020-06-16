@@ -1,6 +1,5 @@
 package org.hucompute.textimager.uima.io.embeddings.writer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;

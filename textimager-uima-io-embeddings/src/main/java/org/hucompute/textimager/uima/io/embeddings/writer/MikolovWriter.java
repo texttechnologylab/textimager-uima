@@ -10,17 +10,14 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
 
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PUNCT;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
-import org.hucompute.services.type.CategoryCoveredTagged;
 
 public class MikolovWriter extends BaseEmbeddingsWriter{
-
-	public static final String PARAM_NORMALIZE_POS = "NORMALIZE_POS";
-	@ConfigurationParameter(name=PARAM_NORMALIZE_POS, mandatory=true, defaultValue="true")
-	private boolean normalizePos;
 
 	// Output fastSense Disambiguations for a word if available
 	public static final String PARAM_OUTPUT_DISAMBIG = "DISAMBIG_OUTPUT";
@@ -70,6 +67,10 @@ public class MikolovWriter extends BaseEmbeddingsWriter{
 						if (disambigOutput) {
 							lemmaStr = getDisambig(token, lemmaStr);
 						}
+						
+						if(normalizePos(token.getPos().getPosValue()).equals("PUN"))
+							lemmaStr = token.getCoveredText();
+						
 						writer.write(lemmaStr + "_" + (normalizePos?normalizePos(token.getPos().getPosValue()):token.getPos().getPosValue())+ " ");
 						break;
 					}
