@@ -3,12 +3,10 @@ package org.hucompute.textimager.uima.stanza;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
@@ -44,7 +42,6 @@ public class StanzaTagger extends StanzaBase{
 	
 	
 	
-	
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
@@ -57,7 +54,7 @@ public class StanzaTagger extends StanzaBase{
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("text",aJCas.getDocumentText());
-			interp.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos,mwt','lang': lang,})");
+			interp.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos','lang': lang,})");
 			interp.exec("doc = nlp(text)");
             interp.exec("dic = doc.to_dict()");
 			interp.exec("pos = [{'upos': token.get('upos'), 'xpos': token.get('xpos'), 'misc': token.get('misc').replace('start_char=','').replace('end_char=','').split('|')}for sentence in dic for token in sentence]");

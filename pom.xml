@@ -108,5 +108,6 @@
 		<module>textimager-uima-tool-test</module>
 		<module>textimager-uima-util</module>
 		<module>textimager-uima-stanza</module>
+		<module>textimager-uima-io-embeddings</module>
 	</modules>
 </project>
