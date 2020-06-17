@@ -13,25 +13,24 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDesc
 
 
 
-public class SpaCyMultiTagger extends JCasAnnotator_ImplBase{
+public class SpaCyMultiTagger extends SpaCyBase{
 	
 	
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		System.out.println("init: " + this.getClass().getName());
 	}
 	
 	
 	
 	public void process(JCas aJCas) throws AnalysisEngineProcessException{
 		
-		String pyhome = "";
+		
 		try {
 			AggregateBuilder builder = new AggregateBuilder();
-			builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,pyhome));
-			builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,pyhome));
-			builder.add(createEngineDescription(SpaCyParser.class,SpaCyParser.PARAM_PYTHON_HOME,pyhome));
-			builder.add(createEngineDescription(SpaCyNER.class,SpaCyNER.PARAM_PYTHON_HOME,pyhome));
+			builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,pythonHome));
+			builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,pythonHome));
+			builder.add(createEngineDescription(SpaCyParser.class,SpaCyParser.PARAM_PYTHON_HOME,pythonHome));
+			builder.add(createEngineDescription(SpaCyNER.class,SpaCyNER.PARAM_PYTHON_HOME,pythonHome));
 			
 			SimplePipeline.runPipeline(aJCas,builder.createAggregate());
 		}
