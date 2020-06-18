@@ -14,6 +14,7 @@ import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import jep.JepException;
 
 public class StanzaTagger extends StanzaBase{
@@ -69,6 +70,7 @@ public class StanzaTagger extends StanzaBase{
 				posAnno.setPosValue(tagStr);
 				POSUtils.assignCoarseValue(posAnno);
 				posAnno.addToIndexes();
+				
 			});
 			
 			
