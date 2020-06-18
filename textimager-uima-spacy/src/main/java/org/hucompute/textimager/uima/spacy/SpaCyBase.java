@@ -19,6 +19,7 @@ public abstract class SpaCyBase extends JepAnnotator {
 
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
+		
 		super.initialize(aContext);
 		if(interp == null)
 			interp =setUpInter(pythonHome, interp);
