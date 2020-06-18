@@ -309,6 +309,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 						if (senseFramesAmbiguous.get(sense).contains(sentence_frames)) {
 							continue;
 						}
+						// Check if any of the gold frames are fully contained in the sentence frames
 						for (Set<String> gold_frame : criteriaMap.get(sense)) {
 							boolean candidate = true;
 							if ("superstrict".equals(strict)) {
@@ -323,7 +324,6 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 								}
 							}
 							if (candidate) {
-								// TODO: Check if candidate frame is identical to non-ambiguous
 								Set<Set<String>> candidateframes = new HashSet<Set<String>>();
 								if (candidates.containsKey(sense)) candidateframes = candidates.get(sense);
 								candidateframes.add(gold_frame);
