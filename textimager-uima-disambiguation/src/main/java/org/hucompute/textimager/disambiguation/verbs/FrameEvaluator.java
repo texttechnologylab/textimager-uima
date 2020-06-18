@@ -36,11 +36,11 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_CRITERIA = "strict";
 	@ConfigurationParameter(name = PARAM_CRITERIA, mandatory = false, description = "Whether to use strict frame matching. Options 'strict', 'superstrict' or anything else", defaultValue = "strict")
-	private String strict = "strict";
+	private String strict;
 
 	public static final String PARAM_VERBOSE = "verbose";
 	@ConfigurationParameter(name = PARAM_VERBOSE, mandatory = false, description = "Whether to use verbose console output or not", defaultValue = "false")
-	private boolean verbose = false;
+	private boolean verbose;
 
 
 	private GermaNet gnet;
@@ -309,7 +309,6 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 						if (senseFramesAmbiguous.get(sense).contains(sentence_frames)) {
 							continue;
 						}
-						// Check if any of the gold frames are fully contained in the sentence frames
 						for (Set<String> gold_frame : criteriaMap.get(sense)) {
 							boolean candidate = true;
 							if ("superstrict".equals(strict)) {
