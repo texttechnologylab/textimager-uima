@@ -29,7 +29,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.nd4j</groupId>
-			<artifactId>nd4j-native-platform</artifactId>
+			<artifactId>nd4j-native</artifactId>
 			<version>1.0.0-beta7</version>
 		</dependency>
 		<dependency>
@@ -40,6 +40,11 @@
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-io</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
