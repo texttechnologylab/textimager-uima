@@ -14,6 +14,8 @@ import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import jep.JepException;
 
 public class StanzaTagger extends StanzaBase{
@@ -54,7 +56,7 @@ public class StanzaTagger extends StanzaBase{
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("text",aJCas.getDocumentText());
-			interp.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos','lang': lang,})");
+			interp.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos,lemma','lang': lang,})");
 			interp.exec("doc = nlp(text)");
             interp.exec("dic = doc.to_dict()");
 			interp.exec("pos = [{'upos': token.get('upos'), 'xpos': token.get('xpos'), 'misc': token.get('misc').replace('start_char=','').replace('end_char=','').split('|')}for sentence in dic for token in sentence]");
@@ -69,6 +71,12 @@ public class StanzaTagger extends StanzaBase{
 				posAnno.setPosValue(tagStr);
 				POSUtils.assignCoarseValue(posAnno);
 				posAnno.addToIndexes();
+				
+				Token casToken = new Token(aJCas, begin, end);
+				casToken.addToIndexes();
+				
+				Lemma casLemma = new Lemma(aJCas, begin, end);
+				casLemma.addToIndexes();
 			});
 			
 			
