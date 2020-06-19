@@ -277,6 +277,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	public void process(JCas cas) {
 
 		for (Sentence sentence : JCasUtil.select(cas, Sentence.class)) {
+//			System.out.println(sentence.getCoveredText());
 //			List<Dependency>svps = new ArrayList<>();
 //			for (Dependency dependency : JCasUtil.selectCovered(Dependency.class, sentence)) {
 //				if(dependency.getDependencyType().equals("SVP"))
@@ -306,7 +307,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					HashMap<String, Set<Set<String>>> candidates = new HashMap<String, Set<Set<String>>>();
 					for (String sense : criteriaMap.keySet()) {
 						// Check if the sentence frames are identical to an ambiguous frame
-						if (senseFramesAmbiguous.get(sense).contains(sentence_frames)) {
+						if ((senseFramesAmbiguous.containsKey(sense) && senseFramesAmbiguous.get(sense).contains(sentence_frames)) || criteriaMap.get(sense) ==null) {
 							continue;
 						}
 						for (Set<String> gold_frame : criteriaMap.get(sense)) {
