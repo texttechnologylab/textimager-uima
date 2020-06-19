@@ -324,7 +324,6 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 								}
 							}
 							if (candidate) {
-								// TODO: Check if candidate frame is identical to non-ambiguous
 								Set<Set<String>> candidateframes = new HashSet<Set<String>>();
 								if (candidates.containsKey(sense)) candidateframes = candidates.get(sense);
 								candidateframes.add(gold_frame);
