@@ -50,7 +50,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	private HashMap<String, HashSet<Set<String>>> senseFramesUnique;
 	private HashMap<String, HashSet<Set<String>>> senseFramesAmbiguous;
 	private static HashSet<String> implementedFrames = new HashSet<String>(Arrays.asList(
-			"NN", "AN", "DN", "AR", "DR", "PP"));
+			"NN", "AR", "DR", "AN", "PP", "DN"));
 
 
 	// Implement only frames which actually exist in the unique sets: NN=4574, AN=1741, AR=895, PP=720, DN=327, BD=269, DS=191, AZ=182, BL=159, DR=114, BM=102, NE=99, FS=65, BR=32, BS=26, BO=25, BT=18, GN=14, NG=12, AI=9, BC=5
@@ -102,6 +102,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			for (String lemma : senseInventory.keySet()) {
 				getUniques(lemma, true, true);
 			}
+			//System.out.println("ambiguous frames: " + senseFramesAmbiguous);
 
 		}
 		catch (Exception e) {
@@ -212,7 +213,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		}
 		
 		HashMap<String, HashSet<Set<String>>> outMap = new HashMap<String, HashSet<Set<String>>>();
-		if ("strict".equals(strict)) {
+		if ("strict".equals(strict) || "superstrict".equals(strict)) {
 			outMap = senseFrameMap_uniques;
 		} else {
 			HashMap<String, HashSet<Set<String>>> powerfragments = new HashMap<String, HashSet<Set<String>>>();
@@ -303,9 +304,26 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					HashMap<String, HashSet<Set<String>>> criteriaMap = getCandidateCriteria(lemma, strict); 
 
 					HashMap<String, Set<Set<String>>> candidates = new HashMap<String, Set<Set<String>>>();
-					for (String sense : criteriaMap.keySet()) {
+					boolean is_ambiguous = false;
+					for (String sense : senseInventory.get(lemma)) {
 						// Check if the sentence frames are identical to an ambiguous frame
-						if (senseFramesAmbiguous.containsKey(sense) && senseFramesAmbiguous.get(sense).contains(sentence_frames) || criteriaMap.get(sense) == null) {
+						if (senseFramesAmbiguous.containsKey(sense)) {
+							for (Set<String> frame : senseFramesAmbiguous.get(sense)) {
+								// Check for equality, better coverage, worse accuracy
+//								if (sentence_frames.equals(frame)) {
+//									is_ambiguous = true;
+//									break;
+//								}
+								// Don't just check if identical, but check if ambiguous is contained in sentence
+								if (sentence_frames.containsAll(frame)) {
+									is_ambiguous = true;
+									if (verbose) System.out.println("Sentence frames are contained in ambiguous sense " + sense + ": " + frame);
+									break;
+								}
+							}
+							if (is_ambiguous) break;
+						}
+						if (!criteriaMap.containsKey(sense) || criteriaMap.get(sense) == null) {
 							continue;
 						}
 						for (Set<String> gold_frame : criteriaMap.get(sense)) {
@@ -329,6 +347,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 							}
 						}
 					}
+					if (is_ambiguous) continue;
 					if (candidates.size() == 1) addAnnotation(cas, token, candidates.keySet().iterator().next());
 
 					int overlap = -1;
@@ -345,6 +364,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					}
 					if (overlap == -1 || label == null) continue;
 					addAnnotation(cas, token, label);
+					if (verbose) System.out.println("Labeled sense " + label);
 				}
 			}
 		}
@@ -445,6 +465,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			senseFramesUnique.putAll(candidateCriteria);
 			coveredVerbs.put(target, candidateCriteria.keySet());
 		}
+		
 		return candidateCriteria;
 	}
 
