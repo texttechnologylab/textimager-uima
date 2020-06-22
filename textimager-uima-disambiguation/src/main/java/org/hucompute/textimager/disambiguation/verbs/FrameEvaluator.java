@@ -157,7 +157,6 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	}
 
 
-
 	public HashSet<String> generateFrames(Sentence sentence, String target, boolean verbose) {
 		HashSet<String> frames = new HashSet<String>();
 
@@ -306,7 +305,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					HashMap<String, Set<Set<String>>> candidates = new HashMap<String, Set<Set<String>>>();
 					for (String sense : criteriaMap.keySet()) {
 						// Check if the sentence frames are identical to an ambiguous frame
-						if (senseFramesAmbiguous.get(sense).contains(sentence_frames)) {
+						if (senseFramesAmbiguous.containsKey(sense) && senseFramesAmbiguous.get(sense).contains(sentence_frames) || criteriaMap.get(sense) == null) {
 							continue;
 						}
 						for (Set<String> gold_frame : criteriaMap.get(sense)) {
