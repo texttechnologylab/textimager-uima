@@ -298,14 +298,29 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					String label = null;
 
 					HashSet<String> sentence_frames = generateFrames(sentence, lemma, verbose);
-					if (verbose) System.out.println("Generated frames: " + sentence_frames);
+					if (verbose) System.out.println("Generated frames " + sentence_frames + " for " + lemma);
 					if (sentence_frames == null || sentence_frames.isEmpty()) continue;
 
 					HashMap<String, HashSet<Set<String>>> criteriaMap = getCandidateCriteria(lemma, strict); 
 
 					HashMap<String, Set<Set<String>>> candidates = new HashMap<String, Set<Set<String>>>();
 					boolean is_ambiguous = false;
+					boolean annotated = false;
 					for (String sense : senseInventory.get(lemma)) {
+						// Check if sentence frames are identical to unique gold frame, if so, immediately put that into candidates
+						// Currently disabled since it decreases accuracy drastically
+//						if (criteriaMap.containsKey(sense) && criteriaMap.get(sense) != null) {
+//							for (Set<String> gold_frame : criteriaMap.get(sense)) {
+//								if (gold_frame.equals(sentence_frames)) {
+//									Set<Set<String>> candidateframes = new HashSet<Set<String>>();
+//									if (candidates.containsKey(sense)) candidateframes = candidates.get(sense);
+//									candidateframes.add(gold_frame);
+//									candidates.put(sense, candidateframes);
+//									annotated = true;
+//								}
+//							}
+//						}
+//						if (annotated) break;
 						// Check if the sentence frames are identical to an ambiguous frame
 						if (senseFramesAmbiguous.containsKey(sense)) {
 							for (Set<String> frame : senseFramesAmbiguous.get(sense)) {
@@ -321,8 +336,10 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 									break;
 								}
 							}
-							if (is_ambiguous) break;
 						}
+						
+						// Go through all gold frames and check for candidates
+						// A gold frame is a candidate if it is completely contained in the sentence frames
 						if (!criteriaMap.containsKey(sense) || criteriaMap.get(sense) == null) {
 							continue;
 						}
@@ -331,7 +348,6 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 							if ("superstrict".equals(strict)) {
 								candidate = gold_frame.equals(sentence_frames);
 							} else {
-								
 								for (String frag: gold_frame) {
 									if (!sentence_frames.contains(frag)) {
 										candidate = false;
@@ -347,7 +363,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 							}
 						}
 					}
-					if (is_ambiguous) continue;
+					if (is_ambiguous && !annotated) continue;
 					if (candidates.size() == 1) addAnnotation(cas, token, candidates.keySet().iterator().next());
 
 					int overlap = -1;
@@ -364,7 +380,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					}
 					if (overlap == -1 || label == null) continue;
 					addAnnotation(cas, token, label);
-					if (verbose) System.out.println("Labeled sense " + label);
+					if (verbose) System.out.println("Labeled " + lemma + " with sense " + label);
 				}
 			}
 		}
@@ -382,7 +398,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		for (String frag : frame) {
 			if (frag.startsWith("ZZ")) continue;
 			if (toRemove.contains(frag) && clean) continue;
-			out.add(frag);
+			out.add(frag.toUpperCase());
 		}
 		frame = out;
 		return frame;
@@ -430,6 +446,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				Set<String> r_frame = removeOptionals(frame, false);
 				frame = removeOptionals(frame, true);
 				boolean unique = true;
+				boolean unique_with_opts = true;
 				for (int j = 0; j < senseArray.length; j++) {
 					if (i == j) continue;
 					String comparesense = senseArray[j];
@@ -441,22 +458,33 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 							unique = false;
 							break;
 						}
-						if (r_frame.equals(r_temp)) {
+						if (frame.equals(r_temp)) {
 							unique = false;
 							break;
 						}
+						if (r_frame.equals(compareframe)) {
+							unique_with_opts = false;
+							break;
+						}
+						if (r_frame.equals(r_temp)) {
+							unique_with_opts = false;
+							break;
+						}
 					}
-					if (!unique) break;
+					if (!unique && !unique_with_opts) break;
 				}
-				if (unique) {
+				if (unique || unique_with_opts) {
 					HashSet<Set<String>> frames = new HashSet<Set<String>>();
 					if (candidateCriteria.containsKey(sense)) frames = candidateCriteria.get(sense);
-					frames.add(frame);
+					if (unique) frames.add(frame);
+					if (unique_with_opts) frames.add(r_frame);
 					candidateCriteria.put(sense, frames);
-				} else if (init_pop) {
+				}
+				if (init_pop && (!unique || !unique_with_opts)) {
 					HashSet<Set<String>> ambiframes = new HashSet<Set<String>>();
 					if (senseFramesAmbiguous.containsKey(sense)) ambiframes = senseFramesAmbiguous.get(sense);
-					ambiframes.add(frame);
+					if (!unique) ambiframes.add(frame);
+					if (!unique_with_opts) ambiframes.add(r_frame);
 					senseFramesAmbiguous.put(sense, ambiframes);
 				}
 			}
