@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.mapdb.DB;
+import org.mapdb.DBException;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
@@ -54,13 +55,25 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 		super.initialize(context);
 		if(!new File(mapDBCachePath).getParentFile().exists())
 			new File(mapDBCachePath).getParentFile().mkdirs();
-
-
-		db= DBMaker.fileDB(new File(mapDBCachePath))
-				.closeOnJvmShutdown()
-				//TODO encryption API
-				//.encryptionEnable("password")
-				.make();
+		int dbFileOffset = 0;
+		while(db == null){
+			try{
+			db= DBMaker.fileDB(new File(mapDBCachePath+dbFileOffset))
+					.closeOnJvmShutdown()
+					//TODO encryption API
+					//.encryptionEnable("password")
+					.make();
+			}catch(DBException e){
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+				dbFileOffset++;
+			}
+		}
 		allhyponyms = db.hashMap("allhyponyms").keySerializer(Serializer.STRING).valueSerializer(new HashSetSerializer()).createOrOpen();
 		allInstances = db.hashMap("allInstances").keySerializer(Serializer.STRING).valueSerializer(new HashSetSerializer()).createOrOpen();
 	}
