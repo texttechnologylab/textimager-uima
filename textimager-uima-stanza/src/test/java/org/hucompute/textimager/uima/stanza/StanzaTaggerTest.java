@@ -1,9 +1,7 @@
-package org.hucompute.textimager.uima.spacy;
+package org.hucompute.textimager.uima.stanza;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
-
-import java.util.Arrays;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -16,38 +14,43 @@ import org.junit.Test;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
-public class SpaCyTaggerTest {
+public class StanzaTaggerTest {
 	@Test
 	public void simpleExampleLa() throws UIMAException{
-		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.","de");
+		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
+		cas.setDocumentLanguage("de");
 		
 		Token t1 = new Token(cas, 0, 3);
 		t1.addToIndexes();
 		Token t2 = new Token(cas, 4, 7);
 		t2.addToIndexes();
-		Token t3 = new Token(cas, 8, 11);
+		Token t3 = new Token(cas, 10, 13);
 		t3.addToIndexes();
-		Token t4 = new Token(cas, 12, 18);
+		Token t4 = new Token(cas, 14, 18);
 		t4.addToIndexes();
-		Token t5 = new Token(cas, 19, 22);
+		Token t5 = new Token(cas, 18, 19);
 		t5.addToIndexes();
-		Token t6 = new Token(cas, 23, 28);
+		Token t6 = new Token(cas, 20, 23);
 		t6.addToIndexes();
-		Token t7 = new Token(cas, 28, 29);
+		Token t7 = new Token(cas, 24, 28);
 		t7.addToIndexes();
-		JCasUtil.select(cas, Token.class).forEach(x->System.out.println(x.getCoveredText()));
+		Token t8 = new Token(cas, 34, 39);
+		t8.addToIndexes();
+		Token t9 = new Token(cas, 39, 40);
+		t9.addToIndexes();
 		
-		AnalysisEngineDescription spacyTagger = createEngineDescription(SpaCyTagger.class
-				,SpaCyParser.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy");
+		AnalysisEngineDescription stanzaTagger = createEngineDescription(StanzaTagger.class
+				,StanzaTagger.PARAM_PYTHON_HOME,"C:\\Users\\Lucas3011\\AppData\\Local\\Programs\\Python\\Python36");
 		
-		SimplePipeline.runPipeline(cas, spacyTagger);
+		SimplePipeline.runPipeline(cas, stanzaTagger);
 		
 		String[] pos = new String[] {
-				"PDS", "VAFIN", "ART", "NN", "APPR", "NE", "$."
+				"PRON", "AUX", "DET", "NOUN", "PUNCT",
+				"CCONJ", "ADV", "PRON", "PUNCT"
 		};
 
 		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
-		System.out.println(Arrays.toString(casPos));
+		
 		assertArrayEquals(pos, casPos);
 	}
 }

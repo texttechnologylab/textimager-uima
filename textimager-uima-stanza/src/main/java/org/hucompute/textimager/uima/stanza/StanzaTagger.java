@@ -15,7 +15,14 @@ import org.dkpro.core.api.resources.MappingProviderFactory;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
 import jep.JepException;
+
+import static java.lang.Math.toIntExact;
 
 public class StanzaTagger extends StanzaBase{
 	/**
@@ -55,10 +62,20 @@ public class StanzaTagger extends StanzaBase{
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("text",aJCas.getDocumentText());
-			interp.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos','lang': lang,})");
+			interp.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos,lemma,mwt,depparse','lang': lang,})");
 			interp.exec("doc = nlp(text)");
             interp.exec("dic = doc.to_dict()");
-			interp.exec("pos = [{'upos': token.get('upos'), 'xpos': token.get('xpos'), 'misc': token.get('misc').replace('start_char=','').replace('end_char=','').split('|')}for sentence in dic for token in sentence]");
+            interp.exec("pos = [{'upos': token.get('upos'),"+
+					"'xpos': token.get('xpos'),"+
+					"'id': token.get('id'),"+
+					"'deprel' : token.get('deprel'),"+
+					"'misc': token.get('misc').replace('start_char=','').replace('end_char=','').split('|'),"+
+					"'head': {"+ 
+					"'id': token.get('head'),"+ 
+					"'length': token.get('deprel')"+ 
+					"}"+
+					"}"+
+					"for sentence in dic for token in sentence]");
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("pos");
 			poss.forEach(p -> {
 				int begin = Integer.valueOf((String)(((ArrayList)p.get("misc")).get(0)));
@@ -71,6 +88,34 @@ public class StanzaTagger extends StanzaBase{
 				POSUtils.assignCoarseValue(posAnno);
 				posAnno.addToIndexes();
 				
+				
+				Token casToken = new Token(aJCas, begin, end);
+				casToken.addToIndexes();
+				
+				Lemma casLemma = new Lemma(aJCas, begin, end);
+				casLemma.addToIndexes();
+				
+				HashMap<String, Object>headToken = (HashMap<String, Object>) p.get("head");
+				int headID = ((Long)headToken.get("id")).intValue();
+				int beginHead = Integer.valueOf((String)((ArrayList)(poss.get(headID).get("misc"))).get(0));
+				int endHead = Integer.valueOf((String)((ArrayList)(poss.get(headID).get("misc"))).get(1));
+				
+				Token dependent = casToken;
+				Token governor = new Token(aJCas, beginHead, endHead);
+				
+				Dependency depAnno;			
+				String depStr = p.get("deprel").toString().toUpperCase();
+				if (depStr.equals("ROOT")) {
+					depAnno = new ROOT(aJCas, begin, end);
+					depAnno.setDependencyType("--");
+				} else {
+					depAnno = new Dependency(aJCas, begin, end);
+					depAnno.setDependencyType(depStr);
+				}
+				depAnno.setDependent(dependent);
+				depAnno.setGovernor(governor);
+				depAnno.setFlavor(DependencyFlavor.BASIC);
+				depAnno.addToIndexes();
 			});
 			
 			
