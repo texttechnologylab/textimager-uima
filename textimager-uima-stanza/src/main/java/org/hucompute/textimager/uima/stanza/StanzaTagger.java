@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
@@ -54,7 +55,8 @@ public class StanzaTagger extends StanzaBase{
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		mappingProvider.configure(aJCas.getCas());
+		final CAS cas = aJCas.getCas();
+		mappingProvider.configure(cas);
 		try {
 			final Object lang = aJCas.getDocumentLanguage();
 			final Object text = aJCas.getDocumentText();
@@ -79,8 +81,8 @@ public class StanzaTagger extends StanzaBase{
 				int end = Integer.valueOf((String)token.get("end"));
 				String tagStr = token.get("upos").toString();
 
-				Type posTag = mappingProvider.getTagType(tagStr);
-				POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
+				Type posTag = mappingProvider.getTagType(tagStr.intern());
+				POS posAnno = (POS) cas.createAnnotation(posTag, begin, end);
 				posAnno.setPosValue(tagStr);
 				POSUtils.assignCoarseValue(posAnno);
 				posAnno.addToIndexes();
@@ -114,7 +116,6 @@ public class StanzaTagger extends StanzaBase{
 				depAnno.setFlavor(DependencyFlavor.BASIC);
 				depAnno.addToIndexes();
 			});
-
 		} catch (JepException e) {
 			e.printStackTrace();
 		}
