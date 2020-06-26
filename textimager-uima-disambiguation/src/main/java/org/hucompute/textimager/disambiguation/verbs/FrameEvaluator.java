@@ -75,6 +75,17 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				}
 
 				String lemma = lex.getOrthForm();
+				if(lemma.equals("sein")||
+						lemma.equals("haben")||
+						lemma.equals("werden")||
+						lemma.equals("dürfen")||
+						lemma.equals("können")||
+						lemma.equals("mögen")||
+						lemma.equals("müssen")||
+						lemma.equals("sollen")||
+						lemma.equals("wollen")||
+						lemma.equals("machen"))
+					continue;
 				String id = String.valueOf(lex.getId());
 
 				HashSet<String> frames = new HashSet<String>();
@@ -95,7 +106,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				if (senseCriteria.containsKey(id)) senses.add(id);
 				if (!senses.isEmpty()) senseInventory.put(lemma, senses);
 			}
-			
+
 			senseFramesUnique = new HashMap<String, HashSet<Set<String>>>();
 			senseFramesAmbiguous = new HashMap<String, HashSet<Set<String>>>();
 			coveredVerbs = new HashMap<String, Set<String>>();
@@ -211,7 +222,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		for (String sense : senseInventory.get(target)) {
 			senseFrameMap_uniques.put(sense, senseFramesUnique.get(sense));
 		}
-		
+
 		HashMap<String, HashSet<Set<String>>> outMap = new HashMap<String, HashSet<Set<String>>>();
 		if ("strict".equals(strict) || "superstrict".equals(strict)) {
 			outMap = senseFrameMap_uniques;
@@ -277,19 +288,19 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	public void process(JCas cas) {
 
 		for (Sentence sentence : JCasUtil.select(cas, Sentence.class)) {
-//			List<Dependency>svps = new ArrayList<>();
-//			for (Dependency dependency : JCasUtil.selectCovered(Dependency.class, sentence)) {
-//				if(dependency.getDependencyType().equals("SVP"))
-//					svps.add(dependency);
-//			}
+			//			List<Dependency>svps = new ArrayList<>();
+			//			for (Dependency dependency : JCasUtil.selectCovered(Dependency.class, sentence)) {
+			//				if(dependency.getDependencyType().equals("SVP"))
+			//					svps.add(dependency);
+			//			}
 			for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
 				String lemma = token.getLemma().getValue();
-//				for (Dependency dependency : svps) {
-//					if(dependency.getGovernor().equals(token)){
-//						lemma = dependency.getDependent().getLemma().getValue()+lemma;
-//						token.getLemma().setValue(lemma);
-//					}
-//				}
+				//				for (Dependency dependency : svps) {
+				//					if(dependency.getGovernor().equals(token)){
+				//						lemma = dependency.getDependent().getLemma().getValue()+lemma;
+				//						token.getLemma().setValue(lemma);
+				//					}
+				//				}
 				if(gnet.getLexUnits(lemma, WordCategory.verben).size() == 1){
 					addAnnotation(cas, token, Integer.toString(gnet.getLexUnits(lemma, WordCategory.verben).get(0).getId()));
 					continue;
@@ -310,10 +321,10 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 						if (senseFramesAmbiguous.containsKey(sense)) {
 							for (Set<String> frame : senseFramesAmbiguous.get(sense)) {
 								// Check for equality, better coverage, worse accuracy
-//								if (sentence_frames.equals(frame)) {
-//									is_ambiguous = true;
-//									break;
-//								}
+								//								if (sentence_frames.equals(frame)) {
+								//									is_ambiguous = true;
+								//									break;
+								//								}
 								// Don't just check if identical, but check if ambiguous is contained in sentence
 								if (sentence_frames.containsAll(frame)) {
 									is_ambiguous = true;
@@ -331,7 +342,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 							if ("superstrict".equals(strict)) {
 								candidate = gold_frame.equals(sentence_frames);
 							} else {
-								
+
 								for (String frag: gold_frame) {
 									if (!sentence_frames.contains(frag)) {
 										candidate = false;
@@ -417,12 +428,12 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	public HashMap<String, HashSet<Set<String>>> getUniques(String target, boolean implemented) {
 		return getUniques(target, implemented, false);
 	}
-	
-	
+
+
 	public HashMap<String, HashSet<Set<String>>> getUniques(String target, boolean implemented, boolean init_pop) {
 		HashMap<String, HashSet<Set<String>>> candidateCriteria = new HashMap<String, HashSet<Set<String>>>();
 		HashMap<String, HashSet<Set<String>>> senseFrameMap = preprocFrames(target);
-		
+
 		String[] senseArray = senseFrameMap.keySet().toArray(new String[senseFrameMap.keySet().size()]);
 		for (int i = 0; i < senseArray.length; i++) {
 			String sense = senseArray[i];
@@ -465,7 +476,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			senseFramesUnique.putAll(candidateCriteria);
 			coveredVerbs.put(target, candidateCriteria.keySet());
 		}
-		
+
 		return candidateCriteria;
 	}
 
