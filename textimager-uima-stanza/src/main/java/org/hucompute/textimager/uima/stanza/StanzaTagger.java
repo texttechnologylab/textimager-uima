@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
@@ -16,7 +17,6 @@ import org.dkpro.core.api.resources.MappingProviderFactory;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
@@ -47,64 +47,63 @@ public class StanzaTagger extends StanzaBase{
 	protected String variant;
 
 	private MappingProvider mappingProvider;
-	
-	
-	
+
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
 	}
-	
-	
+
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		mappingProvider.configure(aJCas.getCas());
+		final CAS cas = aJCas.getCas();
+		mappingProvider.configure(cas);
 		try {
-			interp.set("lang", aJCas.getDocumentLanguage());
-			interp.set("text",aJCas.getDocumentText());
+			final Object lang = aJCas.getDocumentLanguage();
+			final Object text = aJCas.getDocumentText();
+			interp.set("lang", lang);
+			interp.set("text", text);
 			interp.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos,lemma,mwt,depparse','lang': lang,})");
 			interp.exec("doc = nlp(text)");
             interp.exec("dic = doc.to_dict()");
-            interp.exec("pos = [{'upos': token.get('upos'),"+
-					"'xpos': token.get('xpos'),"+
-					"'id': token.get('id'),"+
-					"'deprel' : token.get('deprel'),"+
-					"'misc': token.get('misc').replace('start_char=','').replace('end_char=','').split('|'),"+
-					"'head': {"+ 
-					"'id': token.get('head'),"+ 
-					"'length': token.get('deprel')"+ 
-					"}"+
-					"}"+
-					"for sentence in dic for token in sentence]");
-			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("pos");
-			poss.forEach(p -> {
-				int begin = Integer.valueOf((String)(((ArrayList)p.get("misc")).get(0)));
-				int end = Integer.valueOf((String)(((ArrayList)p.get("misc")).get(1)));
-				String tagStr = p.get("upos").toString();
+			interp.exec("token_list = [{"+
+				"'upos': token.get('upos'),"+
+				"'lemma': token.get('lemma'),"+
+				"'id': token.get('id'),"+
+				"'deprel' : token.get('deprel'),"+
+				"'begin': token.get('misc').replace('start_char=','').split('|')[0],"+
+				"'end': token.get('misc').replace('end_char=','').split('|')[1],"+
+				"'head': token.get('head'),"+
+				"}"+
+				"for sentence in dic for token in sentence]");
+			ArrayList<HashMap<String, Object>> tokenList = (ArrayList<HashMap<String, Object>>) interp.getValue("token_list");
+			tokenList.forEach(token -> {
+				int begin = Integer.valueOf((String)token.get("begin"));
+				int end = Integer.valueOf((String)token.get("end"));
+				String tagStr = token.get("upos").toString();
 
-				Type posTag = mappingProvider.getTagType(tagStr);
-				POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
+				Type posTag = mappingProvider.getTagType(tagStr.intern());
+				POS posAnno = (POS) cas.createAnnotation(posTag, begin, end);
 				posAnno.setPosValue(tagStr);
 				POSUtils.assignCoarseValue(posAnno);
 				posAnno.addToIndexes();
-				
-				
+
 				Token casToken = new Token(aJCas, begin, end);
 				casToken.addToIndexes();
-				
+
 				Lemma casLemma = new Lemma(aJCas, begin, end);
+				casLemma.setValue((String)token.get("lemma"));
 				casLemma.addToIndexes();
-				
-				HashMap<String, Object>headToken = (HashMap<String, Object>) p.get("head");
-				int headID = ((Long)headToken.get("id")).intValue();
-				int beginHead = Integer.valueOf((String)((ArrayList)(poss.get(headID).get("misc"))).get(0));
-				int endHead = Integer.valueOf((String)((ArrayList)(poss.get(headID).get("misc"))).get(1));
-				
+
+				int headID = toIntExact((Long)token.get("head"));
+
+				int beginHead = Integer.valueOf((String)(tokenList.get(headID).get("begin")));
+				int endHead = Integer.valueOf((String)(tokenList.get(headID).get("end")));
+
 				Token dependent = casToken;
 				Token governor = new Token(aJCas, beginHead, endHead);
-				
-				Dependency depAnno;			
-				String depStr = p.get("deprel").toString().toUpperCase();
+
+				Dependency depAnno;
+				String depStr = token.get("deprel").toString().toUpperCase();
 				if (depStr.equals("ROOT")) {
 					depAnno = new ROOT(aJCas, begin, end);
 					depAnno.setDependencyType("--");
@@ -117,12 +116,8 @@ public class StanzaTagger extends StanzaBase{
 				depAnno.setFlavor(DependencyFlavor.BASIC);
 				depAnno.addToIndexes();
 			});
-			
-			
-			
 		} catch (JepException e) {
 			e.printStackTrace();
 		}
 	}
-
 }

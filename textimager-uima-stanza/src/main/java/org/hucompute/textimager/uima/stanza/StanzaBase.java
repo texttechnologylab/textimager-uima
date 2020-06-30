@@ -16,12 +16,7 @@ public abstract class StanzaBase extends JepAnnotator {
 		if(interp == null)
 			interp =setUpInter(pythonHome, interp);
 		try {
-			interp.exec("import os");
-			interp.exec("import sys");
-			interp.exec("import subprocess");
-			interp.exec("import stanza"); 
-			interp.exec("from stanza.utils.conll import CoNLL");
-			
+			interp.exec("import stanza");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
