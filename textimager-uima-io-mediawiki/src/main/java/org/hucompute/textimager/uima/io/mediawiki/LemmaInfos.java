@@ -88,11 +88,18 @@ public class LemmaInfos {
 		public LemmaPos(String lemmapos) {
 			if (lemmapos == null)
 				throw new IllegalArgumentException("lemmapos must not be null");
-			String split[] = lemmapos.split("_", 2);
-			if (split.length != 2)
-				throw new IllegalArgumentException("lemmapos needs format LEMMA_POS");
-			lemma = split[0];
-			pos = split[1];
+			if(lemmapos.equals("</s>"))
+			{
+				lemma = "</s>";
+				pos = "</s>";
+			}
+			else{
+				String split[] = lemmapos.split("_", 2);
+				if (split.length != 2)
+					throw new IllegalArgumentException("lemmapos needs format LEMMA_POS");
+				lemma = split[0];
+				pos = split[1];
+			}
 		}
 
 		public LemmaPos(Token token) {
@@ -126,7 +133,7 @@ public class LemmaInfos {
 	public Collection<HashMap.Entry<LemmaPos, LemmaInfo>> entrySet() {
 		return map.entrySet();
 	}
-	
+
 	public LemmaInfo get(LemmaPos lemmapos) {
 		if (lemmapos == null) {
 			throw new IllegalArgumentException("lemmapos can not be null");
