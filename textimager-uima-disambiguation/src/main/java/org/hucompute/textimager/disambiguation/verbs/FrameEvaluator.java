@@ -75,6 +75,17 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				}
 
 				String lemma = lex.getOrthForm();
+				if(lemma.equals("sein")||
+						lemma.equals("haben")||
+						lemma.equals("werden")||
+						lemma.equals("dürfen")||
+						lemma.equals("können")||
+						lemma.equals("mögen")||
+						lemma.equals("müssen")||
+						lemma.equals("sollen")||
+						lemma.equals("wollen")||
+						lemma.equals("machen"))
+					continue;
 				String id = String.valueOf(lex.getId());
 
 				HashSet<String> frames = new HashSet<String>();
@@ -463,7 +474,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	public HashMap<String, HashSet<Set<String>>> getUniques(String target, boolean implemented, boolean init_pop) {
 		HashMap<String, HashSet<Set<String>>> candidateCriteria = new HashMap<String, HashSet<Set<String>>>();
 		HashMap<String, HashSet<Set<String>>> senseFrameMap = preprocFrames(target);
-		
+
 		String[] senseArray = senseFrameMap.keySet().toArray(new String[senseFrameMap.keySet().size()]);
 		for (int i = 0; i < senseArray.length; i++) {
 			String sense = senseArray[i];
