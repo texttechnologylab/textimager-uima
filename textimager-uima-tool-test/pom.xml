@@ -62,5 +62,27 @@
 			<groupId>org.dkpro.core</groupId>
 			<artifactId>dkpro-core-matetools-gpl</artifactId>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.dkpro.core/dkpro-core-udpipe-asl -->
+<dependency>
+    <groupId>org.dkpro.core</groupId>
+    <artifactId>dkpro-core-udpipe-asl</artifactId>
+    <version>2.1.0</version>
+</dependency>
+
+<!--       <dependency>
+        <groupId>org.dkpro.core</groupId>
+        <artifactId>dkpro-core-udpipe-model-segmenter-en-ud</artifactId>
+        <version>20160523.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.dkpro.core</groupId>
+        <artifactId>dkpro-core-udpipe-model-tagger-en-ud</artifactId>
+        <version>20160523.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.dkpro.core</groupId>
+        <artifactId>dkpro-core-udpipe-model-parser-en-ud</artifactId>
+        <version>20160523.1</version>
+      </dependency> -->
 	</dependencies>
 </project>
