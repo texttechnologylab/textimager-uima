@@ -8,6 +8,17 @@
 	</parent>
 	<artifactId>textimager-uima-tool-test</artifactId>
 
+	<repositories>
+		<repository>
+			<id>jcenter</id>
+			<url>https://jcenter.bintray.com/</url>
+		</repository>
+		<repository>
+			<id>ukp-oss-model-releases</id>
+			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-model-releases-local</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 	<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
@@ -22,6 +33,11 @@
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-spacy</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-stanza</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

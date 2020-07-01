@@ -46,13 +46,16 @@ public class DeepEosTagger extends JepAnnotator {
 	
 	private static final String[] resourceFiles = new String[]{"python/model.py", "python/utils.py"};
 	private Path tempFolder;
-	
+	protected SharedInterpreter interp ;
+
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
 		try {
 			tempFolder = Files.createTempDirectory(this.getClass().getSimpleName());
 			Properties modelProperties = loadModelProperties();
+			if(interp == null)
+				interp =setUpInter(pythonHome, interp);
 			if (!modelProperties.containsKey(modelname + ".model")) {
 				throw new Exception("The language '" + modelname + "' is not a valid DeepEOS model language!");
 			} else {

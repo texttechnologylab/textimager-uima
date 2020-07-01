@@ -22,33 +22,13 @@ public class SimpleTest {
 
 	public static void main(String[] args) throws UIMAException {
 
-		
-		JCas cas = JCasFactory.createText("Der Gefangene erhängte sich in seiner Zelle. Die Dorfbewohner erhängten den Viehdieb an einem Baum.","de");
+		JCas cas = JCasFactory.createText("Die Gefangenen erhängten sich in ihrer Zelle. Die Dorfbewohner erhängten den Viehdieb an einem Baum.","de");
 		
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(CoreNlpSegmenter.class));
 		builder.add(createEngineDescription(CoreNlpPosTagger.class));
 		builder.add(createEngineDescription(MateLemmatizer.class));
-		builder.add(createEngineDescription(MateMorphTagger.class));
 		builder.add(createEngineDescription(MateParser.class));
-		builder.add(createEngineDescription(
-				FrameEvaluator.class,
-				FrameEvaluator.PARAM_GERMANET_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/trunk/src/main/resources/GN_V140.zip"));
-//		builder.add(createEngineDescription(
-//				VerbsDisambiguation.class,
-//				VerbsDisambiguation.PARAM_GERMANET_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/trunk/src/main/resources/GN_V140.zip",
-//				VerbsDisambiguation.PARAM_VERBLEMMAIDS_PATH,"/home/staff_homes/ahemati/projects/VerbsAnnotator/trunk/verbLemmaIds"
-//				));
-//		builder.add(createEngineDescription(
-//				VerbsDisambiguation.class,
-//				VerbsDisambiguation.PARAM_GERMANET_PATH,"/resources/nlp/models/disambig/verbs/GN_V140.zip"
-//				));
-//		builder.add(createEngineDescription(
-//				VerbsDisambiguation.class,
-//				VerbsDisambiguation.PARAM_GERMANET_PATH,"/resources/nlp/models/disambig/verbs/GN_V140.zip",
-//				VerbsDisambiguation.PARAM_ACTIVATE_REDUCER,true,
-//				VerbsDisambiguation.PARAM_VARIANT,"reduced"
-//				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 		
 		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));

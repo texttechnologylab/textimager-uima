@@ -18,7 +18,10 @@ public class SpaCyTokenizer extends SpaCyBase {
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("text", aJCas.getDocumentText());
-			interp.exec("nlp = spacy.load('en_core_web_sm')");
+			if(aJCas.getDocumentLanguage().equals("de"))
+				interp.exec("nlp = spacy.load('de_core_news_sm')");
+			else
+				interp.exec("nlp = spacy.load('en_core_web_sm')");
 			interp.exec("doc = nlp.tokenizer(text)");
 			interp.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space} for token in doc]");
 			interp.exec("System.out.println(tokens)");
@@ -31,8 +34,10 @@ public class SpaCyTokenizer extends SpaCyBase {
 					casToken.addToIndexes();
 				}
 			}
+			
 		} catch (JepException e) {
 			e.printStackTrace();
 		}
+		
 	}
 }
