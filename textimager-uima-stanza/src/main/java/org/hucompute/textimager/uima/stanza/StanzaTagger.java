@@ -80,11 +80,10 @@ public class StanzaTagger extends StanzaBase{
 				int begin = Integer.valueOf((String)token.get("begin"));
 				int end = Integer.valueOf((String)token.get("end"));
 				String tagStr = token.get("upos").toString();
-
 				Type posTag = mappingProvider.getTagType(tagStr.intern());
 				POS posAnno = (POS) cas.createAnnotation(posTag, begin, end);
 				posAnno.setPosValue(tagStr);
-				POSUtils.assignCoarseValue(posAnno);
+//				POSUtils.assignCoarseValue(posAnno);
 				posAnno.addToIndexes();
 
 				Token casToken = new Token(aJCas, begin, end);

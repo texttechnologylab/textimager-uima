@@ -26,9 +26,9 @@ public class SimpleTestSpacy {
 		
 		AggregateBuilder builder = new AggregateBuilder();
 		
-//		builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
-//		builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
-		builder.add(createEngineDescription(SpaCyMultiTagger.class,SpaCyMultiTagger.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
+		builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
+		builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
+//		builder.add(createEngineDescription(SpaCyMultiTagger.class,SpaCyMultiTagger.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
 		
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
