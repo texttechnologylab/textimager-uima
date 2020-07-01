@@ -42,9 +42,12 @@ public class SpaCyNER extends SpaCyBase {
 					+ "    if name == 'ner':\n"
 					+ "        doc = proc(doc)");
 			interp.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
-
+			
+			System.out.println("python NER finish");
+			
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 			poss.forEach(p -> {
+				
 				int begin = ((Long)p.get("start_char")).intValue();
 				int end = ((Long)p.get("end_char")).intValue();
 				String labelStr = p.get("label").toString();

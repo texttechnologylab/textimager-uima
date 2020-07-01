@@ -3,10 +3,8 @@ package org.hucompute.textimager.uima.io.mediawiki;
 import java.io.File;   
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.Comparable;
 import java.lang.Math;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -15,7 +13,6 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -26,27 +23,25 @@ import java.util.TreeSet;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasConsumer_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
+import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Document;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
 
 
 // TODO replace with new "types" category
-import org.hucompute.services.type.CategoryCoveredTagged;
 
-public class MediawikiWriter extends JCasConsumer_ImplBase{
+public class MediawikiWriter extends JCasFileWriter_ImplBase{
 
 	/**
 	 * Output directory
@@ -551,7 +546,7 @@ public class MediawikiWriter extends JCasConsumer_ImplBase{
 			System.out.println(" BUG  | MediaWikiWriter tries to create a page with no title:");
 			System.out.println("      | Namespace: " + pageNs);
 			System.out.println("      | Comment:   " + comment);
-			System.out.println("      | Text:      " + textBufferString != null ? textBufferString.substring(0, 20).replace("\n", " ") : null);
+			System.out.println("      | Text:      " + textBufferString != null ? textBufferString.substring(0, textBufferString.length() >= 20 ? 20:textBufferString.length()-1).replace("\n", " ") : null);
 			return;
 		}
 

@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.util;
 
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.impl.XmiCasSerializer;
+import org.apache.uima.jcas.JCas;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -103,7 +104,11 @@ public class XmlFormatter {
 		return baos.toString();
 	}
 
-	public static String getPrettyString(CAS jcas){
-		return format(getString(jcas));
+	public static String getPrettyString(CAS cas){
+		return format(getString(cas));
+	}
+	
+	public static String getPrettyString(JCas jcas){
+		return format(getString(jcas.getCas()));
 	}
 }

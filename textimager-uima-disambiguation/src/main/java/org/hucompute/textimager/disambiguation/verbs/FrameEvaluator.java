@@ -17,6 +17,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 
 import com.google.common.collect.Sets;
 
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
@@ -34,20 +35,22 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	private String gnetPath;
 
 	public static final String PARAM_CRITERIA = "strict";
-	@ConfigurationParameter(name = PARAM_CRITERIA, mandatory = false, description = "Whether to use strict frame matching or not", defaultValue = "true")
-	private boolean strict = true;
+	@ConfigurationParameter(name = PARAM_CRITERIA, mandatory = false, description = "Whether to use strict frame matching. Options 'strict', 'superstrict' or anything else", defaultValue = "strict")
+	private String strict;
 
 	public static final String PARAM_VERBOSE = "verbose";
 	@ConfigurationParameter(name = PARAM_VERBOSE, mandatory = false, description = "Whether to use verbose console output or not", defaultValue = "false")
-	private boolean verbose = false;
+	private boolean verbose;
 
 
 	private GermaNet gnet;
 	private HashMap<String, HashSet<String>> senseInventory;
 	private HashMap<String, HashSet<String>> senseCriteria;
 	private HashMap<String, Set<String>> coveredVerbs;
+	private HashMap<String, HashSet<Set<String>>> senseFramesUnique;
+	private HashMap<String, HashSet<Set<String>>> senseFramesAmbiguous;
 	private static HashSet<String> implementedFrames = new HashSet<String>(Arrays.asList(
-			"NN", "AN", "DN", "AR", "DR", "PP"));
+			"NN", "AR", "DR", "AN", "PP", "DN"));
 
 
 	// Implement only frames which actually exist in the unique sets: NN=4574, AN=1741, AR=895, PP=720, DN=327, BD=269, DS=191, AZ=182, BL=159, DR=114, BM=102, NE=99, FS=65, BR=32, BS=26, BO=25, BT=18, GN=14, NG=12, AI=9, BC=5
@@ -82,7 +85,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					String data = frame.getData();
 					frames.add(data);
 				}
-				if (!frames.isEmpty())senseCriteria.put(id, frames);
+				if (!frames.isEmpty()) senseCriteria.put(id, frames);
 
 
 				HashSet<String> senses = new HashSet<String>();
@@ -92,8 +95,14 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				if (senseCriteria.containsKey(id)) senses.add(id);
 				if (!senses.isEmpty()) senseInventory.put(lemma, senses);
 			}
-
-			coveredVerbs = findCoveredVerbs(true);
+			
+			senseFramesUnique = new HashMap<String, HashSet<Set<String>>>();
+			senseFramesAmbiguous = new HashMap<String, HashSet<Set<String>>>();
+			coveredVerbs = new HashMap<String, Set<String>>();
+			for (String lemma : senseInventory.keySet()) {
+				getUniques(lemma, true, true);
+			}
+			//System.out.println("ambiguous frames: " + senseFramesAmbiguous);
 
 		}
 		catch (Exception e) {
@@ -121,6 +130,13 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			Dependency dep = JCasUtil.selectCovered(Dependency.class, child).get(0);
 			String depType = dep.getDependencyType();
 			String pos = child.getPos().getPosValue();
+			
+			if (depType.equals("NK") || depType.equals("MO")) {
+				if (childMap.containsKey(child)) {
+					toProcess.addAll(childMap.get(child));
+				}
+			}
+			
 			if (depType.equals("SB") && (pos.equals("NN") || pos.equals("NE") || pos.equals("PPER") || pos.equals("PDS") || pos.equals("PIS") || pos.equals("PIAT"))) {
 				frames.add("NN");
 			} else if (depType.equals("DA") && (pos.equals("NN") || pos.equals("NE") || pos.equals("PPER") || pos.equals("PDS") || pos.equals("PIS") || pos.equals("PIAT"))) {
@@ -140,7 +156,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				}
 			} else if (depType.equals("OA") && (pos.equals("NN") || pos.equals("NE") || pos.equals("PPER") || pos.equals("PDS") || pos.equals("PIS") || pos.equals("PIAT"))) {
 				frames.add("AN");
-			} else if (depType.equals("OP") && (pos.equals("APPR") || pos.equals("APPRART") || pos.equals("APPO"))) {
+			} else if ((depType.equals("OP") || ((Constituent)child.getParent()).getConstituentType().equals("PP")) && (pos.equals("APPR") || pos.equals("APPRART") || pos.equals("APPO"))) {
 				frames.add("PP");
 			}
 			toProcess.remove(child);
@@ -148,16 +164,11 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		return frames;
 	}
 
-
-
-	public HashSet<String> generateFrames(Sentence sentence, String target, boolean verbose) {
-		HashSet<String> frames = new HashSet<String>();
-
-		// Build Child tree
+	
+	public HashMap<Token, ArrayList<Token>> preprocSentence(Sentence sentence, boolean verbose) {
 		HashMap<Token, ArrayList<Token>> childMap = new HashMap<Token, ArrayList<Token>>();
 
 		Token root = null;
-		Token target_t = null;
 		for (Token token: JCasUtil.selectCovered(Token.class, sentence)) {
 			Dependency dep = JCasUtil.selectCovered(Dependency.class, token).get(0);
 			Token governour = dep.getGovernor();
@@ -166,12 +177,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				root = token;
 				isroot = "1";
 			}
-			String istarget = "0";
-			if (token.getLemma().getValue().equals(target))  {
-				target_t = token;
-				istarget = "1";
-			}
-			if (verbose) System.out.println(token.getCoveredText() + "\t" + governour.getCoveredText() + "\t" + dep.getDependencyType() + "\t" + isroot + "\t" + token.getPos().getPosValue() + "\t" + token.getMorph().getValue() + "\t" + token.getLemma().getValue() + "\t" + istarget);
+			if (verbose) System.out.println(token.getCoveredText() + "\t" + governour.getCoveredText() + "\t" + dep.getDependencyType() + "\t" + isroot + "\t" + token.getPos().getPosValue() + "\t" + token.getMorph().getValue() + "\t" + token.getLemma().getValue());
 			if (governour.equals(token)) continue;
 			ArrayList<Token> children = new ArrayList<Token>();
 			if (childMap.containsKey(governour)) children = childMap.get(governour);
@@ -179,13 +185,34 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			childMap.put(governour, children);
 		}
 
+		if (root == null) return null; // Lemmatization error, couldn't find target word or the dep tree is malformed
+		return childMap;
+	}
+	
+
+	public HashSet<String> generateFrames(Sentence sentence, String target, HashMap<Token, ArrayList<Token>> childMap, boolean verbose) {
+		HashSet<String> frames = new HashSet<String>();
+
+		Token root = null;
+		Token target_t = null;
+		for (Token token: JCasUtil.selectCovered(Token.class, sentence)) {
+			Dependency dep = JCasUtil.selectCovered(Dependency.class, token).get(0);
+			Token governour = dep.getGovernor();
+			if (governour.equals(token)) {
+				root = token;
+			}
+			if (token.getLemma().getValue().equals(target))  {
+				target_t = token;
+			}
+		}
+
 		if (target_t == null || root == null) return null; // Lemmatization error, couldn't find target word or the dep tree is malformed
 
 		ArrayList<Token> p_to_root = new ArrayList<Token>();
 		p_to_root.add(target_t);
-		if (!target_t.getPos().getPosValue().equals("VAFIN") && !target_t.getPos().getPosValue().equals("VVFIN")) {
+		if (!(target_t.getPos().getPosValue().equals("VAFIN") || target_t.getPos().getPosValue().equals("VVFIN"))) {
 			Token sent_root = target_t;
-			while (!sent_root.getPos().getPosValue().equals("VAFIN") && !target_t.getPos().getPosValue().equals("VVFIN")) {
+			while (!(sent_root.getPos().getPosValue().equals("VMFIN") || sent_root.getPos().getPosValue().equals("VAFIN") || sent_root.getPos().getPosValue().equals("VVFIN"))) {
 				Token sent_root_it = JCasUtil.selectCovered(Dependency.class, sent_root).get(0).getGovernor();
 				if (sent_root_it.equals(sent_root)) return null;
 				sent_root = sent_root_it;
@@ -198,10 +225,14 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	}
 
 
-	public HashMap<String, HashSet<Set<String>>> getCandidateCriteria(String target, boolean strict) {
-		HashMap<String, HashSet<Set<String>>> senseFrameMap_uniques = getUniques(target, true);
+	public HashMap<String, HashSet<Set<String>>> getCandidateCriteria(String target, String strict) {
+		HashMap<String, HashSet<Set<String>>> senseFrameMap_uniques = new HashMap<String, HashSet<Set<String>>>();
+		for (String sense : senseInventory.get(target)) {
+			senseFrameMap_uniques.put(sense, senseFramesUnique.get(sense));
+		}
+		
 		HashMap<String, HashSet<Set<String>>> outMap = new HashMap<String, HashSet<Set<String>>>();
-		if (strict) {
+		if ("strict".equals(strict) || "superstrict".equals(strict)) {
 			outMap = senseFrameMap_uniques;
 		} else {
 			HashMap<String, HashSet<Set<String>>> powerfragments = new HashMap<String, HashSet<Set<String>>>();
@@ -270,6 +301,9 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 //				if(dependency.getDependencyType().equals("SVP"))
 //					svps.add(dependency);
 //			}
+			
+			HashMap<Token, ArrayList<Token>> depTree = preprocSentence(sentence, verbose);
+			
 			for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
 				String lemma = token.getLemma().getValue();
 //				for (Dependency dependency : svps) {
@@ -282,23 +316,67 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					addAnnotation(cas, token, Integer.toString(gnet.getLexUnits(lemma, WordCategory.verben).get(0).getId()));
 					continue;
 				}
+				if ("VMFIN".equals(token.getPos().getPosValue()) || "VMINF".equals(token.getPos().getPosValue())) continue;
 				if(token.getPos().getClass() == POS_VERB.class && coveredVerbs.containsKey(lemma)){
 					String label = null;
 
-					HashSet<String> sentence_frames = generateFrames(sentence, lemma, verbose);
-					if (verbose) System.out.println("Generated frames: " + sentence_frames);
+					HashSet<String> sentence_frames = generateFrames(sentence, lemma, depTree, verbose);
+					if (verbose) System.out.println("Generated frames " + sentence_frames + " for " + lemma);
 					if (sentence_frames == null || sentence_frames.isEmpty()) continue;
 
 					HashMap<String, HashSet<Set<String>>> criteriaMap = getCandidateCriteria(lemma, strict); 
-
+					if (verbose) System.out.println("Candidate senses: " + criteriaMap);
 					HashMap<String, Set<Set<String>>> candidates = new HashMap<String, Set<Set<String>>>();
-					for (String sense : criteriaMap.keySet()) {
+					boolean is_ambiguous = false;
+					boolean annotated = false;
+					for (String sense : senseInventory.get(lemma)) {
+						// Check if sentence frames are identical to unique gold frame, if so, immediately put that into candidates
+						// Currently disabled since it decreases accuracy drastically
+//						if (criteriaMap.containsKey(sense) && criteriaMap.get(sense) != null) {
+//							for (Set<String> gold_frame : criteriaMap.get(sense)) {
+//								if (gold_frame.equals(sentence_frames)) {
+//									Set<Set<String>> candidateframes = new HashSet<Set<String>>();
+//									if (candidates.containsKey(sense)) candidateframes = candidates.get(sense);
+//									candidateframes.add(gold_frame);
+//									candidates.put(sense, candidateframes);
+//									annotated = true;
+//								}
+//							}
+//						}
+//						if (annotated) break;
+						// Check if the sentence frames are identical to an ambiguous frame
+						if (senseFramesAmbiguous.containsKey(sense)) {
+							for (Set<String> frame : senseFramesAmbiguous.get(sense)) {
+								// Check for equality, better coverage, worse accuracy
+//								if (sentence_frames.equals(frame)) {
+//									is_ambiguous = true;
+//									if (verbose) System.out.println("Sentence frames are ambiguous: " + frame);
+//									break;
+//								}
+								// Don't just check if identical, but check if ambiguous is contained in sentence
+								if (sentence_frames.containsAll(frame)) {
+									is_ambiguous = true;
+									if (verbose) System.out.println("Sentence frames are contained in ambiguous sense " + sense + ": " + frame);
+									break;
+								}
+							}
+						}
+						
+						// Go through all gold frames and check for candidates
+						// A gold frame is a candidate if it is completely contained in the sentence frames
+						if (!criteriaMap.containsKey(sense) || criteriaMap.get(sense) == null) {
+							continue;
+						}
 						for (Set<String> gold_frame : criteriaMap.get(sense)) {
 							boolean candidate = true;
-							for (String frag: gold_frame) {
-								if (!sentence_frames.contains(frag)) {
-									candidate = false;
-									break;
+							if ("superstrict".equals(strict)) {
+								candidate = gold_frame.equals(sentence_frames);
+							} else {
+								for (String frag: gold_frame) {
+									if (!sentence_frames.contains(frag)) {
+										candidate = false;
+										break;
+									}
 								}
 							}
 							if (candidate) {
@@ -309,6 +387,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 							}
 						}
 					}
+					if (is_ambiguous && !annotated) continue;
 					if (candidates.size() == 1) addAnnotation(cas, token, candidates.keySet().iterator().next());
 
 					int overlap = -1;
@@ -325,6 +404,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					}
 					if (overlap == -1 || label == null) continue;
 					addAnnotation(cas, token, label);
+					if (verbose) System.out.println("Labeled " + lemma + " with sense " + label);
 				}
 			}
 		}
@@ -342,15 +422,14 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		for (String frag : frame) {
 			if (frag.startsWith("ZZ")) continue;
 			if (toRemove.contains(frag) && clean) continue;
-			out.add(frag);
+			out.add(frag.toUpperCase());
 		}
 		frame = out;
 		return frame;
 	}
 
-
-	public HashMap<String, HashSet<Set<String>>> getUniques(String target, boolean implemented) {
-		HashMap<String, HashSet<Set<String>>> candidateCriteria = new HashMap<String, HashSet<Set<String>>>();
+	// Marks optional fragments with ZZ- prefix and removes any that are not implemented
+	public HashMap<String, HashSet<Set<String>>> preprocFrames(String target) {
 		HashMap<String, HashSet<Set<String>>> senseFrameMap = new HashMap<String, HashSet<Set<String>>>();
 
 		// Get rid of optionals and filter non implemented
@@ -372,7 +451,19 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			}
 			senseFrameMap.put(sense, frames_altered);
 		}
+		return senseFrameMap;
+	}
 
+	
+	public HashMap<String, HashSet<Set<String>>> getUniques(String target, boolean implemented) {
+		return getUniques(target, implemented, false);
+	}
+	
+	
+	public HashMap<String, HashSet<Set<String>>> getUniques(String target, boolean implemented, boolean init_pop) {
+		HashMap<String, HashSet<Set<String>>> candidateCriteria = new HashMap<String, HashSet<Set<String>>>();
+		HashMap<String, HashSet<Set<String>>> senseFrameMap = preprocFrames(target);
+		
 		String[] senseArray = senseFrameMap.keySet().toArray(new String[senseFrameMap.keySet().size()]);
 		for (int i = 0; i < senseArray.length; i++) {
 			String sense = senseArray[i];
@@ -380,6 +471,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				Set<String> r_frame = removeOptionals(frame, false);
 				frame = removeOptionals(frame, true);
 				boolean unique = true;
+				boolean unique_with_opts = true;
 				for (int j = 0; j < senseArray.length; j++) {
 					if (i == j) continue;
 					String comparesense = senseArray[j];
@@ -389,23 +481,39 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 						compareframe = removeOptionals(compareframe, true);
 						if (frame.equals(compareframe)) {
 							unique = false;
-							break;
+						}
+						if (frame.equals(r_temp)) {
+							unique = false;
+						}
+						if (r_frame.equals(compareframe)) {
+							unique_with_opts = false;
 						}
 						if (r_frame.equals(r_temp)) {
-							unique = false;
-							break;
+							unique_with_opts = false;
 						}
 					}
-					if (!unique) break;
 				}
-				if (unique) {
+				if (unique || unique_with_opts) {
 					HashSet<Set<String>> frames = new HashSet<Set<String>>();
 					if (candidateCriteria.containsKey(sense)) frames = candidateCriteria.get(sense);
-					frames.add(frame);
+					if (unique) frames.add(frame);
+					if (unique_with_opts) frames.add(r_frame);
 					candidateCriteria.put(sense, frames);
+				}
+				if (init_pop && (!unique || !unique_with_opts)) {
+					HashSet<Set<String>> ambiframes = new HashSet<Set<String>>();
+					if (senseFramesAmbiguous.containsKey(sense)) ambiframes = senseFramesAmbiguous.get(sense);
+					if (!unique) ambiframes.add(frame);
+					if (!unique_with_opts) ambiframes.add(r_frame);
+					senseFramesAmbiguous.put(sense, ambiframes);
 				}
 			}
 		}
+		if (init_pop) {
+			senseFramesUnique.putAll(candidateCriteria);
+			coveredVerbs.put(target, candidateCriteria.keySet());
+		}
+		
 		return candidateCriteria;
 	}
 

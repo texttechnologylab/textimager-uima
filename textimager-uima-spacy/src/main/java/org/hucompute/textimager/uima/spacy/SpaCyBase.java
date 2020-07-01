@@ -11,29 +11,36 @@ import org.hucompute.textimager.uima.base.JepAnnotator;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import jep.JepException;
+import jep.SharedInterpreter;
 
 public abstract class SpaCyBase extends JepAnnotator {
+
+	public static SharedInterpreter interp;
+
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-		super.initialize(aContext);
 		
+		super.initialize(aContext);
+		if(interp == null)
+			interp =setUpInter(pythonHome, interp);
+
 		try {
 			interp.exec("import os");
 			interp.exec("import sys");
 			interp.exec("import spacy"); 
 			interp.exec("from java.lang import System");
-			
+
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
-		
+
 	}
-	
+
 	// Adds the "words" and "spaces" arrays for spaCy to the JSON object
 	protected void jsonAddWordsAndSpaces(JCas aJCas, HashMap<String, Object> json) {
 		ArrayList<String> jsonWords = new ArrayList<>();
 		ArrayList<Boolean> jsonSpaces = new ArrayList<>();
-		
+
 		Token lastToken = null;
 		for (Token token : JCasUtil.select(aJCas, Token.class)) {
 			// Recreate spaCy Doc Text: Add "space" token if more than 1 space between words
@@ -60,10 +67,10 @@ public abstract class SpaCyBase extends JepAnnotator {
 			} else {
 				jsonWords.add(token.getCoveredText());
 			}
-			
+
 			lastToken = token;
 		}
-		
+
 		// Handle last token
 		if (lastToken != null) {
 			if (aJCas.getDocumentText().length() == lastToken.getEnd())	{
@@ -82,12 +89,22 @@ public abstract class SpaCyBase extends JepAnnotator {
 		json.put("words", jsonWords);
 		json.put("spaces", jsonSpaces);
 	}
-	
+
 
 	protected HashMap<String, Object>  buildJSON(JCas aJCas) {
 		HashMap<String, Object> json = new HashMap<>();
 		json.put("lang", aJCas.getDocumentLanguage());
 		jsonAddWordsAndSpaces(aJCas, json);
 		return json;
+	}
+	
+	@Override
+	public void destroy() {
+		try {
+			interp.close();
+		} catch (JepException e) {
+			e.printStackTrace();
+		}
+		super.destroy();
 	}
 }

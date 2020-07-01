@@ -4,33 +4,19 @@
 	<parent>
 		<groupId>org.hucompute.textimager.uima</groupId>
 		<artifactId>textimager-uima</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.2.6</version>
 	</parent>
 	<artifactId>textimager-uima-io-embeddings</artifactId>
 
 	<dependencies>
 		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.io-asl</artifactId>
-			<version>1.8.0</version>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-types</artifactId>
+			<version>${project.version}</version>
 		</dependency>
-		
 		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.syntax-asl</artifactId>
-			<version>1.8.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>26.0-jre</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.hucompute.services</groupId>
-			<artifactId>services-types</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-api-io-asl</artifactId>
 		</dependency>
 	</dependencies>
 </project>

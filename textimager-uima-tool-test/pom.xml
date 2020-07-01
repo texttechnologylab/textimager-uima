@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.hucompute.textimager.uima</groupId>
 		<artifactId>textimager-uima</artifactId>
-		<version>0.2.5</version>
+		<version>0.2.6</version>
 	</parent>
 	<artifactId>textimager-uima-tool-test</artifactId>
 
@@ -20,9 +20,24 @@
 	</repositories>
 
 	<dependencies>
+	<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-io</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-io-embeddings</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-spacy</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-stanza</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
