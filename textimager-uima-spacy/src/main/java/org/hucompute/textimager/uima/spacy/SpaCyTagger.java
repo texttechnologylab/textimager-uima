@@ -53,20 +53,20 @@ public class SpaCyTagger extends SpaCyBase {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 
-		/*// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
+		// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
 		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
 		try {
 			interp.exec("from spacy.tokens import Doc");
 		} catch (JepException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		//		super.process(aJCas);
-		/*mappingProvider.configure(aJCas.getCas());
+		mappingProvider.configure(aJCas.getCas());
 		HashMap<String, Object>  json = buildJSON(aJCas);
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
@@ -98,6 +98,6 @@ public class SpaCyTagger extends SpaCyBase {
 		} catch (JepException e) {
 			e.printStackTrace();
 		}
-		*/
+		
 	}
 }

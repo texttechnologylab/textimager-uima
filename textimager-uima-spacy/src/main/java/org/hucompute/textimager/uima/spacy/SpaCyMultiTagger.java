@@ -1,5 +1,6 @@
 package org.hucompute.textimager.uima.spacy;
 
+
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
@@ -22,7 +23,10 @@ import jep.JepException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SpaCyMultiTagger extends SpaCyBase {
+
+
+public class SpaCyMultiTagger extends SpaCyBase{
+	
 	/**
 	 * Overwrite CAS Language?
 	 */
@@ -43,126 +47,125 @@ public class SpaCyMultiTagger extends SpaCyBase {
 	public static final String PARAM_VARIANT = "variant";
 	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
 	protected String variant;
-
+	
+	
 	private MappingProvider mappingProvider;
 
+	
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 
 		// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
-		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant,
-				language);
+		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
+		
 	}
-
-	private void processToken(JCas aJCas) throws JepException {
-		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, Object>> output = (ArrayList<HashMap<String, Object>>) interpreter.getValue("tokens");
-		for (HashMap<String, Object> token : output) {
-			if (!(Boolean) token.get("is_space")) {
-				int begin = ((Long) token.get("idx")).intValue();
-				int end = begin + ((Long) token.get("length")).intValue();
-				Token casToken = new Token(aJCas, begin, end);
-				casToken.addToIndexes();
-			}
-		}
-	}
-
-	private void processPOS(JCas aJCas) throws AnalysisEngineProcessException, JepException {
-		mappingProvider.configure(aJCas.getCas());
-		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interpreter.getValue("pos");
-		poss.forEach(p -> {
-			if (!(Boolean) p.get("is_space")) {
-				int begin = ((Long) p.get("idx")).intValue();
-				int end = begin + ((Long) p.get("length")).intValue();
-				String tagStr = p.get("tag").toString();
-
-				Type posTag = mappingProvider.getTagType(tagStr);
-				POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
-				posAnno.setPosValue(tagStr);
-				POSUtils.assignCoarseValue(posAnno);
-				posAnno.addToIndexes();
-			}
-		});
-	}
-
-	private void processDep(JCas aJCas) throws JepException {
-		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, Object>> deps = (ArrayList<HashMap<String, Object>>) interpreter.getValue("deps");
-		deps.forEach(dep -> {
-			if (!(Boolean) dep.get("is_space")) {
-				String depStr = dep.get("dep").toString().toUpperCase();
-
-				int begin = ((Long) dep.get("idx")).intValue();
-				int end = begin + ((Long) dep.get("length")).intValue();
-
-				@SuppressWarnings("unchecked")
-				HashMap<String, Object> headToken = (HashMap<String, Object>) dep.get("head");
-				int beginHead = ((Long) headToken.get("idx")).intValue();
-				int endHead = beginHead + ((Long) headToken.get("length")).intValue();
-
-				Token dependent = JCasUtil.selectSingleAt(aJCas, Token.class, begin, end);
-				Token governor = JCasUtil.selectSingleAt(aJCas, Token.class, beginHead, endHead);
-
-				Dependency depAnno;
-				if (depStr.equals("ROOT")) {
-					depAnno = new ROOT(aJCas, begin, end);
-					depAnno.setDependencyType("--");
-				} else {
-					depAnno = new Dependency(aJCas, begin, end);
-					depAnno.setDependencyType(depStr);
-				}
-				depAnno.setDependent(dependent);
-				depAnno.setGovernor(governor);
-				depAnno.setFlavor(DependencyFlavor.BASIC);
-				depAnno.addToIndexes();
-			}
-		});
-	}
-
-	private void processNER(JCas aJCas) throws JepException {
-		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, Object>> entss = (ArrayList<HashMap<String, Object>>) interpreter.getValue("ents");
-		entss.forEach(p -> {
-			int begin = ((Long) p.get("start_char")).intValue();
-			int end = ((Long) p.get("end_char")).intValue();
-			String labelStr = p.get("label").toString();
-			NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
-			neAnno.setValue(labelStr);
-			neAnno.addToIndexes();
-		});
-	}
-
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {
+	
+	
+	
+	public void process(JCas aJCas) throws AnalysisEngineProcessException{
+		
+		
 		try {
-			interpreter.set("lang", (Object)aJCas.getDocumentLanguage());
-			interpreter.set("text", (Object)aJCas.getDocumentText());
-			if (aJCas.getDocumentLanguage().equals("de"))
-				interpreter.exec("nlp = spacy.load('de_core_news_sm')");
+			
+			
+			
+			interp.set("lang", aJCas.getDocumentLanguage());
+			interp.set("text", aJCas.getDocumentText());
+			if(aJCas.getDocumentLanguage().equals("de"))
+				interp.exec("nlp = spacy.load('de_core_news_sm')");
 			else
-				interpreter.exec("nlp = spacy.load('en_core_web_sm')");
-
-			interpreter.exec("doc = nlp(text)");
-
-			interpreter.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space} for token in doc]");
-			interpreter.exec("pos = [{'tag': token.tag_,'idx': token.idx,'length': len(token),'is_space': token.is_space}for token in doc]");
-			interpreter.exec("deps = [{'dep': token.dep_,'idx': token.idx,'length': len(token),'is_space': token.is_space,'head': {'idx': token.head.idx,'length': len(token.head),'is_space': token.head.is_space}}	for token in doc]");
-			interpreter.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
+				interp.exec("nlp = spacy.load('en_core_web_sm')");
 			
-			// Tokenizer
-			processToken(aJCas);
-
-			// Tagger
-			processPOS(aJCas);
-
-			// PARSER
-			processDep(aJCas);
-
-			// NER
-			processNER(aJCas);
+			interp.exec("doc = nlp(text)");
 			
-		} catch (JepException e) {
-			throw new AnalysisEngineProcessException(e);
+			interp.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space} for token in doc]");
+			interp.exec("pos = [{'tag': token.tag_,'idx': token.idx,'length': len(token),'is_space': token.is_space}for token in doc]");
+			interp.exec("deps = [{'dep': token.dep_,'idx': token.idx,'length': len(token),'is_space': token.is_space,'head': {'idx': token.head.idx,'length': len(token.head),'is_space': token.head.is_space}}	for token in doc]");
+			interp.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
+			
+			//Tokenizer
+			ArrayList<HashMap<String, Object>> output = (ArrayList<HashMap<String, Object>>) interp.getValue("tokens");
+			for (HashMap<String, Object> token : output) {
+				if (!(Boolean)token.get("is_space")) {
+					int begin = ((Long)token.get("idx")).intValue();
+					int end = begin + ((Long)token.get("length")).intValue();
+					Token casToken = new Token(aJCas, begin, end);
+					casToken.addToIndexes();
+				}
+			};
+				
+			//Tagger
+				mappingProvider.configure(aJCas.getCas());
+				HashMap<String, Object>  json = buildJSON(aJCas);
+					ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("pos");
+					poss.forEach(p -> {
+						if (!(Boolean)p.get("is_space")) {
+							int begin = ((Long)p.get("idx")).intValue();
+							int end = begin + ((Long)p.get("length")).intValue();
+							String tagStr = p.get("tag").toString();
+
+							Type posTag = mappingProvider.getTagType(tagStr);
+							POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
+							posAnno.setPosValue(tagStr);
+							POSUtils.assignCoarseValue(posAnno);
+							posAnno.addToIndexes();
+						}
+					});
+					
+					
+			//PARSER
+			
+					ArrayList<HashMap<String, Object>> deps = (ArrayList<HashMap<String, Object>>) interp.getValue("deps");
+					deps.forEach(dep -> {
+						if (!(Boolean)dep.get("is_space")) {
+							String depStr = dep.get("dep").toString().toUpperCase();
+
+							int begin = ((Long)dep.get("idx")).intValue();
+							int end = begin + ((Long)dep.get("length")).intValue();
+
+							HashMap<String, Object>headToken = (HashMap<String, Object>) dep.get("head");
+							int beginHead =((Long)headToken.get("idx")).intValue();
+							int endHead = beginHead + ((Long)headToken.get("length")).intValue();
+
+							Token dependent = JCasUtil.selectSingleAt(aJCas, Token.class, begin, end);
+							Token governor = JCasUtil.selectSingleAt(aJCas, Token.class, beginHead, endHead);
+
+							Dependency depAnno;					
+							if (depStr.equals("ROOT")) {
+								depAnno = new ROOT(aJCas, begin, end);
+								depAnno.setDependencyType("--");
+							} else {
+								depAnno = new Dependency(aJCas, begin, end);
+								depAnno.setDependencyType(depStr);
+							}
+							depAnno.setDependent(dependent);
+							depAnno.setGovernor(governor);
+							depAnno.setFlavor(DependencyFlavor.BASIC);
+							depAnno.addToIndexes();
+						}
+					});
+					
+			//NER
+					
+					ArrayList<HashMap<String, Object>> entss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
+					entss.forEach(p -> {
+						
+						int begin = ((Long)p.get("start_char")).intValue();
+						int end = ((Long)p.get("end_char")).intValue();
+						String labelStr = p.get("label").toString();
+						NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
+						neAnno.setValue(labelStr);
+						neAnno.addToIndexes();
+					});		
+			
+			}
+		catch (JepException e) {
+			e.printStackTrace();
+				
 		}
+		
 	}
 }
+	
+	
+
