@@ -19,17 +19,17 @@ public class SpaCyParser extends SpaCyBase {
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		try {
+		/*try {
 			interp.exec("from spacy.tokens import Doc");
 		} catch (JepException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		HashMap<String, Object>  json = buildJSON(aJCas);
+		/*HashMap<String, Object>  json = buildJSON(aJCas);
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("words",json.get("words"));
@@ -86,6 +86,6 @@ public class SpaCyParser extends SpaCyBase {
 			});
 		} catch (JepException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 }
