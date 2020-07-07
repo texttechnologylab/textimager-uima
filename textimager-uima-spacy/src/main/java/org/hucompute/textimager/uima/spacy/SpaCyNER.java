@@ -15,17 +15,17 @@ public class SpaCyNER extends SpaCyBase {
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		/*try {
+		try {
 			interp.exec("from spacy.tokens import Doc");
 		} catch (JepException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		/*//		super.process(aJCas);
+		//		super.process(aJCas);
 		HashMap<String, Object>  json = buildJSON(aJCas);
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
@@ -57,6 +57,6 @@ public class SpaCyNER extends SpaCyBase {
 			});
 		} catch (JepException e) {
 			e.printStackTrace();
-		}*/
+		}
 	}
 }

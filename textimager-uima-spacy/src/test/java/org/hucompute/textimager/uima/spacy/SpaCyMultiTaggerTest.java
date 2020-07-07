@@ -1,7 +1,7 @@
 package org.hucompute.textimager.uima.spacy;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -17,19 +17,14 @@ import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 
+
 public class SpaCyMultiTaggerTest {
 	@Test
-	public void multiTaggerTest() throws UIMAException {
-		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.", "de");
+	public void multiTaggerTest() throws UIMAException{
 
-		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger.class,
-				SpaCyMultiTagger.PARAM_CONDA_VERSION, "py37_4.8.3",
-				SpaCyMultiTagger.PARAM_CONDA_ENV_NAME, "textimager_spacy37_2",
-				SpaCyMultiTagger.PARAM_CONDA_ENV_PYTHON_VERSION, "3.7",
-				SpaCyMultiTagger.PARAM_CONDA_ENV_DEPS_CONDA, "",
-				SpaCyMultiTagger.PARAM_CONDA_ENV_DEPS_PIP, "spacy==2.3.0",
-				SpaCyMultiTagger.PARAM_CONDA_BASH_SCRIPT, "spacy_setup.sh"
-		);
+		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.","de");
+
+		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger.class,SpaCyMultiTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy");
 
 		SimplePipeline.runPipeline(cas, spacyMulti);
 
@@ -62,5 +57,7 @@ public class SpaCyMultiTaggerTest {
 		assertArrayEquals(deps, casDeps);
 		assertArrayEquals(ents, casEnts);
 	}
+
+
 }
 
