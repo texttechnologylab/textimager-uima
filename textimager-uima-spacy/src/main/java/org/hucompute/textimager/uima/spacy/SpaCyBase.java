@@ -11,29 +11,20 @@ import org.hucompute.textimager.uima.base.JepAnnotator;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import jep.JepException;
-import jep.SharedInterpreter;
 
 public abstract class SpaCyBase extends JepAnnotator {
-
-	public static SharedInterpreter interp;
-
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-		
 		super.initialize(aContext);
-		if(interp == null)
-			interp =setUpInter(pythonHome, interp);
-
+		
 		try {
-			interp.exec("import os");
-			interp.exec("import sys");
-			interp.exec("import spacy"); 
-			interp.exec("from java.lang import System");
-
+			interpreter.exec("import os");
+			interpreter.exec("import sys");
+			interpreter.exec("import spacy"); 
+			interpreter.exec("from java.lang import System");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
-
 	}
 
 	// Adds the "words" and "spaces" arrays for spaCy to the JSON object
@@ -90,21 +81,10 @@ public abstract class SpaCyBase extends JepAnnotator {
 		json.put("spaces", jsonSpaces);
 	}
 
-
 	protected HashMap<String, Object>  buildJSON(JCas aJCas) {
 		HashMap<String, Object> json = new HashMap<>();
 		json.put("lang", aJCas.getDocumentLanguage());
 		jsonAddWordsAndSpaces(aJCas, json);
 		return json;
-	}
-	
-	@Override
-	public void destroy() {
-		try {
-			interp.close();
-		} catch (JepException e) {
-			e.printStackTrace();
-		}
-		super.destroy();
 	}
 }
