@@ -32,6 +32,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	 *        - miniconda
 	 *          - envs
 	 *            - [envName]
+	 *              - [bashScript]
 	 * 
 	 */
 	
@@ -41,43 +42,43 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	 * Conda Version
 	 */
 	public static final String PARAM_CONDA_VERSION = "condaVersion";
-	@ConfigurationParameter(name = PARAM_CONDA_VERSION, defaultValue = "py37_4.8.3")
-	public String condaVersion ;
+	@ConfigurationParameter(name = PARAM_CONDA_VERSION, mandatory = false)
+	protected String condaVersion ;
 	
 	/**
 	 * Conda Environment Name, should be unique for this Annotator
 	 */
 	public static final String PARAM_CONDA_ENV_NAME = "envName";
-	@ConfigurationParameter(name = PARAM_CONDA_ENV_NAME)
-	public String envName;
+	@ConfigurationParameter(name = PARAM_CONDA_ENV_NAME, mandatory = false)
+	protected String envName;
 
 	/**
 	 * Conda Environment Python Version
 	 */
 	public static final String PARAM_CONDA_ENV_PYTHON_VERSION = "envPythonVersion";
-	@ConfigurationParameter(name = PARAM_CONDA_ENV_PYTHON_VERSION)
-	public String envPythonVersion;
+	@ConfigurationParameter(name = PARAM_CONDA_ENV_PYTHON_VERSION, mandatory = false)
+	protected String envPythonVersion;
 
 	/**
 	 * Python Dependencies from Conda
 	 */
 	public static final String PARAM_CONDA_ENV_DEPS_CONDA = "envDepsConda";
-	@ConfigurationParameter(name = PARAM_CONDA_ENV_DEPS_CONDA)
-	public String envDepsConda;
+	@ConfigurationParameter(name = PARAM_CONDA_ENV_DEPS_CONDA, mandatory = false)
+	protected String envDepsConda;
 	
 	/**
 	 * Python Dependencies from Pip
 	 */
 	public static final String PARAM_CONDA_ENV_DEPS_PIP = "envDepsPip";
-	@ConfigurationParameter(name = PARAM_CONDA_ENV_DEPS_PIP)
-	public String envDepsPip;
+	@ConfigurationParameter(name = PARAM_CONDA_ENV_DEPS_PIP, mandatory = false)
+	protected String envDepsPip;
 	
 	/**
 	 * Script for additional conda setup
 	 */
 	public static final String PARAM_CONDA_BASH_SCRIPT = "condaBashScript";
 	@ConfigurationParameter(name = PARAM_CONDA_BASH_SCRIPT, mandatory = false)
-	public String condaBashScript;
+	protected String condaBashScript;
 	
 	// Conda Base Directory
 	protected static final Path condaBaseDir = Paths.get(System.getProperty("user.home"), ".textimager", "conda");
@@ -91,35 +92,6 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		System.out.println("Conda Base Dir: " + condaBaseDir.toString());
-		
-		// set conda base dir
-		if (condaVersion == null || condaVersion.isEmpty()) {
-			throw new ResourceInitializationException(new IllegalArgumentException("condaVersion ist null or empty!"));
-		}
-		
-		// conda dir with version
-		condaDir = condaBaseDir.resolve(condaVersion);
-		System.out.println("Conda Dir: " + condaDir.toString());
-		
-		// path to install conda to
-		condaInstallDir = condaDir.resolve("miniconda");
-		System.out.println("Conda Install Dir: " + condaInstallDir.toString());
-		
-		// base path for envs
-		envDir = condaInstallDir.resolve("envs").resolve(envName);
-		System.out.println("Env Dir: " + envDir.toString());
-		
-		// create base directory
-		try {
-			Files.createDirectories(condaDir);
-		} catch (IOException e) {
-			throw new ResourceInitializationException(e);
-		}
-	
-		initConda();
-		initEnv();
-		runBashScript();
-		initInterpreter();
 	}
 	
 	@Override
@@ -145,38 +117,66 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	
 	// Initializes Conda
 	protected void initConda() throws ResourceInitializationException {
-		// Check if conda dir is already there
-		if (Files.exists(condaInstallDir)) {
-			System.out.println("Conda already installed, skipping...");
-			return;
+		// set conda base dir
+		if (condaVersion == null || condaVersion.isEmpty()) {
+			throw new ResourceInitializationException(new IllegalArgumentException("condaVersion ist null or empty!"));
 		}
 		
-		// Not installed, continue
+		// conda dir with version
+		condaDir = condaBaseDir.resolve(condaVersion);
+		System.out.println("Conda Dir: " + condaDir.toString());
 		
-		// copy install script
-		Path condaInstallScript = condaDir.resolve("conda_install.sh");
+		// path to install conda to
+		condaInstallDir = condaDir.resolve("miniconda");
+		System.out.println("Conda Install Dir: " + condaInstallDir.toString());
+		
+		// base path for envs
+		envDir = condaInstallDir.resolve("envs").resolve(envName);
+		System.out.println("Env Dir: " + envDir.toString());
+		
+		// create base directory
 		try {
-			Files.copy(getClass().getClassLoader().getResourceAsStream("conda_install.sh"), condaInstallScript, StandardCopyOption.REPLACE_EXISTING);
+			Files.createDirectories(condaDir);
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
-		
-		// install conda
-		List<String> command = new ArrayList<>();
-        command.add("bash");
-        command.add(condaInstallScript.toString());
-        command.add(condaDir.toString());
-        command.add(condaVersion);
-        command.add(condaInstallDir.toString());
-		int status = runCommand(command);
-        System.out.println("conda install: " + status);
-        if (status != 0) {
-        	throw new ResourceInitializationException(new IOException("failed to install conda"));
-        }
+				
+		// Check if conda dir is already there
+		if (Files.exists(condaInstallDir)) {
+			System.out.println("Conda already installed, skipping...");
+		}
+		else {
+			// Not installed, continue
+			
+			// copy install script
+			Path condaInstallScript = condaDir.resolve("conda_install.sh");
+			try {
+				Files.copy(getClass().getClassLoader().getResourceAsStream("conda_install.sh"), condaInstallScript, StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				throw new ResourceInitializationException(e);
+			}
+			
+			// install conda
+			List<String> command = new ArrayList<>();
+	        command.add("bash");
+	        command.add(condaInstallScript.toString());
+	        command.add(condaDir.toString());
+	        command.add(condaVersion);
+	        command.add(condaInstallDir.toString());
+			int status = runCommand(command);
+	        System.out.println("conda install: " + status);
+	        if (status != 0) {
+	        	throw new ResourceInitializationException(new IOException("failed to install conda"));
+	        }
+		}
+    	
+		initEnv();
+		runBashScript();
+		initInterpreter();
 	}
 	
 	// Initializes Conda Env with Dependencies
-	protected void initEnv() throws ResourceInitializationException {
+	private void initEnv() throws ResourceInitializationException {
 		// Check if env dir is already there
 		if (Files.exists(envDir)) {
 			System.out.println("Env already setup, skipping...");
@@ -209,7 +209,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
         }
 	}
 	
-	protected void runBashScript() throws ResourceInitializationException {
+	private void runBashScript() throws ResourceInitializationException {
 		if (condaBashScript != null && !condaBashScript.isEmpty()) {
 			Path script = envDir.resolve(condaBashScript);
 			
@@ -240,7 +240,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	}
 	
 	// Initializes the Python Interpreter
-	protected void initInterpreter() throws ResourceInitializationException {
+	private void initInterpreter() throws ResourceInitializationException {
 		System.out.println("initializing interpreter in env: " + envDir.toString());
 
         PyConfig pyConfig = new PyConfig();
