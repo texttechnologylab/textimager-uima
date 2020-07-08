@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -193,6 +194,9 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			throw new ResourceInitializationException(e);
 		}
 		
+		// Get JVM home path
+		String javaHome = StringUtils.substringBefore(System.getProperties().getProperty("java.home"), "/jre");
+		
 		// install env
 		List<String> command = new ArrayList<>();
         command.add("bash");
@@ -202,6 +206,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
         command.add(envPythonVersion);
         command.add(envDepsConda);
         command.add(envDepsPip);
+        command.add(javaHome);
 		int status = runCommand(command);
         System.out.println("conda env: " + status);
         if (status != 0) {
