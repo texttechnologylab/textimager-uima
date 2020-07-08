@@ -10,7 +10,6 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
 
@@ -60,12 +59,12 @@ public class StanzaTagger extends StanzaBase{
 		try {
 			final Object lang = aJCas.getDocumentLanguage();
 			final Object text = aJCas.getDocumentText();
-			interp.set("lang", lang);
-			interp.set("text", text);
-			interp.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos,lemma,mwt,depparse','lang': lang,})");
-			interp.exec("doc = nlp(text)");
-            interp.exec("dic = doc.to_dict()");
-			interp.exec("token_list = [{"+
+			interpreter.set("lang", lang);
+			interpreter.set("text", text);
+			interpreter.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos,lemma,mwt,depparse','lang': lang,})");
+			interpreter.exec("doc = nlp(text)");
+			interpreter.exec("dic = doc.to_dict()");
+			interpreter.exec("token_list = [{"+
 				"'upos': token.get('upos'),"+
 				"'lemma': token.get('lemma'),"+
 				"'id': token.get('id'),"+
@@ -75,7 +74,7 @@ public class StanzaTagger extends StanzaBase{
 				"'head': token.get('head'),"+
 				"}"+
 				"for sentence in dic for token in sentence]");
-			ArrayList<HashMap<String, Object>> tokenList = (ArrayList<HashMap<String, Object>>) interp.getValue("token_list");
+			ArrayList<HashMap<String, Object>> tokenList = (ArrayList<HashMap<String, Object>>) interpreter.getValue("token_list");
 			tokenList.forEach(token -> {
 				int begin = Integer.valueOf((String)token.get("begin"));
 				int end = Integer.valueOf((String)token.get("end"));

@@ -43,7 +43,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	 * Conda Version
 	 */
 	public static final String PARAM_CONDA_VERSION = "condaVersion";
-	@ConfigurationParameter(name = PARAM_CONDA_VERSION, mandatory = false)
+	@ConfigurationParameter(name = PARAM_CONDA_VERSION, mandatory = false, defaultValue = "py37_4.8.3")
 	public String condaVersion ;
 	
 	/**
