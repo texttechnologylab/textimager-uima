@@ -36,4 +36,5 @@ public abstract class StanzaBase extends JepAnnotator {
 			throw new ResourceInitializationException(ex);
 		}
 	}
+
 }

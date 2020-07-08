@@ -21,7 +21,7 @@ public class SimpleTestStanza {
 		JCas cas = JCasFactory.createText("Die Gefangenen erhängten sich in ihrer Zelle. Die Dorfbewohner erhängten den Viehdieb an einem Baum.","de");
 		
 		AggregateBuilder builder = new AggregateBuilder();
-		builder.add(createEngineDescription(StanzaTagger.class,StanzaTagger.PARAM_PYTHON_HOME,Paths.get(System.getProperty("user.home") ,"miniconda3/envs/stanza").toAbsolutePath().toString()));
+		builder.add(createEngineDescription(StanzaTagger.class));
 		
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
