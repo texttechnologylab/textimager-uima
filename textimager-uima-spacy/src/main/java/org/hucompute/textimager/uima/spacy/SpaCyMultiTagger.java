@@ -13,6 +13,7 @@ import org.dkpro.core.api.resources.MappingProviderFactory;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
@@ -139,6 +140,17 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			neAnno.addToIndexes();
 		});
 	}
+	
+	private void processSentences(JCas aJCas) throws JepException {
+		@SuppressWarnings("unchecked")
+		ArrayList<HashMap<String, Object>> sents = (ArrayList<HashMap<String, Object>>) interpreter.getValue("sents");
+		sents.forEach(p -> {
+			int begin = ((Long) p.get("begin")).intValue();
+			int end = ((Long) p.get("end")).intValue();
+			Sentence sentAnno = new Sentence(aJCas, begin, end);
+			sentAnno.addToIndexes();
+		});
+	}
 
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		try {
@@ -162,6 +174,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			interpreter.exec("pos = [{'tag': token.tag_,'idx': token.idx,'length': len(token),'is_space': token.is_space}for token in doc]");
 			interpreter.exec("deps = [{'dep': token.dep_,'idx': token.idx,'length': len(token),'is_space': token.is_space,'head': {'idx': token.head.idx,'length': len(token.head),'is_space': token.head.is_space}}	for token in doc]");
 			interpreter.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
+			interpreter.exec("sents = [{'begin': sent.start_char, 'end': sent.end_char} for sent in doc.sents]");
 			
 			// Tokenizer
 			processToken(aJCas);
@@ -174,6 +187,9 @@ public class SpaCyMultiTagger extends SpaCyBase {
 
 			// NER
 			processNER(aJCas);
+			
+			// Sentences
+			processSentences(aJCas);
 			
 		} catch (JepException e) {
 			throw new AnalysisEngineProcessException(e);
