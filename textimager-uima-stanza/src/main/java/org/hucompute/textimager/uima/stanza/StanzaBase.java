@@ -6,9 +6,10 @@ import org.hucompute.textimager.uima.base.JepAnnotator;
 
 import jep.JepException;
 import jep.SharedInterpreter;
+import jep.SubInterpreter;
 
 public abstract class StanzaBase extends JepAnnotator {
-	protected SharedInterpreter interp ;
+	protected SubInterpreter interp ;
 
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {

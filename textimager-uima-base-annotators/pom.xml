@@ -15,6 +15,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>black.ninia</groupId>
 			<artifactId>jep</artifactId>
 			<version>3.9.0</version>
