@@ -43,6 +43,13 @@ public class SpaCyMultiTagger extends SpaCyBase {
 	public static final String PARAM_VARIANT = "variant";
 	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
 	protected String variant;
+	
+	/**
+	 * Max Text Length
+	 */
+	public static final String PARAM_MAX_TEXT_LENGTH = "maxTextLength";
+	@ConfigurationParameter(name = PARAM_VARIANT, defaultValue = "-1")
+	protected long maxTextLength;
 
 	private MappingProvider mappingProvider;
 
@@ -141,6 +148,13 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				interpreter.exec("nlp = spacy.load('de_core_news_sm')");
 			else
 				interpreter.exec("nlp = spacy.load('en_core_web_sm')");
+			
+			if (maxTextLength < 0) {
+				interpreter.exec("nlp.max_length = " + aJCas.getDocumentText().length()+100);
+			}
+			else {
+				interpreter.exec("nlp.max_length = " + maxTextLength);
+			}
 
 			interpreter.exec("doc = nlp(text)");
 

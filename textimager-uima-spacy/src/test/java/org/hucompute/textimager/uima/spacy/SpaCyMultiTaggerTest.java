@@ -22,14 +22,7 @@ public class SpaCyMultiTaggerTest {
 	public void multiTaggerTest() throws UIMAException {
 		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.", "de");
 
-		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger.class,
-				SpaCyMultiTagger.PARAM_CONDA_VERSION, "py37_4.8.3",
-				SpaCyMultiTagger.PARAM_CONDA_ENV_NAME, "textimager_spacy37_2",
-				SpaCyMultiTagger.PARAM_CONDA_ENV_PYTHON_VERSION, "3.7",
-				SpaCyMultiTagger.PARAM_CONDA_ENV_DEPS_CONDA, "",
-				SpaCyMultiTagger.PARAM_CONDA_ENV_DEPS_PIP, "spacy==2.3.0",
-				SpaCyMultiTagger.PARAM_CONDA_BASH_SCRIPT, "spacy_setup.sh"
-		);
+		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger.class);
 
 		SimplePipeline.runPipeline(cas, spacyMulti);
 
