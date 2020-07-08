@@ -13,10 +13,11 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import jep.JepException;
 
 public abstract class SpaCyBase extends JepAnnotator {
+	
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		
+
 		// set defaults
 		// TODO schönerer Weg?
 		if (condaBashScript == null || condaBashScript.isEmpty()) {

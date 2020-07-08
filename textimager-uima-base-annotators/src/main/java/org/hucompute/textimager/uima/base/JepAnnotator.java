@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -44,42 +45,42 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	 */
 	public static final String PARAM_CONDA_VERSION = "condaVersion";
 	@ConfigurationParameter(name = PARAM_CONDA_VERSION, mandatory = false)
-	protected String condaVersion ;
+	public String condaVersion ;
 	
 	/**
 	 * Conda Environment Name, should be unique for this Annotator
 	 */
 	public static final String PARAM_CONDA_ENV_NAME = "envName";
 	@ConfigurationParameter(name = PARAM_CONDA_ENV_NAME, mandatory = false)
-	protected String envName;
+	public String envName;
 
 	/**
 	 * Conda Environment Python Version
 	 */
 	public static final String PARAM_CONDA_ENV_PYTHON_VERSION = "envPythonVersion";
 	@ConfigurationParameter(name = PARAM_CONDA_ENV_PYTHON_VERSION, mandatory = false)
-	protected String envPythonVersion;
+	public String envPythonVersion;
 
 	/**
 	 * Python Dependencies from Conda
 	 */
 	public static final String PARAM_CONDA_ENV_DEPS_CONDA = "envDepsConda";
 	@ConfigurationParameter(name = PARAM_CONDA_ENV_DEPS_CONDA, mandatory = false)
-	protected String envDepsConda;
+	public String envDepsConda;
 	
 	/**
 	 * Python Dependencies from Pip
 	 */
 	public static final String PARAM_CONDA_ENV_DEPS_PIP = "envDepsPip";
 	@ConfigurationParameter(name = PARAM_CONDA_ENV_DEPS_PIP, mandatory = false)
-	protected String envDepsPip;
+	public String envDepsPip;
 	
 	/**
 	 * Script for additional conda setup
 	 */
 	public static final String PARAM_CONDA_BASH_SCRIPT = "condaBashScript";
 	@ConfigurationParameter(name = PARAM_CONDA_BASH_SCRIPT, mandatory = false)
-	protected String condaBashScript;
+	public String condaBashScript;
 	
 	// Conda Base Directory
 	protected static final Path condaBaseDir = Paths.get(System.getProperty("user.home"), ".textimager", "conda");
@@ -233,6 +234,9 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 				throw new ResourceInitializationException(e);
 			}
 			
+			// Get JVM home path
+			String javaHome = StringUtils.substringBefore(System.getProperties().getProperty("java.home"), "/jre");
+			
 			// install env
 			List<String> command = new ArrayList<>();
 	        command.add("bash");
@@ -242,18 +246,19 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	        command.add(envPythonVersion);
 	        command.add(envDepsConda);
 	        command.add(envDepsPip);
+	        command.add(javaHome);
 			int status = runCommand(command);
-			
-			try {
-				Files.delete(lockfile);
-			} catch (IOException e) {
-				throw new ResourceInitializationException(e);
-			}
 			
 	        System.out.println("conda env: " + status);
 	        if (status != 0) {
 	        	throw new ResourceInitializationException(new IOException("failed to setup conda env"));
 	        }
+		}
+
+		try {
+			Files.delete(lockfile);
+		} catch (IOException e) {
+			throw new ResourceInitializationException(e);
 		}
 	}
 	
