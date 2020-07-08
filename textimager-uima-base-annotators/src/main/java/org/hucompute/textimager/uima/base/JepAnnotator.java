@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -83,6 +84,8 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	// Conda Base Directory
 	protected static final Path condaBaseDir = Paths.get(System.getProperty("user.home"), ".textimager", "conda");
 	
+	private int threadSleepTime = 10000;
+	
 	protected Path condaDir;
 	protected Path condaInstallDir;
 	protected Path envDir;
@@ -140,6 +143,22 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
+
+		// Lockfile
+		Path lockfile = condaDir.resolve("textimager_" + condaInstallDir.getFileName().toString() +".lock");
+		while (Files.exists(lockfile)) {
+			try {
+				System.out.println("waiting on lock \"conda install\"...");
+				Thread.sleep(threadSleepTime);
+			} catch (InterruptedException e) {
+				throw new ResourceInitializationException(e);
+			}
+		}
+		try {
+			FileUtils.touch(lockfile.toFile());
+		} catch (IOException e) {
+			throw new ResourceInitializationException(e);
+		}
 				
 		// Check if conda dir is already there
 		if (Files.exists(condaInstallDir)) {
@@ -169,6 +188,12 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	        	throw new ResourceInitializationException(new IOException("failed to install conda"));
 	        }
 		}
+		
+		try {
+			Files.delete(lockfile);
+		} catch (IOException e) {
+			throw new ResourceInitializationException(e);
+		}
     	
 		initEnv();
 		runBashScript();
@@ -177,50 +202,33 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	
 	// Initializes Conda Env with Dependencies
 	private void initEnv() throws ResourceInitializationException {
-		// Check if env dir is already there
-		if (Files.exists(envDir)) {
-			System.out.println("Env already setup, skipping...");
-			return;
+		// Lockfile
+		Path lockfile = condaDir.resolve("textimager_" + envDir.getFileName().toString() +".lock");
+		while (Files.exists(lockfile)) {
+			try {
+				System.out.println("waiting on lock \"conda env\"...");
+				Thread.sleep(threadSleepTime);
+			} catch (InterruptedException e) {
+				throw new ResourceInitializationException(e);
+			}
 		}
-		
-		// Not installed, continue
-		
-		// copy install script
-		Path condaEnvScript = condaDir.resolve("conda_env.sh");
 		try {
-			Files.copy(getClass().getClassLoader().getResourceAsStream("conda_env.sh"), condaEnvScript, StandardCopyOption.REPLACE_EXISTING);
+			FileUtils.touch(lockfile.toFile());
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
 		
-		// install env
-		List<String> command = new ArrayList<>();
-        command.add("bash");
-        command.add(condaEnvScript.toString());
-        command.add(condaInstallDir.toString());
-        command.add(envName);
-        command.add(envPythonVersion);
-        command.add(envDepsConda);
-        command.add(envDepsPip);
-		int status = runCommand(command);
-        System.out.println("conda env: " + status);
-        if (status != 0) {
-        	throw new ResourceInitializationException(new IOException("failed to setup conda env"));
-        }
-	}
-	
-	private void runBashScript() throws ResourceInitializationException {
-		if (condaBashScript != null && !condaBashScript.isEmpty()) {
-			Path script = envDir.resolve(condaBashScript);
-			
-			if (Files.exists(script)) {
-				System.out.println("bash script already run, skipping...");
-				return;
-			}
-			
-			// copy script
+		// Check if env dir is already there
+		if (Files.exists(envDir)) {
+			System.out.println("Env already setup, skipping...");
+		}
+		else {
+		// Not installed, continue
+		
+			// copy install script
+			Path condaEnvScript = condaDir.resolve("conda_env.sh");
 			try {
-				Files.copy(getClass().getClassLoader().getResourceAsStream(condaBashScript), script, StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(getClass().getClassLoader().getResourceAsStream("conda_env.sh"), condaEnvScript, StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
 				throw new ResourceInitializationException(e);
 			}
@@ -228,14 +236,76 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			// install env
 			List<String> command = new ArrayList<>();
 	        command.add("bash");
-	        command.add(script.toString());
+	        command.add(condaEnvScript.toString());
 	        command.add(condaInstallDir.toString());
 	        command.add(envName);
+	        command.add(envPythonVersion);
+	        command.add(envDepsConda);
+	        command.add(envDepsPip);
 			int status = runCommand(command);
-	        System.out.println("bash script: " + status);
+			
+			try {
+				Files.delete(lockfile);
+			} catch (IOException e) {
+				throw new ResourceInitializationException(e);
+			}
+			
+	        System.out.println("conda env: " + status);
 	        if (status != 0) {
-	        	throw new ResourceInitializationException(new IOException("failed to run bash script"));
+	        	throw new ResourceInitializationException(new IOException("failed to setup conda env"));
 	        }
+		}
+	}
+	
+	private void runBashScript() throws ResourceInitializationException {
+		if (condaBashScript != null && !condaBashScript.isEmpty()) {
+			Path script = envDir.resolve(condaBashScript);
+			
+			// Lockfile
+			Path lockfile = condaDir.resolve("textimager_" + script.getFileName().toString() +".lock");
+			while (Files.exists(lockfile)) {
+				try {
+					System.out.println("waiting on lock \"bash script\"...");
+					Thread.sleep(threadSleepTime);
+				} catch (InterruptedException e) {
+					throw new ResourceInitializationException(e);
+				}
+			}
+			try {
+				FileUtils.touch(lockfile.toFile());
+			} catch (IOException e) {
+				throw new ResourceInitializationException(e);
+			}
+			
+			if (Files.exists(script)) {
+				System.out.println("bash script already run, skipping...");
+			}
+			else {
+				// copy script
+				try {
+					Files.copy(getClass().getClassLoader().getResourceAsStream(condaBashScript), script, StandardCopyOption.REPLACE_EXISTING);
+				} catch (IOException e) {
+					throw new ResourceInitializationException(e);
+				}
+				
+				// install env
+				List<String> command = new ArrayList<>();
+		        command.add("bash");
+		        command.add(script.toString());
+		        command.add(condaInstallDir.toString());
+		        command.add(envName);
+				int status = runCommand(command);
+		        System.out.println("bash script: " + status);
+		        if (status != 0) {
+		        	throw new ResourceInitializationException(new IOException("failed to run bash script"));
+		        }
+			}
+			
+			try {
+				Files.delete(lockfile);
+			} catch (IOException e) {
+				throw new ResourceInitializationException(e);
+			}
 		}
 	}
 	
