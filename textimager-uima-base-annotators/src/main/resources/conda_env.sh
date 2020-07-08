@@ -40,4 +40,4 @@ fi
 
 # always install jep
 echo "installing jep package..."
-pip install jep --no-cache-dir --force-reinstall
+JAVA_HOME=$6 pip install jep --no-cache-dir --force-reinstall
