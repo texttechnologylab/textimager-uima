@@ -35,9 +35,9 @@ then
 else
 	echo "installing pip dependencies..."
 	echo "$DEPS_PIP"
-	pip install $DEPS_PIP --no-cache-dir
+	pip install $DEPS_PIP --no-cache-dir --force-reinstall
 fi
 
 # always install jep
 echo "installing jep package..."
-pip install jep --no-cache-dir
+pip install jep --no-cache-dir --force-reinstall
