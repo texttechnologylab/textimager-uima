@@ -3,6 +3,7 @@ package org.hucompute.textimager.uima.spacy;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
+import org.apache.uima.fit.component.initialize.ConfigurationParameterInitializer;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SpaCyMultiTagger extends SpaCyBase {
+
 	/**
 	 * Overwrite CAS Language?
 	 */
@@ -55,7 +57,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-
+		
 		// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
 		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant,
 				language);
