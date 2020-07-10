@@ -44,34 +44,83 @@ public class DeepEosTagger extends JepAnnotator {
 	)
 	private Boolean verbose;
 	
-	private static final String[] resourceFiles = new String[]{"python/model.py", "python/utils.py"};
+	private static final String[] resourceFiles = new String[]{"python/model_deepeos.py", "python/utils_deepeos.py","python/__init__.py"};
 	private Path tempFolder;
-	protected SharedInterpreter interp ;
-
+	
 	@Override
-	public void initialize(UimaContext context) throws ResourceInitializationException {
-		super.initialize(context);
+	public void initialize(UimaContext aContext) throws ResourceInitializationException {
+		super.initialize(aContext);
+
+		// set defaults
+		// TODO schönerer Weg?
+		if (envDepsPip == null || envDepsPip.isEmpty()) {
+			envDepsPip = "tensorflow==1.5.0 uarray==0.6.0 keras==2.1.5 h5py==2.10.0";
+		}
+		if (envDepsConda == null || envDepsConda.isEmpty()) {
+			envDepsConda = "";
+		}
+		if (envPythonVersion == null || envPythonVersion.isEmpty()) {
+			envPythonVersion = "3.6";
+		}
+		if (envName == null || envName.isEmpty()) {
+			envName = "textimager_deepeos_py362";
+		}
+		if (condaVersion == null || condaVersion.isEmpty()) {
+			condaVersion = "py37_4.8.3";
+		}
+		
+		initConda();
 		try {
 			tempFolder = Files.createTempDirectory(this.getClass().getSimpleName());
 			Properties modelProperties = loadModelProperties();
-			if(interp == null)
-				interp =setUpInter(pythonHome, interp);
-			if (!modelProperties.containsKey(modelname + ".model")) {
-				throw new Exception("The language '" + modelname + "' is not a valid DeepEOS model language!");
-			} else {
-				extractResources();
-				ModelConfig modelConfig = new ModelConfig(modelProperties, modelname);
-				interp.exec("import os");
-				interp.exec("import sys");
-				interp.exec(
-						"sys.path.append('" + tempFolder.toAbsolutePath().toString() + "/python/')");
-				interp.exec("from model import DeepEosModel");
-				interp.exec(String.format("model = DeepEosModel(model_base_path='%s', window_size=%d)", modelConfig.basePath, modelConfig.windowSize));
-			}
-		} catch (Exception e) {
-			throw new ResourceInitializationException(e);
+			extractResources();
+			ModelConfig modelConfig = new ModelConfig(modelProperties, modelname);
+			interpreter.exec("import os");
+			interpreter.exec("import sys");
+			
+			interpreter.exec(
+					"sys.path.append('" + tempFolder.toAbsolutePath().toString() + "/python/')");
+			System.out.println(tempFolder.toAbsolutePath().toString() );
+//			interpreter.exec("print(sys.path)");
+			interpreter.exec("from model_deepeos import DeepEosModel");
+			interpreter.exec(String.format("model = DeepEosModel(model_base_path='%s', window_size=%d)", modelConfig.basePath, modelConfig.windowSize));
+
+		} 
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (JepException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
 	}
+
+//	@Override
+//	public void initialize(UimaContext context) throws ResourceInitializationException {
+//		super.initialize(context);
+//		try {
+//			tempFolder = Files.createTempDirectory(this.getClass().getSimpleName());
+//			Properties modelProperties = loadModelProperties();
+//			if(interp == null)
+//				interp =setUpInter(pythonHome, interp);
+//			if (!modelProperties.containsKey(modelname + ".model")) {
+//				throw new Exception("The language '" + modelname + "' is not a valid DeepEOS model language!");
+//			} else {
+//				extractResources();
+//				ModelConfig modelConfig = new ModelConfig(modelProperties, modelname);
+//				interp.exec("import os");
+//				interp.exec("import sys");
+//				interp.exec(
+//						"sys.path.append('" + tempFolder.toAbsolutePath().toString() + "/python/')");
+//				interp.exec("from model import DeepEosModel");
+//				interp.exec(String.format("model = DeepEosModel(model_base_path='%s', window_size=%d)", modelConfig.basePath, modelConfig.windowSize));
+//			}
+//		} catch (Exception e) {
+//			throw new ResourceInitializationException(e);
+//		}
+//	}
 	
 	private void extractResources() throws IOException {
 		for (String fileName : resourceFiles) {
@@ -95,7 +144,7 @@ public class DeepEosTagger extends JepAnnotator {
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		String documentText = jCas.getDocumentText();
 		try {
-			ArrayList<Long> result = (ArrayList<Long>) interp.invoke("model.tag", documentText);
+			ArrayList<Long> result = (ArrayList<Long>) interpreter.invoke("model.tag", documentText);
 			int begin = 0;
 			for (int i = 0; i < result.size(); i++) {
 				Long end = result.get(i);

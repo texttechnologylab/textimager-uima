@@ -51,7 +51,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 	 * Max Text Length
 	 */
 	public static final String PARAM_MAX_TEXT_LENGTH = "maxTextLength";
-	@ConfigurationParameter(name = PARAM_VARIANT, defaultValue = "-1")
+	@ConfigurationParameter(name = PARAM_MAX_TEXT_LENGTH, defaultValue = "-1")
 	protected long maxTextLength;
 
 	private MappingProvider mappingProvider;
