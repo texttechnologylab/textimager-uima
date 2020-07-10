@@ -41,6 +41,10 @@ public class SpaCyMultiTagger extends SpaCyBase{
 	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
 	protected String posMappingLocation;
 
+	public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = "nerMappingLocation";
+	@ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
+	protected String nerMappingLocation;
+	
 	/**
 	 * Overwrite model variant?
 	 */
@@ -50,6 +54,7 @@ public class SpaCyMultiTagger extends SpaCyBase{
 	
 	
 	private MappingProvider mappingProvider;
+	private MappingProvider mappingProviderNer;
 
 	
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
@@ -58,6 +63,13 @@ public class SpaCyMultiTagger extends SpaCyBase{
 		// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
 		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
 		
+		mappingProviderNer = new MappingProvider();
+		mappingProviderNer.setDefaultVariantsLocation("org/hucompute/textimager/uima/spacy/lib/ner-default-variants.map");
+		mappingProviderNer.setDefault(MappingProvider.LOCATION, "classpath:/org/hucompute/textimager/uima/spacy/lib/ner-${language}-${variant}.map");
+		mappingProviderNer.setDefault(MappingProvider.BASE_TYPE, NamedEntity.class.getName());
+		mappingProviderNer.setOverride(MappingProvider.LOCATION, nerMappingLocation);
+		mappingProviderNer.setOverride(MappingProvider.LANGUAGE, language);
+		mappingProviderNer.setOverride(MappingProvider.VARIANT, variant);
 	}
 	
 	
@@ -146,14 +158,15 @@ public class SpaCyMultiTagger extends SpaCyBase{
 					});
 					
 			//NER
-					
+					mappingProviderNer.configure(aJCas.getCas());
 					ArrayList<HashMap<String, Object>> entss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 					entss.forEach(p -> {
 						
 						int begin = ((Long)p.get("start_char")).intValue();
 						int end = ((Long)p.get("end_char")).intValue();
 						String labelStr = p.get("label").toString();
-						NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
+						Type neTag = mappingProviderNer.getTagType(labelStr);
+						NamedEntity neAnno = (NamedEntity) aJCas.getCas().createAnnotation(neTag, begin, end);	
 						neAnno.setValue(labelStr);
 						neAnno.addToIndexes();
 					});		

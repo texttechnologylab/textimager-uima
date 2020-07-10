@@ -70,7 +70,6 @@ public class SpaCyTagger extends SpaCyBase {
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		//		super.process(aJCas);
 		mappingProvider.configure(aJCas.getCas());
-		System.out.println(System.getProperty("java.class.path"));
 		HashMap<String, Object>  json = buildJSON(aJCas);
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());

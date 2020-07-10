@@ -17,25 +17,25 @@ import org.hucompute.textimager.uima.util.XmlFormatter;
 
 import jep.JepException;
 
-
 public class SimpleTestSpacy {
 
 	public static void main(String[] args) throws UIMAException, JepException {
 
 		
-		JCas cas = JCasFactory.createText("Das iPhone ist von Apple. Bill Gates ist der Boss von Microsoft.","de");
+		JCas cas = JCasFactory.createText("Das iPhone ist von Apple. Bill Gates ist der Boss von Apple. Er hat 50% von 100€ am 20.02.2222. Apple ist eine Firma.","de");
 		
 		AggregateBuilder builder = new AggregateBuilder();
 		
-		builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
-		builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
-		builder.add(createEngineDescription(SpaCyNER.class,SpaCyNER.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
+//		builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
+//		builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
+//		builder.add(createEngineDescription(SpaCyNER.class,SpaCyNER.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
 		
-		//builder.add(createEngineDescription(SpaCyMultiTagger.class,SpaCyMultiTagger.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
+//		builder.add(createEngineDescription(SpaCyMultiTagger.class,SpaCyMultiTagger.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
 		
-		//builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
-		//builder.add(createEngineDescription(SpaCyNER.class,SpaCyNER.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
-		//builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
+		
+    	builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
+		builder.add(createEngineDescription(SpaCyNER.class,SpaCyNER.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
+		builder.add(createEngineDescription(SpaCyTagger.class,SpaCyTagger.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
 	
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
