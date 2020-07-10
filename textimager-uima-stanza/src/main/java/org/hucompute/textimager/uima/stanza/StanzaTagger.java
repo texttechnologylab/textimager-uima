@@ -1,5 +1,10 @@
 package org.hucompute.textimager.uima.stanza;
 
+import static java.lang.Math.toIntExact;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,7 +15,6 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.CasConfigurableProviderBase;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
@@ -23,15 +27,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
+import org.dkpro.core.api.parameter.ComponentParameters;
 import jep.JepException;
 
-import static java.lang.Math.toIntExact;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-
-public class StanzaTagger extends StanzaBase{
+public class StanzaTagger extends StanzaBase {
 	/**
 	 * Overwrite CAS Language?
 	 */
@@ -40,41 +39,72 @@ public class StanzaTagger extends StanzaBase{
 	protected String language;
 
 	/**
-	 * Overwrite POS mapping location?
+	 * 
 	 */
-	public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
-	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
-	protected String posMappingLocation;
-	
+	public static final String PARAM_MODEL_LOCATION = "modelLocation";
+	@ConfigurationParameter(name = PARAM_MODEL_LOCATION, mandatory = false)
+	protected String modelLocation;
+
+	/**
+     * Load the part-of-speech tag to UIMA type mapping from this location instead of locating the
+     * mapping automatically.
+     */
+    public static final String PARAM_POS_MAPPING_LOCATION = ComponentParameters.PARAM_POS_MAPPING_LOCATION;
+    @ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
+    protected String posMappingLocation;
+
 	/**
 	 * Overwrite ner mapping location?
 	 */
 	public static final String PARAM_NER_MAPPING_LOCATION = "nerMappingLocation";
 	@ConfigurationParameter(name = PARAM_NER_MAPPING_LOCATION, mandatory = false)
 	protected String nerMappingLocation;
-	
+
 	/**
 	 * Overwrite model variant?
 	 */
 	public static final String PARAM_VARIANT = "variant";
 	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
 	protected String variant;
-	
-	
-	private MappingProvider mappingProvider;
+
+	private MappingProvider posMappingProvider;
 	private MappingProvider nerMappingProvider;
+	private CasConfigurableProviderBase<File> modelProvider;
 
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
-		nerMappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,nerMappingLocation, variant, language);
-	}
+
+		/*modelProvider = new CasConfigurableProviderBase<File>() {
+			{
+				setContextObject(StanzaTagger.this);
+
+				//setDefault(ARTIFACT_ID, "${groupId}.OpenerProject-model-tagger-${language}-${variant}");
+				setDefault(LOCATION,
+						"classpath:org/hucompute/textimager/uima/stanza/lib/tagger-${variant}.model");
+				setDefault(VARIANT, "default");
+
+				setOverride(LOCATION, modelLocation);
+				setOverride(LANGUAGE, language);
+				setOverride(VARIANT, variant);
+			}
+
+			@Override
+			protected File produceResource(URL aUrl) throws IOException {
+				return ResourceUtils.getUrlAsFile(aUrl, true);
+			}
+		};
+		*/
+
+		posMappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
+		//nerMappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,nerMappingLocation, variant, language);
+        };
+
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		final CAS cas = aJCas.getCas();
-		System.out.print("test");
-		mappingProvider.configure(cas);
+		//modelProvider.configure(cas);
+		posMappingProvider.configure(cas);
 		try {
 			final Object lang = aJCas.getDocumentLanguage();
 			final Object text = aJCas.getDocumentText();
@@ -103,7 +133,7 @@ public class StanzaTagger extends StanzaBase{
 				
 				String tagStr = token.get("upos").toString();
 				String feats = (String)token.get("feats");
-				Type posTag = mappingProvider.getTagType(tagStr.intern());
+				Type posTag = posMappingProvider.getTagType(tagStr.intern());
 				POS posAnno = (POS) cas.createAnnotation(posTag, begin, end);
 				posAnno.setPosValue(tagStr);
 				posAnno.setCoarseValue(feats);

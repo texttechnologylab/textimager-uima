@@ -21,9 +21,11 @@ public class SimpleTestStanza {
 		JCas cas = JCasFactory.createText("Die Gefangenen erhängten sich in ihrer Zelle. Die Dorfbewohner erhängten den Viehdieb an einem Baum.","de");
 		
 		AggregateBuilder builder = new AggregateBuilder();
-		//builder.add(createEngineDescription(StanzaTagger.class,StanzaTagger.PARAM_PYTHON_HOME,Paths.get(System.getProperty("user.home") ,"miniconda3/envs/stanza").toAbsolutePath().toString()));
-		builder.add(createEngineDescription(StanzaTagger.class,StanzaTagger.PARAM_PYTHON_HOME,"C:\\Users\\Lucas3011\\AppData\\Local\\Programs\\Python\\Python36"));
-		builder.add(createEngineDescription(StanzaTagger.class,StanzaTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/stanza/lib/pos-de.map"));
+		builder.add(createEngineDescription(
+			StanzaTagger.class,
+			//StanzaTagger.PARAM_PYTHON_HOME,Paths.get(System.getProperty("user.home") ,"miniconda3/envs/stanza").toAbsolutePath().toString(),
+			StanzaTagger.PARAM_PYTHON_HOME,Paths.get(System.getProperty("user.home") ,"AppData\\Local\\Programs\\Python\\Python36").toAbsolutePath().toString(),
+			StanzaTagger.PARAM_POS_MAPPING_LOCATION,"classpath:org/hucompute/textimager/uima/stanza/lib/pos-default.map"));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
 		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
