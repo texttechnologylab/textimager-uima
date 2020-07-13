@@ -1,9 +1,13 @@
 package org.hucompute.textimager.uima.spacy;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
-import org.apache.uima.fit.component.initialize.ConfigurationParameterInitializer;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
@@ -20,9 +24,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
 import jep.JepException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class SpaCyMultiTagger extends SpaCyBase {
 
@@ -94,6 +95,15 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				posAnno.addToIndexes();
 			}
 		});
+		
+		// add pos refs to tokens
+		Map<POS, Collection<Token>> posTokenMap = JCasUtil.indexCovering(aJCas, POS.class, Token.class);
+		for (Map.Entry<POS, Collection<Token>> entry : posTokenMap.entrySet()) {
+			POS posAnno = entry.getKey();
+			for (Token tokenAnno : entry.getValue()) {
+				tokenAnno.setPos(posAnno);
+			}
+		}
 	}
 
 	private void processDep(JCas aJCas) throws JepException {
