@@ -74,7 +74,8 @@ public class StanzaTagger extends StanzaBase {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 
-		/*modelProvider = new CasConfigurableProviderBase<File>() {
+		/*
+		modelProvider = new CasConfigurableProviderBase<File>() {
 			{
 				setContextObject(StanzaTagger.this);
 
@@ -92,8 +93,7 @@ public class StanzaTagger extends StanzaBase {
 			protected File produceResource(URL aUrl) throws IOException {
 				return ResourceUtils.getUrlAsFile(aUrl, true);
 			}
-		};
-		*/
+		};*/
 
 		posMappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
 		//nerMappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,nerMappingLocation, variant, language);
@@ -130,7 +130,7 @@ public class StanzaTagger extends StanzaBase {
 			tokenList.forEach(token -> {
 				int begin = Integer.valueOf((String)token.get("begin"));
 				int end = Integer.valueOf((String)token.get("end"));
-				
+
 				String tagStr = token.get("upos").toString();
 				String feats = (String)token.get("feats");
 				Type posTag = posMappingProvider.getTagType(tagStr.intern());

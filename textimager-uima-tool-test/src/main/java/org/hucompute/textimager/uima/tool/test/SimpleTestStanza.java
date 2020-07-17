@@ -25,7 +25,9 @@ public class SimpleTestStanza {
 			StanzaTagger.class,
 			//StanzaTagger.PARAM_PYTHON_HOME,Paths.get(System.getProperty("user.home") ,"miniconda3/envs/stanza").toAbsolutePath().toString(),
 			StanzaTagger.PARAM_PYTHON_HOME,Paths.get(System.getProperty("user.home") ,"AppData\\Local\\Programs\\Python\\Python36").toAbsolutePath().toString(),
-			StanzaTagger.PARAM_POS_MAPPING_LOCATION,"classpath:org/hucompute/textimager/uima/stanza/lib/pos-default.map"));
+			StanzaTagger.PARAM_POS_MAPPING_LOCATION,"classpath:org/hucompute/textimager/uima/stanza/lib/pos-default.map"
+			//,StanzaTagger.PARAM_MODEL_LOCATION,"classpath:org/hucompute/textimager/uima/stanza/lib/tagger-default.model"
+			));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
 		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
