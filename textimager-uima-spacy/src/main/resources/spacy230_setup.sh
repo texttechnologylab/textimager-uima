@@ -16,3 +16,4 @@ conda activate "$ENV_NAME"
 # install models
 echo "installing spacy models..."
 python3 -m spacy download de_core_news_sm
+python3 -m spacy download en_core_news_sm

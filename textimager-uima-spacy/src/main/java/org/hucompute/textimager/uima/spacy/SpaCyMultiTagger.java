@@ -165,6 +165,36 @@ public class SpaCyMultiTagger extends SpaCyBase {
 	}
 
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
+		/// DEBUG START
+		// remove all token, sentences, pos, ner, dep
+		//for (Sentence sentence : JCasUtil.select(aJCas, Sentence.class)) {
+		//	sentence.removeFromIndexes();
+		//}
+		//for (NamedEntity ne : JCasUtil.select(aJCas, NamedEntity.class)) {
+		//	ne.removeFromIndexes();
+		//}
+		//for (POS pos : JCasUtil.select(aJCas, POS.class)) {
+		//	pos.removeFromIndexes();
+		//}
+		//for (Dependency dep : JCasUtil.select(aJCas, Dependency.class)) {
+		//	dep.removeFromIndexes();
+		//}
+		//for (ROOT dep : JCasUtil.select(aJCas, ROOT.class)) {
+		//	dep.removeFromIndexes();
+		//}
+		//for (Token token : JCasUtil.select(aJCas, Token.class)) {
+		//	token.removeFromIndexes();
+		//}
+		/// DEBUG END
+		
+		long textLength = aJCas.getDocumentText().length();
+		System.out.println("text length: " + textLength);
+		// abort on empty
+		if (textLength < 1) {
+			System.out.println("skipping spacy due to text length < 1");
+			return;
+		}
+		
 		try {
 			interpreter.set("lang", (Object)aJCas.getDocumentLanguage());
 			interpreter.set("text", (Object)aJCas.getDocumentText());
@@ -174,7 +204,9 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				interpreter.exec("nlp = spacy.load('en_core_web_sm')");
 			
 			if (maxTextLength < 0) {
-				interpreter.exec("nlp.max_length = " + aJCas.getDocumentText().length()+100);
+				// give extra length...
+				textLength += 100;
+				interpreter.exec("nlp.max_length = " + String.valueOf(textLength));
 			}
 			else {
 				interpreter.exec("nlp.max_length = " + maxTextLength);
