@@ -20,6 +20,7 @@ import jep.JepConfig;
 import jep.JepException;
 import jep.MainInterpreter;
 import jep.PyConfig;
+import jep.SharedInterpreter;
 import jep.SubInterpreter;
 
 public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
@@ -91,7 +92,8 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	protected Path condaInstallDir;
 	protected Path envDir;
 	
-	protected SubInterpreter interpreter;
+	protected static SubInterpreter interpreter;
+	protected static int interpreterUseCount = 0;
 	
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
@@ -100,8 +102,15 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	
 	@Override
 	public void destroy() {
+		interpreterUseCount--;
 		try {
-			interpreter.close();
+			if (interpreterUseCount <= 0) {
+				System.out.println("Closing python interpreter...");
+				interpreter.close();
+			}
+			else {
+				System.out.println("not closing python interpreter, users left: " + interpreterUseCount);
+			}
 		} catch (JepException e) {
 			e.printStackTrace();
 		}
@@ -317,6 +326,15 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	// Initializes the Python Interpreter
 	private void initInterpreter() throws ResourceInitializationException {
 		System.out.println("initializing interpreter in env: " + envDir.toString());
+		
+		interpreterUseCount++;
+		
+		if (interpreter != null) {
+			System.out.println("python interpreter already set up");
+			return;
+		}
+		
+		System.out.println("initializing new python nterpreter...");
 
         PyConfig pyConfig = new PyConfig();
         pyConfig.setPythonHome(envDir.toString());
@@ -350,9 +368,9 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
         } catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
-
+        
         try {
-			interpreter = jepConfig.createSubInterpreter();
+        	interpreter = jepConfig.createSubInterpreter();
 		} catch (JepException e) {
 			throw new ResourceInitializationException(e);
 		}

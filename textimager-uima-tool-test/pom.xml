@@ -56,6 +56,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-stanfordnlp-gpl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
 			<artifactId>dkpro-core-languagetool-asl</artifactId>
 		</dependency>
 		<dependency>
