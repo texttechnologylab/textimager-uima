@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.hucompute.textimager.uima</groupId>
 	<artifactId>textimager-uima</artifactId>
-	<version>0.2.7</version>
+	<version>0.2.8</version>
 	<name>TextImager UIMA</name>
 	<build>
 		<plugins>
@@ -100,7 +100,7 @@
 		<module>textimager-uima-heideltime</module>
 <!-- 		<module>textimager-uima-agreement</module> -->
 		<module>textimager-uima-biofid-gazetteer</module>
-		<module>textimager-uima-deep-eos</module>
+		<!--<module>textimager-uima-deep-eos</module>-->
 		<module>textimager-uima-similarity</module>
 		
 		<module>textimager-uima-database</module>

@@ -156,7 +156,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		}
 
 		// Lockfile
-		Path lockfile = condaDir.resolve("textimager_" + condaInstallDir.getFileName().toString() +".lock");
+		Path lockfile = condaDir.resolve("textimager_" + condaInstallDir.getFileName().toString() +".conda_lock");
 		System.out.println("lockfile: " + lockfile.toString());
 		while (Files.exists(lockfile)) {
 			try {
@@ -223,7 +223,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		System.out.println("init env");
 		
 		// Lockfile
-		Path lockfile = condaDir.resolve("textimager_" + envDir.getFileName().toString() +".lock");
+		Path lockfile = condaDir.resolve("textimager_" + envDir.getFileName().toString() +".env_lock");
 		System.out.println("lockfile: " + lockfile.toString());
 		while (Files.exists(lockfile)) {
 			try {
@@ -295,7 +295,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			System.out.println("script: " + script.toString());
 			
 			// Lockfile
-			Path lockfile = condaDir.resolve("textimager_" + script.getFileName().toString() +".lock");
+			Path lockfile = condaDir.resolve("textimager_" + script.getFileName().toString() +".script_lock");
 			System.out.println("lockfile: " + lockfile.toString());
 			while (Files.exists(lockfile)) {
 				try {
