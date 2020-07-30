@@ -25,7 +25,7 @@ public abstract class TextBlobBase extends JepAnnotator {
 			envPythonVersion = "3.7";
 		}
 		if (envName == null || envName.isEmpty()) {
-			envName = "textimager_textblob0.15.3_py37_v3";
+			envName = "textimager_textblob0.15.3_py37_v4";
 		}
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			condaVersion = "py37_4.8.3";

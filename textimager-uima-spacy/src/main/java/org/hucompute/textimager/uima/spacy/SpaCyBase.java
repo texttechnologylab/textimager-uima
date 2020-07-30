@@ -24,7 +24,7 @@ public abstract class SpaCyBase extends JepAnnotator {
 			condaBashScript = "spacy230_setup.sh";
 		}
 		if (envDepsPip == null || envDepsPip.isEmpty()) {
-			envDepsPip = "spacy==2.3.0";
+			envDepsPip = "spacy==2.3.0 textblob==0.15.3 textblob-de==0.4.3";
 		}
 		if (envDepsConda == null || envDepsConda.isEmpty()) {
 			envDepsConda = "";
@@ -33,7 +33,7 @@ public abstract class SpaCyBase extends JepAnnotator {
 			envPythonVersion = "3.7";
 		}
 		if (envName == null || envName.isEmpty()) {
-			envName = "textimager_spacy230_py37_v3";
+			envName = "textimager_spacy230_py37_v4";
 		}
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			condaVersion = "py37_4.8.3";
