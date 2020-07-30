@@ -109,6 +109,6 @@
 		<module>textimager-uima-util</module>
 		<module>textimager-uima-stanza</module>
 		<module>textimager-uima-io-embeddings</module>
-		<module>textimager-uima-flair</module>
+<!-- 		<module>textimager-uima-flair</module> -->
 	</modules>
 </project>
