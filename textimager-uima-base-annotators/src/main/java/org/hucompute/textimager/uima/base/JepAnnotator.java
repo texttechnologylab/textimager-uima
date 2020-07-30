@@ -149,6 +149,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		
 		// create base directory
 		try {
+			System.out.println("creating dir: " + condaDir.toString());
 			Files.createDirectories(condaDir);
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
@@ -156,6 +157,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 
 		// Lockfile
 		Path lockfile = condaDir.resolve("textimager_" + condaInstallDir.getFileName().toString() +".lock");
+		System.out.println("lockfile: " + lockfile.toString());
 		while (Files.exists(lockfile)) {
 			try {
 				System.out.println("waiting on lock \"conda install\"...");
@@ -165,20 +167,24 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			}
 		}
 		try {
+			System.out.println("creating lockfile now...");
 			FileUtils.touch(lockfile.toFile());
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
 				
 		// Check if conda dir is already there
+		System.out.println("checking for conda isntall dir: " + condaInstallDir.toString());
 		if (Files.exists(condaInstallDir)) {
 			System.out.println("Conda already installed, skipping...");
 		}
 		else {
 			// Not installed, continue
+			System.out.println("not installed, doing now...");
 			
 			// copy install script
 			Path condaInstallScript = condaDir.resolve("conda_install.sh");
+			System.out.println("conda install script: " + condaInstallScript.toString());
 			try {
 				Files.copy(getClass().getClassLoader().getResourceAsStream("conda_install.sh"), condaInstallScript, StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
@@ -192,6 +198,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	        command.add(condaDir.toString());
 	        command.add(condaVersion);
 	        command.add(condaInstallDir.toString());
+	        System.out.println("running install script now.....");
 			int status = runCommand(command);
 	        System.out.println("conda install: " + status);
 	        if (status != 0) {
@@ -199,6 +206,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	        }
 		}
 		
+		System.out.println("deleting lockfile: " + lockfile.toString());
 		try {
 			Files.delete(lockfile);
 		} catch (IOException e) {
@@ -212,8 +220,11 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	
 	// Initializes Conda Env with Dependencies
 	private void initEnv() throws ResourceInitializationException {
+		System.out.println("init env");
+		
 		// Lockfile
 		Path lockfile = condaDir.resolve("textimager_" + envDir.getFileName().toString() +".lock");
+		System.out.println("lockfile: " + lockfile.toString());
 		while (Files.exists(lockfile)) {
 			try {
 				System.out.println("waiting on lock \"conda env\"...");
@@ -223,20 +234,24 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			}
 		}
 		try {
+			System.out.println("creating lockfile now...");
 			FileUtils.touch(lockfile.toFile());
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
 		
 		// Check if env dir is already there
+		System.out.println("checking env dir: " + envDir.toString());
 		if (Files.exists(envDir)) {
 			System.out.println("Env already setup, skipping...");
 		}
 		else {
 		// Not installed, continue
+			System.out.println("not installed, doing now...");
 		
 			// copy install script
 			Path condaEnvScript = condaDir.resolve("conda_env.sh");
+			System.out.println("conda env script: " + condaEnvScript.toString());
 			try {
 				Files.copy(getClass().getClassLoader().getResourceAsStream("conda_env.sh"), condaEnvScript, StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
@@ -256,14 +271,15 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	        command.add(envDepsConda);
 	        command.add(envDepsPip);
 	        command.add(javaHome);
+	        System.out.println("installing now.....");
 			int status = runCommand(command);
-			
 	        System.out.println("conda env: " + status);
 	        if (status != 0) {
 	        	throw new ResourceInitializationException(new IOException("failed to setup conda env"));
 	        }
 		}
 
+		System.out.println("deleting lock file: " + lockfile.toString());
 		try {
 			Files.delete(lockfile);
 		} catch (IOException e) {
@@ -272,11 +288,15 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	}
 	
 	private void runBashScript() throws ResourceInitializationException {
+		System.out.println("run bash script...");
+		
 		if (condaBashScript != null && !condaBashScript.isEmpty()) {
 			Path script = envDir.resolve(condaBashScript);
+			System.out.println("script: " + script.toString());
 			
 			// Lockfile
 			Path lockfile = condaDir.resolve("textimager_" + script.getFileName().toString() +".lock");
+			System.out.println("lockfile: " + lockfile.toString());
 			while (Files.exists(lockfile)) {
 				try {
 					System.out.println("waiting on lock \"bash script\"...");
@@ -286,6 +306,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 				}
 			}
 			try {
+				System.out.println("creating lockfile now...");
 				FileUtils.touch(lockfile.toFile());
 			} catch (IOException e) {
 				throw new ResourceInitializationException(e);
@@ -296,6 +317,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			}
 			else {
 				// copy script
+				System.out.println("running script now: " + script.toString());
 				try {
 					Files.copy(getClass().getClassLoader().getResourceAsStream(condaBashScript), script, StandardCopyOption.REPLACE_EXISTING);
 				} catch (IOException e) {
@@ -308,6 +330,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		        command.add(script.toString());
 		        command.add(condaInstallDir.toString());
 		        command.add(envName);
+		        System.out.println("running script now start...");
 				int status = runCommand(command);
 		        System.out.println("bash script: " + status);
 		        if (status != 0) {
@@ -315,6 +338,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		        }
 			}
 			
+			System.out.println("deleting lockfile: " + lockfile.toString());
 			try {
 				Files.delete(lockfile);
 			} catch (IOException e) {

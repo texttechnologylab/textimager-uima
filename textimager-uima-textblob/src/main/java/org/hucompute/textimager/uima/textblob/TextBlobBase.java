@@ -9,6 +9,8 @@ public abstract class TextBlobBase extends JepAnnotator {
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
+		
+		System.out.println("initializing textblob base class...");
 
 		// set defaults
 		// TODO schönerer Weg?
@@ -29,8 +31,12 @@ public abstract class TextBlobBase extends JepAnnotator {
 		}
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			condaVersion = "py37_4.8.3";
-		}
+		}		
+
+		System.out.println("initializing textblob base class: conda");
 		
-		initConda();
+		initConda();		
+
+		System.out.println("initializing textblob base class done");
 	}
 }
