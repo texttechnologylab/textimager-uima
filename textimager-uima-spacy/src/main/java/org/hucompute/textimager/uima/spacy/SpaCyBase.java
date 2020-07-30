@@ -24,7 +24,7 @@ public abstract class SpaCyBase extends JepAnnotator {
 			condaBashScript = "spacy230_setup.sh";
 		}
 		if (envDepsPip == null || envDepsPip.isEmpty()) {
-			envDepsPip = "spacy==2.3.0";
+			envDepsPip = "spacy==2.3.0 textblob==0.15.3 textblob-de==0.4.3";
 		}
 		if (envDepsConda == null || envDepsConda.isEmpty()) {
 			envDepsConda = "";
