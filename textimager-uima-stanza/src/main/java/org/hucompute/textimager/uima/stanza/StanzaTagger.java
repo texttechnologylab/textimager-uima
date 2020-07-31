@@ -128,6 +128,7 @@ public class StanzaTagger extends StanzaBase {
 				"for sentence in dic for token in sentence]");
 			ArrayList<HashMap<String, Object>> tokenList = (ArrayList<HashMap<String, Object>>) interp.getValue("token_list");
 			tokenList.forEach(token -> {
+				System.out.println(token);
 				int begin = Integer.valueOf((String)token.get("begin"));
 				int end = Integer.valueOf((String)token.get("end"));
 
