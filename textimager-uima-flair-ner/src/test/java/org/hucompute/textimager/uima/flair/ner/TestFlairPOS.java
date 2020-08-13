@@ -1,4 +1,4 @@
-package org.textimager.uima.flair.ner;
+package org.hucompute.textimager.uima.flair.ner;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -13,7 +13,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.textimager.uima.flair.FlairPOS;
+import org.hucompute.textimager.uima.flair.FlairPOS;
 
 import com.google.common.io.Files;
 

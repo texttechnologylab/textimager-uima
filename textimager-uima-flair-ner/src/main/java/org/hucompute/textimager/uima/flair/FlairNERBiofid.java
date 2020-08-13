@@ -1,4 +1,4 @@
-package org.textimager.uima.flair;
+package org.hucompute.textimager.uima.flair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,28 +8,27 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.Feature;
-import org.apache.uima.cas.Type;
-import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.cas.Type;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.dkpro.core.api.io.IobDecoder;
-import org.dkpro.core.api.resources.MappingProvider;
 import org.texttechnologylab.annotation.NamedEntity;
+import org.texttechnologylab.annotation.type.*;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import jep.JepException;
 
-public class FlairPOS extends FlairBase {
+import org.dkpro.core.api.resources.MappingProvider;
+
+public class FlairNERBiofid extends FlairBase {
 
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		mappingProvider = new MappingProvider();
-		mappingProvider.setDefault(MappingProvider.LOCATION, "classpath:/org/textimager/uima/flair/pos-conllu.map");
-		mappingProvider.setDefault(MappingProvider.BASE_TYPE, POS.class.getName());
+		mappingProvider.setDefault(MappingProvider.LOCATION, "classpath:/org/textimager/uima/flair/ner-biofid.map");
+		mappingProvider.setDefault(MappingProvider.BASE_TYPE, NamedEntity.class.getName());
 		mappingProvider.setDefault(MappingProvider.LANGUAGE, "de");
 
 		if (StringUtils.isNotBlank(pMappingProviderLocation))
@@ -38,7 +37,7 @@ public class FlairPOS extends FlairBase {
 			mappingProvider.setOverride(MappingProvider.LANGUAGE, language);
 
 		try {
-			interpreter.exec(String.format("model = TokenModel('%s')", modelLocation));
+			interpreter.exec(String.format("model = MultiModel('%s')", modelLocation));
 		} catch (JepException e) {
 			throw new ResourceInitializationException(e);
 		}
@@ -65,8 +64,7 @@ public class FlairPOS extends FlairBase {
 
 				Type tagType = mappingProvider.getTagType(tagValue);
 				AnnotationFS annotation = jCas.getCas().createAnnotation(tagType, begin, end);
-				annotation.setStringValue(tagType.getFeatureByBaseName("PosValue"), tagValue);
-				annotation.setStringValue(tagType.getFeatureByBaseName("coarseValue"), tagValue);
+				annotation.setStringValue(tagType.getFeatureByBaseName("value"), tagValue);
 				jCas.addFsToIndexes(annotation);
 			}
 		} catch (JepException | ClassCastException e) {
