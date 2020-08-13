@@ -109,7 +109,7 @@
 		<module>textimager-uima-util</module>
 		<module>textimager-uima-stanza</module>
 		<module>textimager-uima-io-embeddings</module>
-<!-- 		<module>textimager-uima-flair</module> -->
+ 		<module>textimager-uima-flair-ner</module>
 		<module>textimager-uima-textblob</module>
 	</modules>
 </project>
