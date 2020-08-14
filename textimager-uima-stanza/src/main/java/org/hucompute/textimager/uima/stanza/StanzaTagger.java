@@ -38,12 +38,6 @@ public class StanzaTagger extends StanzaBase {
 	@ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
 	protected String language;
 
-	/**
-	 * 
-	 */
-	public static final String PARAM_MODEL_LOCATION = "modelLocation";
-	@ConfigurationParameter(name = PARAM_MODEL_LOCATION, mandatory = false)
-	protected String modelLocation;
 
 	/**
      * Load the part-of-speech tag to UIMA type mapping from this location instead of locating the
@@ -69,42 +63,20 @@ public class StanzaTagger extends StanzaBase {
 
 	private MappingProvider posMappingProvider;
 	private MappingProvider nerMappingProvider;
-	private CasConfigurableProviderBase<File> modelProvider;
 
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 
-		/*
-		modelProvider = new CasConfigurableProviderBase<File>() {
-			{
-				setContextObject(StanzaTagger.this);
-
-				//setDefault(ARTIFACT_ID, "${groupId}.OpenerProject-model-tagger-${language}-${variant}");
-				setDefault(LOCATION,
-						"classpath:org/hucompute/textimager/uima/stanza/lib/tagger-${variant}.model");
-				setDefault(VARIANT, "default");
-
-				setOverride(LOCATION, modelLocation);
-				setOverride(LANGUAGE, language);
-				setOverride(VARIANT, variant);
-			}
-
-			@Override
-			protected File produceResource(URL aUrl) throws IOException {
-				return ResourceUtils.getUrlAsFile(aUrl, true);
-			}
-		};*/
-
 		posMappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
-		//nerMappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,nerMappingLocation, variant, language);
+		nerMappingProvider = MappingProviderFactory.createNerMappingProvider(aContext,nerMappingLocation, language, variant);
         };
-
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		final CAS cas = aJCas.getCas();
 		//modelProvider.configure(cas);
 		posMappingProvider.configure(cas);
+		nerMappingProvider.configure(cas);
 		try {
 			final Object lang = aJCas.getDocumentLanguage();
 			final Object text = aJCas.getDocumentText();
@@ -123,12 +95,10 @@ public class StanzaTagger extends StanzaBase {
 				"'end': token.get('misc').replace('end_char=','').split('|')[1],"+
 				"'head': token.get('head'),"+
 				"'type': token.get('type'),"+
-				"'ner': token.get('ner'),"+
 				"}"+
 				"for sentence in dic for token in sentence]");
 			ArrayList<HashMap<String, Object>> tokenList = (ArrayList<HashMap<String, Object>>) interp.getValue("token_list");
 			tokenList.forEach(token -> {
-				System.out.println(token);
 				int begin = Integer.valueOf((String)token.get("begin"));
 				int end = Integer.valueOf((String)token.get("end"));
 
@@ -167,10 +137,10 @@ public class StanzaTagger extends StanzaBase {
 				depAnno.addToIndexes();
 				
 				String type = (String)token.get("type");
-				String ner = (String)token.get("ner");
-//				Type neTag = mappingProvider.getTagType(type);
-//				NamedEntity neAnno = (NamedEntity) aJCas.getCas().createAnnotation(neTag, begin, end);
-				NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
+				Type neTag = nerMappingProvider.getTagType(type);
+				System.out.println(neTag);
+				NamedEntity neAnno = (NamedEntity) aJCas.getCas().createAnnotation(neTag, begin, end);
+//				NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
 				neAnno.setValue(type);
 				neAnno.addToIndexes();
 			});
