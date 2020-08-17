@@ -64,6 +64,8 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Logger;
+import org.apache.uima.util.Progress;
+import org.apache.uima.util.ProgressImpl;
 import org.dkpro.core.api.io.ResourceCollectionReaderBase;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.parameter.ComponentParameters;
@@ -301,8 +303,14 @@ public class TeiReaderTTLab
     
     private Iterator<Element> teiElementIterator;
     private Element currentTeiElement;
-    private Resource currentResource;
     private int currentTeiElementNumber;
+    
+    private List<Resource> resourcesList;
+    private Iterator<Resource> currentResourceIterator;
+    private Resource currentResource;
+    
+    private int teisDone;
+    private int teisTotal;
 
     private MappingProvider posMappingProvider;
 
@@ -311,25 +319,90 @@ public class TeiReaderTTLab
         throws ResourceInitializationException
     {
         super.initialize(aContext);
+        
+        resourcesList = new ArrayList<>();
+        teisDone = 0;
+        teisTotal = 0;
+
+        try {
+	    	System.out.println("counting TEI elements in files, this can take a while...");
+	    	initTeis();
+	        currentResourceIterator = resourcesList.iterator();
+	        System.out.println("found " + teisTotal + " teis to process");
+	    	
+	    	// Init with an empty iterator
+	    	teiElementIterator = asList(new Element[0]).iterator();
+	    	
+	    	// Make sure we know about the first element;
+	    	nextTeiElement();
+
+        }
+        catch (CollectionException | IOException e) {
+            throw new ResourceInitializationException(e);
+        }
+        
 
         if (readPOS && !readToken) {
             throw new ResourceInitializationException(new IllegalArgumentException(
                     "Setting readPOS to 'true' requires writeToken to be 'true' too."));
         }
-
-        try {
-            // Init with an empty iterator
-            teiElementIterator = asList(new Element[0]).iterator();
-
-            // Make sure we know about the first element;
-            nextTeiElement();
-        }
-        catch (CollectionException | IOException e) {
-            throw new ResourceInitializationException(e);
-        }
-
+        
         posMappingProvider = createPosMappingProvider(this, mappingPosLocation, posTagset,
                 getLanguage());
+    }
+    
+    @Override
+    public Progress[] getProgress()
+    {
+        return new Progress[] { new ProgressImpl(teisDone, teisTotal, "TEIs", true) };
+    }
+    
+    private void initTeis() throws IOException, CollectionException {
+    	while (super.hasNext()) {
+            Resource res = nextFile();
+            resourcesList.add(res);
+
+            InputStream is = null;
+            try {
+                is = res.getInputStream();
+
+                if (res.getPath().endsWith(".gz")) {
+                    is = new GZIPInputStream(is);
+                }
+
+                InputSource source = new InputSource(is);
+                source.setPublicId(res.getLocation());
+                source.setSystemId(res.getLocation());
+
+                SAXReader reader = new SAXReader();
+                Document xml = reader.read(source);
+
+                // select TEIs, use namespace
+                final XPath teiPath = new Dom4jXPath("//teins:TEI");
+                teiPath.addNamespace("teins", TeiConstants.TEI_NS);
+
+                List<Element> teiElements = teiPath.selectNodes(xml);
+                
+                if (teiElements.isEmpty()) {
+                	// No TEIs found, try without namespace...
+                	final XPath teiPathNoNS = new Dom4jXPath("//TEI");
+                    teiElements = teiPathNoNS.selectNodes(xml);
+                }
+
+                System.out.printf("Found %d TEI elements in %s.%n", teiElements.size(), res.getLocation());
+                
+                teisTotal += teiElements.size();
+            }
+            catch (DocumentException e) {
+                throw new IOException(e);
+            }
+            catch (JaxenException e) {
+                throw new IOException(e);
+            }
+            finally {
+                closeQuietly(is);
+            }
+        }
     }
 
     private void nextTeiElement() throws CollectionException, IOException
@@ -339,8 +412,8 @@ public class TeiReaderTTLab
             return;
         }
 
-        while (!teiElementIterator.hasNext() && super.hasNext()) {
-            currentResource = nextFile();
+        while (!teiElementIterator.hasNext() && currentResourceIterator.hasNext()) {
+            currentResource = currentResourceIterator.next();
 
             InputStream is = null;
             try {
@@ -369,7 +442,7 @@ public class TeiReaderTTLab
                     teiElements = teiPathNoNS.selectNodes(xml);
                 }
 
-                System.out.printf("Found %d TEI elements in %s.%n", teiElements.size(),
+                System.out.printf("Processing %d TEI elements in %s.%n", teiElements.size(),
                         currentResource.getLocation());
 
                 teiElementIterator = teiElements.iterator();
@@ -389,7 +462,7 @@ public class TeiReaderTTLab
         currentTeiElement = teiElementIterator.hasNext() ? teiElementIterator.next() : null;
         currentTeiElementNumber++;
 
-        if (!super.hasNext() && !teiElementIterator.hasNext()) {
+        if (!currentResourceIterator.hasNext() && !teiElementIterator.hasNext()) {
             // Mark end of processing.
             teiElementIterator = null;
         }
@@ -445,7 +518,9 @@ public class TeiReaderTTLab
         finally {
             closeQuietly(is);
         }
-
+        
+        teisDone++;
+        
         // Move currentTeiElement to the next text
         nextTeiElement();
     }
