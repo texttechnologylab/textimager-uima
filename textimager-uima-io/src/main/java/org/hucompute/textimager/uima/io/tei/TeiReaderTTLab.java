@@ -357,10 +357,17 @@ public class TeiReaderTTLab
                 SAXReader reader = new SAXReader();
                 Document xml = reader.read(source);
 
+                // select TEIs, use namespace
                 final XPath teiPath = new Dom4jXPath("//teins:TEI");
                 teiPath.addNamespace("teins", TeiConstants.TEI_NS);
 
                 List<Element> teiElements = teiPath.selectNodes(xml);
+                
+                if (teiElements.isEmpty()) {
+                	// No TEIs found, try without namespace...
+                	final XPath teiPathNoNS = new Dom4jXPath("//TEI");
+                    teiElements = teiPathNoNS.selectNodes(xml);
+                }
 
                 System.out.printf("Found %d TEI elements in %s.%n", teiElements.size(),
                         currentResource.getLocation());
