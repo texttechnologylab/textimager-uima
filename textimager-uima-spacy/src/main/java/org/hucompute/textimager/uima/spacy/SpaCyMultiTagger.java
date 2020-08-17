@@ -204,8 +204,8 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			else
 				interpreter.exec("nlp = spacy.load('en_core_web_sm')");
 			
-			//int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
-			int spacyMaxLength = 20;
+			int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
+			//int spacyMaxLength = 20;
 			System.out.println("Spacy max length is " + spacyMaxLength);
 
 			// set nlp length to text lenght to allow complete text if needed
@@ -246,7 +246,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			for (String text : texts) {
 				counter++;
 				System.out.println("processing text part " + counter + "/" + texts.size());
-				System.out.println(text);
+				//System.out.println(text);
 				
 				// count spaces on left side for offset, remove spaces for space
 				int len = text.length();
