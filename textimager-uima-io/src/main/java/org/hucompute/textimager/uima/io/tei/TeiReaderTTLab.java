@@ -69,6 +69,7 @@ import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.parameter.ComponentParameters;
 import org.dkpro.core.api.parameter.MimeTypes;
 import org.dkpro.core.api.resources.MappingProvider;
+import org.dkpro.core.io.tei.internal.TeiConstants;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -356,13 +357,13 @@ public class TeiReaderTTLab
                 SAXReader reader = new SAXReader();
                 Document xml = reader.read(source);
 
-                final XPath teiPath = new Dom4jXPath("//TEI");
-//                teiPath.addNamespace("tei", "http://www.tei-c.org/ns/1.0");
+                final XPath teiPath = new Dom4jXPath("//teins:TEI");
+                teiPath.addNamespace("teins", TeiConstants.TEI_NS);
 
                 List<Element> teiElements = teiPath.selectNodes(xml);
 
-//                System.out.printf("Found %d TEI elements in %s.%n", teiElements.size(),
-//                        currentResource.getLocation());
+                System.out.printf("Found %d TEI elements in %s.%n", teiElements.size(),
+                        currentResource.getLocation());
 
                 teiElementIterator = teiElements.iterator();
                 currentTeiElementNumber = 0;
@@ -494,6 +495,8 @@ public class TeiReaderTTLab
         private Stack<NamedEntity> namedEntities = new Stack<>();
         
         private final StringBuilder buffer = new StringBuilder();
+        
+        private String titleType = null;
 
         @Override
         public void endDocument()
@@ -528,10 +531,11 @@ public class TeiReaderTTLab
             else if (!inTextElement && "idno".equals(aName)) {
                 captureText = true;
                 idnoStart = getBuffer().length();
-                idnoType = aAttributes.getValue("type");
+                idnoType = aAttributes.getValue(ATTR_TYPE);
             }
             else if (!inTextElement && TAG_TITLE.equals(aName)) {
                 captureText = true;
+                titleType = aAttributes.getValue(ATTR_TYPE);
             }
             else if (TAG_TEXT.equals(aName)) {
                 captureText = true;
@@ -584,13 +588,27 @@ public class TeiReaderTTLab
             if (!inTextElement && TAG_TITLE.equals(aName)) {
                 DocumentMetaData meta = DocumentMetaData.get(getJCas());
                 // Read only the first title and hope it is the main title
-                if (!titleSet) {
-                    meta.setDocumentTitle(getBuffer().toString().trim());
-                    titleSet = true;
+                // only if not empty
+                String titleTemp = getBuffer().toString().trim();
+                if (!titleTemp.isEmpty()) {
+	                if (!titleSet) {
+	                	meta.setDocumentTitle(titleTemp);
+	                	titleSet = true;
+	                }
+	                
+                	// add more titles as metadata
+                	MetaDataStringField metaData = new MetaDataStringField(getJCas());
+                	metaData.setKey("title" + ((titleType != null && !titleType.isEmpty()) ? ("_" + titleType) : ""));
+                	metaData.setValue(titleTemp);
+                	metaData.addToIndexes();
                 }
+                // change document uri to include index of tei element
+                // this prevents the io writer from overwriting the file even if useDocumentId is set to false
+                meta.setDocumentUri(meta.getDocumentUri().replace(meta.getDocumentId(), documentId));
                 meta.setDocumentId(documentId);
                 getBuffer().setLength(0);
                 captureText = false;
+                titleType = null;
             }
             else if ("idno".equals(aName)){
             	MetaDataStringField metaData = new MetaDataStringField(getJCas());
