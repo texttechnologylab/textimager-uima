@@ -561,6 +561,7 @@ public class TeiReaderTTLab
         extends Handler
     {
         private String documentId = null;
+        private boolean documentIdSet= false;
         private boolean titleSet = false;
         private boolean inTextElement = false;
         private boolean captureText = false;
@@ -684,10 +685,31 @@ public class TeiReaderTTLab
                 	metaData.setValue(titleTemp);
                 	metaData.addToIndexes();
                 }
-                // change document uri to include index of tei element
-                // this prevents the io writer from overwriting the file even if useDocumentId is set to false
-                meta.setDocumentUri(meta.getDocumentUri().replace(meta.getDocumentId(), documentId));
-                meta.setDocumentId(documentId);
+
+                if (!documentIdSet) {
+                    documentIdSet = true;
+                    // change document uri to include subdir index of tei element
+                    // this prevents the io writer from overwriting the file even if useDocumentId is set to false
+
+                    // base file: filename of document
+                    String baseFile = meta.getDocumentUri().substring(meta.getDocumentBaseUri().length());
+
+                    // base uri: path to base folder
+                    String baseUri = meta.getDocumentBaseUri();
+                    if (!baseUri.endsWith("/")) {
+                        baseUri += "/";
+                    }
+
+                    // append basefile as subdir
+                    String documentUri = baseUri + baseFile + "/" + documentId;
+
+                    // set meta
+                    meta.setDocumentBaseUri(baseUri);
+                    meta.setCollectionId(baseUri);
+                    meta.setDocumentUri(documentUri);
+                    meta.setDocumentId(documentId);
+                }
+
                 getBuffer().setLength(0);
                 captureText = false;
                 titleType = null;
