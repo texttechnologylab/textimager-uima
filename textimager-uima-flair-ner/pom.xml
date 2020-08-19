@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.hucompute.textimager.uima</groupId>
 		<artifactId>textimager-uima</artifactId>
-		<version>0.2.8</version>
+		<version>0.3.0</version>
 	</parent>
 
 	<artifactId>textimager-uima-flair-ner</artifactId>
@@ -80,24 +80,6 @@
 			<id>ukp-oss-model-releases</id>
 			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-model-releases-local</url>
 		</repository>
-		<repository>
-			<id>hu-central</id>
-			<name>alba-releases</name>
-			<url>http://service.hucompute.org/artifactory/libs-snapshot-local</url>
-		</repository>
 	</repositories>
-
-	<distributionManagement>
-		<repository>
-			<id>hu-central</id>
-			<name>alba-releases</name>
-			<url>http://service.hucompute.org/artifactory/libs-snapshot-local</url>
-		</repository>
-		<snapshotRepository>
-			<id>hu-snapshots</id>
-			<name>alba-snapshots</name>
-			<url>http://service.hucompute.org/artifactory/libs-snapshot-local</url>
-		</snapshotRepository>
-	</distributionManagement>
 
 </project>

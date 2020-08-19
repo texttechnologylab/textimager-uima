@@ -251,6 +251,7 @@ extends CasCollectionReader_ImplBase
 
 			resources = new ArrayList<Resource>(scan(getSourceLocation(), includes, excludes));
 			if(sortBySize){
+				System.out.println("Sorting by Size");
 				Collections.sort(resources, new Comparator<Resource>() {
 
 					@Override
