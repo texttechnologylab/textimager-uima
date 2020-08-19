@@ -72,6 +72,10 @@ public class MongoCollectionReader extends AbstractCollectionReader {
     public static final String PARAM_SKIP = "mongo_SKIP";
     @ConfigurationParameter(name = PARAM_LIMIT, mandatory = false, defaultValue = "0")
     private int skip;
+
+    public static final String PARAM_DB_AUTH_SOURCE = "mongo_connection_auth_source";
+    @ConfigurationParameter(name = PARAM_DB_AUTH_SOURCE, mandatory = false, defaultValue = "admin")
+    protected String db_connection_auth_source;
     
     int processed = 0;
     
@@ -81,7 +85,7 @@ public class MongoCollectionReader extends AbstractCollectionReader {
     	
         super.initialize(context);
         try {
-			MongoConnection conn = new MongoConnection(db_connection_host,db_connection_dbname,db_connection_collectionname,db_connection_user,db_connection_pw, safeMode);
+			MongoConnection conn = new MongoConnection(db_connection_host,db_connection_dbname,db_connection_collectionname,db_connection_user,db_connection_pw, safeMode, db_connection_auth_source);
             initQuery(conn);
         } catch (IOException e) {
             throw new ResourceInitializationException(e);
