@@ -71,7 +71,7 @@ public abstract class FlairBase extends JepAnnotator {
 
 			interpreter.exec("sys.path = ['" + tempFolder.toAbsolutePath().toString() + "/python/'] + sys.path");
 			interpreter.exec("from embeddings import WordToVecFormatEmbeddings");
-			interpreter.exec("from model_flair import SpanModel, TokenModel, MultiModel");
+			interpreter.exec("from model_flair import SpanModel, TokenModel, MultiModel, CachedMultiModel");
 		} catch (Exception e) {
 			throw new ResourceInitializationException(e);
 		}

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.cas.Type;
@@ -19,9 +20,13 @@ import org.texttechnologylab.annotation.type.*;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import jep.JepException;
 
+import org.dkpro.core.api.parameter.ComponentParameters;
 import org.dkpro.core.api.resources.MappingProvider;
 
 public class FlairNERBiofid extends FlairBase {
+	public static final String PARAM_CACHE_MODELS = "cacheModels";
+	@ConfigurationParameter(name = PARAM_CACHE_MODELS, mandatory = true, defaultValue = "false")
+	protected boolean cacheModels;
 
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
@@ -37,7 +42,14 @@ public class FlairNERBiofid extends FlairBase {
 			mappingProvider.setOverride(MappingProvider.LANGUAGE, language);
 
 		try {
-			interpreter.exec(String.format("model = MultiModel('%s')", modelLocation));
+			if (cacheModels) {
+				System.out.println("using CachedMultiModel");
+				interpreter.exec(String.format("model = CachedMultiModel('%s')", modelLocation));
+			}
+			else {
+				System.out.println("using MultiModel");
+				interpreter.exec(String.format("model = MultiModel('%s')", modelLocation));
+			}
 		} catch (JepException e) {
 			throw new ResourceInitializationException(e);
 		}
