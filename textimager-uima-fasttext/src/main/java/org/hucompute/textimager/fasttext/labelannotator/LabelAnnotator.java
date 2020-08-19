@@ -114,7 +114,7 @@ public class LabelAnnotator extends BaseAnnotator {
     @Override
     protected void processCoveredWithFastText(JCas jCas, Annotation ref) throws AnalysisEngineProcessException {
         String documentText = getTextWithDisambig(jCas, ref, useLemma, addPOS, removePunct, removeFunctionwords, disambigTag, disambigLabelReplace, disambigLabelReplaceWith, ignoreMissingLemmaPOS);
-        System.out.println(documentText);
+        //System.out.println(documentText);
         if (documentText.isEmpty()) {
             return;
         }
@@ -133,13 +133,13 @@ public class LabelAnnotator extends BaseAnnotator {
             if (!ddcCatsSorted.isEmpty()) {
                 Collections.sort(ddcCatsSorted, (r1, r2) -> ((r1.getScore() > r2.getScore()) ? -1 : ((r1.getScore() < r2.getScore()) ? 1 : 0)));
 
-                System.out.println("ddc variant: " + appendDDCVariant);
+                //System.out.println("ddc variant: " + appendDDCVariant);
 
                 if (appendDDCVariant.equals("top_10x")) {
                     CategoryCoveredTagged topCat = ddcCatsSorted.get(0);
 
-                    System.out.println("top ddc: " + topCat.getValue());
-                    System.out.println("top score: " + topCat.getScore());
+                    //System.out.println("top ddc: " + topCat.getValue());
+                    //System.out.println("top score: " + topCat.getScore());
 
                     for (int i = 0; i < 10; ++i) {
                         ddcsSB.append(" ").append(ddcLabelToFeature(topCat.getValue()));
@@ -152,12 +152,12 @@ public class LabelAnnotator extends BaseAnnotator {
                 } else if (appendDDCVariant.equals("top_scorex")) {
                     CategoryCoveredTagged topCat = ddcCatsSorted.get(0);
 
-                    System.out.println("top ddc: " + topCat.getValue());
-                    System.out.println("top score: " + topCat.getScore());
+                    //System.out.println("top ddc: " + topCat.getValue());
+                    //System.out.println("top score: " + topCat.getScore());
 
                     int reps = Math.max(1, (int)(topCat.getScore()*10));
 
-                    System.out.println("-> reps: " + reps);
+                    //System.out.println("-> reps: " + reps);
 
                     for (int i = 0; i < reps; ++i) {
                         ddcsSB.append(" ").append(ddcLabelToFeature(topCat.getValue()));
@@ -170,8 +170,8 @@ public class LabelAnnotator extends BaseAnnotator {
                 } else if (appendDDCVariant.equals("top_text_length_x")) {
                     CategoryCoveredTagged topCat = ddcCatsSorted.get(0);
 
-                    System.out.println("top ddc: " + topCat.getValue());
-                    System.out.println("top score: " + topCat.getScore());
+                    //System.out.println("top ddc: " + topCat.getValue());
+                    //System.out.println("top score: " + topCat.getScore());
                     
                     int reps = 10;
                     int textLen = documentText.length();
@@ -179,7 +179,7 @@ public class LabelAnnotator extends BaseAnnotator {
                     	reps = Math.max(1, textLen / 100);
                     }
 
-                    System.out.println("-> reps: " + reps);
+                    //System.out.println("-> reps: " + reps);
 
                     for (int i = 0; i < reps; ++i) {
                         ddcsSB.append(" ").append(ddcLabelToFeature(topCat.getValue()));
@@ -193,7 +193,7 @@ public class LabelAnnotator extends BaseAnnotator {
             }
 
             String ddcs = ddcsSB.toString();
-            System.out.println("Found DDC Predictions: " + ddcs);
+            //System.out.println("Found DDC Predictions: " + ddcs);
 
             documentText += ddcs;
         }

@@ -15,7 +15,7 @@ public class SpaCyTokenizer extends SpaCyBase {
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		try {
+		/*try {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("text", aJCas.getDocumentText());
 			if(aJCas.getDocumentLanguage().equals("de"))
@@ -38,6 +38,6 @@ public class SpaCyTokenizer extends SpaCyBase {
 		} catch (JepException e) {
 			e.printStackTrace();
 		}
-		
+		*/
 	}
 }

@@ -128,7 +128,7 @@ public class LabelAnnotatorDDCMul extends BaseAnnotator {
     protected void processCoveredWithFastText(JCas jCas, Annotation ref) throws AnalysisEngineProcessException {
 
         String documentText = getTextWithDisambig(jCas, ref, useLemma, addPOS, removePunct, removeFunctionwords, disambigTag, disambigLabelReplace, disambigLabelReplaceWith, ignoreMissingLemmaPOS);
-        System.out.println(documentText);
+        //System.out.println(documentText);
 
         // Begin und End setzen, entweder passend zu Ref oder kompletter Text
         int begin = (ref != null ? ref.getBegin() : 0);

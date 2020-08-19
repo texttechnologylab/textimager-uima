@@ -7,6 +7,7 @@ import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
+import org.hucompute.textimager.uima.spacy.SpaCyMultiTagger;
 import org.hucompute.textimager.uima.spacy.SpaCyTokenizer;
 import org.hucompute.textimager.uima.stanza.StanzaTagger;
 import org.hucompute.textimager.uima.util.XmlFormatter;
@@ -23,8 +24,8 @@ public class SimpleTestMultiEnvs {
 		
 		AggregateBuilder builder = new AggregateBuilder();
 		
-		builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
-		builder.add(createEngineDescription(StanzaTagger.class,StanzaTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/stanza"));
+		builder.add(createEngineDescription(SpaCyMultiTagger.class));
+		builder.add(createEngineDescription(StanzaTagger.class));
 		
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	

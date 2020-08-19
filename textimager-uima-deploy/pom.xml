@@ -104,6 +104,11 @@
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-textblob</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-biofid-gazetteer</artifactId>
 					<version>${project.version}</version>
 				</dependency>
@@ -123,8 +128,17 @@
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-flair-ner</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
 					<groupId>org.dkpro.core</groupId>
 					<artifactId>dkpro-core-corenlp-gpl</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.dkpro.core</groupId>
+					<artifactId>dkpro-core-stanfordnlp-gpl</artifactId>
 				</dependency>
 				<dependency>
 					<groupId>org.dkpro.core</groupId>
