@@ -1,4 +1,4 @@
-package org.textimager.uima.flair;
+package org.hucompute.textimager.uima.flair;
 
 import java.util.ArrayList;
 import java.util.Collection;

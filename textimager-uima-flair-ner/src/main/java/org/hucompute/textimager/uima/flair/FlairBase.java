@@ -1,4 +1,4 @@
-package org.textimager.uima.flair;
+package org.hucompute.textimager.uima.flair;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -71,7 +71,7 @@ public abstract class FlairBase extends JepAnnotator {
 
 			interpreter.exec("sys.path = ['" + tempFolder.toAbsolutePath().toString() + "/python/'] + sys.path");
 			interpreter.exec("from embeddings import WordToVecFormatEmbeddings");
-			interpreter.exec("from model_flair import SpanModel, TokenModel");
+			interpreter.exec("from model_flair import SpanModel, TokenModel, MultiModel, CachedMultiModel");
 		} catch (Exception e) {
 			throw new ResourceInitializationException(e);
 		}

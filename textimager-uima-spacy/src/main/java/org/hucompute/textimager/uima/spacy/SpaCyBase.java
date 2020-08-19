@@ -18,6 +18,8 @@ public abstract class SpaCyBase extends JepAnnotator {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 
+		System.out.println("initializing spacy base class...");
+
 		// set defaults
 		// TODO schönerer Weg?
 		if (condaBashScript == null || condaBashScript.isEmpty()) {
@@ -33,13 +35,17 @@ public abstract class SpaCyBase extends JepAnnotator {
 			envPythonVersion = "3.7";
 		}
 		if (envName == null || envName.isEmpty()) {
-			envName = "textimager_spacy230_py37_v4";
+			envName = "textimager_spacy230_py37_v5";
 		}
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			condaVersion = "py37_4.8.3";
 		}
 		
+		System.out.println("initializing spacy base class: conda");
+		
 		initConda();
+		
+		System.out.println("initializing spacy base class: interprter extras...");
 		
 		try {
 			interpreter.exec("import os");
@@ -49,6 +55,8 @@ public abstract class SpaCyBase extends JepAnnotator {
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
+		
+		System.out.println("initializing spacy base class done");
 	}
 
 	// Adds the "words" and "spaces" arrays for spaCy to the JSON object
