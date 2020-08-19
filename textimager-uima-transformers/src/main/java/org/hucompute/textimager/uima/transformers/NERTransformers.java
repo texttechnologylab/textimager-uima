@@ -33,7 +33,10 @@ public class NERTransformers extends BaseTransformers {
 			interp.set("spaces",json.get("spaces"));
 
 			interp.exec("nlp = pipeline('ner')");
-			interp.exec("nlp = pipeline('ner')");
+			interp.exec("for word in words:"
+					+ "    ents = nlp(word)"
+					
+					);
 
 		} catch (JepException e) {
 
