@@ -20,11 +20,16 @@ import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 public class SpaCyMultiTaggerTest {
 	@Test
 	public void multiTaggerTest() throws UIMAException {
+		//JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.  Und das ist ein iMac.", "de");
 		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.", "de");
 
 		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger.class);
 
 		SimplePipeline.runPipeline(cas, spacyMulti);
+		
+		for (Token t : JCasUtil.select(cas, Token.class)) {
+			System.out.println("!~" + t.getCoveredText() + "!~");
+		}
 
 		int[][] tokens = new int[][] {
 			new int[] { 0, 3 },

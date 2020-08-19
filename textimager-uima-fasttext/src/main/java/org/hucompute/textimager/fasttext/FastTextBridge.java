@@ -168,8 +168,8 @@ public class FastTextBridge {
     }
 
     public ArrayList<FastTextResult> input(String language, String inputText) throws AnnotatorProcessException {
-    	System.out.println("fastText input");
-    	System.out.println("!!!" + inputText + "!!!");
+    	//System.out.println("fastText input");
+    	//System.out.println("!!!" + inputText + "!!!");
 
         // Input Text modifizieren:
         // Wenn der Text weniger als 1000 Zeichen hat alles solange wiederholen bis drüber
@@ -188,12 +188,12 @@ public class FastTextBridge {
         ArrayList<FastTextProcess> ftps;
         if (fasttext_procs.containsKey(language)) {
             ftps = fasttext_procs.get(language);
-            System.out.println("  language ok: " + language);
+            //System.out.println("  language ok: " + language);
         } else {
             // Keine Sprache, einfach erstes wählen...
             try {
                 ftps = fasttext_procs.entrySet().iterator().next().getValue();
-                System.out.println("  language not ok, took first available: " + language);
+                //System.out.println("  language not ok, took first available: " + language);
             } catch (Exception ex) {
                 throw new AnnotatorProcessException("fastText could not find language [" + language + "]", null, ex);
             }
@@ -218,7 +218,7 @@ public class FastTextBridge {
 
             FastTextResult niceResult = new FastTextResult();
 
-            System.out.println("processing with model [" + ftp.model + "]...");
+            //System.out.println("processing with model [" + ftp.model + "]...");
             try {
                 if (ftp.stdin(text)) {
                     ArrayList<String> result = new ArrayList<>();
@@ -233,7 +233,7 @@ public class FastTextBridge {
             } catch (Exception ex) {
                 throw new AnnotatorProcessException("fastText could not get output", null, ex);
             }
-            System.out.println("processing with model [" + ftp.model + "] done.");
+            //System.out.println("processing with model [" + ftp.model + "] done.");
 
             results.add(niceResult);
         }

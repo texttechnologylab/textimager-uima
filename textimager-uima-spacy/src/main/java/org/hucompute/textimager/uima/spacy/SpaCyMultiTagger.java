@@ -3,8 +3,10 @@ package org.hucompute.textimager.uima.spacy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
@@ -65,12 +67,12 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				language);
 	}
 
-	private void processToken(JCas aJCas) throws JepException {
+	private void processToken(JCas aJCas, int beginOffset) throws JepException {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> output = (ArrayList<HashMap<String, Object>>) interpreter.getValue("tokens");
 		for (HashMap<String, Object> token : output) {
 			if (!(Boolean) token.get("is_space")) {
-				int begin = ((Long) token.get("idx")).intValue();
+				int begin = ((Long) token.get("idx")).intValue() + beginOffset;
 				int end = begin + ((Long) token.get("length")).intValue();
 				Token casToken = new Token(aJCas, begin, end);
 				casToken.addToIndexes();
@@ -78,13 +80,13 @@ public class SpaCyMultiTagger extends SpaCyBase {
 		}
 	}
 
-	private void processPOS(JCas aJCas) throws AnalysisEngineProcessException, JepException {
+	private void processPOS(JCas aJCas, int beginOffset) throws AnalysisEngineProcessException, JepException {
 		mappingProvider.configure(aJCas.getCas());
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interpreter.getValue("pos");
 		poss.forEach(p -> {
 			if (!(Boolean) p.get("is_space")) {
-				int begin = ((Long) p.get("idx")).intValue();
+				int begin = ((Long) p.get("idx")).intValue() + beginOffset;
 				int end = begin + ((Long) p.get("length")).intValue();
 				String tagStr = p.get("tag").toString();
 
@@ -106,19 +108,19 @@ public class SpaCyMultiTagger extends SpaCyBase {
 		}
 	}
 
-	private void processDep(JCas aJCas) throws JepException {
+	private void processDep(JCas aJCas, int beginOffset) throws JepException {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> deps = (ArrayList<HashMap<String, Object>>) interpreter.getValue("deps");
 		deps.forEach(dep -> {
 			if (!(Boolean) dep.get("is_space")) {
 				String depStr = dep.get("dep").toString().toUpperCase();
 
-				int begin = ((Long) dep.get("idx")).intValue();
+				int begin = ((Long) dep.get("idx")).intValue() + beginOffset;
 				int end = begin + ((Long) dep.get("length")).intValue();
 
 				@SuppressWarnings("unchecked")
 				HashMap<String, Object> headToken = (HashMap<String, Object>) dep.get("head");
-				int beginHead = ((Long) headToken.get("idx")).intValue();
+				int beginHead = ((Long) headToken.get("idx")).intValue() + beginOffset;
 				int endHead = beginHead + ((Long) headToken.get("length")).intValue();
 
 				Token dependent = JCasUtil.selectSingleAt(aJCas, Token.class, begin, end);
@@ -140,12 +142,12 @@ public class SpaCyMultiTagger extends SpaCyBase {
 		});
 	}
 
-	private void processNER(JCas aJCas) throws JepException {
+	private void processNER(JCas aJCas, int beginOffset) throws JepException {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> entss = (ArrayList<HashMap<String, Object>>) interpreter.getValue("ents");
 		entss.forEach(p -> {
-			int begin = ((Long) p.get("start_char")).intValue();
-			int end = ((Long) p.get("end_char")).intValue();
+			int begin = ((Long) p.get("start_char")).intValue() + beginOffset;
+			int end = ((Long) p.get("end_char")).intValue() + beginOffset;
 			String labelStr = p.get("label").toString();
 			NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
 			neAnno.setValue(labelStr);
@@ -153,12 +155,12 @@ public class SpaCyMultiTagger extends SpaCyBase {
 		});
 	}
 	
-	private void processSentences(JCas aJCas) throws JepException {
+	private void processSentences(JCas aJCas, int beginOffset) throws JepException {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> sents = (ArrayList<HashMap<String, Object>>) interpreter.getValue("sents");
 		sents.forEach(p -> {
-			int begin = ((Long) p.get("begin")).intValue();
-			int end = ((Long) p.get("end")).intValue();
+			int begin = ((Long) p.get("begin")).intValue() + beginOffset;
+			int end = ((Long) p.get("end")).intValue() + beginOffset;
 			Sentence sentAnno = new Sentence(aJCas, begin, end);
 			sentAnno.addToIndexes();
 		});
@@ -194,46 +196,93 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			System.out.println("skipping spacy due to text length < 1");
 			return;
 		}
-		
+				
 		try {
 			interpreter.set("lang", (Object)aJCas.getDocumentLanguage());
-			interpreter.set("text", (Object)aJCas.getDocumentText());
 			if (aJCas.getDocumentLanguage().equals("de"))
 				interpreter.exec("nlp = spacy.load('de_core_news_sm')");
 			else
 				interpreter.exec("nlp = spacy.load('en_core_web_sm')");
 			
-			if (maxTextLength < 0) {
-				// give extra length...
-				textLength += 100;
-				interpreter.exec("nlp.max_length = " + String.valueOf(textLength));
+			int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
+			//int spacyMaxLength = 20;
+			System.out.println("Spacy max length is " + spacyMaxLength);
+
+			// set nlp length to text lenght to allow complete text if needed
+			if (textLength > spacyMaxLength) {
+				interpreter.exec("nlp.max_length = " + String.valueOf(textLength+100));
+				interpreter.exec("print('max length is', nlp.max_length)");
+			}
+			
+			List<String> texts = new ArrayList<>();
+			if (textLength > spacyMaxLength) {
+				int textLimit = spacyMaxLength / 2;
+				System.out.println("Text limit is: " + textLimit);
+				// split text on "." near "nlp.max_length (= " characters
+				StringBuilder sb = new StringBuilder();
+				String[] textParts = aJCas.getDocumentText().split("\\.", 0);
+				for (String textPart : textParts) {
+					if (sb.length() >= textLimit) {
+						texts.add(sb.toString());
+						sb.setLength(0);
+					}
+					boolean isFirst = sb.length() == 0;
+					if (!isFirst) {
+						sb.append(" ");
+					}
+					sb.append(textPart).append(".");
+				}
+				// handle rest
+				if (sb.length() > 0) {
+					texts.add(sb.toString());
+				}
 			}
 			else {
-				interpreter.exec("nlp.max_length = " + maxTextLength);
+				texts.add(aJCas.getDocumentText());
 			}
 
-			interpreter.exec("doc = nlp(text)");
-
-			interpreter.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space} for token in doc]");
-			interpreter.exec("pos = [{'tag': token.tag_,'idx': token.idx,'length': len(token),'is_space': token.is_space}for token in doc]");
-			interpreter.exec("deps = [{'dep': token.dep_,'idx': token.idx,'length': len(token),'is_space': token.is_space,'head': {'idx': token.head.idx,'length': len(token.head),'is_space': token.head.is_space}}	for token in doc]");
-			interpreter.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
-			interpreter.exec("sents = [{'begin': sent.start_char, 'end': sent.end_char} for sent in doc.sents]");
-			
-			// Tokenizer
-			processToken(aJCas);
-
-			// Tagger
-			processPOS(aJCas);
-
-			// PARSER
-			processDep(aJCas);
-
-			// NER
-			processNER(aJCas);
-			
-			// Sentences
-			processSentences(aJCas);
+			int beginOffset = 0;
+			int counter = 0;
+			for (String text : texts) {
+				counter++;
+				System.out.println("processing text part " + counter + "/" + texts.size());
+				//System.out.println(text);
+				
+				// count spaces on left side for offset, remove spaces for space
+				int len = text.length();
+				text = StringUtils.stripStart(text, null);
+				int strippedSpaces = len - text.length();
+				beginOffset += strippedSpaces;
+				System.out.println("stripped " + strippedSpaces + " left spaces");
+				
+				// text to python interpreter
+				interpreter.set("text", (Object)text);
+				interpreter.exec("doc = nlp(text)");
+	
+				// prepare annotations for retrieval
+				interpreter.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space} for token in doc]");
+				interpreter.exec("pos = [{'tag': token.tag_,'idx': token.idx,'length': len(token),'is_space': token.is_space}for token in doc]");
+				interpreter.exec("deps = [{'dep': token.dep_,'idx': token.idx,'length': len(token),'is_space': token.is_space,'head': {'idx': token.head.idx,'length': len(token.head),'is_space': token.head.is_space}}	for token in doc]");
+				interpreter.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
+				interpreter.exec("sents = [{'begin': sent.start_char, 'end': sent.end_char} for sent in doc.sents]");
+				
+				// Tokenizer
+				processToken(aJCas, beginOffset);
+	
+				// Tagger
+				processPOS(aJCas, beginOffset);
+	
+				// PARSER
+				processDep(aJCas, beginOffset);
+	
+				// NER
+				processNER(aJCas, beginOffset);
+				
+				// Sentences
+				processSentences(aJCas, beginOffset);
+				
+				beginOffset += text.length();
+			}
 			
 		} catch (JepException e) {
 			throw new AnalysisEngineProcessException(e);
