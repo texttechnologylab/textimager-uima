@@ -39,7 +39,7 @@ public class NERTransformers extends BaseTransformers {
 					);
 
 		} catch (JepException e) {
-
+			e.printStackTrace();
 		}
 	}
 }
