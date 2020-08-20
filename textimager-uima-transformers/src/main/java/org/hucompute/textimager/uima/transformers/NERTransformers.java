@@ -37,9 +37,9 @@ public class NERTransformers extends BaseTransformers {
 			interp.exec("nlp = pipeline('ner')");
 			interp.exec("ents = nlp(text)");
 			
-			interp.exec("tokeni = AutoTokenizer.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\", use_fast=True)");
-			interp.exec("tokens = tokenizer(text, return_offsets_mappint = True).get('offset_mapping')");
-			tokens = (ArrayList<ArrayList<Integer>>) interp.get("tokens");
+			interp.exec("tokenizer = AutoTokenizer.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\", use_fast=True)");
+			interp.exec("tokens = tokenizer(text, return_offsets_mapping = True).get('offset_mapping')");
+			tokens = (ArrayList<ArrayList<Integer>>) interp.getValue("tokens");
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 			poss.forEach(p -> {
 				
@@ -47,7 +47,7 @@ public class NERTransformers extends BaseTransformers {
 				int begin = tokens.get(index).get(0) ;
 				int end = tokens.get(index).get(1);
 				String labelStr = p.get("entity").toString();
-				NamedEntity neAnno = new NamedEntity(aJCas, 0, 1);
+				NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
 				neAnno.setValue(labelStr);
 				neAnno.addToIndexes();
 			});
