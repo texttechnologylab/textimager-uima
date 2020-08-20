@@ -31,12 +31,21 @@ public class NERTransformers extends BaseTransformers {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("words",json.get("words"));
 			interp.set("spaces",json.get("spaces"));
+			interp.set("text",aJCas.getDocumentText());
 
 			interp.exec("nlp = pipeline('ner')");
-			interp.exec("for word in words:"
-					+ "    ents = nlp(word)"
-					
-					);
+			interp.exec("ents = nlp(text)");
+			
+			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
+			poss.forEach(p -> {
+				
+				// int begin = ((Long)p.get("start_char")).intValue();
+				//int end = ((Long)p.get("end_char")).intValue();
+				String labelStr = p.get("entity").toString();
+				NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
+				neAnno.setValue(labelStr);
+				neAnno.addToIndexes();
+			});
 
 		} catch (JepException e) {
 			e.printStackTrace();
