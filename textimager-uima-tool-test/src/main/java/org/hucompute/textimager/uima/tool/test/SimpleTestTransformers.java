@@ -27,7 +27,7 @@ public class SimpleTestTransformers {
 			
 			AggregateBuilder builder = new AggregateBuilder();
 			
-			builder.add(createEngineDescription(SpaCyNER.class,NERTransformers.PARAM_PYTHON_HOME,"/Library/Frameworks/Python.framework/Versions/3.8"));
+			builder.add(createEngineDescription(NERTransformers.class,NERTransformers.PARAM_PYTHON_HOME,"C:\\Users\\PC\\AppData\\Local\\Programs\\Python\\Python38"));
 			
 		
 			SimplePipeline.runPipeline(cas,builder.createAggregate());

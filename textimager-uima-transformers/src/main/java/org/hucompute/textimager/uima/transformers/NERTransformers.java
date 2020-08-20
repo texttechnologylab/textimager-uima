@@ -42,10 +42,11 @@ public class NERTransformers extends BaseTransformers {
 				// int begin = ((Long)p.get("start_char")).intValue();
 				//int end = ((Long)p.get("end_char")).intValue();
 				String labelStr = p.get("entity").toString();
-				NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
+				NamedEntity neAnno = new NamedEntity(aJCas, 0, 1);
 				neAnno.setValue(labelStr);
 				neAnno.addToIndexes();
 			});
+			
 
 		} catch (JepException e) {
 			e.printStackTrace();
