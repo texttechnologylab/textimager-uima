@@ -27,6 +27,7 @@ public class NERTransformers extends BaseTransformers {
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		//		super.process(aJCas);
 		HashMap<String, Object>  json = buildJSON(aJCas);
+		ArrayList<ArrayList<Integer>> tokens;
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("words",json.get("words"));
@@ -36,11 +37,15 @@ public class NERTransformers extends BaseTransformers {
 			interp.exec("nlp = pipeline('ner')");
 			interp.exec("ents = nlp(text)");
 			
+			interp.exec("tokeni = AutoTokenizer.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\", use_fast=True)");
+			interp.exec("tokens = tokenizer(text, return_offsets_mappint = True).get('offset_mapping')");
+			tokens = (ArrayList<ArrayList<Integer>>) interp.get("tokens");
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 			poss.forEach(p -> {
 				
-				// int begin = ((Long)p.get("start_char")).intValue();
-				//int end = ((Long)p.get("end_char")).intValue();
+				int index =((Long)p.get("index")).intValue();
+				int begin = tokens.get(index).get(0) ;
+				int end = tokens.get(index).get(1);
 				String labelStr = p.get("entity").toString();
 				NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
 				neAnno.setValue(labelStr);
