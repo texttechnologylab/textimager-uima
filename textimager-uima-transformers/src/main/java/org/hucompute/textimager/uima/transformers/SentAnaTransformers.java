@@ -14,7 +14,7 @@ import org.dkpro.core.api.resources.MappingProvider;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import jep.JepException;
 
-public class NERTransformers extends BaseTransformers {
+public class SentAnaTransformers extends BaseTransformers {
 
 	
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
@@ -27,34 +27,27 @@ public class NERTransformers extends BaseTransformers {
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		//		super.process(aJCas);
 		HashMap<String, Object>  json = buildJSON(aJCas);
-		ArrayList<ArrayList<Integer>> tokens;
+
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("words",json.get("words"));
 			interp.set("spaces",json.get("spaces"));
 			interp.set("text",aJCas.getDocumentText());
 
-			interp.exec("nlp = pipeline('ner')");
+			interp.exec("nlp = pipeline('sentiment-analysis')");
 			interp.exec("ents = nlp(text)");
-			
-			interp.exec("tokenizer = AutoTokenizer.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\", use_fast=True)");
-			interp.exec("tokens = tokenizer(text, return_offsets_mapping = True).get('offset_mapping')");
-			tokens = (ArrayList<ArrayList<Integer>>) interp.getValue("tokens");
+
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 			poss.forEach(p -> {
 				
-				int index =((Long)p.get("index")).intValue();
-				int begin = (tokens.get(index).get(0)).intValue();
-				int end = (tokens.get(index).get(1)).intValue();
-				String labelStr = p.get("entity").toString();
-				NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
+				String labelStr = p.get("label").toString();
+				
+				NamedEntity neAnno = new NamedEntity(aJCas, 0, (aJCas.getDocumentText()).length());
 				neAnno.setValue(labelStr);
 				neAnno.addToIndexes();
 				
 				
 			});
-			ArrayList<Integer> test = tokens.get(1);
-			java.lang.System.out.println( test.get(1));
 		
 			
 

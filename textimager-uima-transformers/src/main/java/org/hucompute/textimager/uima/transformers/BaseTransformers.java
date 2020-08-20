@@ -27,7 +27,8 @@ public abstract class BaseTransformers extends JepAnnotator {
 		try {
 			interp.exec("import os");
 			interp.exec("import sys");
-			interp.exec("from transformers import pipeline, AutoTokenizer"); 
+			interp.exec("from transformers import pipeline");
+			interp.exec("from transformers import AutoTokenizer");
 			interp.exec("from java.lang import System");
 
 		} catch (JepException ex) {
