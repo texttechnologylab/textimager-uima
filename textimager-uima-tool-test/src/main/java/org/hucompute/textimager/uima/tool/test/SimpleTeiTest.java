@@ -20,6 +20,7 @@ import org.dkpro.core.io.xmi.XmiWriter;
 import org.dkpro.core.languagetool.LanguageToolLemmatizer;
 import org.dkpro.core.matetools.MateLemmatizer;
 import org.dkpro.core.matetools.MatePosTagger;
+import org.dkpro.core.tokit.BreakIteratorSegmenter;
 import org.dkpro.core.tokit.ParagraphSplitter;
 import org.hucompute.textimager.uima.io.tei.TeiReaderTTLab;
 import org.hucompute.textimager.uima.spacy.SpaCyMultiTagger;
@@ -30,18 +31,18 @@ public class SimpleTeiTest {
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
 		CollectionReader reader = CollectionReaderFactory.createReader(
 				TeiReader.class 
-				,TeiReader.PARAM_SOURCE_LOCATION,"/media/ahemati/cea5347d-36d3-4856-a9be-bcd0bddbfd92/git/Language-change/dta_kernkorpus"
-				,TeiReader.PARAM_PATTERNS,"**/*.xml"
+				,TeiReader.PARAM_SOURCE_LOCATION,"/media/ahemati/cea5347d-36d3-4856-a9be-bcd0bddbfd92/git/Language-change/dta_kernkorpus/chladni_akustik_1802.TEI-P5.xml"
+//				,TeiReader.PARAM_PATTERNS,"**/*.xml"
 				,TeiReader.PARAM_LANGUAGE,"de"
-				,TeiReader.PARAM_SORT_BY_SIZE,true
+				,"sortBySize",true
 				);
 		
 //		reader.toXML(new FileWriter(new File("TeiReader.xml")));
 		AggregateBuilder builder = new AggregateBuilder();
-//		builder.add(createEngineDescription(ParagraphSplitter.class));
-//		builder.add(createEngineDescription(SpaCyMultiTagger.class));
+//		builder.add(createEngineDescription(BreakIteratorSegmenter.class));
+		builder.add(createEngineDescription(SpaCyMultiTagger.class));
 //		builder.add(createEngineDescription(LanguageToolLemmatizer.class));
-//		builder.add(createEngineDescription(XmiWriter.class, XmiWriter.PARAM_TARGET_LOCATION,"dta",XmiWriter.PARAM_OVERWRITE,true));
+		builder.add(createEngineDescription(XmiWriter.class, XmiWriter.PARAM_TARGET_LOCATION,"dta",XmiWriter.PARAM_OVERWRITE,true, XmiWriter.PARAM_VERSION,"1.1"));
 //		
 		SimplePipeline.runPipeline(reader, builder.createAggregate());
 	}

@@ -21,7 +21,7 @@ public class SpaCyMultiTaggerTest {
 	@Test
 	public void multiTaggerTest() throws UIMAException {
 		//JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.  Und das ist ein iMac.", "de");
-		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.", "de");
+		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.            Das ist.          Das ist noch ein Test.", "de");
 
 		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger.class);
 
@@ -29,6 +29,7 @@ public class SpaCyMultiTaggerTest {
 		
 		for (Token t : JCasUtil.select(cas, Token.class)) {
 			System.out.println("!~" + t.getCoveredText() + "!~");
+			System.out.println(t);
 		}
 
 		int[][] tokens = new int[][] {

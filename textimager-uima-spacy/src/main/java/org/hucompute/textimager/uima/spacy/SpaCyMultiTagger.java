@@ -49,7 +49,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 	public static final String PARAM_VARIANT = "variant";
 	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
 	protected String variant;
-	
+
 	/**
 	 * Max Text Length
 	 */
@@ -59,12 +59,22 @@ public class SpaCyMultiTagger extends SpaCyBase {
 
 	private MappingProvider mappingProvider;
 
+	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		
+
 		// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
 		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant,
 				language);
+
+		try {
+			interpreter.exec("nlpDe = spacy.load('de_core_news_sm')");
+			interpreter.exec("nlpEn = spacy.load('en_core_web_sm')");
+			System.out.println("init both en and de");
+		} catch (JepException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void processToken(JCas aJCas, int beginOffset) throws JepException {
@@ -97,7 +107,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				posAnno.addToIndexes();
 			}
 		});
-		
+
 		// add pos refs to tokens
 		Map<POS, Collection<Token>> posTokenMap = JCasUtil.indexCovering(aJCas, POS.class, Token.class);
 		for (Map.Entry<POS, Collection<Token>> entry : posTokenMap.entrySet()) {
@@ -154,7 +164,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			neAnno.addToIndexes();
 		});
 	}
-	
+
 	private void processSentences(JCas aJCas, int beginOffset) throws JepException {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> sents = (ArrayList<HashMap<String, Object>>) interpreter.getValue("sents");
@@ -166,6 +176,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 		});
 	}
 
+	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		/// DEBUG START
 		// remove all token, sentences, pos, ner, dep
@@ -188,7 +199,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 		//	token.removeFromIndexes();
 		//}
 		/// DEBUG END
-		
+
 		long textLength = aJCas.getDocumentText().length();
 		System.out.println("text length: " + textLength);
 		// abort on empty
@@ -196,16 +207,16 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			System.out.println("skipping spacy due to text length < 1");
 			return;
 		}
-				
+
 		try {
 			interpreter.set("lang", (Object)aJCas.getDocumentLanguage());
 			if (aJCas.getDocumentLanguage().equals("de"))
-				interpreter.exec("nlp = spacy.load('de_core_news_sm')");
+				interpreter.exec("nlp = nlpDe");
 			else
-				interpreter.exec("nlp = spacy.load('en_core_web_sm')");
-			
-			int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
-			//int spacyMaxLength = 20;
+				interpreter.exec("nlp = nlpEn");
+
+						int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
+//			int spacyMaxLength = 20;
 			System.out.println("Spacy max length is " + spacyMaxLength);
 
 			// set nlp length to text lenght to allow complete text if needed
@@ -213,7 +224,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				interpreter.exec("nlp.max_length = " + String.valueOf(textLength+100));
 				interpreter.exec("print('max length is', nlp.max_length)");
 			}
-			
+
 			List<String> texts = new ArrayList<>();
 			if (textLength > spacyMaxLength) {
 				int textLimit = spacyMaxLength / 2;
@@ -226,10 +237,10 @@ public class SpaCyMultiTagger extends SpaCyBase {
 						texts.add(sb.toString());
 						sb.setLength(0);
 					}
-					boolean isFirst = sb.length() == 0;
-					if (!isFirst) {
-						sb.append(" ");
-					}
+//					boolean isFirst = sb.length() == 0;
+					//					if (!isFirst) {
+					//						sb.append(" ");
+					//					}
 					sb.append(textPart).append(".");
 				}
 				// handle rest
@@ -246,44 +257,45 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			for (String text : texts) {
 				counter++;
 				System.out.println("processing text part " + counter + "/" + texts.size());
+				System.out.println("ist neue");
 				//System.out.println(text);
-				
+
 				// count spaces on left side for offset, remove spaces for space
-				int len = text.length();
-				text = StringUtils.stripStart(text, null);
-				int strippedSpaces = len - text.length();
-				beginOffset += strippedSpaces;
-				System.out.println("stripped " + strippedSpaces + " left spaces");
-				
+//				int len = text.length();
+//				text = StringUtils.stripStart(text, null);
+//				int strippedSpaces = len - text.length();
+//				beginOffset += strippedSpaces;
+//				System.out.println("stripped " + strippedSpaces + " left spaces");
+
 				// text to python interpreter
 				interpreter.set("text", (Object)text);
 				interpreter.exec("doc = nlp(text)");
-	
+
 				// prepare annotations for retrieval
-				interpreter.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space} for token in doc]");
+				interpreter.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space,'token_text':token.text,'text':text} for token in doc]");
 				interpreter.exec("pos = [{'tag': token.tag_,'idx': token.idx,'length': len(token),'is_space': token.is_space}for token in doc]");
 				interpreter.exec("deps = [{'dep': token.dep_,'idx': token.idx,'length': len(token),'is_space': token.is_space,'head': {'idx': token.head.idx,'length': len(token.head),'is_space': token.head.is_space}}	for token in doc]");
 				interpreter.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
 				interpreter.exec("sents = [{'begin': sent.start_char, 'end': sent.end_char} for sent in doc.sents]");
-				
+
 				// Tokenizer
 				processToken(aJCas, beginOffset);
-	
+
 				// Tagger
 				processPOS(aJCas, beginOffset);
-	
+
 				// PARSER
 				processDep(aJCas, beginOffset);
-	
+
 				// NER
 				processNER(aJCas, beginOffset);
-				
+
 				// Sentences
 				processSentences(aJCas, beginOffset);
-				
+
 				beginOffset += text.length();
 			}
-			
+
 		} catch (JepException e) {
 			throw new AnalysisEngineProcessException(e);
 		}
