@@ -215,7 +215,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			else
 				interpreter.exec("nlp = nlpEn");
 
-						int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
+			int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
 //			int spacyMaxLength = 20;
 			System.out.println("Spacy max length is " + spacyMaxLength);
 
@@ -237,14 +237,12 @@ public class SpaCyMultiTagger extends SpaCyBase {
 						texts.add(sb.toString());
 						sb.setLength(0);
 					}
-//					boolean isFirst = sb.length() == 0;
-					//					if (!isFirst) {
-					//						sb.append(" ");
-					//					}
 					sb.append(textPart).append(".");
 				}
 				// handle rest
 				if (sb.length() > 0) {
+					if(!aJCas.getDocumentText().endsWith("."))
+						sb.setLength(sb.length()-1);
 					texts.add(sb.toString());
 				}
 			}
@@ -260,23 +258,21 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				System.out.println("ist neue");
 				//System.out.println(text);
 
-				// count spaces on left side for offset, remove spaces for space
-//				int len = text.length();
-//				text = StringUtils.stripStart(text, null);
-//				int strippedSpaces = len - text.length();
-//				beginOffset += strippedSpaces;
-//				System.out.println("stripped " + strippedSpaces + " left spaces");
-
 				// text to python interpreter
 				interpreter.set("text", (Object)text);
 				interpreter.exec("doc = nlp(text)");
 
 				// prepare annotations for retrieval
-				interpreter.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space,'token_text':token.text,'text':text} for token in doc]");
+				interpreter.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space,'token_text':token.text} for token in doc]");
+				interpreter.exec("sents = [{'begin': sent.start_char, 'end': sent.end_char} for sent in doc.sents]");
+
 				interpreter.exec("pos = [{'tag': token.tag_,'idx': token.idx,'length': len(token),'is_space': token.is_space}for token in doc]");
 				interpreter.exec("deps = [{'dep': token.dep_,'idx': token.idx,'length': len(token),'is_space': token.is_space,'head': {'idx': token.head.idx,'length': len(token.head),'is_space': token.head.is_space}}	for token in doc]");
 				interpreter.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
-				interpreter.exec("sents = [{'begin': sent.start_char, 'end': sent.end_char} for sent in doc.sents]");
+
+
+				// Sentences
+				processSentences(aJCas, beginOffset);
 
 				// Tokenizer
 				processToken(aJCas, beginOffset);
@@ -290,8 +286,6 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				// NER
 				processNER(aJCas, beginOffset);
 
-				// Sentences
-				processSentences(aJCas, beginOffset);
 
 				beginOffset += text.length();
 			}

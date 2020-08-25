@@ -31,7 +31,7 @@ public class SimpleTeiTest {
 	public static void main(String[] args) throws UIMAException, IOException, SAXException {
 		CollectionReader reader = CollectionReaderFactory.createReader(
 				TeiReader.class 
-				,TeiReader.PARAM_SOURCE_LOCATION,"/media/ahemati/cea5347d-36d3-4856-a9be-bcd0bddbfd92/git/Language-change/dta_kernkorpus/chladni_akustik_1802.TEI-P5.xml"
+				,TeiReader.PARAM_SOURCE_LOCATION,"/media/ahemati/cea5347d-36d3-4856-a9be-bcd0bddbfd92/git/Language-change/dta_kernkorpus/rohr_einleitung_1728.TEI-P5.xml"
 //				,TeiReader.PARAM_PATTERNS,"**/*.xml"
 				,TeiReader.PARAM_LANGUAGE,"de"
 				,"sortBySize",true
@@ -42,7 +42,7 @@ public class SimpleTeiTest {
 //		builder.add(createEngineDescription(BreakIteratorSegmenter.class));
 		builder.add(createEngineDescription(SpaCyMultiTagger.class));
 //		builder.add(createEngineDescription(LanguageToolLemmatizer.class));
-		builder.add(createEngineDescription(XmiWriter.class, XmiWriter.PARAM_TARGET_LOCATION,"dta",XmiWriter.PARAM_OVERWRITE,true, XmiWriter.PARAM_VERSION,"1.1"));
+		builder.add(createEngineDescription(XmiWriter.class, XmiWriter.PARAM_TARGET_LOCATION,"dta",XmiWriter.PARAM_OVERWRITE,true));
 //		
 		SimplePipeline.runPipeline(reader, builder.createAggregate());
 	}
