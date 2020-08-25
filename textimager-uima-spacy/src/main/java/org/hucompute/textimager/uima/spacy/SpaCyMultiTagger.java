@@ -68,8 +68,22 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				language);
 
 		try {
-			interpreter.exec("nlpDe = spacy.load('de_core_news_sm')");
-			interpreter.exec("nlpEn = spacy.load('en_core_web_sm')");
+			interpreter.exec("nlps = {}");
+			interpreter.exec("nlps['de'] = spacy.load('de_core_news_sm')");
+			interpreter.exec("nlps['en'] = spacy.load('en_core_web_sm')");
+			interpreter.exec("nlps['zh'] = spacy.load('zh_core_web_sm')");
+			interpreter.exec("nlps['da'] = spacy.load('da_core_news_sm')");
+			interpreter.exec("nlps['nl'] = spacy.load('nl_core_news_sm')");
+			interpreter.exec("nlps['fr'] = spacy.load('fr_core_news_sm')");
+			interpreter.exec("nlps['el'] = spacy.load('el_core_news_sm')");
+			interpreter.exec("nlps['it'] = spacy.load('it_core_news_sm')");
+			interpreter.exec("nlps['ja'] = spacy.load('ja_core_news_sm')");
+			interpreter.exec("nlps['lt'] = spacy.load('lt_core_news_sm')");
+			interpreter.exec("nlps['nb'] = spacy.load('nb_core_news_sm')");
+			interpreter.exec("nlps['pl'] = spacy.load('pl_core_news_sm')");
+			interpreter.exec("nlps['pt'] = spacy.load('pt_core_news_sm')");
+			interpreter.exec("nlps['ro'] = spacy.load('ro_core_news_sm')");
+			interpreter.exec("nlps['es'] = spacy.load('es_core_news_sm')");
 			System.out.println("init both en and de");
 		} catch (JepException e) {
 			// TODO Auto-generated catch block
@@ -210,10 +224,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 
 		try {
 			interpreter.set("lang", (Object)aJCas.getDocumentLanguage());
-			if (aJCas.getDocumentLanguage().equals("de"))
-				interpreter.exec("nlp = nlpDe");
-			else
-				interpreter.exec("nlp = nlpEn");
+			interpreter.exec("nlp = nlps[lang] if lang in nlps else nlps['en']");
 
 			int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
 //			int spacyMaxLength = 20;
