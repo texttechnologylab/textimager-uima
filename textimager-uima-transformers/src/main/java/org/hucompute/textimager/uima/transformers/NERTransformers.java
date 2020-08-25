@@ -27,7 +27,7 @@ public class NERTransformers extends BaseTransformers {
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		//		super.process(aJCas);
 		HashMap<String, Object>  json = buildJSON(aJCas);
-		ArrayList<ArrayList<Integer>> tokens;
+		ArrayList<ArrayList<Long>> tokens;
 		try {
 			interp.set("lang", aJCas.getDocumentLanguage());
 			interp.set("words",json.get("words"));
@@ -37,17 +37,31 @@ public class NERTransformers extends BaseTransformers {
 			interp.exec("nlp = pipeline('ner')");
 			interp.exec("ents = nlp(text)");
 			
-			interp.exec("tokeni = AutoTokenizer.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\", use_fast=True)");
-			interp.exec("tokens = tokenizer(text, return_offsets_mappint = True).get('offset_mapping')");
-			tokens = (ArrayList<ArrayList<Integer>>) interp.get("tokens");
+			interp.exec("tokenizer = AutoTokenizer.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\", use_fast=True)");
+			interp.exec("tokens = tokenizer(text, return_offsets_mapping = True).get('offset_mapping')");
+			tokens = (ArrayList<ArrayList<Long>>) interp.getValue("tokens");
+			
+			
+			System.out.println(tokens);
+			ArrayList<Long> test = new ArrayList<Long>(tokens.get(0));
+			System.out.println(test);
+			System.out.println(test.get(1));
+			if(test.get(1) instanceof Long) {
+				System.out.println("ist Long");
+			}
+			int test2 = (test.get(1)).intValue();
+			System.out.println(test2);
+			
+			
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 			poss.forEach(p -> {
 				
-				int index =((Long)p.get("index")).intValue();
-				int begin = tokens.get(index).get(0) ;
-				int end = tokens.get(index).get(1);
+				int index = ((Long)p.get("index")).intValue();
+				ArrayList<Long> token = new ArrayList<Long>(tokens.get(index));
+				int begin = token.get(0).intValue() ;
+				int end = token.get(1).intValue();
 				String labelStr = p.get("entity").toString();
-				NamedEntity neAnno = new NamedEntity(aJCas, 0, 1);
+				NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
 				neAnno.setValue(labelStr);
 				neAnno.addToIndexes();
 			});
