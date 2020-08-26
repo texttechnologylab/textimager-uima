@@ -15,17 +15,50 @@ import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import jep.JepException;
 
 public class NERTransformers extends BaseTransformers {
+	
+	
+	/**
+	 * Overwrite CAS Language?
+	 */
+	public static final String PARAM_LANGUAGE = "language";
+	@ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
+	protected String language;
 
+	/**
+	 * Overwrite POS mapping location?
+	 */
+	public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = "nerMappingLocation";
+	@ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
+	protected String nerMappingLocation;
+
+	/**
+	 * Overwrite model variant?
+	 */
+	public static final String PARAM_VARIANT = "variant";
+	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
+	protected String variant;
+
+	private MappingProvider mappingProvider;
+	
 	
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
+		
+		
 		super.initialize(aContext);
-
+		mappingProvider = new MappingProvider();
+		mappingProvider.setDefaultVariantsLocation("org/hucompute/textimager/uima/transformers/ner-default-variants.map");
+		mappingProvider.setDefault(MappingProvider.LOCATION, "classpath:/org/hucompute/textimager/uima/transformers/ner-${language}-${variant}.map");
+		mappingProvider.setDefault(MappingProvider.BASE_TYPE, NamedEntity.class.getName());
+		mappingProvider.setOverride(MappingProvider.LOCATION, nerMappingLocation);
+		mappingProvider.setOverride(MappingProvider.LANGUAGE, language);
+		mappingProvider.setOverride(MappingProvider.VARIANT, variant);
 	}
 	
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		//		super.process(aJCas);
+		mappingProvider.configure(aJCas.getCas());
 		HashMap<String, Object>  json = buildJSON(aJCas);
 		ArrayList<ArrayList<Long>> tokens;
 		try {
@@ -48,7 +81,9 @@ public class NERTransformers extends BaseTransformers {
 				int begin = token.get(0).intValue() ;
 				int end = token.get(1).intValue();
 				String labelStr = p.get("entity").toString();
-				NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
+				Type neTag = mappingProvider.getTagType(labelStr);
+				NamedEntity neAnno = (NamedEntity) aJCas.getCas().createAnnotation(neTag, begin, end);
+				//NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
 				neAnno.setValue(labelStr);
 				neAnno.addToIndexes();
 				

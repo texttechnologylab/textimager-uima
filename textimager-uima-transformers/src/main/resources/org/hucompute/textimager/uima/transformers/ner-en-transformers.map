@@ -1,0 +1,10 @@
+* = de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity
+I-ORG= de.tudarmstadt.ukp.dkpro.core.api.ner.type.Organization
+B-ORG= de.tudarmstadt.ukp.dkpro.core.api.ner.type.Organization
+I-PER = de.tudarmstadt.ukp.dkpro.core.api.ner.type.Person
+B-PER = de.tudarmstadt.ukp.dkpro.core.api.ner.type.Person
+I-LOC = de.tudarmstadt.ukp.dkpro.core.api.ner.type.Location
+B-LOC = de.tudarmstadt.ukp.dkpro.core.api.ner.type.Location
+O = de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity
+B-MISC = de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity
+I-MISC = de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity
