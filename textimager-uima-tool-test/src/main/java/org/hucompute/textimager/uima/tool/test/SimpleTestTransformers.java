@@ -10,6 +10,7 @@ import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.transformers.BaseTransformers;
 import org.hucompute.textimager.uima.transformers.NERTransformers;
 import org.hucompute.textimager.uima.transformers.SentAnaTransformers;
+import org.hucompute.textimager.uima.transformers.TextSumTransformers;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 
 
@@ -20,13 +21,13 @@ public class SimpleTestTransformers {
 	public static void main(String[] args) throws UIMAException, JepException {
 	
 			
-			JCas cas = JCasFactory.createText("Apple is a big cooperation in USA.","en");
+			JCas cas = JCasFactory.createText("Apple is a big cooperation in USA. It can read, descripe and learn. The world is big and has freands. Hello, world","en");
 			
 			AggregateBuilder builder = new AggregateBuilder();
 			
 			//builder.add(createEngineDescription(NERTransformers.class,NERTransformers.PARAM_PYTHON_HOME,"C:\\Users\\PC\\AppData\\Local\\Programs\\Python\\Python38"));
-			builder.add(createEngineDescription(SentAnaTransformers.class,SentAnaTransformers.PARAM_PYTHON_HOME,"C:\\Users\\PC\\AppData\\Local\\Programs\\Python\\Python38"));
-		
+			//builder.add(createEngineDescription(SentAnaTransformers.class,SentAnaTransformers.PARAM_PYTHON_HOME,"C:\\Users\\PC\\AppData\\Local\\Programs\\Python\\Python38"));
+			builder.add(createEngineDescription(TextSumTransformers.class,TextSumTransformers.PARAM_PYTHON_HOME,"C:\\Users\\PC\\AppData\\Local\\Programs\\Python\\Python38"));
 			SimplePipeline.runPipeline(cas,builder.createAggregate());
 		
 			System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
