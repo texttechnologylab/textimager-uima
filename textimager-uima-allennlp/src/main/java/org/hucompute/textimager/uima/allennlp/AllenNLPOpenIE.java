@@ -39,7 +39,6 @@ public class AllenNLPOpenIE extends AllenNLPBase {
 			interp.set("text", text);
 			interp.exec("predicted = predictor.predict(sentence=text)");
 			interp.exec("verbs = predicted.get('verbs')");
-			interp.exec("tags = predicted.get('tags')");
 			System.out.println(interp.getValue("verbs"));
 		} catch (JepException e) {
 			e.printStackTrace();
