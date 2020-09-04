@@ -39,7 +39,7 @@ public class TextSumTransformers extends BaseTransformers {
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("textsum");
 			poss.forEach(p -> {
 				
-				String labelStr = p.get("label").toString();
+				String labelStr = p.get("summary_text").toString();
 				
 				NamedEntity neAnno = new NamedEntity(aJCas, 0, (aJCas.getDocumentText()).length());
 				neAnno.setValue(labelStr);
