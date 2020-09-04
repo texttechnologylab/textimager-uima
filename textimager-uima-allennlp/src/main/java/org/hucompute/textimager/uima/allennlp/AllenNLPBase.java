@@ -19,6 +19,7 @@ public abstract class AllenNLPBase extends JepAnnotator {
 			interp.exec("import sys");
 			interp.exec("sys.argv=['']");
 			interp.exec("from allennlp.predictors.predictor import Predictor");
+			interp.exec("import allennlp_models.structured_prediction");
 			interp.exec("import allennlp_models.tagging");
 			
 		} catch (JepException ex) {

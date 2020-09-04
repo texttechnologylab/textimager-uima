@@ -19,7 +19,6 @@ public class SimpleTestStanza {
 
 	public static void main(String[] args) throws UIMAException, JepException {
 		JCas cas = JCasFactory.createText("Die Gefangenen erhängten sich in ihrer Zelle. Die Dorfbewohner erhängten den Viehdieb an einem Baum.","de");
-		//JCas cas = JCasFactory.createText("Mein Hund hat 5 Euro.", "de");
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
 			StanzaTagger.class,
