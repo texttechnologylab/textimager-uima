@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.stanza;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -65,7 +66,7 @@ public class StanzaTagger extends StanzaBase{
 			interpreter.exec("doc = nlp(text)");
 			interpreter.exec("dic = doc.to_dict()");
 			interpreter.exec("token_list = [{"+
-				"'upos': token.get('upos'),"+
+				"'upos': token.get('xpos'),"+
 				"'lemma': token.get('lemma'),"+
 				"'id': token.get('id'),"+
 				"'deprel' : token.get('deprel'),"+
@@ -75,31 +76,52 @@ public class StanzaTagger extends StanzaBase{
 				"}"+
 				"for sentence in dic for token in sentence]");
 			ArrayList<HashMap<String, Object>> tokenList = (ArrayList<HashMap<String, Object>>) interpreter.getValue("token_list");
+			
+			Map<Integer, Map<Integer, Token>> tokensMap = new HashMap<>();
+
+			// first generate tokens
 			tokenList.forEach(token -> {
 				int begin = Integer.valueOf((String)token.get("begin"));
 				int end = Integer.valueOf((String)token.get("end"));
+				
+				Token casToken = new Token(aJCas, begin, end);
+				casToken.addToIndexes();
+				
+				if (!tokensMap.containsKey(begin)) {
+					tokensMap.put(begin, new HashMap<>());
+				}
+				if (!tokensMap.get(begin).containsKey(end)) {
+					tokensMap.get(begin).put(end, casToken);
+				}
+			});
+			
+			// then the rest
+			tokenList.forEach(token -> {
+				int begin = Integer.valueOf((String)token.get("begin"));
+				int end = Integer.valueOf((String)token.get("end"));
+				
+				// get token
+				Token casToken = tokensMap.get(begin).get(end);
+					
+				// POS
 				String tagStr = token.get("upos").toString();
 				Type posTag = mappingProvider.getTagType(tagStr.intern());
 				POS posAnno = (POS) cas.createAnnotation(posTag, begin, end);
 				posAnno.setPosValue(tagStr);
-//				POSUtils.assignCoarseValue(posAnno);
+				casToken.setPos(posAnno);
 				posAnno.addToIndexes();
 
-				Token casToken = new Token(aJCas, begin, end);
-				casToken.addToIndexes();
-
+				// Lemma
 				Lemma casLemma = new Lemma(aJCas, begin, end);
 				casLemma.setValue((String)token.get("lemma"));
+				casToken.setLemma(casLemma);
 				casLemma.addToIndexes();
 
+				// Dependency
 				int headID = toIntExact((Long)token.get("head"));
-
 				int beginHead = Integer.valueOf((String)(tokenList.get(headID).get("begin")));
 				int endHead = Integer.valueOf((String)(tokenList.get(headID).get("end")));
-
-				Token dependent = casToken;
-				Token governor = new Token(aJCas, beginHead, endHead);
-
+				Token governor = tokensMap.get(beginHead).get(endHead);
 				Dependency depAnno;
 				String depStr = token.get("deprel").toString().toUpperCase();
 				if (depStr.equals("ROOT")) {
@@ -109,7 +131,7 @@ public class StanzaTagger extends StanzaBase{
 					depAnno = new Dependency(aJCas, begin, end);
 					depAnno.setDependencyType(depStr);
 				}
-				depAnno.setDependent(dependent);
+				depAnno.setDependent(casToken);
 				depAnno.setGovernor(governor);
 				depAnno.setFlavor(DependencyFlavor.BASIC);
 				depAnno.addToIndexes();
