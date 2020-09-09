@@ -15,7 +15,7 @@ public abstract class TextBlobBase extends JepAnnotator {
 		// set defaults
 		// TODO schönerer Weg?
 		if (condaBashScript == null || condaBashScript.isEmpty()) {
-			condaBashScript = "textblob_0.15.3_setup.sh";
+			condaBashScript = "textblob_0.15.3_v2_setup.sh";
 		}
 		if (envDepsPip == null || envDepsPip.isEmpty()) {
 			envDepsPip = "spacy==2.3.0 textblob==0.15.3 textblob-de==0.4.3";
@@ -27,7 +27,7 @@ public abstract class TextBlobBase extends JepAnnotator {
 			envPythonVersion = "3.7";
 		}
 		if (envName == null || envName.isEmpty()) {
-			envName = "textimager_textblob0.15.3_py37_v5";
+			envName = "textimager_textblob0.15.3_py37_v6";
 		}
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			condaVersion = "py37_4.8.3";

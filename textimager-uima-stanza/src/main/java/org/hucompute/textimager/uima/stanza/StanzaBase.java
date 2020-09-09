@@ -32,6 +32,10 @@ public abstract class StanzaBase extends JepAnnotator {
 
 		try {
 			interpreter.exec("import stanza");
+
+			// install models, existing files are automatically detected
+			interpreter.exec("stanza.download('en')");
+			interpreter.exec("stanza.download('de')");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
