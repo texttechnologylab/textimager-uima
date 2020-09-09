@@ -1,17 +1,14 @@
 package org.hucompute.textimager.uima.spacy;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
@@ -64,10 +61,10 @@ public class SpaCyMultiTagger extends SpaCyBase {
 		super.initialize(aContext);
 
 		// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
-		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant,
-				language);
+		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant, language);
 
 		try {
+			System.out.println("initializing spacy models...");
 			interpreter.exec("nlps = {}");
 			interpreter.exec("nlps['de'] = spacy.load('de_core_news_sm')");
 			interpreter.exec("nlps['en'] = spacy.load('en_core_web_sm')");
@@ -84,14 +81,14 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			interpreter.exec("nlps['pt'] = spacy.load('pt_core_news_sm')");
 			interpreter.exec("nlps['ro'] = spacy.load('ro_core_news_sm')");
 			interpreter.exec("nlps['es'] = spacy.load('es_core_news_sm')");
-			System.out.println("init both en and de");
 		} catch (JepException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	private void processToken(JCas aJCas, int beginOffset) throws JepException {
+	private Map<Integer, Map<Integer, Token>> processToken(JCas aJCas, int beginOffset) throws JepException {
+		Map<Integer, Map<Integer, Token>> tokensMap = new HashMap<>();
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> output = (ArrayList<HashMap<String, Object>>) interpreter.getValue("tokens");
 		for (HashMap<String, Object> token : output) {
@@ -100,11 +97,18 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				int end = begin + ((Long) token.get("length")).intValue();
 				Token casToken = new Token(aJCas, begin, end);
 				casToken.addToIndexes();
+				if (!tokensMap.containsKey(begin)) {
+					tokensMap.put(begin, new HashMap<>());
+				}
+				if (!tokensMap.get(begin).containsKey(end)) {
+					tokensMap.get(begin).put(end, casToken);
+				}
 			}
 		}
+		return tokensMap;
 	}
 
-	private void processPOS(JCas aJCas, int beginOffset) throws AnalysisEngineProcessException, JepException {
+	private void processPOS(JCas aJCas, int beginOffset, Map<Integer, Map<Integer, Token>> tokensMap) throws AnalysisEngineProcessException, JepException {
 		mappingProvider.configure(aJCas.getCas());
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interpreter.getValue("pos");
@@ -118,21 +122,16 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
 				posAnno.setPosValue(tagStr);
 				POSUtils.assignCoarseValue(posAnno);
+				
+				Token tokenAnno = tokensMap.get(begin).get(end);
+				tokenAnno.setPos(posAnno);
+				
 				posAnno.addToIndexes();
 			}
 		});
-
-		// add pos refs to tokens
-		Map<POS, Collection<Token>> posTokenMap = JCasUtil.indexCovering(aJCas, POS.class, Token.class);
-		for (Map.Entry<POS, Collection<Token>> entry : posTokenMap.entrySet()) {
-			POS posAnno = entry.getKey();
-			for (Token tokenAnno : entry.getValue()) {
-				tokenAnno.setPos(posAnno);
-			}
-		}
 	}
 
-	private void processDep(JCas aJCas, int beginOffset) throws JepException {
+	private void processDep(JCas aJCas, int beginOffset, Map<Integer, Map<Integer, Token>> tokensMap) throws JepException {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> deps = (ArrayList<HashMap<String, Object>>) interpreter.getValue("deps");
 		deps.forEach(dep -> {
@@ -147,8 +146,8 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				int beginHead = ((Long) headToken.get("idx")).intValue() + beginOffset;
 				int endHead = beginHead + ((Long) headToken.get("length")).intValue();
 
-				Token dependent = JCasUtil.selectSingleAt(aJCas, Token.class, begin, end);
-				Token governor = JCasUtil.selectSingleAt(aJCas, Token.class, beginHead, endHead);
+				Token dependent = tokensMap.get(begin).get(end);
+				Token governor = tokensMap.get(beginHead).get(endHead);
 
 				Dependency depAnno;
 				if (depStr.equals("ROOT")) {
@@ -227,7 +226,6 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			interpreter.exec("nlp = nlps[lang] if lang in nlps else nlps['en']");
 
 			int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
-//			int spacyMaxLength = 20;
 			System.out.println("Spacy max length is " + spacyMaxLength);
 
 			// set nlp length to text lenght to allow complete text if needed
@@ -266,9 +264,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			for (String text : texts) {
 				counter++;
 				System.out.println("processing text part " + counter + "/" + texts.size());
-				System.out.println("ist neue");
-				//System.out.println(text);
-
+				
 				// text to python interpreter
 				interpreter.set("text", (Object)text);
 				interpreter.exec("doc = nlp(text)");
@@ -281,22 +277,20 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				interpreter.exec("deps = [{'dep': token.dep_,'idx': token.idx,'length': len(token),'is_space': token.is_space,'head': {'idx': token.head.idx,'length': len(token.head),'is_space': token.head.is_space}}	for token in doc]");
 				interpreter.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
 
-
 				// Sentences
 				processSentences(aJCas, beginOffset);
-
+				
 				// Tokenizer
-				processToken(aJCas, beginOffset);
+				Map<Integer, Map<Integer, Token>> tokensMap = processToken(aJCas, beginOffset);
 
 				// Tagger
-				processPOS(aJCas, beginOffset);
+				processPOS(aJCas, beginOffset, tokensMap);
 
 				// PARSER
-				processDep(aJCas, beginOffset);
+				processDep(aJCas, beginOffset, tokensMap);
 
 				// NER
 				processNER(aJCas, beginOffset);
-
 
 				beginOffset += text.length();
 			}
