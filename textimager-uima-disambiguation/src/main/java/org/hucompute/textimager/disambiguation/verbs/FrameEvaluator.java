@@ -102,7 +102,6 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			for (String lemma : senseInventory.keySet()) {
 				getUniques(lemma, true, true);
 			}
-			//System.out.println("ambiguous frames: " + senseFramesAmbiguous);
 
 		}
 		catch (Exception e) {
@@ -136,10 +135,10 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					toProcess.addAll(childMap.get(child));
 				}
 			}
-			
-			if (depType.equals("SB") && (pos.equals("NN") || pos.equals("NE") || pos.equals("PPER") || pos.equals("PDS") || pos.equals("PIS") || pos.equals("PIAT"))) {
+			HashSet<String> subjtags = new HashSet<String>(Arrays.asList("NN", "NE", "PPER", "PDS", "PIS", "PIAT", "PRELS"));
+			if (depType.equals("SB") && (subjtags.contains(pos))) {
 				frames.add("NN");
-			} else if (depType.equals("DA") && (pos.equals("NN") || pos.equals("NE") || pos.equals("PPER") || pos.equals("PDS") || pos.equals("PIS") || pos.equals("PIAT"))) {
+			} else if (depType.equals("DA") && (subjtags.contains(pos))) {
 				frames.add("DN");
 			} else if (pos.equals("PRF") && p_to_root.contains(dep.getGovernor())) {
 				String[] morphs = child.getMorph().getValue().split("\\|");
@@ -149,12 +148,12 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 						ccase = arg.split("=")[1];
 					}
 				}
-				if (ccase != null && ccase.equals("dat")) {
+				if ((ccase != null && ccase.equals("dat")) || depType.equals("DA")) {
 					frames.add("DR");
 				} else {
 					frames.add("AR");
 				}
-			} else if (depType.equals("OA") && (pos.equals("NN") || pos.equals("NE") || pos.equals("PPER") || pos.equals("PDS") || pos.equals("PIS") || pos.equals("PIAT"))) {
+			} else if (depType.equals("OA") && (subjtags.contains(pos))) {
 				frames.add("AN");
 			} else if ((depType.equals("OP") || ((Constituent)child.getParent()).getConstituentType().equals("PP")) && (pos.equals("APPR") || pos.equals("APPRART") || pos.equals("APPO"))) {
 				frames.add("PP");
@@ -212,7 +211,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		p_to_root.add(target_t);
 		if (!(target_t.getPos().getPosValue().equals("VAFIN") || target_t.getPos().getPosValue().equals("VVFIN"))) {
 			Token sent_root = target_t;
-			while (!(sent_root.getPos().getPosValue().equals("VMFIN") || sent_root.getPos().getPosValue().equals("VAFIN") || sent_root.getPos().getPosValue().equals("VVFIN"))) {
+			while (!(sent_root.getPos().getPosValue().equals("VAFIN") || sent_root.getPos().getPosValue().equals("VVFIN"))) {
 				Token sent_root_it = JCasUtil.selectCovered(Dependency.class, sent_root).get(0).getGovernor();
 				if (sent_root_it.equals(sent_root)) return null;
 				sent_root = sent_root_it;
