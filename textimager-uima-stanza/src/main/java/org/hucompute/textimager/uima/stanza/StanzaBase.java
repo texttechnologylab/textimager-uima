@@ -5,8 +5,6 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.JepAnnotator;
 
 import jep.JepException;
-import jep.SharedInterpreter;
-import jep.SubInterpreter;
 
 public abstract class StanzaBase extends JepAnnotator {
 
@@ -15,6 +13,9 @@ public abstract class StanzaBase extends JepAnnotator {
 		super.initialize(aContext);
 		// set defaults
 		// TODO schönerer Weg?
+		if (condaBashScript == null || condaBashScript.isEmpty()) {
+			condaBashScript = "stanza101_v1_setup.sh";
+		}
 		if (envDepsPip == null || envDepsPip.isEmpty()) {
 			envDepsPip = "stanza==1.0.1";
 		}
@@ -32,10 +33,6 @@ public abstract class StanzaBase extends JepAnnotator {
 
 		try {
 			interpreter.exec("import stanza");
-
-			// install models, existing files are automatically detected
-			interpreter.exec("stanza.download('en')");
-			interpreter.exec("stanza.download('de')");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
