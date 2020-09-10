@@ -64,7 +64,10 @@ public class StanzaTagger extends StanzaBase{
 			interpreter.set("text", text);
 			interpreter.exec("nlp = stanza.Pipeline(**{'processors': 'tokenize,pos,lemma,mwt,depparse','lang': lang,})");
 			interpreter.exec("doc = nlp(text)");
+			interpreter.exec("print(\"text\")");
+			interpreter.exec("print(text)");
 			interpreter.exec("dic = doc.to_dict()");
+			interpreter.exec("print(dic)");
 			interpreter.exec("token_list = [{"+
 				"'upos': token.get('xpos'),"+
 				"'lemma': token.get('lemma'),"+
