@@ -23,7 +23,6 @@ import org.dkpro.core.api.parameter.ComponentParameters;
 import org.dkpro.core.api.resources.CasConfigurableProviderBase;
 import org.dkpro.core.api.resources.ModelProviderBase;
 import org.dkpro.core.api.resources.ResourceUtils;
-import org.hucompute.textimager.uima.type.semantics.WordSense;
 
 import com.github.jfasttext.JFastText;
 import com.github.jfasttext.JFastText.ProbLabel;
@@ -32,6 +31,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tuebingen.uni.sfs.germanet.api.GermaNet;
 import de.tuebingen.uni.sfs.germanet.api.LexUnit;
@@ -149,7 +149,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 				if(gnet.getLexUnits(lemma, WordCategory.verben).size() == 1){
 					WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
 					sense.setValue(Integer.toString(gnet.getLexUnits(lemma, WordCategory.verben).get(0).getId()));
-					sense.setConfidence(1);
+//					sense.setConfidence(1);
 					sense.addToIndexes();
 					continue;
 				}
@@ -161,7 +161,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 					if(gnet.getLexUnits(lemma, WordCategory.verben).isEmpty()){
 						WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
 						sense.setValue(Integer.toString(-1));
-						sense.setConfidence(1);
+//						sense.setConfidence(1);
 						sense.addToIndexes();
 					}
 					else if(verbLemmaIds.containsKey(lemma)){
@@ -193,7 +193,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 								// Do reverse mapping to base GermaNet LexUnit ids
 								if (tr == null) sense.setValue(probLabel2.label.replace("__label__", ""));
 								else sense.setValue(tr.reverseMap(lemma, probLabel2.label.replace("__label__", "")));
-								sense.setConfidence(Math.exp(probLabel2.logProb));
+//								sense.setConfidence(Math.exp(probLabel2.logProb));
 								sense.addToIndexes();
 								break;
 							}
