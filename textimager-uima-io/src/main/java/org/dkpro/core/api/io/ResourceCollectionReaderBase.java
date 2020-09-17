@@ -17,6 +17,8 @@
  */
 package org.dkpro.core.api.io;
 
+import com.abahgat.suffixtree.GeneralizedSuffixTree;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -275,21 +277,19 @@ extends CasCollectionReader_ImplBase
 		                    .filter(Files::isRegularFile)
 		                    .map(f -> outputDir.relativize(f).toString())
 		                    .collect(Collectors.toList());
-					
 					System.out.println("Found " + existingFiles.size() + " existing files.");
-					int sizeBefore = resources.size();
+					
+					// Build search tree from filename
+					System.out.println("Building search tree...");
+					GeneralizedSuffixTree suffixTree = new GeneralizedSuffixTree();
+					for (String filename : existingFiles) {
+						suffixTree.put(filename, 1);
+					}
 					
 					// Remove existing from collected resources
-					resources.removeIf(r -> {
-						String filename = r.getPath();
-						for (String exF : existingFiles) {
-							if (exF.startsWith(filename)) {
-								return true;
-							}
-						}
-						return false;
-					});
-					
+					System.out.println("Checking for mathing files...");
+					int sizeBefore = resources.size();
+					resources.removeIf(r -> !suffixTree.search(r.getPath()).isEmpty());
 					int sizeAfter = resources.size();
 					int sizeRemoved = sizeBefore - sizeAfter;
 					System.out.println("Removed " + sizeRemoved + " files that already exist.");
