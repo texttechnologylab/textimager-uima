@@ -273,7 +273,7 @@ extends CasCollectionReader_ImplBase
 				try (Stream<Path> stream = Files.walk(outputDir)) {
 					List<String> existingFiles = stream
 		                    .filter(Files::isRegularFile)
-		                    .map(f -> f.getFileName().toString())
+		                    .map(f -> outputDir.relativize(f).toString())
 		                    .collect(Collectors.toList());
 					
 					System.out.println("Found " + existingFiles.size() + " existing files.");
