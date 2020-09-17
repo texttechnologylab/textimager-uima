@@ -17,6 +17,8 @@
  */
 package org.dkpro.core.api.io;
 
+import com.abahgat.suffixtree.GeneralizedSuffixTree;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,6 +26,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +37,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
@@ -107,6 +112,13 @@ extends CasCollectionReader_ImplBase
 	public static final String PARAM_SOURCE_LOCATION = ComponentParameters.PARAM_SOURCE_LOCATION;
 	@ConfigurationParameter(name = PARAM_SOURCE_LOCATION, mandatory = false)
 	private String sourceLocation;
+	
+	/**
+	 * Location from which the output is read, used for looking for already existing files.
+	 */
+	public static final String PARAM_TARGET_LOCATION = ComponentParameters.PARAM_TARGET_LOCATION;
+	@ConfigurationParameter(name = PARAM_TARGET_LOCATION, mandatory = false)
+	private String targetLocation;
 
 	/**
 	 * A set of Ant-like include/exclude patterns. A pattern starts with {@link #INCLUDE_PREFIX [+]}
@@ -250,6 +262,41 @@ extends CasCollectionReader_ImplBase
 			}
 
 			resources = new ArrayList<Resource>(scan(getSourceLocation(), includes, excludes));
+			
+			// Filter existing files
+			if (targetLocation == null || targetLocation.isEmpty()) {
+				System.out.println("Not checking for already existing files...");
+			}
+			else {
+				Path outputDir = Paths.get(targetLocation);
+				System.out.println("Checking for already existing files in: " + outputDir.toString());
+				
+				// Get existing files, map to filename
+				try (Stream<Path> stream = Files.walk(outputDir)) {
+					List<String> existingFiles = stream
+		                    .filter(Files::isRegularFile)
+		                    .map(f -> outputDir.relativize(f).toString())
+		                    .collect(Collectors.toList());
+					System.out.println("Found " + existingFiles.size() + " existing files.");
+					
+					// Build search tree from filename
+					System.out.println("Building search tree...");
+					GeneralizedSuffixTree suffixTree = new GeneralizedSuffixTree();
+					for (String filename : existingFiles) {
+						suffixTree.put(filename, 1);
+					}
+					
+					// Remove existing from collected resources
+					System.out.println("Checking for mathing files...");
+					int sizeBefore = resources.size();
+					resources.removeIf(r -> !suffixTree.search(r.getPath()).isEmpty());
+					int sizeAfter = resources.size();
+					int sizeRemoved = sizeBefore - sizeAfter;
+					System.out.println("Removed " + sizeRemoved + " files that already exist.");
+		        }
+			}
+			System.out.println("Using " + resources.size() + " files...");
+			
 			if(sortBySize){
 				System.out.println("Sorting by Size");
 				Collections.sort(resources, new Comparator<Resource>() {
