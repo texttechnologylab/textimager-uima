@@ -66,6 +66,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Logger;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
+import org.dkpro.core.api.io.ProgressMeter;
 import org.dkpro.core.api.io.ResourceCollectionReaderBase;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.parameter.ComponentParameters;
@@ -314,6 +315,8 @@ extends ResourceCollectionReaderBase
 
 	private MappingProvider posMappingProvider;
 
+	private ProgressMeter progress;
+
 	@Override
 	public void initialize(UimaContext aContext)
 			throws ResourceInitializationException
@@ -329,6 +332,7 @@ extends ResourceCollectionReaderBase
 			initTeis();
 			currentResourceIterator = resourcesList.iterator();
 			System.out.println("found " + teisTotal + " teis to process");
+			progress = new ProgressMeter(teisTotal);
 
 			// Init with an empty iterator
 			teiElementIterator = asList(new Element[0]).iterator();
@@ -444,9 +448,10 @@ extends ResourceCollectionReaderBase
 
 				System.out.printf("Processing %d TEI elements in %s.%n", teiElements.size(),
 						currentResource.getLocation());
-
 				teiElementIterator = teiElements.iterator();
 				currentTeiElementNumber = 0;
+				
+
 			}
 			catch (DocumentException e) {
 				throw new IOException(e);
@@ -520,8 +525,9 @@ extends ResourceCollectionReaderBase
 		}
 
 		teisDone++;
+		progress.setDone(teisDone);
+		getLogger().info(String.format("%s: %s", progress, currentResource.getLocation()));
 
-		// Move currentTeiElement to the next text
 		nextTeiElement();
 	}
 

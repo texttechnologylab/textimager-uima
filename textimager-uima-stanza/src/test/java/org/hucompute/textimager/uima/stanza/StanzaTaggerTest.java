@@ -23,7 +23,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 public class StanzaTaggerTest {
 	@Test
 	public void simpleExample() throws UIMAException, SAXException, IOException{
-		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
+		JCas cas = JCasFactory.createText("Ich gehe zur Schule.");
 		cas.setDocumentLanguage("de");
 		
 		Token t1 = new Token(cas, 0, 3);
@@ -57,9 +57,9 @@ public class StanzaTaggerTest {
 		};
 
 		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
-		
-		assertArrayEquals(pos, casPos);
 		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
+
+		assertArrayEquals(pos, casPos);
 	}
 	
 //	@Test

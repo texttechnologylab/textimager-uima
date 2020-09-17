@@ -211,9 +211,6 @@
 		</profile>
 		<profile>
 			<id>mini-deploy</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<build>
 				<finalName>${project.artifactId}-${project.version}-mini-deploy</finalName>
 			</build>
