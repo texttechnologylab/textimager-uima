@@ -19,7 +19,7 @@
 //	@Test
 //	public void simpleExampleLa() throws UIMAException{
 //		JCas cas = JCasFactory.createText("Bill Gates is the head of Microsoft.");
-//		cas.setDocumentLanguage("de");
+//		cas.setDocumentLanguage("en");
 //		
 //		AnalysisEngineDescription transNer = createEngineDescription(NERTransformers.class
 //				,NERTransformers.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy");
