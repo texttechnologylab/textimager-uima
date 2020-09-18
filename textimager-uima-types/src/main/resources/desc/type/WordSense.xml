@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <name>WordSense</name>
+    <description/>
+    <version>1.0</version>
+  	<vendor>TextImager, Universität Frankfurt</vendor>
+  <imports>
+    <import name="desc.type.Semantics"/>
+  </imports>
+  <types>
+    <typeDescription>
+      <name>org.hucompute.textimager.uima.type.semantics.WordSense</name>
+      <description/>
+      <supertypeName>de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense</supertypeName>
+      <features>
+        <featureDescription>
+          <name>value</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>confidence</name>
+          <description/>
+          <rangeTypeName>uima.cas.Double</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+  </types>
+</typeSystemDescription>

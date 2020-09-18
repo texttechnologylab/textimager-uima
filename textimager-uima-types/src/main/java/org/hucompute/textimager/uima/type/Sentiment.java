@@ -11,8 +11,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Tue Jul 28 16:22:15 CEST 2020
- * XML source: /home/stud_homes/baumartz/dev/git/textimager-uima/textimager-uima-types/src/main/resources/desc/type/Sentiment.xml
+ * Updated by JCasGen Fri Sep 18 10:19:08 CEST 2020
+ * XML source: /home/ahemati/workspaceGitNew/textimager-uima/textimager-uima-types/src/main/resources/desc/type/Sentiment.xml
  * @generated */
 public class Sentiment extends Annotation {
   /** @generated

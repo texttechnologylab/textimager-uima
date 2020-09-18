@@ -311,7 +311,7 @@ extends CasCollectionReader_ImplBase
 						}
 					}
 				});
-			}
+			}			
 
 			progress = new ProgressMeter(resources.size());
 
