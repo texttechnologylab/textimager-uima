@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
-    <name>Sentiment</name>
+    <name>Summery</name>
     <description/>
     <version>1.0</version>
     <vendor>TextImager</vendor>
   <types>
     <typeDescription>
-      <name>org.hucompute.textimager.uima.type.Sentiment</name>
+      <name>org.hucompute.textimager.uima.type.Summary</name>
       <description/>
       <supertypeName>uima.tcas.Annotation</supertypeName>
       <features>
         <featureDescription>
-          <name>sentiment</name>
+          <name>summary</name>
           <description/>
-          <rangeTypeName>uima.cas.Double</rangeTypeName>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
-        <featureDescription>
-          <name>subjectivity</name>
-          <description/>
-          <rangeTypeName>uima.cas.Double</rangeTypeName>
-        </featureDescription>
-      </features>
+        </features>
     </typeDescription>
   </types>
 </typeSystemDescription>
