@@ -401,6 +401,14 @@ public class TreeReducer {
 		return subgraph(subset);
 	}
 	
+	public Graph<GraphVertex, GraphEdge> subgraphVerbs(List<String> verbs) {
+		HashSet<GraphVertex> leafs = new HashSet<GraphVertex>();
+		for (String verb : verbs) {
+			leafs.addAll(grouping.get(verb));
+		}
+		return subgraph(leafs);
+	}
+	
 	public static enum MARK {
 		PLAIN,
 		TOUCHED,
