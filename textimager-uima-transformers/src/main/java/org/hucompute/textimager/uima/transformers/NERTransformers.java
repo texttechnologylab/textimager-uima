@@ -66,11 +66,18 @@ public class NERTransformers extends BaseTransformers {
 			interp.set("words",json.get("words"));
 			interp.set("spaces",json.get("spaces"));
 			interp.set("text",aJCas.getDocumentText());
-
-			interp.exec("nlp = pipeline('ner')");
-			interp.exec("ents = nlp(text)");
 			
-			interp.exec("tokenizer = AutoTokenizer.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\", use_fast=True)");
+			if(aJCas.getDocumentLanguage().equals("de")) {
+				interp.exec("nlp = pipeline('ner',model='fhswf/bert_de_ner')");
+				interp.exec("tokenizer = AutoTokenizer.from_pretrained(\"fhswf/bert_de_ner\", use_fast=True)");
+			}
+			else {
+				interp.exec("nlp = pipeline('ner')");
+				interp.exec("tokenizer = AutoTokenizer.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\", use_fast=True)");
+			}
+			
+			
+			interp.exec("ents = nlp(text)");
 			interp.exec("tokens = tokenizer(text, return_offsets_mapping = True).get('offset_mapping')");
 			tokens = (ArrayList<ArrayList<Long>>) interp.getValue("tokens");			
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
