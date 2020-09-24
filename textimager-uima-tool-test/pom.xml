@@ -103,7 +103,7 @@
 			<artifactId>textimager-uima-HUComputeNER</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-<dependency>
+		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-heideltime</artifactId>
 			<version>${project.version}</version>
@@ -122,6 +122,11 @@
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-flair-ner</artifactId>
 			<version>0.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-transformers</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>

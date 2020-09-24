@@ -10,6 +10,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.resources.MappingProvider;
+import org.hucompute.textimager.uima.type.Sentiment;
 
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import jep.JepException;
@@ -40,10 +41,12 @@ public class SentAnaTransformers extends BaseTransformers {
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 			poss.forEach(p -> {
 				
-				String labelStr = p.get("label").toString();
+				String labelStr = p.get("score").toString();
+				double sent = Double.parseDouble(labelStr);
 				
-				NamedEntity neAnno = new NamedEntity(aJCas, 0, (aJCas.getDocumentText()).length());
-				neAnno.setValue(labelStr);
+				Sentiment neAnno = new Sentiment(aJCas, 0, (aJCas.getDocumentText()).length());
+				
+				neAnno.setSentiment(sent);
 				neAnno.addToIndexes();
 				
 				

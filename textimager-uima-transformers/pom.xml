@@ -24,5 +24,10 @@
 			<version>${project.version}</version>
 			<type>pom</type>
 		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-types</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>

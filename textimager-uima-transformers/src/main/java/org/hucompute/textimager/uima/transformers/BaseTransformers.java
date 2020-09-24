@@ -22,15 +22,15 @@ public abstract class BaseTransformers extends JepAnnotator {
 		
 		super.initialize(aContext);
 
-		System.out.println("initializing spacy base class...");
+		System.out.println("initializing transformers base class...");
 
 		// set defaults
 		// TODO schönerer Weg?
 		if (condaBashScript == null || condaBashScript.isEmpty()) {
-			condaBashScript = "spacy230_v2_setup.sh";
+			condaBashScript = "transformers310_setup.sh";
 		}
 		if (envDepsPip == null || envDepsPip.isEmpty()) {
-			envDepsPip = "spacy==2.3.0 textblob==0.15.3 textblob-de==0.4.3";
+			envDepsPip = "transformers==3.1.0 ";
 		}
 		if (envDepsConda == null || envDepsConda.isEmpty()) {
 			envDepsConda = "";
@@ -39,28 +39,28 @@ public abstract class BaseTransformers extends JepAnnotator {
 			envPythonVersion = "3.7";
 		}
 		if (envName == null || envName.isEmpty()) {
-			envName = "textimager_spacy230_py37_v6";
+			envName = "textimager_transformers310_py37";
 		}
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			condaVersion = "py37_4.8.3";
 		}
 		
-		System.out.println("initializing spacy base class: conda");
+		System.out.println("initializing transformers base class: conda");
 		
 		initConda();
 		
-		System.out.println("initializing spacy base class: interprter extras...");
+		System.out.println("initializing transformers base class: interprter extras...");
 		
 		try {
 			interpreter.exec("import os");
 			interpreter.exec("import sys");
-			interpreter.exec("import spacy"); 
+			interpreter.exec("from tranformers import pipeline, AutoTokenizer"); 
 			interpreter.exec("from java.lang import System");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
 		
-		System.out.println("initializing spacy base class done");
+		System.out.println("initializing transformers base class done");
 
 	}
 
