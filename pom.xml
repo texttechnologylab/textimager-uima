@@ -23,6 +23,8 @@
 
 	<properties>
 		<dkpro.core.version>1.12.0</dkpro.core.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<repositories>
@@ -105,7 +107,6 @@
 		
 		<module>textimager-uima-database</module>
 		<module>textimager-uima-io-mediawiki</module>
-		<module>textimager-uima-tool-test</module>
 		<module>textimager-uima-util</module>
 		<module>textimager-uima-stanza</module>
 		<module>textimager-uima-io-embeddings</module>
