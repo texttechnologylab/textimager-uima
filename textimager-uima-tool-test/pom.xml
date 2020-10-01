@@ -118,11 +118,13 @@
 			<artifactId>textimager-uima-biofid-gazetteer</artifactId>
 			<version>0.3.0</version>
 		</dependency>
-		<dependency>
+		
+		<!-- <dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-flair-ner</artifactId>
 			<version>0.3.0</version>
-		</dependency>
+		</dependency>-->
+		
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-transformers</artifactId>

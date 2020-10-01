@@ -50,7 +50,8 @@ public class SimpleBHLTest {
 				TagMeAPIAnnotator.PARAM_RHO,0.01f));
 		builder.add(createEngineDescription(WikidataHyponyms.class));
 		builder.add(createEngineDescription(BIOfidTreeGazetteer.class));
-		builder.add(createEngineDescription(FlairNERBiofid.class));
+		builder.add(createEngineDescription(FlairNERBiofid.class)); //Fehler in Flair Projekt hat dazu geführt dass das gesamte Tool-Test Projekt nicht mehr 
+																	// ausführbar war. Habe Flair aus der Pom.xml ausgeklammert.
 		
 		builder.add(createEngineDescription(HUComputeNER.class,HUComputeNER.PARAM_CLASS_MAP,"/resources/nlp/models/ner/hucomputeNer/classmap"));
 		builder.add(createEngineDescription(XmiWriter.class, XmiWriter.PARAM_TARGET_LOCATION,"bhl",XmiWriter.PARAM_OVERWRITE,true));

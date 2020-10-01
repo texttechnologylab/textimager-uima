@@ -28,7 +28,7 @@ public class SimpleTestSpacy {
 		
 //		builder.add(createEngineDescription(SpaCyTokenizer.class,SpaCyTokenizer.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/spacy"));
 //		builder.add(createEngineDescription(StanzaTagger.class,StanzaTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/stanza"));
-//		builder.add(createEngineDescription(SpaCyMultiTagger.class,SpaCyMultiTagger.PARAM_PYTHON_HOME,"C:\\Users\\makra\\AppData\\Local\\Programs\\Python\\Python38"));
+		builder.add(createEngineDescription(SpaCyMultiTagger.class));
 		
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
