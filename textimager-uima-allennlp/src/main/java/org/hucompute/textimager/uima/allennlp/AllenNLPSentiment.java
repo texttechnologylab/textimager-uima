@@ -6,6 +6,7 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+//import org.hucompute.textimager.uima.type.Sentiment;
 
 import jep.JepException;
 
@@ -41,6 +42,9 @@ public class AllenNLPSentiment extends AllenNLPBase {
 			interp.exec("probs = predicted.get('probs')");
 			double positive = (double)interp.getValue("probs[0]");
 			double negative = (double)interp.getValue("probs[1]");
+//			Sentiment sent = new Sentiment(aJCas, 0, (aJCas.getDocumentText()).length());
+//			sent.setSentiment(positive);
+//			sent.addToIndexes();
 		} catch (JepException e) {
 			e.printStackTrace();
 		}
