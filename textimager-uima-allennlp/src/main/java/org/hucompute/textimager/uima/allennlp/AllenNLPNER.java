@@ -67,7 +67,7 @@ public class AllenNLPNER extends AllenNLPBase {
 				interp.exec("end_list.append(begin)");
 				interp.exec("begin += 1");
 			}
-			interp.exec("token_list = [{'words':words[i], 'tags':tags[i], 'begin':begin_list[i], 'end': end_list[i]} for i in range(len(words))]");
+			interp.exec("token_list = [{'words':words[i], 'tags':tags[i][2:], 'begin':begin_list[i], 'end': end_list[i]} for i in range(len(words))]");
 			ArrayList<HashMap<String, Object>> tokenList = (ArrayList<HashMap<String, Object>>) interp.getValue("token_list");
 			tokenList.forEach(token -> {
 				String type = (String)token.get("tags");
