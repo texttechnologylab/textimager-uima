@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.hucompute.textimager.uima</groupId>
         <artifactId>textimager-uima</artifactId>
-        <version>0.2.1</version>
+        <version>0.2.6</version>
     </parent>
 
     <artifactId>textimager-uima-biofid-gazetteer</artifactId>

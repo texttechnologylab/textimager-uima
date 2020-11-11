@@ -43,6 +43,10 @@ public class SpaCyMultiTagger extends SpaCyBase {
 	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
 	protected String posMappingLocation;
 
+	public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = "nerMappingLocation";
+	@ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
+	protected String nerMappingLocation;
+	
 	/**
 	 * Overwrite model variant?
 	 */
@@ -58,6 +62,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 	protected long maxTextLength;
 
 	private MappingProvider mappingProvider;
+	private MappingProvider mappingProviderNer;
 
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
@@ -98,7 +103,15 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			}
 		});
 		
-		// add pos refs to tokens
+		mappingProviderNer = new MappingProvider();
+		mappingProviderNer.setDefaultVariantsLocation("org/hucompute/textimager/uima/spacy/lib/ner-default-variants.map");
+		mappingProviderNer.setDefault(MappingProvider.LOCATION, "classpath:/org/hucompute/textimager/uima/spacy/lib/ner-${language}-${variant}.map");
+		mappingProviderNer.setDefault(MappingProvider.BASE_TYPE, NamedEntity.class.getName());
+		mappingProviderNer.setOverride(MappingProvider.LOCATION, nerMappingLocation);
+		mappingProviderNer.setOverride(MappingProvider.LANGUAGE, language);
+		mappingProviderNer.setOverride(MappingProvider.VARIANT, variant);
+
+    // add pos refs to tokens
 		Map<POS, Collection<Token>> posTokenMap = JCasUtil.indexCovering(aJCas, POS.class, Token.class);
 		for (Map.Entry<POS, Collection<Token>> entry : posTokenMap.entrySet()) {
 			POS posAnno = entry.getKey();

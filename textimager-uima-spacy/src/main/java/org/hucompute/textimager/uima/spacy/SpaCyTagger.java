@@ -36,6 +36,7 @@ public class SpaCyTagger extends SpaCyBase {
 	/**
 	 * Overwrite POS mapping location?
 	 */
+	
 	public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
 	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
 	protected String posMappingLocation;
@@ -43,6 +44,7 @@ public class SpaCyTagger extends SpaCyBase {
 	/**
 	 * Overwrite model variant?
 	 */
+	
 	public static final String PARAM_VARIANT = "variant";
 	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
 	protected String variant;
@@ -55,6 +57,7 @@ public class SpaCyTagger extends SpaCyBase {
 
 		/*// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
 		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
+		
 		try {
 			interp.exec("from spacy.tokens import Doc");
 		} catch (JepException e) {

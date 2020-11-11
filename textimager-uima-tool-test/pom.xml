@@ -37,7 +37,17 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-transformers</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-stanza</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-allennlp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
