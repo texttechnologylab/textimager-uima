@@ -10,6 +10,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.resources.MappingProvider;
+<<<<<<< HEAD
 import org.hucompute.textimager.uima.type.Summary;
 
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
@@ -44,6 +45,41 @@ public class TextSumTransformers extends BaseTransformers {
 				
 				Summary neAnno = new Summary(aJCas, 0, (aJCas.getDocumentText()).length());
 				neAnno.setSummary(labelStr);
+=======
+
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import jep.JepException;
+
+public class TextSumTransformers extends BaseTransformers {
+
+	public void initialize(UimaContext aContext) throws ResourceInitializationException {
+		super.initialize(aContext);
+
+	}
+	
+
+	@Override
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
+		//		super.process(aJCas);
+		HashMap<String, Object>  json = buildJSON(aJCas);
+
+		try {
+			interp.set("lang", aJCas.getDocumentLanguage());
+			interp.set("words",json.get("words"));
+			interp.set("spaces",json.get("spaces"));
+			interp.set("text",aJCas.getDocumentText());
+
+			interp.exec("nlp = pipeline('summarization')");
+			interp.exec("textsum = nlp(text)");
+
+			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("textsum");
+			poss.forEach(p -> {
+				
+				String labelStr = p.get("summary_text").toString();
+				
+				NamedEntity neAnno = new NamedEntity(aJCas, 0, (aJCas.getDocumentText()).length());
+				neAnno.setValue(labelStr);
+>>>>>>> refs/remotes/origin/master
 				neAnno.addToIndexes();
 				
 				

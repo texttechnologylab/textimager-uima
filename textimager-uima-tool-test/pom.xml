@@ -41,6 +41,11 @@
 			<artifactId>textimager-uima-spacy</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hucompute.textimager.uima</groupId> -->
+<!-- 			<artifactId>textimager-uima-transformers</artifactId> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-stanza</artifactId>
@@ -56,6 +61,11 @@
 			<artifactId>textimager-uima-textblob</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hucompute.textimager.uima</groupId> -->
+<!-- 			<artifactId>textimager-uima-allennlp</artifactId> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-util</artifactId>
@@ -125,10 +135,10 @@
 			<version>0.3.0</version>
 		</dependency>-->
 		
-		<dependency>
-			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-transformers</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hucompute.textimager.uima</groupId> -->
+<!-- 			<artifactId>textimager-uima-transformers</artifactId> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 	</dependencies>
 </project>

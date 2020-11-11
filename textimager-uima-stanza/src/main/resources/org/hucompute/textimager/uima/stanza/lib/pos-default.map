@@ -1,0 +1,55 @@
+# Refer to https://dkpro.github.io/dkpro-core/releases/1.12.0/docs/typesystem-reference.html#type-de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.ADJ
+# Catch-all rule
+*=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_X
+# ADJ: adjective
+ADJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADJ
+# ADP: adposition
+ADP=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADP
+# ADV: adverb
+ADV=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADV
+# AUX: auxiliary
+AUX=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_AUX
+# CCONJ: coordinating conjunction
+CCONJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_CONJ
+# DET: determiner
+DET=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_DET
+# INTJ: interjection
+INTJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_INTJ
+# NOUN: noun
+NOUN=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_NOUN
+# NUM: numeral
+NUM=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_NUM
+# PART: particle
+PART=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PART
+# PRON: pronoun
+PRON=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PRON
+# PROPN: proper noun
+PROPN=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PROPN
+# PUNCT: punctuation
+PUNCT=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PUNCT
+# SCONJ: subordinating conjunction
+SCONJ=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_SCONJ
+# SYM: symbol
+SYM=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_SYM
+# VERB: verb
+VERB=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB
+# X: other
+X=de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_X
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
