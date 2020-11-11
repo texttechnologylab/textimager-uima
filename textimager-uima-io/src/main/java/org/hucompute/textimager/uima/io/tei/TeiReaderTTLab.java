@@ -64,11 +64,14 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Logger;
+import org.apache.uima.util.Progress;
+import org.apache.uima.util.ProgressImpl;
 import org.dkpro.core.api.io.ResourceCollectionReaderBase;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.parameter.ComponentParameters;
 import org.dkpro.core.api.parameter.MimeTypes;
 import org.dkpro.core.api.resources.MappingProvider;
+import org.dkpro.core.io.tei.internal.TeiConstants;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -300,8 +303,14 @@ public class TeiReaderTTLab
     
     private Iterator<Element> teiElementIterator;
     private Element currentTeiElement;
-    private Resource currentResource;
     private int currentTeiElementNumber;
+    
+    private List<Resource> resourcesList;
+    private Iterator<Resource> currentResourceIterator;
+    private Resource currentResource;
+    
+    private int teisDone;
+    private int teisTotal;
 
     private MappingProvider posMappingProvider;
 
@@ -310,25 +319,90 @@ public class TeiReaderTTLab
         throws ResourceInitializationException
     {
         super.initialize(aContext);
+        
+        resourcesList = new ArrayList<>();
+        teisDone = 0;
+        teisTotal = 0;
+
+        try {
+	    	System.out.println("counting TEI elements in files, this can take a while...");
+	    	initTeis();
+	        currentResourceIterator = resourcesList.iterator();
+	        System.out.println("found " + teisTotal + " teis to process");
+	    	
+	    	// Init with an empty iterator
+	    	teiElementIterator = asList(new Element[0]).iterator();
+	    	
+	    	// Make sure we know about the first element;
+	    	nextTeiElement();
+
+        }
+        catch (CollectionException | IOException e) {
+            throw new ResourceInitializationException(e);
+        }
+        
 
         if (readPOS && !readToken) {
             throw new ResourceInitializationException(new IllegalArgumentException(
                     "Setting readPOS to 'true' requires writeToken to be 'true' too."));
         }
-
-        try {
-            // Init with an empty iterator
-            teiElementIterator = asList(new Element[0]).iterator();
-
-            // Make sure we know about the first element;
-            nextTeiElement();
-        }
-        catch (CollectionException | IOException e) {
-            throw new ResourceInitializationException(e);
-        }
-
+        
         posMappingProvider = createPosMappingProvider(this, mappingPosLocation, posTagset,
                 getLanguage());
+    }
+    
+    @Override
+    public Progress[] getProgress()
+    {
+        return new Progress[] { new ProgressImpl(teisDone, teisTotal, "TEIs", true) };
+    }
+    
+    private void initTeis() throws IOException, CollectionException {
+    	while (super.hasNext()) {
+            Resource res = nextFile();
+            resourcesList.add(res);
+
+            InputStream is = null;
+            try {
+                is = res.getInputStream();
+
+                if (res.getPath().endsWith(".gz")) {
+                    is = new GZIPInputStream(is);
+                }
+
+                InputSource source = new InputSource(is);
+                source.setPublicId(res.getLocation());
+                source.setSystemId(res.getLocation());
+
+                SAXReader reader = new SAXReader();
+                Document xml = reader.read(source);
+
+                // select TEIs, use namespace
+                final XPath teiPath = new Dom4jXPath("//teins:TEI");
+                teiPath.addNamespace("teins", TeiConstants.TEI_NS);
+
+                List<Element> teiElements = teiPath.selectNodes(xml);
+                
+                if (teiElements.isEmpty()) {
+                	// No TEIs found, try without namespace...
+                	final XPath teiPathNoNS = new Dom4jXPath("//TEI");
+                    teiElements = teiPathNoNS.selectNodes(xml);
+                }
+
+                System.out.printf("Found %d TEI elements in %s.%n", teiElements.size(), res.getLocation());
+                
+                teisTotal += teiElements.size();
+            }
+            catch (DocumentException e) {
+                throw new IOException(e);
+            }
+            catch (JaxenException e) {
+                throw new IOException(e);
+            }
+            finally {
+                closeQuietly(is);
+            }
+        }
     }
 
     private void nextTeiElement() throws CollectionException, IOException
@@ -338,8 +412,8 @@ public class TeiReaderTTLab
             return;
         }
 
-        while (!teiElementIterator.hasNext() && super.hasNext()) {
-            currentResource = nextFile();
+        while (!teiElementIterator.hasNext() && currentResourceIterator.hasNext()) {
+            currentResource = currentResourceIterator.next();
 
             InputStream is = null;
             try {
@@ -356,13 +430,20 @@ public class TeiReaderTTLab
                 SAXReader reader = new SAXReader();
                 Document xml = reader.read(source);
 
-                final XPath teiPath = new Dom4jXPath("//TEI");
-//                teiPath.addNamespace("tei", "http://www.tei-c.org/ns/1.0");
+                // select TEIs, use namespace
+                final XPath teiPath = new Dom4jXPath("//teins:TEI");
+                teiPath.addNamespace("teins", TeiConstants.TEI_NS);
 
                 List<Element> teiElements = teiPath.selectNodes(xml);
+                
+                if (teiElements.isEmpty()) {
+                	// No TEIs found, try without namespace...
+                	final XPath teiPathNoNS = new Dom4jXPath("//TEI");
+                    teiElements = teiPathNoNS.selectNodes(xml);
+                }
 
-//                System.out.printf("Found %d TEI elements in %s.%n", teiElements.size(),
-//                        currentResource.getLocation());
+                System.out.printf("Processing %d TEI elements in %s.%n", teiElements.size(),
+                        currentResource.getLocation());
 
                 teiElementIterator = teiElements.iterator();
                 currentTeiElementNumber = 0;
@@ -381,7 +462,7 @@ public class TeiReaderTTLab
         currentTeiElement = teiElementIterator.hasNext() ? teiElementIterator.next() : null;
         currentTeiElementNumber++;
 
-        if (!super.hasNext() && !teiElementIterator.hasNext()) {
+        if (!currentResourceIterator.hasNext() && !teiElementIterator.hasNext()) {
             // Mark end of processing.
             teiElementIterator = null;
         }
@@ -437,7 +518,9 @@ public class TeiReaderTTLab
         finally {
             closeQuietly(is);
         }
-
+        
+        teisDone++;
+        
         // Move currentTeiElement to the next text
         nextTeiElement();
     }
@@ -478,6 +561,7 @@ public class TeiReaderTTLab
         extends Handler
     {
         private String documentId = null;
+        private boolean documentIdSet= false;
         private boolean titleSet = false;
         private boolean inTextElement = false;
         private boolean captureText = false;
@@ -494,6 +578,8 @@ public class TeiReaderTTLab
         private Stack<NamedEntity> namedEntities = new Stack<>();
         
         private final StringBuilder buffer = new StringBuilder();
+        
+        private String titleType = null;
 
         @Override
         public void endDocument()
@@ -528,10 +614,11 @@ public class TeiReaderTTLab
             else if (!inTextElement && "idno".equals(aName)) {
                 captureText = true;
                 idnoStart = getBuffer().length();
-                idnoType = aAttributes.getValue("type");
+                idnoType = aAttributes.getValue(ATTR_TYPE);
             }
             else if (!inTextElement && TAG_TITLE.equals(aName)) {
                 captureText = true;
+                titleType = aAttributes.getValue(ATTR_TYPE);
             }
             else if (TAG_TEXT.equals(aName)) {
                 captureText = true;
@@ -584,13 +671,48 @@ public class TeiReaderTTLab
             if (!inTextElement && TAG_TITLE.equals(aName)) {
                 DocumentMetaData meta = DocumentMetaData.get(getJCas());
                 // Read only the first title and hope it is the main title
-                if (!titleSet) {
-                    meta.setDocumentTitle(getBuffer().toString().trim());
-                    titleSet = true;
+                // only if not empty
+                String titleTemp = getBuffer().toString().trim();
+                if (!titleTemp.isEmpty()) {
+	                if (!titleSet) {
+	                	meta.setDocumentTitle(titleTemp);
+	                	titleSet = true;
+	                }
+	                
+                	// add more titles as metadata
+                	MetaDataStringField metaData = new MetaDataStringField(getJCas());
+                	metaData.setKey("title" + ((titleType != null && !titleType.isEmpty()) ? ("_" + titleType) : ""));
+                	metaData.setValue(titleTemp);
+                	metaData.addToIndexes();
                 }
-                meta.setDocumentId(documentId);
+
+                if (!documentIdSet) {
+                    documentIdSet = true;
+                    // change document uri to include subdir index of tei element
+                    // this prevents the io writer from overwriting the file even if useDocumentId is set to false
+
+                    // base file: filename of document
+                    String baseFile = meta.getDocumentUri().substring(meta.getDocumentBaseUri().length());
+
+                    // base uri: path to base folder
+                    String baseUri = meta.getDocumentBaseUri();
+                    if (!baseUri.endsWith("/")) {
+                        baseUri += "/";
+                    }
+
+                    // append basefile as subdir
+                    String documentUri = baseUri + baseFile + "/" + documentId;
+
+                    // set meta
+                    meta.setDocumentBaseUri(baseUri);
+                    meta.setCollectionId(baseUri);
+                    meta.setDocumentUri(documentUri);
+                    meta.setDocumentId(documentId);
+                }
+
                 getBuffer().setLength(0);
                 captureText = false;
+                titleType = null;
             }
             else if ("idno".equals(aName)){
             	MetaDataStringField metaData = new MetaDataStringField(getJCas());

@@ -19,18 +19,19 @@ import com.mongodb.ServerAddress;
 public class MongoConnection {
 
 	final public String host, dbName, collectionName,user,pw;
+	final public String authSource;
 //	final public Mongo m;
 	final public DB db;
 	final public DBCollection coll;
 
 	/**
 	 * @param db_connection
-	 *            an array {host, dbName, collectionName, user, pw}. Leave user
-	 *            and pw empty ("") to skip authentication
+	 *            an array {host, dbName, collectionName, user, pw [, authSource]}. Leave user
+	 *            and pw empty ("") to skip authentication. Leave authSource empty for default
 	 */
 	public MongoConnection(String[] db_connection) throws UnknownHostException,
 			MongoException {
-		this(db_connection[0],db_connection[1],db_connection[2],db_connection[3],db_connection[4], true);
+		this(db_connection[0],db_connection[1],db_connection[2],db_connection[3],db_connection[4], true, (db_connection.length == 6 ? db_connection[5] : ""));
 	}
 
 	/**
@@ -39,7 +40,7 @@ public class MongoConnection {
 	 *            and pw empty ("") to skip authentication
 	 */
 	@SuppressWarnings("deprecation") // TODO replace with MongoClient
-    public MongoConnection(String host,String dbName,String collectionName,String user,String pw, boolean safe)
+    public MongoConnection(String host,String dbName,String collectionName,String user,String pw, boolean safe, String authSource)
 			throws UnknownHostException, MongoException {
 
 
@@ -48,6 +49,7 @@ public class MongoConnection {
 		this.collectionName = collectionName;
 		this.user = user;
 		this.pw = pw;
+		this.authSource = authSource;
 
 //		checkNotNull(host, "host is NULL");
 //		checkNotNull(dbName, "dbName is NULL");
@@ -71,7 +73,7 @@ public class MongoConnection {
 //			m.getDatabaseNames();// to test connection
 //			db = m.getDB(dbName);
 			MongoCredential credential = MongoCredential.createScramSha1Credential(user,
-					"admin",
+					(this.authSource.isEmpty() ? "admin" : this.authSource),
 					pw.toCharArray());
 			
 			System.out.println(credential);

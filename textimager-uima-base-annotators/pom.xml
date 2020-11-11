@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.hucompute.textimager.uima</groupId>
 		<artifactId>textimager-uima</artifactId>
-		<version>0.2.6</version>
+		<version>0.3.0</version>
 	</parent>
 	<artifactId>textimager-uima-base-annotators</artifactId>
 
@@ -12,6 +12,11 @@
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-types</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-util</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

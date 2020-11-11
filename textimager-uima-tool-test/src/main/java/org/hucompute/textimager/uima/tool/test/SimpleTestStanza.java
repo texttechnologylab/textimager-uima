@@ -28,6 +28,8 @@ public class SimpleTestStanza {
 			StanzaTagger.PARAM_NER_MAPPING_LOCATION,"classpath:org/hucompute/textimager/uima/stanza/lib/ner-default.map"
 			//,StanzaTagger.PARAM_MODEL_LOCATION,"classpath:org/hucompute/textimager/uima/stanza/lib/tagger-default.model"
 			));
+		builder.add(createEngineDescription(StanzaTagger.class));
+		
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 	
 		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));

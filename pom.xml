@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.hucompute.textimager.uima</groupId>
 	<artifactId>textimager-uima</artifactId>
-	<version>0.2.6</version>
+	<version>0.3.0</version>
 	<name>TextImager UIMA</name>
 	<build>
 		<plugins>
@@ -111,5 +111,7 @@
 		<module>textimager-uima-stanza</module>
 		<module>textimager-uima-io-embeddings</module>
 		<module>textimager-uima-allennlp</module>
+ 		<module>textimager-uima-flair-ner</module>
+		<module>textimager-uima-textblob</module>
 	</modules>
 </project>

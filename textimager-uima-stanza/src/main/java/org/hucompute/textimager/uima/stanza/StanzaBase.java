@@ -6,29 +6,35 @@ import org.hucompute.textimager.uima.base.JepAnnotator;
 
 import jep.JepException;
 import jep.SharedInterpreter;
+import jep.SubInterpreter;
 
 public abstract class StanzaBase extends JepAnnotator {
-	protected SharedInterpreter interp ;
 
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		if(interp == null)
-			interp =setUpInter(pythonHome, interp);
+		// set defaults
+		// TODO schönerer Weg?
+		if (envDepsPip == null || envDepsPip.isEmpty()) {
+			envDepsPip = "stanza==1.0.1";
+		}
+		if (envDepsConda == null || envDepsConda.isEmpty()) {
+			envDepsConda = "";
+		}
+		if (envPythonVersion == null || envPythonVersion.isEmpty()) {
+			envPythonVersion = "3.7";
+		}
+		if (envName == null || envName.isEmpty()) {
+			envName = "textimager_stanza101_py37";
+		}
+
+		initConda();
+
 		try {
-			interp.exec("import stanza");
+			interpreter.exec("import stanza");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
 	}
-	
-	@Override
-	public void destroy() {
-		try {
-			interp.close();
-		} catch (JepException e) {
-			e.printStackTrace();
-		}
-		super.destroy();
-	}
+
 }

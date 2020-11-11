@@ -13,13 +13,11 @@ import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 
 public class StanzaTaggerTest {
 	@Test
-	public void simpleExampleLa() throws UIMAException{
+	public void simpleExample() throws UIMAException{
 		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
 		cas.setDocumentLanguage("de");
 		
@@ -42,8 +40,7 @@ public class StanzaTaggerTest {
 		Token t9 = new Token(cas, 39, 40);
 		t9.addToIndexes();
 		
-		AnalysisEngineDescription stanzaTagger = createEngineDescription(StanzaTagger.class
-				,StanzaTagger.PARAM_PYTHON_HOME,"/home/ahemati/miniconda3/envs/stanza");
+		AnalysisEngineDescription stanzaTagger = createEngineDescription(StanzaTagger.class);
 		
 		SimplePipeline.runPipeline(cas, stanzaTagger);
 		
@@ -55,6 +52,7 @@ public class StanzaTaggerTest {
 		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 		
 		assertArrayEquals(pos, casPos);
+		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
 	}
 	
 //	@Test
