@@ -20,7 +20,13 @@
 	</repositories>
 
 	<dependencies>
-	<dependency>
+
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-tagme</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-io</artifactId>
 			<version>${project.version}</version>
@@ -35,11 +41,11 @@
 			<artifactId>textimager-uima-spacy</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-transformers</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hucompute.textimager.uima</groupId> -->
+<!-- 			<artifactId>textimager-uima-transformers</artifactId> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-stanza</artifactId>
@@ -47,9 +53,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-allennlp</artifactId>
+			<artifactId>textimager-uima-fasttext</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-textblob</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hucompute.textimager.uima</groupId> -->
+<!-- 			<artifactId>textimager-uima-allennlp</artifactId> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-util</artifactId>
@@ -81,26 +97,48 @@
 			<artifactId>dkpro-core-matetools-gpl</artifactId>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.dkpro.core/dkpro-core-udpipe-asl -->
-<dependency>
-    <groupId>org.dkpro.core</groupId>
-    <artifactId>dkpro-core-udpipe-asl</artifactId>
-    <version>2.1.0</version>
-</dependency>
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-udpipe-asl</artifactId>
+			<version>2.1.0</version>
+		</dependency>
 
-<!--       <dependency>
-        <groupId>org.dkpro.core</groupId>
-        <artifactId>dkpro-core-udpipe-model-segmenter-en-ud</artifactId>
-        <version>20160523.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.dkpro.core</groupId>
-        <artifactId>dkpro-core-udpipe-model-tagger-en-ud</artifactId>
-        <version>20160523.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.dkpro.core</groupId>
-        <artifactId>dkpro-core-udpipe-model-parser-en-ud</artifactId>
-        <version>20160523.1</version>
-      </dependency> -->
+		<!-- <dependency> <groupId>org.dkpro.core</groupId> <artifactId>dkpro-core-udpipe-model-segmenter-en-ud</artifactId> 
+			<version>20160523.1</version> </dependency> <dependency> <groupId>org.dkpro.core</groupId> 
+			<artifactId>dkpro-core-udpipe-model-tagger-en-ud</artifactId> <version>20160523.1</version> 
+			</dependency> <dependency> <groupId>org.dkpro.core</groupId> <artifactId>dkpro-core-udpipe-model-parser-en-ud</artifactId> 
+			<version>20160523.1</version> </dependency> -->
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-HUComputeNER</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-heideltime</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-wiki</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-biofid-gazetteer</artifactId>
+			<version>0.3.0</version>
+		</dependency>
+		
+		<!-- <dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-flair-ner</artifactId>
+			<version>0.3.0</version>
+		</dependency>-->
+		
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hucompute.textimager.uima</groupId> -->
+<!-- 			<artifactId>textimager-uima-transformers</artifactId> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 	</dependencies>
 </project>

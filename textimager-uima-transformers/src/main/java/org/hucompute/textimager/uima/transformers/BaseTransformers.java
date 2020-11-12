@@ -21,18 +21,45 @@ public abstract class BaseTransformers extends JepAnnotator {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		
 		super.initialize(aContext);
-		if(interp == null)
-			interp =setUpInter(pythonHome, interp);
+		System.out.println("initializing transformers base class...");
 
+		// set defaults
+		// TODO schönerer Weg?
+		if (condaBashScript == null || condaBashScript.isEmpty()) {
+			condaBashScript = "transformers310_setup.sh";
+		}
+		if (envDepsPip == null || envDepsPip.isEmpty()) {
+			envDepsPip = "transformers==3.1.0 ";
+		}
+		if (envDepsConda == null || envDepsConda.isEmpty()) {
+			envDepsConda = "";
+		}
+		if (envPythonVersion == null || envPythonVersion.isEmpty()) {
+			envPythonVersion = "3.7";
+		}
+		if (envName == null || envName.isEmpty()) {
+			envName = "textimager_transformers310_py37";
+		}
+		if (condaVersion == null || condaVersion.isEmpty()) {
+			condaVersion = "py37_4.8.3";
+		}
+		
+		System.out.println("initializing transformers base class: conda");
+		
+		initConda();
+		
+		System.out.println("initializing transformers base class: interprter extras...");
+		
 		try {
-			interp.exec("import os");
-			interp.exec("import sys");
-			interp.exec("from transformers import pipeline, AutoTokenizer"); 
-			interp.exec("from java.lang import System");
-
+			interpreter.exec("import os");
+			interpreter.exec("import sys");
+			interpreter.exec("from tranformers import pipeline, AutoTokenizer"); 
+			interpreter.exec("from java.lang import System");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
+		
+		System.out.println("initializing transformers base class done");
 
 	}
 

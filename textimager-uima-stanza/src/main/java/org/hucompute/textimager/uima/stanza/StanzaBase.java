@@ -5,8 +5,6 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.JepAnnotator;
 
 import jep.JepException;
-import jep.SharedInterpreter;
-import jep.SubInterpreter;
 
 public abstract class StanzaBase extends JepAnnotator {
 
@@ -15,17 +13,20 @@ public abstract class StanzaBase extends JepAnnotator {
 		super.initialize(aContext);
 		// set defaults
 		// TODO schönerer Weg?
+		if (condaBashScript == null || condaBashScript.isEmpty()) {
+			condaBashScript = "stanza101_v1_setup.sh";
+		}
 		if (envDepsPip == null || envDepsPip.isEmpty()) {
-			envDepsPip = "stanza==1.0.1";
+			envDepsPip = "stanza==1.1.1";
 		}
 		if (envDepsConda == null || envDepsConda.isEmpty()) {
 			envDepsConda = "";
 		}
 		if (envPythonVersion == null || envPythonVersion.isEmpty()) {
-			envPythonVersion = "3.7";
+			envPythonVersion = "3.8";
 		}
 		if (envName == null || envName.isEmpty()) {
-			envName = "textimager_stanza101_py37";
+			envName = "textimager_stanza111_py38";
 		}
 
 		initConda();

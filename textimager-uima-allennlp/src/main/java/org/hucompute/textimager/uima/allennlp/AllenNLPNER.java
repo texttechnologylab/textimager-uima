@@ -37,7 +37,7 @@ public class AllenNLPNER extends AllenNLPBase {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		try {
-			interp.exec("predictor = Predictor.from_path('https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz')");			
+			interpreter.exec("predictor = Predictor.from_path('https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz')");			
 		}
 		catch (JepException e) {
 			e.printStackTrace();
@@ -52,23 +52,23 @@ public class AllenNLPNER extends AllenNLPBase {
 		try {
 			final Object lang = aJCas.getDocumentLanguage();
 			final Object text = aJCas.getDocumentText();
-			interp.set("lang", lang);
-			interp.set("text", text);
-			interp.exec("predicted = predictor.predict(sentence=text)");
-			interp.exec("words = predicted.get('words')");
-			interp.exec("tags = predicted.get('tags')");
-			interp.exec("begin = 0");
-			interp.exec("begin_list = []");
-			interp.exec("end_list = []");
-			for(int i = 0; i < toIntExact((long)interp.getValue("len(words)")); i++) {
-				interp.set("i", i);
-				interp.exec("begin_list.append(begin)");
-				interp.exec("begin += len(words[i])");
-				interp.exec("end_list.append(begin)");
-				interp.exec("begin += 1");
+			interpreter.set("lang", lang);
+			interpreter.set("text", text);
+			interpreter.exec("predicted = predictor.predict(sentence=text)");
+			interpreter.exec("words = predicted.get('words')");
+			interpreter.exec("tags = predicted.get('tags')");
+			interpreter.exec("begin = 0");
+			interpreter.exec("begin_list = []");
+			interpreter.exec("end_list = []");
+			for(int i = 0; i < toIntExact((long)interpreter.getValue("len(words)")); i++) {
+				interpreter.set("i", i);
+				interpreter.exec("begin_list.append(begin)");
+				interpreter.exec("begin += len(words[i])");
+				interpreter.exec("end_list.append(begin)");
+				interpreter.exec("begin += 1");
 			}
-			interp.exec("token_list = [{'words':words[i], 'tags':tags[i][2:], 'begin':begin_list[i], 'end': end_list[i]} for i in range(len(words))]");
-			ArrayList<HashMap<String, Object>> tokenList = (ArrayList<HashMap<String, Object>>) interp.getValue("token_list");
+			interpreter.exec("token_list = [{'words':words[i], 'tags':tags[i][2:], 'begin':begin_list[i], 'end': end_list[i]} for i in range(len(words))]");
+			ArrayList<HashMap<String, Object>> tokenList = (ArrayList<HashMap<String, Object>>) interpreter.getValue("token_list");
 			tokenList.forEach(token -> {
 				String type = (String)token.get("tags");
 				int begin = toIntExact((long)token.get("begin"));

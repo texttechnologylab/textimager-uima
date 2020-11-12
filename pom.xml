@@ -110,8 +110,9 @@
 		<module>textimager-uima-util</module>
 		<module>textimager-uima-stanza</module>
 		<module>textimager-uima-io-embeddings</module>
-		<module>textimager-uima-allennlp</module>
- 		<module>textimager-uima-flair-ner</module>
+<!-- 		<module>textimager-uima-allennlp</module> -->
+<!--  		<module>textimager-uima-flair-ner</module> -->
 		<module>textimager-uima-textblob</module>
+<!-- 		<module>textimager-uima-transformers</module> -->
 	</modules>
 </project>

@@ -66,6 +66,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Logger;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
+import org.dkpro.core.api.io.ProgressMeter;
 import org.dkpro.core.api.io.ResourceCollectionReaderBase;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.parameter.ComponentParameters;
@@ -173,701 +174,708 @@ import eu.openminted.share.annotations.api.DocumentationResource;
 @DocumentationResource("${docbase}/format-reference.html#format-${command}")
 @MimeTypeCapability({MimeTypes.APPLICATION_TEI_XML})
 @TypeCapability(
-        outputs = {
-            "de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData",
-            "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph",
-            "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
-            "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
-            "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma",
-            "de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS",
-            "de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent",
-            "de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity"})
+		outputs = {
+				"de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData",
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph",
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token",
+				"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma",
+				"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS",
+				"de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent",
+		"de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity"})
 public class TeiReaderTTLab
-    extends ResourceCollectionReaderBase
+extends ResourceCollectionReaderBase
 {
-    /**
-     * Write token annotations to the CAS.
-     */
-    public static final String PARAM_READ_TOKEN = ComponentParameters.PARAM_READ_TOKEN;
-    @ConfigurationParameter(name = PARAM_READ_TOKEN, mandatory = true, defaultValue = "true")
-    private boolean readToken;
-
-    /**
-     * Write part-of-speech annotations to the CAS.
-     */
-    public static final String PARAM_READ_POS = ComponentParameters.PARAM_READ_POS;
-    @ConfigurationParameter(name = PARAM_READ_POS, mandatory = true, defaultValue = "true")
-    private boolean readPOS;
-
-    /**
-     * Write lemma annotations to the CAS.
-     */
-    public static final String PARAM_READ_LEMMA = ComponentParameters.PARAM_READ_LEMMA;
-    @ConfigurationParameter(name = PARAM_READ_LEMMA, mandatory = true, defaultValue = "true")
-    private boolean readLemma;
-
-    /**
-     * Write sentence annotations to the CAS.
-     */
-    public static final String PARAM_READ_SENTENCE = ComponentParameters.PARAM_READ_SENTENCE;
-    @ConfigurationParameter(name = PARAM_READ_SENTENCE, mandatory = true, defaultValue = "true")
-    private boolean readSentence;
-
-    /**
-     * Write constituent annotations to the CAS.
-     */
-    public static final String PARAM_READ_CONSTITUENT = ComponentParameters.PARAM_READ_CONSTITUENT;
-    @ConfigurationParameter(name = PARAM_READ_CONSTITUENT, mandatory = true, defaultValue = "true")
-    private boolean readConstituent;
-
-    /**
-     * Write named entity annotations to the CAS.
-     */
-    public static final String PARAM_READ_NAMED_ENTITY = 
-            ComponentParameters.PARAM_READ_NAMED_ENTITY;
-    @ConfigurationParameter(name = PARAM_READ_NAMED_ENTITY, mandatory = true, defaultValue = "true")
-    private boolean readNamedEntity;
-
-    /**
-     * Write paragraphs annotations to the CAS.
-     */
-    public static final String PARAM_READ_PARAGRAPH = "readParagraph";
-    @ConfigurationParameter(name = PARAM_READ_PARAGRAPH, mandatory = true, defaultValue = "true")
-    private boolean readParagraph;
-
-    /**
-     * Use the xml:id attribute on the TEI elements as document ID. Mind that many TEI files
-     * may not have this attribute on all TEI elements and you may end up with no document ID
-     * at all. Also mind that the IDs should be unique.
-     */
-    public static final String PARAM_USE_XML_ID = "useXmlId";
-    @ConfigurationParameter(name = PARAM_USE_XML_ID, mandatory = true, defaultValue = "false")
-    private boolean useXmlId;
-
-    /**
-     * When not using the XML ID, use only the filename instead of the whole URL as ID. Mind that
-     * the filenames should be unique in this case.
-     */
-    public static final String PARAM_USE_FILENAME_ID = "useFilenameId";
-    @ConfigurationParameter(name = PARAM_USE_FILENAME_ID, mandatory = true, defaultValue = "false")
-    private boolean useFilenameId;
-
-    /**
-     * Do not write <em>ignoreable whitespace</em> from the XML file to the CAS.
-     */
-    // REC: This does not seem to work. Maybe because SAXWriter does not generate this event?
-    public static final String PARAM_OMIT_IGNORABLE_WHITESPACE = "omitIgnorableWhitespace";
-    @ConfigurationParameter(name = PARAM_OMIT_IGNORABLE_WHITESPACE, mandatory = true, defaultValue = "false")
-    private boolean omitIgnorableWhitespace;
-
-    /**
-     * Enable/disable type mapping.
-     */
-    public static final String PARAM_MAPPING_ENABLED = ComponentParameters.PARAM_MAPPING_ENABLED;
-    @ConfigurationParameter(name = PARAM_MAPPING_ENABLED, mandatory = true, defaultValue = 
-            ComponentParameters.DEFAULT_MAPPING_ENABLED)
-    protected boolean mappingEnabled;
-
-    /**
-     * Location of the mapping file for part-of-speech tags to UIMA types.
-     */
-    public static final String PARAM_POS_MAPPING_LOCATION = 
-            ComponentParameters.PARAM_POS_MAPPING_LOCATION;
-    @ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
-    protected String mappingPosLocation;
-
-    /**
-     * Use this part-of-speech tag set to use to resolve the tag set mapping instead of using the
-     * tag set defined as part of the model meta data. This can be useful if a custom model is
-     * specified which does not have such meta data, or it can be used in readers.
-     */
-    public static final String PARAM_POS_TAG_SET = ComponentParameters.PARAM_POS_TAG_SET;
-    @ConfigurationParameter(name = PARAM_POS_TAG_SET, mandatory = false)
-    protected String posTagset;
-    
-    /**
-     * Interpret utterances "u" as sentenes "s". (EXPERIMENTAL)
-     */
-    public static final String PARAM_UTTERANCES_AS_SENTENCES = "utterancesAsSentences";
-    @ConfigurationParameter(name = PARAM_UTTERANCES_AS_SENTENCES, mandatory = true, defaultValue = "false")
-    private boolean utterancesAsSentences;
-    
-    /**
-     * Trim the given elements (remote leading and trailing whitespace). DKPro Core usually expects
-     * annotations to start and end at a non-whitespace character.
-     */
-    public static final String PARAM_ELEMENTS_TO_TRIM = "elementsToTrim";
-    @ConfigurationParameter(name = PARAM_ELEMENTS_TO_TRIM, mandatory = true, defaultValue = { 
-            TAG_SUNIT, TAG_U, TAG_PARAGRAPH, TAG_RS, TAG_WORD, TAG_CHARACTER, TAG_MULTIWORD})
-    private Set<String> elementsToTrim;
-    
-    private Iterator<Element> teiElementIterator;
-    private Element currentTeiElement;
-    private int currentTeiElementNumber;
-    
-    private List<Resource> resourcesList;
-    private Iterator<Resource> currentResourceIterator;
-    private Resource currentResource;
-    
-    private int teisDone;
-    private int teisTotal;
-
-    private MappingProvider posMappingProvider;
-
-    @Override
-    public void initialize(UimaContext aContext)
-        throws ResourceInitializationException
-    {
-        super.initialize(aContext);
-        
-        resourcesList = new ArrayList<>();
-        teisDone = 0;
-        teisTotal = 0;
-
-        try {
-	    	System.out.println("counting TEI elements in files, this can take a while...");
-	    	initTeis();
-	        currentResourceIterator = resourcesList.iterator();
-	        System.out.println("found " + teisTotal + " teis to process");
-	    	
-	    	// Init with an empty iterator
-	    	teiElementIterator = asList(new Element[0]).iterator();
-	    	
-	    	// Make sure we know about the first element;
-	    	nextTeiElement();
-
-        }
-        catch (CollectionException | IOException e) {
-            throw new ResourceInitializationException(e);
-        }
-        
-
-        if (readPOS && !readToken) {
-            throw new ResourceInitializationException(new IllegalArgumentException(
-                    "Setting readPOS to 'true' requires writeToken to be 'true' too."));
-        }
-        
-        posMappingProvider = createPosMappingProvider(this, mappingPosLocation, posTagset,
-                getLanguage());
-    }
-    
-    @Override
-    public Progress[] getProgress()
-    {
-        return new Progress[] { new ProgressImpl(teisDone, teisTotal, "TEIs", true) };
-    }
-    
-    private void initTeis() throws IOException, CollectionException {
-    	while (super.hasNext()) {
-            Resource res = nextFile();
-            resourcesList.add(res);
-
-            InputStream is = null;
-            try {
-                is = res.getInputStream();
-
-                if (res.getPath().endsWith(".gz")) {
-                    is = new GZIPInputStream(is);
-                }
-
-                InputSource source = new InputSource(is);
-                source.setPublicId(res.getLocation());
-                source.setSystemId(res.getLocation());
-
-                SAXReader reader = new SAXReader();
-                Document xml = reader.read(source);
-
-                // select TEIs, use namespace
-                final XPath teiPath = new Dom4jXPath("//teins:TEI");
-                teiPath.addNamespace("teins", TeiConstants.TEI_NS);
-
-                List<Element> teiElements = teiPath.selectNodes(xml);
-                
-                if (teiElements.isEmpty()) {
-                	// No TEIs found, try without namespace...
-                	final XPath teiPathNoNS = new Dom4jXPath("//TEI");
-                    teiElements = teiPathNoNS.selectNodes(xml);
-                }
-
-                System.out.printf("Found %d TEI elements in %s.%n", teiElements.size(), res.getLocation());
-                
-                teisTotal += teiElements.size();
-            }
-            catch (DocumentException e) {
-                throw new IOException(e);
-            }
-            catch (JaxenException e) {
-                throw new IOException(e);
-            }
-            finally {
-                closeQuietly(is);
-            }
-        }
-    }
-
-    private void nextTeiElement() throws CollectionException, IOException
-    {
-        if (teiElementIterator == null) {
-            currentTeiElement = null;
-            return;
-        }
-
-        while (!teiElementIterator.hasNext() && currentResourceIterator.hasNext()) {
-            currentResource = currentResourceIterator.next();
-
-            InputStream is = null;
-            try {
-                is = currentResource.getInputStream();
-
-                if (currentResource.getPath().endsWith(".gz")) {
-                    is = new GZIPInputStream(is);
-                }
-
-                InputSource source = new InputSource(is);
-                source.setPublicId(currentResource.getLocation());
-                source.setSystemId(currentResource.getLocation());
-
-                SAXReader reader = new SAXReader();
-                Document xml = reader.read(source);
-
-                // select TEIs, use namespace
-                final XPath teiPath = new Dom4jXPath("//teins:TEI");
-                teiPath.addNamespace("teins", TeiConstants.TEI_NS);
-
-                List<Element> teiElements = teiPath.selectNodes(xml);
-                
-                if (teiElements.isEmpty()) {
-                	// No TEIs found, try without namespace...
-                	final XPath teiPathNoNS = new Dom4jXPath("//TEI");
-                    teiElements = teiPathNoNS.selectNodes(xml);
-                }
-
-                System.out.printf("Processing %d TEI elements in %s.%n", teiElements.size(),
-                        currentResource.getLocation());
-
-                teiElementIterator = teiElements.iterator();
-                currentTeiElementNumber = 0;
-            }
-            catch (DocumentException e) {
-                throw new IOException(e);
-            }
-            catch (JaxenException e) {
-                throw new IOException(e);
-            }
-            finally {
-                closeQuietly(is);
-            }
-        }
-
-        currentTeiElement = teiElementIterator.hasNext() ? teiElementIterator.next() : null;
-        currentTeiElementNumber++;
-
-        if (!currentResourceIterator.hasNext() && !teiElementIterator.hasNext()) {
-            // Mark end of processing.
-            teiElementIterator = null;
-        }
-    }
-
-    @Override
-    public boolean hasNext()
-        throws IOException, CollectionException
-    {
-        return teiElementIterator != null || currentTeiElement != null;
-    }
-
-    @Override
-    public void getNext(CAS aCAS)
-        throws IOException, CollectionException
-    {
-        initCas(aCAS, currentResource);
-
-        // Set up language
-        if (getConfigParameterValue(PARAM_LANGUAGE) != null) {
-            aCAS.setDocumentLanguage((String) getConfigParameterValue(PARAM_LANGUAGE));
-        }
-
-        // Configure mapping only now, because now the language is set in the CAS
-        try {
-            posMappingProvider.configure(aCAS);
-        }
-        catch (AnalysisEngineProcessException e1) {
-            throw new IOException(e1);
-        }
-
-        InputStream is = null;
-
-        try {
-            JCas jcas = aCAS.getJCas();
-
-            // Create handler
-            Handler handler = newSaxHandler();
-            handler.setJCas(jcas);
-            handler.setLogger(getLogger());
-
-            // Parse TEI text
-            SAXWriter writer = new SAXWriter(handler);
-            writer.write(currentTeiElement);
-            handler.endDocument();
-        }
-        catch (CASException e) {
-            throw new CollectionException(e);
-        }
-        catch (SAXException e) {
-            throw new IOException(e);
-        }
-        finally {
-            closeQuietly(is);
-        }
-        
-        teisDone++;
-        
-        // Move currentTeiElement to the next text
-        nextTeiElement();
-    }
-
-    protected Handler newSaxHandler()
-    {
-        return new TeiHandler();
-    }
-
-    protected abstract static class Handler
-        extends DefaultHandler
-    {
-        private JCas jcas;
-        private Logger logger;
-
-        public void setJCas(final JCas aJCas)
-        {
-            jcas = aJCas;
-        }
-
-        protected JCas getJCas()
-        {
-            return jcas;
-        }
-
-        public void setLogger(Logger aLogger)
-        {
-            logger = aLogger;
-        }
-
-        public Logger getLogger()
-        {
-            return logger;
-        }
-    }
-
-    public class TeiHandler
-        extends Handler
-    {
-        private String documentId = null;
-        private boolean documentIdSet= false;
-        private boolean titleSet = false;
-        private boolean inTextElement = false;
-        private boolean captureText = false;
-        private int paragraphStart = -1;
-        private int sentenceStart = -1;
-        private int tokenStart = -1;
-        private int idnoStart = -1;
-        
-        private String posTag = null;
-        private String lemma = null;
-        private String idnoType = null;
-
-        private Stack<ConstituentWrapper> constituents = new Stack<>();
-        private Stack<NamedEntity> namedEntities = new Stack<>();
-        
-        private final StringBuilder buffer = new StringBuilder();
-        
-        private String titleType = null;
-
-        @Override
-        public void endDocument()
-            throws SAXException
-        {
-            getJCas().setDocumentText(buffer.toString());
-        }
-
-        protected StringBuilder getBuffer()
-        {
-            return buffer;
-        }
-
-        @Override
-        public void startElement(String aUri, String aLocalName, String aName,
-                Attributes aAttributes)
-            throws SAXException
-        {
-//            System.out.printf("%b START %s %n", captureText, aLocalName);
-            if (!inTextElement && TAG_TEI_DOC.equals(aName)) {
-                if (useXmlId) {
-                    documentId = aAttributes.getValue("xml:id");
-                }
-                else if (useFilenameId) {
-                    documentId = FilenameUtils.getName(currentResource.getPath()) + "#"
-                            + currentTeiElementNumber;
-                }
-                else {
-                    documentId = currentResource.getPath() + "#" + currentTeiElementNumber;
-                }
-            }
-            else if (!inTextElement && "idno".equals(aName)) {
-                captureText = true;
-                idnoStart = getBuffer().length();
-                idnoType = aAttributes.getValue(ATTR_TYPE);
-            }
-            else if (!inTextElement && TAG_TITLE.equals(aName)) {
-                captureText = true;
-                titleType = aAttributes.getValue(ATTR_TYPE);
-            }
-            else if (TAG_TEXT.equals(aName)) {
-                captureText = true;
-                inTextElement = true;
-            }
-            else if (inTextElement && (TAG_SUNIT.equals(aName) || 
-                    (utterancesAsSentences && TAG_U.equals(aName)))) {
-                sentenceStart = getBuffer().length();
-            }
-            else if (inTextElement && TAG_PARAGRAPH.equals(aName)) {
-                paragraphStart = getBuffer().length();
-            }
-            else if (readNamedEntity && inTextElement && TAG_RS.equals(aName)) {
-                NamedEntity ne = new NamedEntity(getJCas());
-                ne.setBegin(getBuffer().length());
-                ne.setValue(aAttributes.getValue(ATTR_TYPE));
-                namedEntities.push(ne);
-            }
-            else if (readConstituent && inTextElement && TAG_PHRASE.equals(aName)) {
-                if (constituents.isEmpty()) {
-                    ROOT root = new ROOT(getJCas());
-                    root.setConstituentType("ROOT");
-                    constituents.push(new ConstituentWrapper(root));
-                }
-                
-                Constituent constituent = new Constituent(getJCas());
-                constituent.setConstituentType(aAttributes.getValue(ATTR_TYPE));
-                constituent.setSyntacticFunction(aAttributes.getValue(ATTR_FUNCTION));
-                constituents.push(new ConstituentWrapper(constituent));
-            }
-            else if (inTextElement
-                    && (TAG_WORD.equals(aName) || TAG_CHARACTER.equals(aName) || TAG_MULTIWORD
-                            .equals(aName))) {
-                tokenStart = getBuffer().length();
-                if (StringUtils.isNotEmpty(aAttributes.getValue(ATTR_POS))) {
-                    posTag = aAttributes.getValue(ATTR_POS);
-                }
-                else {
-                    posTag = aAttributes.getValue(ATTR_TYPE);
-                }
-                lemma = aAttributes.getValue(ATTR_LEMMA);
-            }
-        }
-
-        @Override
-        public void endElement(String aUri, String aLocalName, String aName)
-            throws SAXException
-        {
-//            System.out.printf("%b END %s %n", captureText, aLocalName);
-            if (!inTextElement && TAG_TITLE.equals(aName)) {
-                DocumentMetaData meta = DocumentMetaData.get(getJCas());
-                // Read only the first title and hope it is the main title
-                // only if not empty
-                String titleTemp = getBuffer().toString().trim();
-                if (!titleTemp.isEmpty()) {
-	                if (!titleSet) {
-	                	meta.setDocumentTitle(titleTemp);
-	                	titleSet = true;
-	                }
-	                
-                	// add more titles as metadata
-                	MetaDataStringField metaData = new MetaDataStringField(getJCas());
-                	metaData.setKey("title" + ((titleType != null && !titleType.isEmpty()) ? ("_" + titleType) : ""));
-                	metaData.setValue(titleTemp);
-                	metaData.addToIndexes();
-                }
-
-                if (!documentIdSet) {
-                    documentIdSet = true;
-                    // change document uri to include subdir index of tei element
-                    // this prevents the io writer from overwriting the file even if useDocumentId is set to false
-
-                    // base file: filename of document
-                    String baseFile = meta.getDocumentUri().substring(meta.getDocumentBaseUri().length());
-
-                    // base uri: path to base folder
-                    String baseUri = meta.getDocumentBaseUri();
-                    if (!baseUri.endsWith("/")) {
-                        baseUri += "/";
-                    }
-
-                    // append basefile as subdir
-                    String documentUri = baseUri + baseFile + "/" + documentId;
-
-                    // set meta
-                    meta.setDocumentBaseUri(baseUri);
-                    meta.setCollectionId(baseUri);
-                    meta.setDocumentUri(documentUri);
-                    meta.setDocumentId(documentId);
-                }
-
-                getBuffer().setLength(0);
-                captureText = false;
-                titleType = null;
-            }
-            else if ("idno".equals(aName)){
-            	MetaDataStringField metaData = new MetaDataStringField(getJCas());
-            	metaData.setKey(idnoType);
-            	metaData.setValue(getBuffer().substring(idnoStart, getBuffer().length()));
-            	metaData.addToIndexes();
-            	getBuffer().setLength(idnoStart);
-                captureText = false;
-            }
-            else if (TAG_TEXT.equals(aName)) {
-                captureText = false;
-                inTextElement = false;
-            }
-            else if (inTextElement && (TAG_SUNIT.equals(aName) ||
-                (utterancesAsSentences && TAG_U.equals(aName)))) {
-                if (readSentence) {
-                    Sentence s = new Sentence(getJCas(), sentenceStart, getBuffer().length());
-                    if (elementsToTrim.contains(aName)) {
-                        trim(s);
-                    }
-                    s.addToIndexes();
-                }
-                sentenceStart = -1;
-            }
-            else if (inTextElement && TAG_PARAGRAPH.equals(aName)) {
-                if (readParagraph && paragraphStart >= 0) {
-                    Paragraph para = new Paragraph(getJCas(), paragraphStart, getBuffer().length());
-                    if (elementsToTrim.contains(aName)) {
-                        trim(para);
-                    }
-                    para.addToIndexes();
-                }
-                paragraphStart = -1;
-            }
-            else if (readNamedEntity && inTextElement && TAG_RS.equals(aName)) {
-                NamedEntity ne = namedEntities.pop();
-                ne.setEnd(getBuffer().length());
-                if (elementsToTrim.contains(aName)) {
-                    trim(ne);
-                }
-                ne.addToIndexes();
-            }
-            else if (readConstituent && inTextElement && TAG_PHRASE.equals(aName)) {
-                ConstituentWrapper wrapper = constituents.pop();
-                wrapper.constituent.setBegin(wrapper.children.get(0).getBegin());
-                wrapper.constituent
-                        .setEnd(wrapper.children.get(wrapper.children.size() - 1).getEnd());
-                if (!constituents.isEmpty()) {
-                    ConstituentWrapper parent = constituents.peek();
-                    wrapper.constituent.setParent(parent.constituent);
-                    parent.children.add(wrapper.constituent);
-                }
-                wrapper.constituent.setChildren(FSCollectionFactory.createFSArray(getJCas(),
-                        wrapper.children));
-                wrapper.constituent.addToIndexes();
-                
-                // Close off the ROOT
-                if (constituents.peek().constituent instanceof ROOT) {
-                    ConstituentWrapper rootWrapper = constituents.pop();
-                    rootWrapper.constituent.setBegin(wrapper.children.get(0).getBegin());
-                    rootWrapper.constituent
-                            .setEnd(wrapper.children.get(wrapper.children.size() - 1).getEnd());
-                    rootWrapper.constituent.setChildren(FSCollectionFactory.createFSArray(
-                            getJCas(), rootWrapper.children));
-                    rootWrapper.constituent.addToIndexes();
-                }
-            }
-            else if (inTextElement
-                    && (TAG_WORD.equals(aName) || TAG_CHARACTER.equals(aName) || TAG_MULTIWORD
-                            .equals(aName))) {
-                if (isNotBlank(getBuffer().substring(tokenStart, getBuffer().length()))) {
-                    Token token = new Token(getJCas(), tokenStart, getBuffer().length());
-                    
-                    if (elementsToTrim.contains(aName)) {
-                        trim(token);
-                    }
-                        
-                    if (posTag != null && readPOS) {
-                        Type posTagType = posMappingProvider.getTagType(posTag);
-                        POS pos = (POS) getJCas().getCas().createAnnotation(posTagType,
-                                token.getBegin(), token.getEnd());
-                        pos.setPosValue(posTag);
-                        POSUtils.assignCoarseValue(pos);
-                        pos.addToIndexes();
-                        token.setPos(pos);
-                    }
-
-                    if (lemma != null && readLemma) {
-                        Lemma l = new Lemma(getJCas(), token.getBegin(), token.getEnd());
-                        l.setValue(lemma);
-                        l.addToIndexes();
-                        token.setLemma(l);
-                    }
-
-                    // FIXME: if readToken is disabled, the JCas wrapper should not be generated
-                    // at all!
-                    if (readToken) {
-                        if (!constituents.isEmpty()) {
-                            ConstituentWrapper parent = constituents.peek();
-                            token.setParent(parent.constituent);
-                            parent.children.add(token);
-                        }
-                        
-                        token.addToIndexes();
-                    }
-                }
-
-                tokenStart = -1;
-            }
-        }
-
-        @Override
-        public void characters(char[] aCh, int aStart, int aLength)
-            throws SAXException
-        {
-            if (captureText) {
-                buffer.append(aCh, aStart, aLength);
-            }
-        }
-
-        @Override
-        public void ignorableWhitespace(char[] aCh, int aStart, int aLength)
-            throws SAXException
-        {
-            if (captureText && !omitIgnorableWhitespace) {
-                buffer.append(aCh, aStart, aLength);
-            }
-        }
-
-        private void trim(Annotation aAnnotation)
-        {
-            StringBuilder buf = getBuffer();
-            int s = aAnnotation.getBegin();
-            int e = aAnnotation.getEnd();
-            while (s < e && isWhitespace(buf.charAt(s))) {
-                s++;
-            }
-            while ((e > s + 1) && isWhitespace(buf.charAt(e - 1))) {
-                e--;
-            }
-            
-            assert s <= e;
-            
-            aAnnotation.setBegin(s);
-            aAnnotation.setEnd(e);
-        }
-    }
-    
-    private static class ConstituentWrapper {
-        public Constituent constituent;
-        public List<Annotation> children = new ArrayList<Annotation>();
-        
-        public ConstituentWrapper(Constituent aConstituent)
-        {
-            constituent = aConstituent;
-        }
-    }
+	/**
+	 * Write token annotations to the CAS.
+	 */
+	public static final String PARAM_READ_TOKEN = ComponentParameters.PARAM_READ_TOKEN;
+	@ConfigurationParameter(name = PARAM_READ_TOKEN, mandatory = true, defaultValue = "true")
+	private boolean readToken;
+
+	/**
+	 * Write part-of-speech annotations to the CAS.
+	 */
+	public static final String PARAM_READ_POS = ComponentParameters.PARAM_READ_POS;
+	@ConfigurationParameter(name = PARAM_READ_POS, mandatory = true, defaultValue = "true")
+	private boolean readPOS;
+
+	/**
+	 * Write lemma annotations to the CAS.
+	 */
+	public static final String PARAM_READ_LEMMA = ComponentParameters.PARAM_READ_LEMMA;
+	@ConfigurationParameter(name = PARAM_READ_LEMMA, mandatory = true, defaultValue = "true")
+	private boolean readLemma;
+
+	/**
+	 * Write sentence annotations to the CAS.
+	 */
+	public static final String PARAM_READ_SENTENCE = ComponentParameters.PARAM_READ_SENTENCE;
+	@ConfigurationParameter(name = PARAM_READ_SENTENCE, mandatory = true, defaultValue = "true")
+	private boolean readSentence;
+
+	/**
+	 * Write constituent annotations to the CAS.
+	 */
+	public static final String PARAM_READ_CONSTITUENT = ComponentParameters.PARAM_READ_CONSTITUENT;
+	@ConfigurationParameter(name = PARAM_READ_CONSTITUENT, mandatory = true, defaultValue = "true")
+	private boolean readConstituent;
+
+	/**
+	 * Write named entity annotations to the CAS.
+	 */
+	public static final String PARAM_READ_NAMED_ENTITY = 
+			ComponentParameters.PARAM_READ_NAMED_ENTITY;
+	@ConfigurationParameter(name = PARAM_READ_NAMED_ENTITY, mandatory = true, defaultValue = "true")
+	private boolean readNamedEntity;
+
+	/**
+	 * Write paragraphs annotations to the CAS.
+	 */
+	public static final String PARAM_READ_PARAGRAPH = "readParagraph";
+	@ConfigurationParameter(name = PARAM_READ_PARAGRAPH, mandatory = true, defaultValue = "true")
+	private boolean readParagraph;
+
+	/**
+	 * Use the xml:id attribute on the TEI elements as document ID. Mind that many TEI files
+	 * may not have this attribute on all TEI elements and you may end up with no document ID
+	 * at all. Also mind that the IDs should be unique.
+	 */
+	public static final String PARAM_USE_XML_ID = "useXmlId";
+	@ConfigurationParameter(name = PARAM_USE_XML_ID, mandatory = true, defaultValue = "false")
+	private boolean useXmlId;
+
+	/**
+	 * When not using the XML ID, use only the filename instead of the whole URL as ID. Mind that
+	 * the filenames should be unique in this case.
+	 */
+	public static final String PARAM_USE_FILENAME_ID = "useFilenameId";
+	@ConfigurationParameter(name = PARAM_USE_FILENAME_ID, mandatory = true, defaultValue = "false")
+	private boolean useFilenameId;
+
+	/**
+	 * Do not write <em>ignoreable whitespace</em> from the XML file to the CAS.
+	 */
+	// REC: This does not seem to work. Maybe because SAXWriter does not generate this event?
+	public static final String PARAM_OMIT_IGNORABLE_WHITESPACE = "omitIgnorableWhitespace";
+	@ConfigurationParameter(name = PARAM_OMIT_IGNORABLE_WHITESPACE, mandatory = true, defaultValue = "false")
+	private boolean omitIgnorableWhitespace;
+
+	/**
+	 * Enable/disable type mapping.
+	 */
+	public static final String PARAM_MAPPING_ENABLED = ComponentParameters.PARAM_MAPPING_ENABLED;
+	@ConfigurationParameter(name = PARAM_MAPPING_ENABLED, mandatory = true, defaultValue = 
+			ComponentParameters.DEFAULT_MAPPING_ENABLED)
+	protected boolean mappingEnabled;
+
+	/**
+	 * Location of the mapping file for part-of-speech tags to UIMA types.
+	 */
+	public static final String PARAM_POS_MAPPING_LOCATION = 
+			ComponentParameters.PARAM_POS_MAPPING_LOCATION;
+	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
+	protected String mappingPosLocation;
+
+	/**
+	 * Use this part-of-speech tag set to use to resolve the tag set mapping instead of using the
+	 * tag set defined as part of the model meta data. This can be useful if a custom model is
+	 * specified which does not have such meta data, or it can be used in readers.
+	 */
+	public static final String PARAM_POS_TAG_SET = ComponentParameters.PARAM_POS_TAG_SET;
+	@ConfigurationParameter(name = PARAM_POS_TAG_SET, mandatory = false)
+	protected String posTagset;
+
+	/**
+	 * Interpret utterances "u" as sentenes "s". (EXPERIMENTAL)
+	 */
+	public static final String PARAM_UTTERANCES_AS_SENTENCES = "utterancesAsSentences";
+	@ConfigurationParameter(name = PARAM_UTTERANCES_AS_SENTENCES, mandatory = true, defaultValue = "false")
+	private boolean utterancesAsSentences;
+
+	/**
+	 * Trim the given elements (remote leading and trailing whitespace). DKPro Core usually expects
+	 * annotations to start and end at a non-whitespace character.
+	 */
+	public static final String PARAM_ELEMENTS_TO_TRIM = "elementsToTrim";
+	@ConfigurationParameter(name = PARAM_ELEMENTS_TO_TRIM, mandatory = true, defaultValue = { 
+			TAG_SUNIT, TAG_U, TAG_PARAGRAPH, TAG_RS, TAG_WORD, TAG_CHARACTER, TAG_MULTIWORD})
+	private Set<String> elementsToTrim;
+
+	private Iterator<Element> teiElementIterator;
+	private Element currentTeiElement;
+	private int currentTeiElementNumber;
+
+	private List<Resource> resourcesList;
+	private Iterator<Resource> currentResourceIterator;
+	private Resource currentResource;
+
+	private int teisDone;
+	private int teisTotal;
+
+	private MappingProvider posMappingProvider;
+
+	private ProgressMeter progress;
+
+	@Override
+	public void initialize(UimaContext aContext)
+			throws ResourceInitializationException
+	{
+		super.initialize(aContext);
+
+		resourcesList = new ArrayList<>();
+		teisDone = 0;
+		teisTotal = 0;
+
+		try {
+			System.out.println("counting TEI elements in files, this can take a while...");
+			initTeis();
+			currentResourceIterator = resourcesList.iterator();
+			System.out.println("found " + teisTotal + " teis to process");
+			progress = new ProgressMeter(teisTotal);
+
+			// Init with an empty iterator
+			teiElementIterator = asList(new Element[0]).iterator();
+
+			// Make sure we know about the first element;
+			nextTeiElement();
+
+		}
+		catch (CollectionException | IOException e) {
+			throw new ResourceInitializationException(e);
+		}
+
+
+		if (readPOS && !readToken) {
+			throw new ResourceInitializationException(new IllegalArgumentException(
+					"Setting readPOS to 'true' requires writeToken to be 'true' too."));
+		}
+
+		posMappingProvider = createPosMappingProvider(this, mappingPosLocation, posTagset,
+				getLanguage());
+	}
+
+	@Override
+	public Progress[] getProgress()
+	{
+		return new Progress[] { new ProgressImpl(teisDone, teisTotal, "TEIs", true) };
+	}
+
+	private void initTeis() throws IOException, CollectionException {
+		while (super.hasNext()) {
+			Resource res = nextFile();
+			resourcesList.add(res);
+
+			InputStream is = null;
+			try {
+				is = res.getInputStream();
+
+				if (res.getPath().endsWith(".gz")) {
+					is = new GZIPInputStream(is);
+				}
+
+				InputSource source = new InputSource(is);
+				source.setPublicId(res.getLocation());
+				source.setSystemId(res.getLocation());
+
+				SAXReader reader = new SAXReader();
+				Document xml = reader.read(source);
+
+				// select TEIs, use namespace
+				final XPath teiPath = new Dom4jXPath("//teins:TEI");
+				teiPath.addNamespace("teins", TeiConstants.TEI_NS);
+
+				List<Element> teiElements = teiPath.selectNodes(xml);
+
+				if (teiElements.isEmpty()) {
+					// No TEIs found, try without namespace...
+					final XPath teiPathNoNS = new Dom4jXPath("//TEI");
+					teiElements = teiPathNoNS.selectNodes(xml);
+				}
+
+				System.out.printf("Found %d TEI elements in %s.%n", teiElements.size(), res.getLocation());
+
+				teisTotal += teiElements.size();
+			}
+			catch (DocumentException e) {
+				throw new IOException(e);
+			}
+			catch (JaxenException e) {
+				throw new IOException(e);
+			}
+			finally {
+				closeQuietly(is);
+			}
+		}
+	}
+
+	private void nextTeiElement() throws CollectionException, IOException
+	{
+		if (teiElementIterator == null) {
+			currentTeiElement = null;
+			return;
+		}
+
+		while (!teiElementIterator.hasNext() && currentResourceIterator.hasNext()) {
+			currentResource = currentResourceIterator.next();
+
+			InputStream is = null;
+			try {
+				is = currentResource.getInputStream();
+
+				if (currentResource.getPath().endsWith(".gz")) {
+					is = new GZIPInputStream(is);
+				}
+
+				InputSource source = new InputSource(is);
+				source.setPublicId(currentResource.getLocation());
+				source.setSystemId(currentResource.getLocation());
+
+				SAXReader reader = new SAXReader();
+				Document xml = reader.read(source);
+
+				// select TEIs, use namespace
+				final XPath teiPath = new Dom4jXPath("//teins:TEI");
+				teiPath.addNamespace("teins", TeiConstants.TEI_NS);
+
+				List<Element> teiElements = teiPath.selectNodes(xml);
+
+				if (teiElements.isEmpty()) {
+					// No TEIs found, try without namespace...
+					final XPath teiPathNoNS = new Dom4jXPath("//TEI");
+					teiElements = teiPathNoNS.selectNodes(xml);
+				}
+
+				System.out.printf("Processing %d TEI elements in %s.%n", teiElements.size(),
+						currentResource.getLocation());
+				teiElementIterator = teiElements.iterator();
+				currentTeiElementNumber = 0;
+				
+
+			}
+			catch (DocumentException e) {
+				throw new IOException(e);
+			}
+			catch (JaxenException e) {
+				throw new IOException(e);
+			}
+			finally {
+				closeQuietly(is);
+			}
+		}
+
+		currentTeiElement = teiElementIterator.hasNext() ? teiElementIterator.next() : null;
+		currentTeiElementNumber++;
+
+		if (!currentResourceIterator.hasNext() && !teiElementIterator.hasNext()) {
+			// Mark end of processing.
+			teiElementIterator = null;
+		}
+	}
+
+	@Override
+	public boolean hasNext()
+			throws IOException, CollectionException
+	{
+		return teiElementIterator != null || currentTeiElement != null;
+	}
+
+	@Override
+	public void getNext(CAS aCAS)
+			throws IOException, CollectionException
+	{
+		initCas(aCAS, currentResource);
+
+		// Set up language
+		if (getConfigParameterValue(PARAM_LANGUAGE) != null) {
+			aCAS.setDocumentLanguage((String) getConfigParameterValue(PARAM_LANGUAGE));
+		}
+
+		// Configure mapping only now, because now the language is set in the CAS
+		try {
+			posMappingProvider.configure(aCAS);
+		}
+		catch (AnalysisEngineProcessException e1) {
+			throw new IOException(e1);
+		}
+
+		InputStream is = null;
+
+		try {
+			JCas jcas = aCAS.getJCas();
+
+			// Create handler
+			Handler handler = newSaxHandler();
+			handler.setJCas(jcas);
+			handler.setLogger(getLogger());
+
+			// Parse TEI text
+			SAXWriter writer = new SAXWriter(handler);
+			writer.write(currentTeiElement);
+			handler.endDocument();
+		}
+		catch (CASException e) {
+			throw new CollectionException(e);
+		}
+		catch (SAXException e) {
+			throw new IOException(e);
+		}
+		finally {
+			closeQuietly(is);
+		}
+
+		teisDone++;
+		progress.setDone(teisDone);
+		getLogger().info(String.format("%s: %s", progress, currentResource.getLocation()));
+
+		nextTeiElement();
+	}
+
+	protected Handler newSaxHandler()
+	{
+		return new TeiHandler();
+	}
+
+	protected abstract static class Handler
+	extends DefaultHandler
+	{
+		private JCas jcas;
+		private Logger logger;
+
+		public void setJCas(final JCas aJCas)
+		{
+			jcas = aJCas;
+		}
+
+		protected JCas getJCas()
+		{
+			return jcas;
+		}
+
+		public void setLogger(Logger aLogger)
+		{
+			logger = aLogger;
+		}
+
+		public Logger getLogger()
+		{
+			return logger;
+		}
+	}
+
+	public class TeiHandler
+	extends Handler
+	{
+		private String documentId = null;
+		private boolean documentIdSet= false;
+		private boolean titleSet = false;
+		private boolean inTextElement = false;
+		private boolean captureText = false;
+		private int paragraphStart = -1;
+		private int sentenceStart = -1;
+		private int tokenStart = -1;
+		private int idnoStart = -1;
+
+		private String posTag = null;
+		private String lemma = null;
+		private String idnoType = null;
+
+		private Stack<ConstituentWrapper> constituents = new Stack<>();
+		private Stack<NamedEntity> namedEntities = new Stack<>();
+
+		private final StringBuilder buffer = new StringBuilder();
+
+		private String titleType = null;
+
+		@Override
+		public void endDocument()
+				throws SAXException
+		{
+			getJCas().setDocumentText(buffer.toString());
+		}
+
+		protected StringBuilder getBuffer()
+		{
+			return buffer;
+		}
+
+		@Override
+		public void startElement(String aUri, String aLocalName, String aName,
+				Attributes aAttributes)
+						throws SAXException
+		{
+			//            System.out.printf("%b START %s %n", captureText, aLocalName);
+			if (!inTextElement && TAG_TEI_DOC.equals(aName)) {
+				if (useXmlId) {
+					documentId = aAttributes.getValue("xml:id");
+				}
+				else if (useFilenameId) {
+					documentId = FilenameUtils.getName(currentResource.getPath()) + "#"
+							+ currentTeiElementNumber;
+				}
+				else {
+					documentId = currentResource.getPath() + "#" + currentTeiElementNumber;
+				}
+			}
+			else if (!inTextElement && "idno".equals(aName)) {
+				captureText = true;
+				idnoStart = getBuffer().length();
+				idnoType = aAttributes.getValue(ATTR_TYPE);
+			}
+			else if (!inTextElement && TAG_TITLE.equals(aName)) {
+				captureText = true;
+				titleType = aAttributes.getValue(ATTR_TYPE);
+			}
+			else if (TAG_TEXT.equals(aName)) {
+				captureText = true;
+				inTextElement = true;
+			}
+			else if (inTextElement && (TAG_SUNIT.equals(aName) || 
+					(utterancesAsSentences && TAG_U.equals(aName)))) {
+				sentenceStart = getBuffer().length();
+			}
+			else if (inTextElement && TAG_PARAGRAPH.equals(aName)) {
+				paragraphStart = getBuffer().length();
+			}
+			else if (readNamedEntity && inTextElement && TAG_RS.equals(aName)) {
+				NamedEntity ne = new NamedEntity(getJCas());
+				ne.setBegin(getBuffer().length());
+				ne.setValue(aAttributes.getValue(ATTR_TYPE));
+				namedEntities.push(ne);
+			}
+			else if (readConstituent && inTextElement && TAG_PHRASE.equals(aName)) {
+				if (constituents.isEmpty()) {
+					ROOT root = new ROOT(getJCas());
+					root.setConstituentType("ROOT");
+					constituents.push(new ConstituentWrapper(root));
+				}
+
+				Constituent constituent = new Constituent(getJCas());
+				constituent.setConstituentType(aAttributes.getValue(ATTR_TYPE));
+				constituent.setSyntacticFunction(aAttributes.getValue(ATTR_FUNCTION));
+				constituents.push(new ConstituentWrapper(constituent));
+			}
+			else if (inTextElement
+					&& (TAG_WORD.equals(aName) || TAG_CHARACTER.equals(aName) || TAG_MULTIWORD
+							.equals(aName))) {
+				tokenStart = getBuffer().length();
+				if (StringUtils.isNotEmpty(aAttributes.getValue(ATTR_POS))) {
+					posTag = aAttributes.getValue(ATTR_POS);
+				}
+				else {
+					posTag = aAttributes.getValue(ATTR_TYPE);
+				}
+				lemma = aAttributes.getValue(ATTR_LEMMA);
+			}
+		}
+
+		@Override
+		public void endElement(String aUri, String aLocalName, String aName)
+				throws SAXException
+		{
+			//            System.out.printf("%b END %s %n", captureText, aLocalName);
+			if (!inTextElement && TAG_TITLE.equals(aName)) {
+				DocumentMetaData meta = DocumentMetaData.get(getJCas());
+				// Read only the first title and hope it is the main title
+				// only if not empty
+				String titleTemp = getBuffer().toString().trim();
+				if (!titleTemp.isEmpty()) {
+					if (!titleSet) {
+						meta.setDocumentTitle(titleTemp);
+						titleSet = true;
+					}
+
+					// add more titles as metadata
+					MetaDataStringField metaData = new MetaDataStringField(getJCas());
+					metaData.setKey("title" + ((titleType != null && !titleType.isEmpty()) ? ("_" + titleType) : ""));
+					metaData.setValue(titleTemp);
+					metaData.addToIndexes();
+				}
+
+				if (!documentIdSet) {
+					documentIdSet = true;
+					// change document uri to include subdir index of tei element
+					// this prevents the io writer from overwriting the file even if useDocumentId is set to false
+
+					// base file: filename of document
+					String baseFile = meta.getDocumentUri().substring(meta.getDocumentBaseUri().length());
+
+					// base uri: path to base folder
+					String baseUri = meta.getDocumentBaseUri();
+					if (!baseUri.endsWith("/")) {
+						baseUri += "/";
+					}
+
+					// append basefile as subdir
+					String documentUri = baseUri + baseFile + "/" + documentId;
+
+					// set meta
+					meta.setDocumentBaseUri(baseUri);
+					meta.setCollectionId(baseUri);
+					meta.setDocumentUri(documentUri);
+					meta.setDocumentId(documentId);
+				}
+
+				getBuffer().setLength(0);
+				captureText = false;
+				titleType = null;
+			}
+			else if ("idno".equals(aName)){
+				MetaDataStringField metaData = new MetaDataStringField(getJCas());
+				metaData.setKey(idnoType);
+				metaData.setValue(getBuffer().substring(idnoStart, getBuffer().length()));
+				metaData.addToIndexes();
+				getBuffer().setLength(idnoStart);
+				captureText = false;
+			}
+			else if (TAG_TEXT.equals(aName)) {
+				captureText = false;
+				inTextElement = false;
+			}
+			else if (inTextElement && (TAG_SUNIT.equals(aName) ||
+					(utterancesAsSentences && TAG_U.equals(aName)))) {
+				if (readSentence) {
+					Sentence s = new Sentence(getJCas(), sentenceStart, getBuffer().length());
+					if (elementsToTrim.contains(aName)) {
+						trim(s);
+					}
+					s.addToIndexes();
+				}
+				sentenceStart = -1;
+			}
+			else if (inTextElement && TAG_PARAGRAPH.equals(aName)) {
+				if (readParagraph && paragraphStart >= 0) {
+					Paragraph para = new Paragraph(getJCas(), paragraphStart, getBuffer().length());
+					if (elementsToTrim.contains(aName)) {
+						trim(para);
+					}
+					para.addToIndexes();
+				}
+				paragraphStart = -1;
+			}
+			else if (readNamedEntity && inTextElement && TAG_RS.equals(aName)) {
+				NamedEntity ne = namedEntities.pop();
+				ne.setEnd(getBuffer().length());
+				if (elementsToTrim.contains(aName)) {
+					trim(ne);
+				}
+				ne.addToIndexes();
+			}
+			else if (readConstituent && inTextElement && TAG_PHRASE.equals(aName)) {
+				ConstituentWrapper wrapper = constituents.pop();
+				wrapper.constituent.setBegin(wrapper.children.get(0).getBegin());
+				wrapper.constituent
+				.setEnd(wrapper.children.get(wrapper.children.size() - 1).getEnd());
+				if (!constituents.isEmpty()) {
+					ConstituentWrapper parent = constituents.peek();
+					wrapper.constituent.setParent(parent.constituent);
+					parent.children.add(wrapper.constituent);
+				}
+				wrapper.constituent.setChildren(FSCollectionFactory.createFSArray(getJCas(),
+						wrapper.children));
+				wrapper.constituent.addToIndexes();
+
+				// Close off the ROOT
+				if (constituents.peek().constituent instanceof ROOT) {
+					ConstituentWrapper rootWrapper = constituents.pop();
+					rootWrapper.constituent.setBegin(wrapper.children.get(0).getBegin());
+					rootWrapper.constituent
+					.setEnd(wrapper.children.get(wrapper.children.size() - 1).getEnd());
+					rootWrapper.constituent.setChildren(FSCollectionFactory.createFSArray(
+							getJCas(), rootWrapper.children));
+					rootWrapper.constituent.addToIndexes();
+				}
+			}
+			else if (inTextElement
+					&& (TAG_WORD.equals(aName) || TAG_CHARACTER.equals(aName) || TAG_MULTIWORD
+							.equals(aName))) {
+				if (isNotBlank(getBuffer().substring(tokenStart, getBuffer().length()))) {
+					Token token = new Token(getJCas(), tokenStart, getBuffer().length());
+
+					if (elementsToTrim.contains(aName)) {
+						trim(token);
+					}
+
+					if (posTag != null && readPOS) {
+						Type posTagType = posMappingProvider.getTagType(posTag);
+						POS pos = (POS) getJCas().getCas().createAnnotation(posTagType,
+								token.getBegin(), token.getEnd());
+						pos.setPosValue(posTag);
+						POSUtils.assignCoarseValue(pos);
+						pos.addToIndexes();
+						token.setPos(pos);
+					}
+
+					if (lemma != null && readLemma) {
+						Lemma l = new Lemma(getJCas(), token.getBegin(), token.getEnd());
+						l.setValue(lemma);
+						l.addToIndexes();
+						token.setLemma(l);
+					}
+
+					// FIXME: if readToken is disabled, the JCas wrapper should not be generated
+					// at all!
+					if (readToken) {
+						if (!constituents.isEmpty()) {
+							ConstituentWrapper parent = constituents.peek();
+							token.setParent(parent.constituent);
+							parent.children.add(token);
+						}
+
+						token.addToIndexes();
+					}
+				}
+
+				tokenStart = -1;
+			}
+		}
+
+		@Override
+		public void characters(char[] aCh, int aStart, int aLength)
+				throws SAXException
+		{
+			if (captureText) {
+				buffer.append(aCh, aStart, aLength);
+			}
+		}
+
+		@Override
+		public void ignorableWhitespace(char[] aCh, int aStart, int aLength)
+				throws SAXException
+		{
+			if (captureText && !omitIgnorableWhitespace) {
+				buffer.append(aCh, aStart, aLength);
+			}
+		}
+
+		private void trim(Annotation aAnnotation)
+		{
+			StringBuilder buf = getBuffer();
+			int s = aAnnotation.getBegin();
+			int e = aAnnotation.getEnd();
+			if(s >= 0){
+				while (s < e && isWhitespace(buf.charAt(s))) {
+					s++;
+				}
+				while ((e > s + 1) && isWhitespace(buf.charAt(e - 1))) {
+					e--;
+				}
+
+				assert s <= e;
+
+				aAnnotation.setBegin(s);
+				aAnnotation.setEnd(e);
+			}
+		}
+	}
+
+	private static class ConstituentWrapper {
+		public Constituent constituent;
+		public List<Annotation> children = new ArrayList<Annotation>();
+
+		public ConstituentWrapper(Constituent aConstituent)
+		{
+			constituent = aConstituent;
+		}
+	}
 }

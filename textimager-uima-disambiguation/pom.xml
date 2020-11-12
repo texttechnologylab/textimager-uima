@@ -15,6 +15,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.vinhkhuc</groupId>
 			<artifactId>jfasttext</artifactId>
 			<version>0.4</version>
@@ -40,5 +45,12 @@
 			<artifactId>jgrapht-io</artifactId>
 			<version>1.4.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20200518</version>
+		</dependency>
+
 	</dependencies>
 </project>

@@ -104,6 +104,11 @@
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-stanza</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-textblob</artifactId>
 					<version>${project.version}</version>
 				</dependency>
@@ -206,9 +211,6 @@
 		</profile>
 		<profile>
 			<id>mini-deploy</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<build>
 				<finalName>${project.artifactId}-${project.version}-mini-deploy</finalName>
 			</build>

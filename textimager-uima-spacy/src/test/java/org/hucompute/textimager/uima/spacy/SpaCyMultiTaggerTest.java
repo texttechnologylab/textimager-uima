@@ -29,6 +29,7 @@ public class SpaCyMultiTaggerTest {
 		
 		for (Token t : JCasUtil.select(cas, Token.class)) {
 			System.out.println("!~" + t.getCoveredText() + "!~");
+			System.out.println(t);
 		}
 
 		int[][] tokens = new int[][] {

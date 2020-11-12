@@ -3,6 +3,10 @@ package org.hucompute.textimager.uima.stanza;
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -11,13 +15,14 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 public class StanzaTaggerTest {
 	@Test
-	public void simpleExample() throws UIMAException{
+	public void simpleExample() throws UIMAException, SAXException, IOException{
 		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
 		cas.setDocumentLanguage("de");
 		
@@ -42,6 +47,8 @@ public class StanzaTaggerTest {
 		
 		AnalysisEngineDescription stanzaTagger = createEngineDescription(StanzaTagger.class);
 		
+		stanzaTagger.toXML(new FileWriter(new File("StanzaTagger.xml")));
+		
 		SimplePipeline.runPipeline(cas, stanzaTagger);
 		
 		String[] pos = new String[] {
@@ -50,9 +57,9 @@ public class StanzaTaggerTest {
 		};
 
 		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
-		
-		assertArrayEquals(pos, casPos);
 		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
+
+		assertArrayEquals(pos, casPos);
 	}
 	
 //	@Test

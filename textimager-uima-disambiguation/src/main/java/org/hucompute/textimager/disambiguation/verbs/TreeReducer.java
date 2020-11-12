@@ -23,6 +23,8 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.io.ExportException;
 import org.jgrapht.io.GmlExporter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import de.tuebingen.uni.sfs.germanet.api.ConRel;
 import de.tuebingen.uni.sfs.germanet.api.GermaNet;
@@ -280,7 +282,7 @@ public class TreeReducer {
 	}
 
 	
-	public void exportGraphSized(String filename, Graph<GraphVertex, GraphEdge> outgraph, HashMap<GraphVertex, Integer> sizes) throws IOException {
+	public static void exportGraphSized(String filename, Graph<GraphVertex, GraphEdge> outgraph, HashMap<GraphVertex, Integer> sizes) throws IOException {
 		FileWriter w = new FileWriter(filename);
 		int size = 30; //default size
 		String shape = "ellipse";
@@ -312,8 +314,8 @@ public class TreeReducer {
 		}
 		
 		for (GraphEdge edge : outgraph.edgeSet()) {
-			int source_id = ids.get(graph.getEdgeSource(edge));
-			int target_id = ids.get(graph.getEdgeTarget(edge));
+			int source_id = ids.get(outgraph.getEdgeSource(edge));
+			int target_id = ids.get(outgraph.getEdgeTarget(edge));
 			String label = edge.toString();
 			w.write("\tedge\n");
 			w.write("\t[\n");
@@ -329,7 +331,35 @@ public class TreeReducer {
 		
 	}
 	
-	public void exportGraph(String filename, Graph<GraphVertex, GraphEdge> outgraph) throws IOException, ExportException {
+	public static GraphVertex getRoot(Graph<GraphVertex, GraphEdge> outgraph) {
+		GraphVertex root = null;
+		for (GraphVertex vert : outgraph.vertexSet()) {
+			if (outgraph.outDegreeOf(vert) == 0 ) {
+				root = vert;
+				break;
+			}
+		}
+		return root;
+	}
+	
+	private static JSONObject process_vert(Graph<GraphVertex, GraphEdge> outgraph, GraphVertex vert) {
+		JSONObject json = new JSONObject();
+		json.put("name", vert.getLabel());
+		JSONArray children = new JSONArray();
+		for (GraphEdge edge : outgraph.edgesOf(vert)) {
+			GraphVertex child = outgraph.getEdgeSource(edge);
+			children.put(process_vert(outgraph, child));
+		}
+		json.put("children", children);
+		return json;
+	}
+	
+	public static JSONObject exportGraphJSON(Graph<GraphVertex, GraphEdge> outgraph) {
+		GraphVertex root = getRoot(outgraph);
+		return process_vert(outgraph, root);
+	}
+	
+	public static void exportGraph(String filename, Graph<GraphVertex, GraphEdge> outgraph) throws IOException, ExportException {
 		System.out.println("Exporting Graph");
 		GmlExporter<GraphVertex, GraphEdge> exporter = new GmlExporter<GraphVertex, GraphEdge>();
 		FileWriter w = new FileWriter(filename);
@@ -369,6 +399,14 @@ public class TreeReducer {
 			}
 		}
 		return subgraph(subset);
+	}
+	
+	public Graph<GraphVertex, GraphEdge> subgraphVerbs(List<String> verbs) {
+		HashSet<GraphVertex> leafs = new HashSet<GraphVertex>();
+		for (String verb : verbs) {
+			leafs.addAll(grouping.get(verb));
+		}
+		return subgraph(leafs);
 	}
 	
 	public static enum MARK {

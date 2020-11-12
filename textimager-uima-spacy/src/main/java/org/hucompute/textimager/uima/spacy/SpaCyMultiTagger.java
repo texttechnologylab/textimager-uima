@@ -1,17 +1,14 @@
 package org.hucompute.textimager.uima.spacy;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
@@ -43,17 +40,13 @@ public class SpaCyMultiTagger extends SpaCyBase {
 	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
 	protected String posMappingLocation;
 
-	public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = "nerMappingLocation";
-	@ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
-	protected String nerMappingLocation;
-	
 	/**
 	 * Overwrite model variant?
 	 */
 	public static final String PARAM_VARIANT = "variant";
 	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
 	protected String variant;
-	
+
 	/**
 	 * Max Text Length
 	 */
@@ -62,17 +55,40 @@ public class SpaCyMultiTagger extends SpaCyBase {
 	protected long maxTextLength;
 
 	private MappingProvider mappingProvider;
-	private MappingProvider mappingProviderNer;
 
+	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		
+
 		// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
-		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant,
-				language);
+		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant, language);
+
+		try {
+			System.out.println("initializing spacy models...");
+			interpreter.exec("nlps = {}");
+			interpreter.exec("nlps['de'] = spacy.load('de_core_news_sm')");
+			interpreter.exec("nlps['en'] = spacy.load('en_core_web_sm')");
+//			interpreter.exec("nlps['zh'] = spacy.load('zh_core_web_sm')");
+//			interpreter.exec("nlps['da'] = spacy.load('da_core_news_sm')");
+//			interpreter.exec("nlps['nl'] = spacy.load('nl_core_news_sm')");
+//			interpreter.exec("nlps['fr'] = spacy.load('fr_core_news_sm')");
+//			interpreter.exec("nlps['el'] = spacy.load('el_core_news_sm')");
+//			interpreter.exec("nlps['it'] = spacy.load('it_core_news_sm')");
+//			interpreter.exec("nlps['ja'] = spacy.load('ja_core_news_sm')");
+//			interpreter.exec("nlps['lt'] = spacy.load('lt_core_news_sm')");
+//			interpreter.exec("nlps['nb'] = spacy.load('nb_core_news_sm')");
+//			interpreter.exec("nlps['pl'] = spacy.load('pl_core_news_sm')");
+//			interpreter.exec("nlps['pt'] = spacy.load('pt_core_news_sm')");
+//			interpreter.exec("nlps['ro'] = spacy.load('ro_core_news_sm')");
+//			interpreter.exec("nlps['es'] = spacy.load('es_core_news_sm')");
+		} catch (JepException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	private void processToken(JCas aJCas, int beginOffset) throws JepException {
+	private Map<Integer, Map<Integer, Token>> processToken(JCas aJCas, int beginOffset) throws JepException {
+		Map<Integer, Map<Integer, Token>> tokensMap = new HashMap<>();
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> output = (ArrayList<HashMap<String, Object>>) interpreter.getValue("tokens");
 		for (HashMap<String, Object> token : output) {
@@ -81,11 +97,18 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				int end = begin + ((Long) token.get("length")).intValue();
 				Token casToken = new Token(aJCas, begin, end);
 				casToken.addToIndexes();
+				if (!tokensMap.containsKey(begin)) {
+					tokensMap.put(begin, new HashMap<>());
+				}
+				if (!tokensMap.get(begin).containsKey(end)) {
+					tokensMap.get(begin).put(end, casToken);
+				}
 			}
 		}
+		return tokensMap;
 	}
 
-	private void processPOS(JCas aJCas, int beginOffset) throws AnalysisEngineProcessException, JepException {
+	private void processPOS(JCas aJCas, int beginOffset, Map<Integer, Map<Integer, Token>> tokensMap) throws AnalysisEngineProcessException, JepException {
 		mappingProvider.configure(aJCas.getCas());
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interpreter.getValue("pos");
@@ -99,29 +122,16 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
 				posAnno.setPosValue(tagStr);
 				POSUtils.assignCoarseValue(posAnno);
+				
+				Token tokenAnno = tokensMap.get(begin).get(end);
+				tokenAnno.setPos(posAnno);
+				
 				posAnno.addToIndexes();
 			}
 		});
-		
-		mappingProviderNer = new MappingProvider();
-		mappingProviderNer.setDefaultVariantsLocation("org/hucompute/textimager/uima/spacy/lib/ner-default-variants.map");
-		mappingProviderNer.setDefault(MappingProvider.LOCATION, "classpath:/org/hucompute/textimager/uima/spacy/lib/ner-${language}-${variant}.map");
-		mappingProviderNer.setDefault(MappingProvider.BASE_TYPE, NamedEntity.class.getName());
-		mappingProviderNer.setOverride(MappingProvider.LOCATION, nerMappingLocation);
-		mappingProviderNer.setOverride(MappingProvider.LANGUAGE, language);
-		mappingProviderNer.setOverride(MappingProvider.VARIANT, variant);
-
-    // add pos refs to tokens
-		Map<POS, Collection<Token>> posTokenMap = JCasUtil.indexCovering(aJCas, POS.class, Token.class);
-		for (Map.Entry<POS, Collection<Token>> entry : posTokenMap.entrySet()) {
-			POS posAnno = entry.getKey();
-			for (Token tokenAnno : entry.getValue()) {
-				tokenAnno.setPos(posAnno);
-			}
-		}
 	}
 
-	private void processDep(JCas aJCas, int beginOffset) throws JepException {
+	private void processDep(JCas aJCas, int beginOffset, Map<Integer, Map<Integer, Token>> tokensMap) throws JepException {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> deps = (ArrayList<HashMap<String, Object>>) interpreter.getValue("deps");
 		deps.forEach(dep -> {
@@ -136,8 +146,8 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				int beginHead = ((Long) headToken.get("idx")).intValue() + beginOffset;
 				int endHead = beginHead + ((Long) headToken.get("length")).intValue();
 
-				Token dependent = JCasUtil.selectSingleAt(aJCas, Token.class, begin, end);
-				Token governor = JCasUtil.selectSingleAt(aJCas, Token.class, beginHead, endHead);
+				Token dependent = tokensMap.get(begin).get(end);
+				Token governor = tokensMap.get(beginHead).get(endHead);
 
 				Dependency depAnno;
 				if (depStr.equals("ROOT")) {
@@ -167,7 +177,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			neAnno.addToIndexes();
 		});
 	}
-	
+
 	private void processSentences(JCas aJCas, int beginOffset) throws JepException {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, Object>> sents = (ArrayList<HashMap<String, Object>>) interpreter.getValue("sents");
@@ -179,6 +189,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 		});
 	}
 
+	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		/// DEBUG START
 		// remove all token, sentences, pos, ner, dep
@@ -201,7 +212,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 		//	token.removeFromIndexes();
 		//}
 		/// DEBUG END
-		
+
 		long textLength = aJCas.getDocumentText().length();
 		System.out.println("text length: " + textLength);
 		// abort on empty
@@ -209,16 +220,13 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			System.out.println("skipping spacy due to text length < 1");
 			return;
 		}
-				
+
 		try {
 			interpreter.set("lang", (Object)aJCas.getDocumentLanguage());
-			if (aJCas.getDocumentLanguage().equals("de"))
-				interpreter.exec("nlp = spacy.load('de_core_news_sm')");
-			else
-				interpreter.exec("nlp = spacy.load('en_core_web_sm')");
 			
+			interpreter.exec("nlp = nlps[lang] if lang in nlps else nlps['en']");
+
 			int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
-			//int spacyMaxLength = 20;
 			System.out.println("Spacy max length is " + spacyMaxLength);
 
 			// set nlp length to text lenght to allow complete text if needed
@@ -226,7 +234,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				interpreter.exec("nlp.max_length = " + String.valueOf(textLength+100));
 				interpreter.exec("print('max length is', nlp.max_length)");
 			}
-			
+
 			List<String> texts = new ArrayList<>();
 			if (textLength > spacyMaxLength) {
 				int textLimit = spacyMaxLength / 2;
@@ -239,14 +247,12 @@ public class SpaCyMultiTagger extends SpaCyBase {
 						texts.add(sb.toString());
 						sb.setLength(0);
 					}
-					boolean isFirst = sb.length() == 0;
-					if (!isFirst) {
-						sb.append(" ");
-					}
 					sb.append(textPart).append(".");
 				}
 				// handle rest
 				if (sb.length() > 0) {
+					if(!aJCas.getDocumentText().endsWith("."))
+						sb.setLength(sb.length()-1);
 					texts.add(sb.toString());
 				}
 			}
@@ -259,44 +265,37 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			for (String text : texts) {
 				counter++;
 				System.out.println("processing text part " + counter + "/" + texts.size());
-				//System.out.println(text);
-				
-				// count spaces on left side for offset, remove spaces for space
-				int len = text.length();
-				text = StringUtils.stripStart(text, null);
-				int strippedSpaces = len - text.length();
-				beginOffset += strippedSpaces;
-				System.out.println("stripped " + strippedSpaces + " left spaces");
 				
 				// text to python interpreter
 				interpreter.set("text", (Object)text);
 				interpreter.exec("doc = nlp(text)");
-	
+
 				// prepare annotations for retrieval
-				interpreter.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space} for token in doc]");
+				interpreter.exec("tokens = [{'idx': token.idx,'length': len(token),'is_space': token.is_space,'token_text':token.text} for token in doc]");
+				interpreter.exec("sents = [{'begin': sent.start_char, 'end': sent.end_char} for sent in doc.sents]");
+
 				interpreter.exec("pos = [{'tag': token.tag_,'idx': token.idx,'length': len(token),'is_space': token.is_space}for token in doc]");
 				interpreter.exec("deps = [{'dep': token.dep_,'idx': token.idx,'length': len(token),'is_space': token.is_space,'head': {'idx': token.head.idx,'length': len(token.head),'is_space': token.head.is_space}}	for token in doc]");
 				interpreter.exec("ents = [{'start_char': ent.start_char,'end_char': ent.end_char,'label': ent.label_}for ent in doc.ents]");
-				interpreter.exec("sents = [{'begin': sent.start_char, 'end': sent.end_char} for sent in doc.sents]");
-				
-				// Tokenizer
-				processToken(aJCas, beginOffset);
-	
-				// Tagger
-				processPOS(aJCas, beginOffset);
-	
-				// PARSER
-				processDep(aJCas, beginOffset);
-	
-				// NER
-				processNER(aJCas, beginOffset);
-				
+
 				// Sentences
 				processSentences(aJCas, beginOffset);
 				
+				// Tokenizer
+				Map<Integer, Map<Integer, Token>> tokensMap = processToken(aJCas, beginOffset);
+
+				// Tagger
+				processPOS(aJCas, beginOffset, tokensMap);
+
+				// PARSER
+				processDep(aJCas, beginOffset, tokensMap);
+
+				// NER
+				processNER(aJCas, beginOffset);
+
 				beginOffset += text.length();
 			}
-			
+
 		} catch (JepException e) {
 			throw new AnalysisEngineProcessException(e);
 		}

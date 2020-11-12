@@ -10,6 +10,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.resources.MappingProvider;
+import org.hucompute.textimager.uima.type.Sentiment;
 
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import jep.JepException;

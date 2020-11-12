@@ -70,8 +70,6 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 	HashMap<String, HashSet<String>>verbLemmaIds = new HashMap<>();
 	GermaNet gnet;
 
-//	HashSet<String> eindeutigReflexiv = new HashSet<>();
-	
 	TreeReducer tr = null;
 
 	@Override
@@ -137,47 +135,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 			}
 		};
 	}
-//
-//	public static HashSet<String>getReflexivVerbs(GermaNet gnet ) throws FileNotFoundException, XMLStreamException, IOException{
-//		if(gnet == null)		
-//			gnet = new GermaNet("src/main/resources/GN_V140.zip");
-//
-//		HashSet<String>notWorking = new HashSet<>();
-//		notWorking.add("verirren");
-//		notWorking.add("einfetten");
-//		notWorking.add("enthalten");
-//		notWorking.add("hineinfressen");
-//		notWorking.add("kontrahieren");
-//		notWorking.add("rumtreiben");
-//		notWorking.add("hineinmischen");
-//		notWorking.add("überwerfen");
-//		notWorking.add("kaufen");
-//		notWorking.add("assoziieren");
-//		notWorking.add("gesellen");
-//		notWorking.add("versammeln");
-//		notWorking.add("zanken");
-//		notWorking.add("abwaschen");
-//		notWorking.add("zieren");
-//
-//		HashSet<String>containsR = new HashSet<>();
-//		HashSet<String>allFramesContainsR = new HashSet<>();
-//		HashSet<String>doubled = new HashSet<>();
-//
-//		for (LexUnit lex : gnet.getLexUnits(WordCategory.verben)) {
-//			if(lex.getFrames().stream().anyMatch(x -> x.toString().toLowerCase().contains("ar")||x.toString().toLowerCase().contains("dr"))&& gnet.getLexUnits(lex.getOrthForm(),WordCategory.verben).size() == 2)
-//			{
-//				if(containsR.contains(lex.getOrthForm()))
-//					doubled.add(lex.getOrthForm());
-//
-//				if(lex.getFrames().stream().allMatch(x -> x.toString().toLowerCase().contains("ar")||x.toString().toLowerCase().contains("dr")))
-//					allFramesContainsR.add(lex.getOrthForm());
-//				containsR.add(lex.getOrthForm());
-//			}
-//		}
-//		allFramesContainsR.removeAll(doubled);
-//		allFramesContainsR.removeAll(notWorking);
-//		return allFramesContainsR;
-//	}
+	
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
@@ -191,9 +149,11 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 				if(gnet.getLexUnits(lemma, WordCategory.verben).size() == 1){
 					WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
 					sense.setValue(Integer.toString(gnet.getLexUnits(lemma, WordCategory.verben).get(0).getId()));
+//					sense.setConfidence(1);
 					sense.addToIndexes();
 					continue;
 				}
+				
 
 				if(token.getPos().getClass() == POS_VERB.class){
 					if(JCasUtil.selectCovered(WordSense.class, token).size() > 0)
@@ -201,34 +161,9 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 					if(gnet.getLexUnits(lemma, WordCategory.verben).isEmpty()){
 						WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
 						sense.setValue(Integer.toString(-1));
+//						sense.setConfidence(1);
 						sense.addToIndexes();
 					}
-//					else if(eindeutigReflexiv.contains(lemma)){
-//						boolean containsPRF = false;
-//						for (POS pr: JCasUtil.selectCovered(POS.class,sentence)) {
-//							if(pr.getPosValue().equals("PRF") && lemma.contains(JCasUtil.selectCovered(Dependency.class, pr).get(0).getGovernor().getLemma().getValue()))
-//							{
-//								containsPRF = true;
-//							}
-//						}
-//
-//						for (LexUnit lexUnit : gnet.getLexUnits(lemma, WordCategory.verben)) {
-//							if(containsPRF && lexUnit.getFrames().stream().anyMatch(x -> x.toString().toLowerCase().contains("ar")||x.toString().toLowerCase().contains("dr")))
-//							{
-//								WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
-//								sense.setValue(Integer.toString(lexUnit.getId()));
-//								sense.addToIndexes();
-//								break;
-//							}
-//							if(!containsPRF && !lexUnit.getFrames().stream().anyMatch(x -> x.toString().toLowerCase().contains("ar")||x.toString().toLowerCase().contains("dr")))
-//							{
-//								WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
-//								sense.setValue(Integer.toString(lexUnit.getId()));
-//								sense.addToIndexes();
-//								break;
-//							}							
-//						};
-//					}
 					else if(verbLemmaIds.containsKey(lemma)){
 						String toAnalize = sentence.getCoveredText();
 						for (String string : sentence.getCoveredText().split(",|;|:| und ")) {
@@ -254,9 +189,11 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 						for (ProbLabel probLabel2 : probLabel) {
 							if(verbLemmaIds.get(lemma).contains(probLabel2.label.replace("__label__", ""))){
 								WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
+								
 								// Do reverse mapping to base GermaNet LexUnit ids
 								if (tr == null) sense.setValue(probLabel2.label.replace("__label__", ""));
 								else sense.setValue(tr.reverseMap(lemma, probLabel2.label.replace("__label__", "")));
+//								sense.setConfidence(Math.exp(probLabel2.logProb));
 								sense.addToIndexes();
 								break;
 							}
