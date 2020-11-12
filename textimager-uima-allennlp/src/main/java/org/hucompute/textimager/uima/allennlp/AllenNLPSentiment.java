@@ -22,7 +22,7 @@ public class AllenNLPSentiment extends AllenNLPBase {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		try {
-			interp.exec("predictor = Predictor.from_path(\'https://storage.googleapis.com/allennlp-public-models/basic_stanford_sentiment_treebank-2020.06.09.tar.gz\')");			
+			interpreter.exec("predictor = Predictor.from_path(\'https://storage.googleapis.com/allennlp-public-models/basic_stanford_sentiment_treebank-2020.06.09.tar.gz\')");			
 		}
 		catch (JepException e) {
 			e.printStackTrace();
@@ -36,12 +36,12 @@ public class AllenNLPSentiment extends AllenNLPBase {
 		try {
 			final Object lang = aJCas.getDocumentLanguage();
 			final Object text = aJCas.getDocumentText();
-			interp.set("lang", lang);
-			interp.set("text", text);
-			interp.exec("predicted = predictor.predict(sentence=text)");
-			interp.exec("probs = predicted.get('probs')");
-			double positive = (double)interp.getValue("probs[0]");
-			double negative = (double)interp.getValue("probs[1]");
+			interpreter.set("lang", lang);
+			interpreter.set("text", text);
+			interpreter.exec("predicted = predictor.predict(sentence=text)");
+			interpreter.exec("probs = predicted.get('probs')");
+			double positive = (double)interpreter.getValue("probs[0]");
+			double negative = (double)interpreter.getValue("probs[1]");
 //			Sentiment sent = new Sentiment(aJCas, 0, (aJCas.getDocumentText()).length());
 //			sent.setSentiment(positive);
 //			sent.addToIndexes();

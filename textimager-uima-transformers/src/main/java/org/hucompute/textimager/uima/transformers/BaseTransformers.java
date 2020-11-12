@@ -21,8 +21,6 @@ public abstract class BaseTransformers extends JepAnnotator {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		
 		super.initialize(aContext);
-<<<<<<< HEAD
-
 		System.out.println("initializing transformers base class...");
 
 		// set defaults
@@ -62,20 +60,6 @@ public abstract class BaseTransformers extends JepAnnotator {
 		}
 		
 		System.out.println("initializing transformers base class done");
-=======
-		if(interp == null)
-			interp =setUpInter(pythonHome, interp);
-
-		try {
-			interp.exec("import os");
-			interp.exec("import sys");
-			interp.exec("from transformers import pipeline, AutoTokenizer"); 
-			interp.exec("from java.lang import System");
-
-		} catch (JepException ex) {
-			throw new ResourceInitializationException(ex);
-		}
->>>>>>> refs/remotes/origin/master
 
 	}
 

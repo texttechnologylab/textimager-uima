@@ -21,7 +21,7 @@ public class AllenNLPOpenIE extends AllenNLPBase {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		try {
-			interp.exec("predictor = Predictor.from_path('https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz')");			
+			interpreter.exec("predictor = Predictor.from_path('https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz')");			
 		}
 		catch (JepException e) {
 			e.printStackTrace();
@@ -35,11 +35,11 @@ public class AllenNLPOpenIE extends AllenNLPBase {
 		try {
 			final Object lang = aJCas.getDocumentLanguage();
 			final Object text = aJCas.getDocumentText();
-			interp.set("lang", lang);
-			interp.set("text", text);
-			interp.exec("predicted = predictor.predict(sentence=text)");
-			interp.exec("verbs = predicted.get('verbs')");
-			System.out.println(interp.getValue("verbs"));
+			interpreter.set("lang", lang);
+			interpreter.set("text", text);
+			interpreter.exec("predicted = predictor.predict(sentence=text)");
+			interpreter.exec("verbs = predicted.get('verbs')");
+			System.out.println(interpreter.getValue("verbs"));
 		} catch (JepException e) {
 			e.printStackTrace();
 		}

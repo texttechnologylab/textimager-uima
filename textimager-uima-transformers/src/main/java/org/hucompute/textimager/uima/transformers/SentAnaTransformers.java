@@ -10,45 +10,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.resources.MappingProvider;
-<<<<<<< HEAD
 import org.hucompute.textimager.uima.type.Sentiment;
-
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import jep.JepException;
-
-public class SentAnaTransformers extends BaseTransformers {
-
-	
-	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-		super.initialize(aContext);
-
-	}
-	
-
-	@Override
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		//		super.process(aJCas);
-		HashMap<String, Object>  json = buildJSON(aJCas);
-
-		try {
-			interp.set("lang", aJCas.getDocumentLanguage());
-			interp.set("words",json.get("words"));
-			interp.set("spaces",json.get("spaces"));
-			interp.set("text",aJCas.getDocumentText());
-
-			interp.exec("nlp = pipeline('sentiment-analysis')");
-			interp.exec("ents = nlp(text)");
-
-			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
-			poss.forEach(p -> {
-				
-				String labelStr = p.get("score").toString();
-				double sent = Double.parseDouble(labelStr);
-				
-				Sentiment neAnno = new Sentiment(aJCas, 0, (aJCas.getDocumentText()).length());
-				
-				neAnno.setSentiment(sent);
-=======
 
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import jep.JepException;
@@ -83,7 +45,6 @@ public class SentAnaTransformers extends BaseTransformers {
 				
 				NamedEntity neAnno = new NamedEntity(aJCas, 0, (aJCas.getDocumentText()).length());
 				neAnno.setValue(labelStr);
->>>>>>> refs/remotes/origin/master
 				neAnno.addToIndexes();
 				
 				

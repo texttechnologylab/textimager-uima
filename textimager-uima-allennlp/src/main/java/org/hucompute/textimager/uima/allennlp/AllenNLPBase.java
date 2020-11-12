@@ -8,32 +8,50 @@ import jep.JepException;
 import jep.SharedInterpreter;
 
 public abstract class AllenNLPBase extends JepAnnotator {
-	protected SharedInterpreter interp ;
 
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		if(interp == null)
-			interp = setUpInter(pythonHome, interp);
+		System.out.println("initializing allennlp base class...");
+
+		// set defaults
+		// TODO schönerer Weg?
+//		if (condaBashScript == null || condaBashScript.isEmpty()) {
+//			condaBashScript = "spacy230_v2_setup.sh";
+//		}
+		if (envDepsPip == null || envDepsPip.isEmpty()) {
+			envDepsPip = "allennlp==1.2.1 textblob==0.15.3 textblob-de==0.4.3";
+		}
+		if (envDepsConda == null || envDepsConda.isEmpty()) {
+			envDepsConda = "";
+		}
+		if (envPythonVersion == null || envPythonVersion.isEmpty()) {
+			envPythonVersion = "3.7";
+		}
+		if (envName == null || envName.isEmpty()) {
+			envName = "textimager_allennlp121_py37_v1";
+		}
+		if (condaVersion == null || condaVersion.isEmpty()) {
+			condaVersion = "py37_4.8.3";
+		}
+		
+		System.out.println("initializing spacy base class: conda");
+		
+		initConda();
+		
+		System.out.println("initializing spacy base class: interprter extras...");
+		
 		try {
-			interp.exec("import sys");
-			interp.exec("sys.argv=['']");
-			interp.exec("from allennlp.predictors.predictor import Predictor");
-			interp.exec("import allennlp_models.structured_prediction");
-			interp.exec("import allennlp_models.tagging");
-			
+			interpreter.exec("import sys");
+			interpreter.exec("sys.argv=['']");
+			interpreter.exec("from allennlp.predictors.predictor import Predictor");
+			interpreter.exec("import allennlp_models.structured_prediction");
+			interpreter.exec("import allennlp_models.tagging");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
-	}
-	
-	@Override
-	public void destroy() {
-		try {
-			interp.close();
-		} catch (JepException e) {
-			e.printStackTrace();
-		}
-		super.destroy();
+		
+		System.out.println("initializing allennlp base class done");
+		
 	}
 }
