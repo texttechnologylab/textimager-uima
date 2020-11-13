@@ -344,13 +344,14 @@ public class TreeReducer {
 	
 	private static JSONObject process_vert(Graph<GraphVertex, GraphEdge> outgraph, GraphVertex vert) {
 		JSONObject json = new JSONObject();
-		json.put("name", vert.getLabel());
+		json.put("name", vert.toString());
 		JSONArray children = new JSONArray();
-		for (GraphEdge edge : outgraph.edgesOf(vert)) {
+		for (GraphEdge edge : outgraph.incomingEdgesOf(vert)) {
 			GraphVertex child = outgraph.getEdgeSource(edge);
 			children.put(process_vert(outgraph, child));
 		}
-		json.put("children", children);
+		if (!children.isEmpty())
+			json.put("children", children);
 		return json;
 	}
 	
@@ -503,10 +504,10 @@ public class TreeReducer {
 		
 		public String toString() {
 			if (lex != null) {
-				return label + "_" + lex.getOrthForm();
+				return lex.getOrthForm() + ": " + label.replace(MEMBER_PREFIX, "");
 			}
 			if (syn != null) {
-				return label + "_" + syn.getAllOrthForms();
+				return syn.getAllOrthForms().toString().replace("[", "").replace("]", "")+ ": " + label.replace(GROUP_PREFIX, "");
 			}
 			return label;
 		}
@@ -555,27 +556,27 @@ public class TreeReducer {
 		
 	}
 	
-	public static void main(String...args) throws FileNotFoundException, XMLStreamException, IOException, ExportException {
-		TreeReducer tr = new TreeReducer();
-		tr.loadgnet("/resources/nlp/models/disambig/verbs/GN_V140_verbs");
-		tr.exportGraph("gnet.gml");
-		ArrayList<String> subgraphlabels = new ArrayList<String>();
-		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "73510");
-		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "75522");
-		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "76529");
-		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "79474");
-		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "79740");
-		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "79800");
-		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "83425");
-		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "83445");
-		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "84013");
-		
-		tr.exportGraph("subgraph.gml", tr.subgraph(subgraphlabels));
-		tr.reduce();
-		tr.exportGraph("gnet_reduced.gml");
-		tr.exportGraph("subgraph_reduced.gml", tr.subgraph(subgraphlabels));
-		//tr.exportGraphSized("subgraph_reduced_sized.gml", tr.subgraph(subgraphlabels), null);
-		//tr.exportMappings("reducermappings");
-		
-	}
+//	public static void main(String...args) throws FileNotFoundException, XMLStreamException, IOException, ExportException {
+//		TreeReducer tr = new TreeReducer();
+//		tr.loadgnet("/resources/nlp/models/disambig/verbs/GN_V140_verbs");
+//		tr.exportGraph("gnet.gml");
+//		ArrayList<String> subgraphlabels = new ArrayList<String>();
+//		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "73510");
+//		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "75522");
+//		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "76529");
+//		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "79474");
+//		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "79740");
+//		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "79800");
+//		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "83425");
+//		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "83445");
+//		subgraphlabels.add(TreeReducer.MEMBER_PREFIX + "84013");
+//		
+//		tr.exportGraph("subgraph.gml", tr.subgraph(subgraphlabels));
+//		tr.reduce();
+//		tr.exportGraph("gnet_reduced.gml");
+//		tr.exportGraph("subgraph_reduced.gml", tr.subgraph(subgraphlabels));
+//		//tr.exportGraphSized("subgraph_reduced_sized.gml", tr.subgraph(subgraphlabels), null);
+//		//tr.exportMappings("reducermappings");
+//		
+//	}
 }

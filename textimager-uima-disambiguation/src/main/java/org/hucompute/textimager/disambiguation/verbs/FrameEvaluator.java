@@ -1,5 +1,7 @@
 package org.hucompute.textimager.disambiguation.verbs;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,9 +10,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -30,9 +35,13 @@ import de.tuebingen.uni.sfs.germanet.api.WordCategory;
 
 public class FrameEvaluator extends JCasAnnotator_ImplBase {
 
-	public static final String PARAM_GERMANET_PATH = "gnetPath";
-	@ConfigurationParameter(name = PARAM_GERMANET_PATH, mandatory = true, description = "The germanet directory")
-	private String gnetPath;
+	public static final String PARAM_GERMANET_PATH = "germanetPath";
+	@ConfigurationParameter(name = PARAM_GERMANET_PATH, mandatory = false, description = "The germanet directory")
+	private String germanetPath;
+	
+	public static final String PARAM_GERMANET = "gnet";
+	@ExternalResource(key=PARAM_GERMANET, mandatory = false, description = "You can pass a GermaNet object instead of a path, to avoid loading germanet multiple times")
+	private GNetWrapper gnetwrapper;
 
 	public static final String PARAM_CRITERIA = "strict";
 	@ConfigurationParameter(name = PARAM_CRITERIA, mandatory = false, description = "Whether to use strict frame matching. Options 'strict', 'superstrict' or anything else", defaultValue = "strict")
@@ -41,7 +50,6 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	public static final String PARAM_VERBOSE = "verbose";
 	@ConfigurationParameter(name = PARAM_VERBOSE, mandatory = false, description = "Whether to use verbose console output or not", defaultValue = "false")
 	private boolean verbose;
-
 
 	private GermaNet gnet;
 	private HashMap<String, HashSet<String>> senseInventory;
@@ -60,9 +68,20 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		// Set up lemmatizer, pos, morph taggers
 		try {
 
+			if (gnetwrapper == null) {
+				try {
+					gnet = new GermaNet(new File(germanetPath));
+				} catch (XMLStreamException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			} else {
+				gnet = gnetwrapper.getGnet();
+			}
+			
 			senseInventory = new HashMap<String, HashSet<String>>();
 			senseCriteria = new HashMap<String, HashSet<String>>();
-			gnet = new GermaNet(gnetPath);
+			
 
 
 			// TODO: Maybe build criteria for all senses here, instead of during predict call? Fewer duplicated operations?
@@ -304,7 +323,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 	// docId of null means that we are doing a test run and don't want to load a cached cas. 
 	// We still write a cas with id "test", but it will not be loaded and will be overwritten when we do another test run.
 	public void process(JCas cas) {
-
+		
 		for (Sentence sentence : JCasUtil.select(cas, Sentence.class)) {
 //			List<Dependency>svps = new ArrayList<>();
 //			for (Dependency dependency : JCasUtil.selectCovered(Dependency.class, sentence)) {
