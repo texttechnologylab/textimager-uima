@@ -23,7 +23,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 public class StanzaTaggerTest {
 	@Test
 	public void simpleExample() throws UIMAException, SAXException, IOException{
-		JCas cas = JCasFactory.createText("Ich gehe zur Schule.");
+		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
 		cas.setDocumentLanguage("de");
 		
 		Token t1 = new Token(cas, 0, 3);

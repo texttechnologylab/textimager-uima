@@ -5,12 +5,8 @@ import java.util.HashMap;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.Type;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.dkpro.core.api.resources.MappingProvider;
-import org.hucompute.textimager.uima.type.Summary;
 
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import jep.JepException;
@@ -42,15 +38,11 @@ public class TextSumTransformers extends BaseTransformers {
 				
 				String labelStr = p.get("summary_text").toString();
 				
-				Summary neAnno = new Summary(aJCas, 0, (aJCas.getDocumentText()).length());
-				neAnno.setSummary(labelStr);
+				NamedEntity neAnno = new NamedEntity(aJCas, 0, (aJCas.getDocumentText()).length());
+				neAnno.setValue(labelStr);
 				neAnno.addToIndexes();
 				
-				
 			});
-		
-			
-
 		} catch (JepException e) {
 			e.printStackTrace();
 		}

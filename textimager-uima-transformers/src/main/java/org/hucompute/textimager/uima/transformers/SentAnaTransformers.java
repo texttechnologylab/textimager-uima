@@ -41,12 +41,10 @@ public class SentAnaTransformers extends BaseTransformers {
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 			poss.forEach(p -> {
 				
-				String labelStr = p.get("score").toString();
-				double sent = Double.parseDouble(labelStr);
+				String labelStr = p.get("label").toString();
 				
-				Sentiment neAnno = new Sentiment(aJCas, 0, (aJCas.getDocumentText()).length());
-				
-				neAnno.setSentiment(sent);
+				NamedEntity neAnno = new NamedEntity(aJCas, 0, (aJCas.getDocumentText()).length());
+				neAnno.setValue(labelStr);
 				neAnno.addToIndexes();
 				
 				

@@ -21,7 +21,6 @@ public abstract class BaseTransformers extends JepAnnotator {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		
 		super.initialize(aContext);
-
 		System.out.println("initializing transformers base class...");
 
 		// set defaults

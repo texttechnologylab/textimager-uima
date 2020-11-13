@@ -43,7 +43,7 @@ public class TestFlairNERBiofid {
 
 		AnalysisEngine engine = AnalysisEngineFactory.createEngine(FlairNERBiofid.class,
 				FlairNERBiofid.PARAM_LANGUAGE, "de",
-				FlairNERBiofid.PARAM_MODEL_LOCATION, "/home/baumartz/Downloads/flair_tests/*-best-model.pt"
+				FlairNERBiofid.PARAM_MODEL_LOCATION, "/home/ahemati/model.pt"
 		);
 
 		SimplePipeline.runPipeline(jCas, engine);

@@ -1975,6 +1975,18 @@ relational adjectives, such as "proud" (with arguments who and of what).
                     </features>
                 </typeDescription>
                 <typeDescription>
+                    <name>org.hucompute.textimager.uima.type.Summary</name>
+                    <description/>
+                    <supertypeName>uima.tcas.Annotation</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>summary</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
                     <name>org.hucompute.textimager.uima.type.Wikify</name>
                     <description/>
                     <supertypeName>uima.tcas.Annotation</supertypeName>
@@ -2132,6 +2144,23 @@ relational adjectives, such as "proud" (with arguments who and of what).
                             <name>children</name>
                             <description/>
                             <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.hucompute.textimager.uima.type.semantics.WordSense</name>
+                    <description/>
+                    <supertypeName>de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>value</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>confidence</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
                         </featureDescription>
                     </features>
                 </typeDescription>
