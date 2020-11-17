@@ -16,6 +16,7 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.ExternalResource;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
@@ -37,7 +38,6 @@ import de.tuebingen.uni.sfs.germanet.api.GermaNet;
 import de.tuebingen.uni.sfs.germanet.api.LexUnit;
 import de.tuebingen.uni.sfs.germanet.api.WordCategory;
 
-
 public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 
 	/**
@@ -57,8 +57,12 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 	protected String variant;
 
 	public static final String PARAM_GERMANET_PATH = "germanetPath";
-	@ConfigurationParameter(name = PARAM_GERMANET_PATH, mandatory = true)
+	@ConfigurationParameter(name = PARAM_GERMANET_PATH, mandatory = false)
 	protected String germanetPath;
+	
+	public static final String PARAM_GERMANET = "gnet";
+	@ExternalResource(key=PARAM_GERMANET, mandatory = false, description = "You can pass a GermaNet object instead of a path, to avoid loading germanet multiple times")
+	private GNetWrapper gnetwrapper;
 	
 	protected String verblemmaIdsPath;
 	
@@ -68,18 +72,22 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 	protected boolean activateReducer;
 
 	HashMap<String, HashSet<String>>verbLemmaIds = new HashMap<>();
-	GermaNet gnet;
-
+	
 	TreeReducer tr = null;
+	private GermaNet gnet;
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-		try {
-			gnet = new GermaNet(new File(germanetPath));
-		} catch (XMLStreamException | IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		if (gnetwrapper == null) {
+			try {
+				gnet = new GermaNet(new File(germanetPath));
+			} catch (XMLStreamException | IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		} else {
+			gnet = gnetwrapper.getGnet();
 		}
 		if(activateReducer){
 			 tr = new TreeReducer();
@@ -141,6 +149,9 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 
 		modelProvider.configure(aJCas.getCas());
+		
+		System.out.println("Starting NN Disambiguation...");
+		
 		for (Sentence sentence : JCasUtil.select(aJCas, Sentence.class)) {
 			aJCas.getCas().createAnnotation(sentence.getType(), 1, 0);
 
@@ -149,6 +160,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 				if(gnet.getLexUnits(lemma, WordCategory.verben).size() == 1){
 					WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
 					sense.setValue(Integer.toString(gnet.getLexUnits(lemma, WordCategory.verben).get(0).getId()));
+					System.out.println("Single sense verb: " + lemma + "\t" + sense.getValue());
 //					sense.setConfidence(1);
 					sense.addToIndexes();
 					continue;
@@ -156,15 +168,20 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 				
 
 				if(token.getPos().getClass() == POS_VERB.class){
-					if(JCasUtil.selectCovered(WordSense.class, token).size() > 0)
+					if(JCasUtil.selectCovered(WordSense.class, token).size() > 0) {
+						System.out.println("Verb " + lemma + " already annotated");
 						continue;
+					}
+					
 					if(gnet.getLexUnits(lemma, WordCategory.verben).isEmpty()){
 						WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
 						sense.setValue(Integer.toString(-1));
+						System.out.println("No valid senses for " + lemma);
 //						sense.setConfidence(1);
 						sense.addToIndexes();
 					}
 					else if(verbLemmaIds.containsKey(lemma)){
+						System.out.println("Using FastText...");
 						String toAnalize = sentence.getCoveredText();
 						for (String string : sentence.getCoveredText().split(",|;|:| und ")) {
 							if(sentence.getCoveredText().indexOf(string) <= (token.getBegin()-sentence.getBegin()) && sentence.getCoveredText().indexOf(string)+string.length() >= token.getEnd()-sentence.getBegin())
@@ -195,6 +212,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 								else sense.setValue(tr.reverseMap(lemma, probLabel2.label.replace("__label__", "")));
 //								sense.setConfidence(Math.exp(probLabel2.logProb));
 								sense.addToIndexes();
+								System.out.println("Verb " + lemma + " annotated with sense " + sense.getValue());
 								break;
 							}
 						}
