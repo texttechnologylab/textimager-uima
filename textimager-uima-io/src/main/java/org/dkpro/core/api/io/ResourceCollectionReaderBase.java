@@ -112,7 +112,7 @@ extends CasCollectionReader_ImplBase
 	public static final String PARAM_SOURCE_LOCATION = ComponentParameters.PARAM_SOURCE_LOCATION;
 	@ConfigurationParameter(name = PARAM_SOURCE_LOCATION, mandatory = false)
 	private String sourceLocation;
-	
+
 	/**
 	 * Location from which the output is read, used for looking for already existing files.
 	 */
@@ -262,41 +262,43 @@ extends CasCollectionReader_ImplBase
 			}
 
 			resources = new ArrayList<Resource>(scan(getSourceLocation(), includes, excludes));
-			
+
 			// Filter existing files
 			if (targetLocation == null || targetLocation.isEmpty()) {
 				System.out.println("Not checking for already existing files...");
 			}
 			else {
 				Path outputDir = Paths.get(targetLocation);
-				System.out.println("Checking for already existing files in: " + outputDir.toString());
-				
-				// Get existing files, map to filename
-				try (Stream<Path> stream = Files.walk(outputDir)) {
-					List<String> existingFiles = stream
-		                    .filter(Files::isRegularFile)
-		                    .map(f -> outputDir.relativize(f).toString())
-		                    .collect(Collectors.toList());
-					System.out.println("Found " + existingFiles.size() + " existing files.");
-					
-					// Build search tree from filename
-					System.out.println("Building search tree...");
-					GeneralizedSuffixTree suffixTree = new GeneralizedSuffixTree();
-					for (String filename : existingFiles) {
-						suffixTree.put(filename, 1);
+				if(outputDir.toFile().exists()){
+					System.out.println("Checking for already existing files in: " + outputDir.toString());
+
+					// Get existing files, map to filename
+					try (Stream<Path> stream = Files.walk(outputDir)) {
+						List<String> existingFiles = stream
+								.filter(Files::isRegularFile)
+								.map(f -> outputDir.relativize(f).toString())
+								.collect(Collectors.toList());
+						System.out.println("Found " + existingFiles.size() + " existing files.");
+
+						// Build search tree from filename
+						System.out.println("Building search tree...");
+						GeneralizedSuffixTree suffixTree = new GeneralizedSuffixTree();
+						for (String filename : existingFiles) {
+							suffixTree.put(filename, 1);
+						}
+
+						// Remove existing from collected resources
+						System.out.println("Checking for mathing files...");
+						int sizeBefore = resources.size();
+						resources.removeIf(r -> !suffixTree.search(r.getPath()).isEmpty());
+						int sizeAfter = resources.size();
+						int sizeRemoved = sizeBefore - sizeAfter;
+						System.out.println("Removed " + sizeRemoved + " files that already exist.");
 					}
-					
-					// Remove existing from collected resources
-					System.out.println("Checking for mathing files...");
-					int sizeBefore = resources.size();
-					resources.removeIf(r -> !suffixTree.search(r.getPath()).isEmpty());
-					int sizeAfter = resources.size();
-					int sizeRemoved = sizeBefore - sizeAfter;
-					System.out.println("Removed " + sizeRemoved + " files that already exist.");
-		        }
+				}
 			}
 			System.out.println("Using " + resources.size() + " files...");
-			
+
 			if(sortBySize){
 				System.out.println("Sorting by Size");
 				Collections.sort(resources, new Comparator<Resource>() {
