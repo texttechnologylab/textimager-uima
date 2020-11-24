@@ -138,6 +138,11 @@
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-w2v</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
 					<groupId>org.dkpro.core</groupId>
 					<artifactId>dkpro-core-corenlp-gpl</artifactId>
 				</dependency>

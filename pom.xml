@@ -113,5 +113,6 @@
 <!--  		<module>textimager-uima-flair-ner</module> -->
 		<module>textimager-uima-textblob</module>
 <!-- 		<module>textimager-uima-transformers</module> -->
+		<module>textimager-uima-w2v</module>
 	</modules>
 </project>
