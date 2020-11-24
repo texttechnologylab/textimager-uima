@@ -19,7 +19,7 @@
 	<types>
 		
 		<typeDescription>
-			<name>org.hucompute.services.type.ImageVector</name>
+			<name>org.hucompute.textimager.uima.type.ImageVector</name>
 			<description/>
 			<supertypeName>uima.tcas.Annotation</supertypeName>
 			<features>

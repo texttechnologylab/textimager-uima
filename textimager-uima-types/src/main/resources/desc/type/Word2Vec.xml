@@ -19,7 +19,7 @@
 	<types>
 		
 		<typeDescription>
-			<name>org.hucompute.services.type.Word2Vec</name>
+			<name>org.hucompute.textimager.uima.type.Word2Vec</name>
 			<description/>
 			<supertypeName>uima.tcas.Annotation</supertypeName>
 			<features>
