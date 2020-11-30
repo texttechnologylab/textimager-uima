@@ -10,7 +10,25 @@
 	
 	<properties>
 		<dl4j.version>0.4.0</dl4j.version>
+		<arbiter.version>0.0.0.8</arbiter.version>
+		<nd4j.version>0.4-rc3.10</nd4j.version>
+		<canova.version>0.0.0.16</canova.version>
 	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.nd4j</groupId>
+				<artifactId>nd4j-native</artifactId>
+				<version>${nd4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.nd4j</groupId>
+				<artifactId>nd4j-cuda-7.5</artifactId>
+				<version>${nd4j.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	
 	<dependencies>
 		<dependency>
@@ -37,6 +55,31 @@
 			<groupId>org.deeplearning4j</groupId>
 			<artifactId>deeplearning4j-ui</artifactId>
 			<version>${dl4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.deeplearning4j</groupId>
+			<artifactId>arbiter-deeplearning4j</artifactId>
+			<version>${arbiter.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.nd4j</groupId>
+			<artifactId>nd4j-api</artifactId>
+			<version>${nd4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.nd4j</groupId>
+			<artifactId>nd4j-native</artifactId>
+			<version>${nd4j.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>canova-nd4j-image</artifactId>
+			<groupId>org.nd4j</groupId>
+			<version>${canova.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>canova-nd4j-codec</artifactId>
+			<groupId>org.nd4j</groupId>
+			<version>${canova.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
