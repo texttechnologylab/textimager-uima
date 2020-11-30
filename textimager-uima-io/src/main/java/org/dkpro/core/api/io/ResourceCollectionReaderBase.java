@@ -17,8 +17,6 @@
  */
 package org.dkpro.core.api.io;
 
-import com.abahgat.suffixtree.GeneralizedSuffixTree;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -52,6 +50,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 import org.dkpro.core.api.parameter.ComponentParameters;
+import org.dkpro.core.api.resources.CompressionMethod;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.AntPathMatcher;
@@ -183,12 +182,25 @@ extends CasCollectionReader_ImplBase
 	private Iterator<Resource> resourceIterator;
 
 	private ProgressMeter progress;
+	
+
+	protected static final Set<String> KNOWN_FILE_EXTENSIONS = new HashSet<>();
 
 	@Override
 	public void initialize(UimaContext aContext)
 			throws ResourceInitializationException
 	{
 		super.initialize(aContext);
+
+		// known file extensions to remove when checking for existing files
+		KNOWN_FILE_EXTENSIONS.add(".txt");
+		KNOWN_FILE_EXTENSIONS.add(".xmi");
+		KNOWN_FILE_EXTENSIONS.add(".xml");
+		KNOWN_FILE_EXTENSIONS.add(".tei");
+		KNOWN_FILE_EXTENSIONS.add(".conll");
+		KNOWN_FILE_EXTENSIONS.add(CompressionMethod.GZIP.getExtension());
+		KNOWN_FILE_EXTENSIONS.add(CompressionMethod.BZIP2.getExtension());
+		KNOWN_FILE_EXTENSIONS.add(CompressionMethod.XZ.getExtension());
 
 		if ((patterns == null || patterns.length == 0) && StringUtils.isBlank(sourceLocation)) {
 			throw new IllegalArgumentException(
@@ -271,33 +283,27 @@ extends CasCollectionReader_ImplBase
 				Path outputDir = Paths.get(targetLocation);
 				if(outputDir.toFile().exists()){
 					System.out.println("Checking for already existing files in: " + outputDir.toString());
-
-					// Get existing files, map to filename
+					
+					// Get existing files, map to filename, remove extensions
 					try (Stream<Path> stream = Files.walk(outputDir)) {
-						List<String> existingFiles = stream
+						Set<String> existingFiles = stream
 								.filter(Files::isRegularFile)
 								.map(f -> outputDir.relativize(f).toString())
-								.collect(Collectors.toList());
+								.map(f -> removeFileExtensions(f))
+								.collect(Collectors.toSet());
 						System.out.println("Found " + existingFiles.size() + " existing files.");
 
-						// Build search tree from filename
-						System.out.println("Building search tree...");
-						GeneralizedSuffixTree suffixTree = new GeneralizedSuffixTree();
-						for (String filename : existingFiles) {
-							suffixTree.put(filename, 1);
-						}
-
 						// Remove existing from collected resources
-						System.out.println("Checking for mathing files...");
 						int sizeBefore = resources.size();
-						resources.removeIf(r -> !suffixTree.search(r.getPath()).isEmpty());
+						System.out.println("Checking " + sizeBefore + " files...");
+						resources.removeIf(r -> existingFiles.contains(removeFileExtensions(r.getPath())));
 						int sizeAfter = resources.size();
 						int sizeRemoved = sizeBefore - sizeAfter;
 						System.out.println("Removed " + sizeRemoved + " files that already exist.");
 					}
 				}
 			}
-			System.out.println("Using " + resources.size() + " files...");
+			System.out.println("Processing " + resources.size() + " files...");
 
 			if(sortBySize){
 				System.out.println("Sorting by Size");
@@ -325,6 +331,21 @@ extends CasCollectionReader_ImplBase
 		catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
+	}
+	
+	protected String removeFileExtensions(String filename) {
+		boolean isDone = false;
+		 while (!isDone) {
+			isDone = true;
+			for (String ext : KNOWN_FILE_EXTENSIONS ) {
+				if (filename.endsWith(ext)) {
+					// do not "replace" to make sure to remove only from end of filename
+					filename = filename.substring(0, filename.length()-ext.length());
+					isDone = false;
+				}
+			}
+		};
+		return filename;
 	}
 
 	protected List<String> getDefaultExcludes()
