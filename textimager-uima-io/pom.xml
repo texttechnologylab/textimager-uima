@@ -67,10 +67,5 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.10.2</version>
 		</dependency>
-		<dependency>
-		    <groupId>com.github.abahgat</groupId>
-		    <artifactId>suffixtree</artifactId>
-		    <version>ef82c837f6</version>
-		</dependency>
 	</dependencies>
 </project>
