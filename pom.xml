@@ -25,6 +25,7 @@
 		<dkpro.core.version>1.12.0</dkpro.core.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<ttlab.typesystem.version>2666daff1ea25bd508facbff734e303d77c12b33</ttlab.typesystem.version>
 	</properties>
 
 	<repositories>
