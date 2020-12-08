@@ -193,6 +193,8 @@ extends CasCollectionReader_ImplBase
 	@ConfigurationParameter(name = PARAM_DOC_MODIFICATION_COMMENT, mandatory = false)
 	private String docModificationComment;
 
+	private boolean docModificationWritten;
+
 	private int completed;
 	private List<Resource> resources;
 	private Iterator<Resource> resourceIterator;
@@ -207,6 +209,8 @@ extends CasCollectionReader_ImplBase
 			throws ResourceInitializationException
 	{
 		super.initialize(aContext);
+
+		docModificationWritten = false;
 
 		// known file extensions to remove when checking for existing files
 		KNOWN_FILE_EXTENSIONS.add(".txt");
@@ -746,7 +750,18 @@ extends CasCollectionReader_ImplBase
 			// This should not happen.
 			throw new RuntimeException(e);
 		}
-		
+
+		// set DocumentMeta on CAS init
+		// handles "already set" internally
+		setDocumentModification(aCas);
+	}
+
+	protected void setDocumentModification(CAS aCas) {
+		// only set once
+		if (docModificationWritten) {
+			return;
+		}
+
 		// Set Document Modification Meta
 		try {
 			DocumentModification docModification = new DocumentModification(aCas.getJCas());
@@ -763,6 +778,8 @@ extends CasCollectionReader_ImplBase
 			// ignore...
 			ex.printStackTrace();
 		}
+
+		docModificationWritten = true;
 	}
 
 	public String getLanguage()

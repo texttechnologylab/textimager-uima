@@ -171,5 +171,8 @@ public class XmiReader
         else if (addDocumentMetadata) {
             initCas(aCAS, res);
         }
+
+        // add DocumentModified, handles "already set" internally
+        setDocumentModification(aCAS);
     }
 }
