@@ -47,6 +47,13 @@
 		</plugins>
 	</build>
 
+	<repositories>
+		<repository>	
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
 	<profiles>
 		<profile>
 			<id>source</id>
@@ -210,6 +217,12 @@
 					<groupId>org.dkpro.core</groupId>
 					<artifactId>dkpro-core-udpipe-asl</artifactId>
 					<version>${dkpro.core.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>com.github.texttechnologylab</groupId>
+					<artifactId>UIMATypeSystem</artifactId>
+					<version>${ttlab.typesystem.version}</version>
 				</dependency>
 
 			</dependencies>
