@@ -115,5 +115,6 @@
 		<module>textimager-uima-textblob</module>
 <!-- 		<module>textimager-uima-transformers</module> -->
 		<module>textimager-uima-w2v</module>
+		<module>textimager-uima-biofid-flair</module>
 	</modules>
 </project>
