@@ -15,6 +15,7 @@ import org.texttechnologylab.annotation.type.Taxon;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class BiofidFlair extends RestAnnotator {
@@ -55,21 +56,30 @@ public class BiofidFlair extends RestAnnotator {
 			taxon.setValue("Taxon;Gazetteer;" + taxon.getValue());
 		}
 
+		int currentSentenceInd = 0;
+		ArrayList<Sentence> sentences = new ArrayList(JCasUtil.select(aJCas, Sentence.class));
+
+		JSONArray jsonSentences = jsonResult.getJSONArray("results");
+
+		System.out.println("cas sentences: " + sentences.size());
+		System.out.println("json sentences: " + jsonSentences.length());
+
 		// merge flair results in cas
 		// make sure to only add if no overlapping taxon is found
-		for (Object sentenceObj : jsonResult.getJSONArray("results")) {
+		for (Object sentenceObj : jsonSentences) {
 			JSONObject sentence = (JSONObject) sentenceObj;
-
-			String sentenceText = sentence.getString("text");
 
 			// Find this sentence in cas
 			int textBegin = -1;
-			for (Sentence casSentence : JCasUtil.select(aJCas, Sentence.class)) {
-				if (casSentence.getCoveredText().equals(sentenceText)) {
-					textBegin = casSentence.getBegin();
-					break;
-				}
+			Sentence currentSentence = sentences.get(currentSentenceInd);
+			if (currentSentence != null) {
+				textBegin = currentSentence.getBegin();
 			}
+			currentSentenceInd += 1;
+
+			String jsonSentence = sentence.getString("text");
+			System.out.println("cas: " + currentSentence.getCoveredText());
+			System.out.println("json: " + jsonSentence);
 
 			if (textBegin < 0) {
 				// this should not happen!
