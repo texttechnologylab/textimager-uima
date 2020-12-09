@@ -16,8 +16,6 @@ import org.json.JSONObject;
 import org.texttechnologylab.annotation.NamedEntity;
 import org.texttechnologylab.annotation.type.Taxon;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 
