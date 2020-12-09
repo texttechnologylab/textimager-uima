@@ -19,10 +19,14 @@ import static org.junit.Assert.assertArrayEquals;
 public class BiofidFlairTest {
     @Test
     public void basicTest() throws UIMAException {
-        JCas jCas = JCasFactory.createText("Das ist ein Test am 08.12.2020, einem Dienstag in Frankfurt.", "de");
+        String sentence_str = "Das ist ein Test am 08.12.2020, einem Dienstag in Frankfurt.";
 
-        Sentence sentence = new Sentence(jCas, 0, jCas.getDocumentText().length());
-        sentence.addToIndexes();
+        JCas jCas = JCasFactory.createText(sentence_str + " " + sentence_str, "de");
+
+        Sentence sentence1 = new Sentence(jCas, 0, sentence_str.length());
+        sentence1.addToIndexes();
+        Sentence sentence2 = new Sentence(jCas, sentence_str.length()+1, sentence_str.length()+1+sentence_str.length());
+        sentence2.addToIndexes();
 
         AnalysisEngineDescription biodidFlairTagger = createEngineDescription(BiofidFlair.class,
                 BiofidFlair.PARAM_REST_ENDPOINT, "http://localhost:5567"
@@ -30,7 +34,7 @@ public class BiofidFlairTest {
 
         SimplePipeline.runPipeline(jCas, biodidFlairTagger);
 
-        String[] texts = new String[] { "08.12.2020", "Dienstag", "Frankfurt", "Frankfurt", "Frankfurt"};
+        String[] texts = new String[] { "08.12.2020", "Dienstag", "Frankfurt", "Frankfurt", "Frankfurt", "08.12.2020", "Dienstag", "Frankfurt", "Frankfurt", "Frankfurt" };
         String[] casTexts = JCasUtil.select(jCas, NamedEntity.class)
                 .stream()
                 .map(Annotation::getCoveredText)
@@ -38,7 +42,7 @@ public class BiofidFlairTest {
         System.out.println(Arrays.toString(casTexts));
         assertArrayEquals(texts, casTexts);
 
-        String[] entities = new String[] { "Time", "Time", "Society", "Artifact", "Location_Place"};
+        String[] entities = new String[] { "Time", "Time", "Society", "Artifact", "Location_Place", "Time", "Time", "Society", "Artifact", "Location_Place"};
         String[] casEntities = JCasUtil.select(jCas, NamedEntity.class)
                 .stream()
                 .map(ne -> ne.getValue().substring(0, ne.getValue().indexOf(";")))
