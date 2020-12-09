@@ -3,10 +3,13 @@ package org.hucompute.textimager.uima.biofid.flair;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.Type;
+import org.apache.uima.cas.text.AnnotationFS;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.resources.MappingProvider;
 import org.hucompute.textimager.uima.base.RestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BiofidFlair extends RestAnnotator {
+	protected MappingProvider mappingProvider;
+
 	@Override
 	protected String getRestRoute() {
 		return "/tag";
@@ -27,6 +32,12 @@ public class BiofidFlair extends RestAnnotator {
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
+
+		super.initialize(aContext);
+		mappingProvider = new MappingProvider();
+		mappingProvider.setDefault(MappingProvider.LOCATION, "classpath:/org/hucompute/textimager/uima/biofid/flair/ner-biofid.map");
+		mappingProvider.setDefault(MappingProvider.BASE_TYPE, NamedEntity.class.getName());
+		mappingProvider.setDefault(MappingProvider.LANGUAGE, "de");
 	}
 
 	@Override
@@ -50,6 +61,8 @@ public class BiofidFlair extends RestAnnotator {
 
 	@Override
 	protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
+		mappingProvider.configure(aJCas.getCas());
+
 		// Add taxon info to all taxons
 		Collection<Taxon> taxons = JCasUtil.select(aJCas, Taxon.class);
 		for (Taxon taxon : taxons) {
@@ -113,14 +126,12 @@ public class BiofidFlair extends RestAnnotator {
 					String classValue = label.getString("value");
 
 					// get class from label
-					String className = "org.texttechnologylab.annotation.type." + classValue;
 					try {
-						Class<? extends NamedEntity> annoClass = Class.forName(className).asSubclass(NamedEntity.class);
-						Constructor<?> annoClassCtor = annoClass.getConstructor(JCas.class, int.class, int.class);
-						NamedEntity anno = (NamedEntity) annoClassCtor.newInstance(aJCas, spanBegin, spanEnd);
-						anno.setValue(classValue + ";Flair" + (ok ? "" : "-REMOVED") + ";score=" + labelScore);
-						anno.addToIndexes();
-					} catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+						Type tagType = mappingProvider.getTagType(classValue);
+						AnnotationFS annotation = aJCas.getCas().createAnnotation(tagType, spanBegin, spanEnd);
+						annotation.setStringValue(tagType.getFeatureByBaseName("value"), classValue + ";Flair" + (ok ? "" : "-REMOVED") + ";score=" + labelScore);
+						aJCas.addFsToIndexes(annotation);
+					} catch (ClassCastException e) {
 						e.printStackTrace();
 					}
 				}
