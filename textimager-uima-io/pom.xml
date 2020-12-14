@@ -67,6 +67,11 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.10.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
         <dependency>
             <groupId>com.github.texttechnologylab</groupId>
             <artifactId>UIMATypeSystem</artifactId>
