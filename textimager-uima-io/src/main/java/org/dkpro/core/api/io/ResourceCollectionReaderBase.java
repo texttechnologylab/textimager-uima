@@ -456,6 +456,9 @@ extends CasCollectionReader_ImplBase
 
 	protected Resource nextFile()
 	{
+		// reset for next document
+		docModificationWritten = false;
+
 		try {
 			Resource res = resourceIterator.next();
 			progress.setDone(completed);
