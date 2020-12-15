@@ -65,6 +65,12 @@
 			</build>
 			<dependencies>
 				<dependency>
+					<groupId>com.github.texttechnologylab</groupId>
+					<artifactId>UIMATypeSystem</artifactId>
+					<version>${ttlab.typesystem.version}</version>
+				</dependency>
+
+				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-util</artifactId>
 					<version>${project.version}</version>
@@ -223,13 +229,6 @@
 					<artifactId>dkpro-core-udpipe-asl</artifactId>
 					<version>${dkpro.core.version}</version>
 				</dependency>
-
-				<dependency>
-					<groupId>com.github.texttechnologylab</groupId>
-					<artifactId>UIMATypeSystem</artifactId>
-					<version>${ttlab.typesystem.version}</version>
-				</dependency>
-
 			</dependencies>
 		</profile>
 		<profile>
