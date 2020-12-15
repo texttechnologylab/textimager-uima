@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.impl.CASImpl;
 import org.apache.uima.cas.impl.CASMgrSerializer;
 import org.apache.uima.cas.impl.Serialization;
@@ -47,7 +46,6 @@ import org.apache.uima.util.XMLInputSource;
 import org.dkpro.core.api.io.ResourceCollectionReaderBase;
 import org.dkpro.core.api.parameter.MimeTypes;
 import org.dkpro.core.api.resources.CompressionUtils;
-import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.xml.sax.SAXException;
 
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
@@ -176,13 +174,5 @@ public class XmiReader
 
         // add DocumentModified, handles "already set" internally
         setDocumentModification(aCAS);
-        
-        try {
-        	// DEBUG
-			System.out.println(XmlFormatter.getPrettyString(aCAS.getJCas()));
-		} catch (CASException e) {
-			// ignore
-			e.printStackTrace();
-		}
     }
 }
