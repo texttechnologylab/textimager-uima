@@ -25,6 +25,7 @@
 		<dkpro.core.version>1.12.0</dkpro.core.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<ttlab.typesystem.version>711359fd04024b5adf6c6c2a769ef97783bd64ee</ttlab.typesystem.version>
 	</properties>
 
 	<repositories>
@@ -114,5 +115,6 @@
 		<module>textimager-uima-textblob</module>
 <!-- 		<module>textimager-uima-transformers</module> -->
 		<module>textimager-uima-w2v</module>
+		<module>textimager-uima-biofid-flair</module>
 	</modules>
 </project>

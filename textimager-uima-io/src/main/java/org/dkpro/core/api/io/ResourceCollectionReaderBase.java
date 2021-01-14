@@ -26,6 +26,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,6 +55,7 @@ import org.dkpro.core.api.resources.CompressionMethod;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.AntPathMatcher;
+import org.texttechnologylab.annotation.DocumentModification;
 
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import eu.openminted.share.annotations.api.Component;
@@ -176,6 +178,22 @@ extends CasCollectionReader_ImplBase
 	public static final String PARAM_SORT_BY_SIZE= "sortBySize";
 	@ConfigurationParameter(name = PARAM_SORT_BY_SIZE, mandatory = false, defaultValue = "false")
 	private boolean sortBySize;
+	
+	/**
+	 * Modification Metadata: User that commited this modification
+	 */
+	public static final String PARAM_DOC_MODIFICATION_USER = "docModificationUser";
+	@ConfigurationParameter(name = PARAM_DOC_MODIFICATION_USER, mandatory = false)
+	private String docModificationUser;
+	
+	/**
+	 * Modification Metadata: comment that describes this modification
+	 */
+	public static final String PARAM_DOC_MODIFICATION_COMMENT = "docModificationComment";
+	@ConfigurationParameter(name = PARAM_DOC_MODIFICATION_COMMENT, mandatory = false)
+	private String docModificationComment;
+
+	private boolean docModificationWritten;
 
 	private int completed;
 	private List<Resource> resources;
@@ -191,6 +209,8 @@ extends CasCollectionReader_ImplBase
 			throws ResourceInitializationException
 	{
 		super.initialize(aContext);
+
+		docModificationWritten = false;
 
 		// known file extensions to remove when checking for existing files
 		KNOWN_FILE_EXTENSIONS.add(".txt");
@@ -436,6 +456,9 @@ extends CasCollectionReader_ImplBase
 
 	protected Resource nextFile()
 	{
+		// reset for next document
+		docModificationWritten = false;
+
 		try {
 			Resource res = resourceIterator.next();
 			progress.setDone(completed);
@@ -730,6 +753,36 @@ extends CasCollectionReader_ImplBase
 			// This should not happen.
 			throw new RuntimeException(e);
 		}
+
+		// set DocumentMeta on CAS init
+		// handles "already set" internally
+		setDocumentModification(aCas);
+	}
+
+	protected void setDocumentModification(CAS aCas) {
+		// only set once
+		if (docModificationWritten) {
+			return;
+		}
+
+		// Set Document Modification Meta
+		try {
+			DocumentModification docModification = new DocumentModification(aCas.getJCas());
+			docModification.setTimestamp(Instant.now().getEpochSecond());
+			if (docModificationUser != null && !docModificationUser.isEmpty() ) {
+				docModification.setUser(docModificationUser);
+			}
+			if (docModificationComment != null && !docModificationComment.isEmpty() ) {
+				docModification.setComment(docModificationComment);
+			}
+			docModification.addToIndexes();
+		}
+		catch (Exception ex) {
+			// ignore...
+			ex.printStackTrace();
+		}
+
+		docModificationWritten = true;
 	}
 
 	public String getLanguage()

@@ -67,7 +67,7 @@
         <dependency>
             <groupId>com.github.texttechnologylab</groupId>
             <artifactId>UIMATypeSystem</artifactId>
-            <version>1.7.5</version>
+            <version>${ttlab.typesystem.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
