@@ -57,6 +57,11 @@
             <version>1.8.0</version>
         </dependency>
         <dependency>
+            <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+            <artifactId>de.tudarmstadt.ukp.dkpro.core.languagetool-asl</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.texttechnologylab</groupId>
             <artifactId>Utilities</artifactId>
             <version>1.0.3</version>
