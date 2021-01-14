@@ -171,10 +171,10 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 		}
 
 		// Check if any of the files contains more than one document. TODO: implement multi page documents
-		if (pages.values().stream().anyMatch(page -> page.pages.size() > 1)) {
-			String invalidPages = pages.entrySet().stream().filter(entry -> entry.getValue().pages.size() > 1).map(Map.Entry::getKey).collect(Collectors.joining("; "));
-			throw new UIMA_UnsupportedOperationException(new NotImplementedException("Input documents may not contain more than one page.\nDocuments in question: " + invalidPages));
-		}
+//		if (pages.values().stream().anyMatch(page -> page.pages.size() > 1)) {
+//			String invalidPages = pages.entrySet().stream().filter(entry -> entry.getValue().pages.size() > 1).map(Map.Entry::getKey).collect(Collectors.joining("; "));
+//			throw new UIMA_UnsupportedOperationException(new NotImplementedException("Input documents may not contain more than one page.\nDocuments in question: " + invalidPages));
+//		}
 
 		// build collection SOFA string from individual pages
 		final StringBuilder textBuilder = new StringBuilder();
@@ -190,6 +190,7 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 
 		// Set SOFA string
 		jCas.setDocumentText(text);
+		jCas.setDocumentLanguage(language);
 
 		// Iterate over pages
 		int lastOffset = 0;
