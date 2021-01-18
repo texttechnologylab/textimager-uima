@@ -7,8 +7,8 @@
 		<version>0.3.0</version>
 	</parent>
 	<artifactId>textimager-uima-wiki</artifactId>
-	
-	
+
+
 	<dependencies>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>org.mapdb</groupId>
 			<artifactId>mapdb</artifactId>
-			<version>3.0.7</version>
+			<version>3.0.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

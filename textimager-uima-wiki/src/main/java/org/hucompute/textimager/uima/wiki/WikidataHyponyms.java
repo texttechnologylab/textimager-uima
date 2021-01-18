@@ -1,13 +1,6 @@
 package org.hucompute.textimager.uima.wiki;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.URLEncoder;
-import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
@@ -20,16 +13,25 @@ import org.hucompute.textimager.uima.type.wikidata.WikiDataHyponym;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.mapdb.DB;
-import org.mapdb.DBException;
-import org.mapdb.DBMaker;
-import org.mapdb.HTreeMap;
-import org.mapdb.Serializer;
+import org.mapdb.*;
 
-import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
+import java.io.File;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.URLEncoder;
+import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class WikidataHyponyms extends JCasAnnotator_ImplBase {
+
+	/**
+	 * Number of Threads for wiki service call.
+	 */
+	public static final String PARAM_BLAZEGRAPH = "blazegraph";
+	@ConfigurationParameter(name = PARAM_BLAZEGRAPH, mandatory = false,defaultValue="http://huaxal.hucompute.org:8975/bigdata/")
+	protected String paramBlazegraph;
 
 	/**
 	 * Number of Threads for wiki service call.
@@ -48,32 +50,40 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 
 	HTreeMap<String, HashSet<WikidataHyponymObject>>allInstances;
 	HTreeMap<String, HashSet<WikidataHyponymObject>>allhyponyms;
-	DB db;
+	DB db = null;
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-		if(!new File(mapDBCachePath).getParentFile().exists())
-			new File(mapDBCachePath).getParentFile().mkdirs();
-		int dbFileOffset = 0;
-		while(db == null){
-			try{
-			db= DBMaker.fileDB(new File(mapDBCachePath+dbFileOffset))
-					.closeOnJvmShutdown()
-					//TODO encryption API
-					//.encryptionEnable("password")
-					.make();
-			}catch(DBException e){
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				e.printStackTrace();
-				dbFileOffset++;
-			}
+//		if(!new File(mapDBCachePath).getParentFile().exists())
+//			new File(mapDBCachePath).getParentFile().mkdirs();
+//		int dbFileOffset = 0;
+
+		try {
+			db = DBMaker.memoryDB().make();
 		}
+		catch (DBException e){
+			e.printStackTrace();
+		}
+
+//		while(db == null){
+//			try{
+//			db= DBMaker.fileDB(new File(mapDBCachePath+dbFileOffset))
+//					.closeOnJvmShutdown()
+//					//TODO encryption API
+//					//.encryptionEnable("password")
+//					.make();
+//			}catch(DBException e){
+//				try {
+//					Thread.sleep(3000);
+//				} catch (InterruptedException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+//				e.printStackTrace();
+//				dbFileOffset++;
+//			}
+//		}
 		allhyponyms = db.hashMap("allhyponyms").keySerializer(Serializer.STRING).valueSerializer(new HashSetSerializer()).createOrOpen();
 		allInstances = db.hashMap("allInstances").keySerializer(Serializer.STRING).valueSerializer(new HashSetSerializer()).createOrOpen();
 	}
@@ -259,7 +269,7 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 
 		String response = null;
 		try{
-			String url = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query="+URLEncoder.encode(query)+"&format=json";
+			String url = paramBlazegraph+"?query="+URLEncoder.encode(query)+"&format=json";
 			response = Jsoup.connect(url).userAgent("Mozilla").ignoreHttpErrors(true).ignoreContentType(true).execute().body();
 		}catch (ConnectException e) {
 			String url = "https://query.wikidata.org/sparql?query="+URLEncoder.encode(query,"UTF-8")+"&format=json";
@@ -289,7 +299,7 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 		System.out.println(query);
 		JSONObject jsonHyponyms = null;
 		try{
-			String url = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query="+URLEncoder.encode(query)+"&format=json";
+			String url = paramBlazegraph+"?query="+URLEncoder.encode(query)+"&format=json";
 			jsonHyponyms= new JSONObject(Jsoup.connect(url).ignoreContentType(true).execute().body());
 		}catch (ConnectException e) {
 			String url = "https://query.wikidata.org/sparql?query="+URLEncoder.encode(query)+"&format=json";
@@ -306,7 +316,7 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 
 		JSONObject jsonHyponymsInstanceOf = null;
 		try{
-			String sparqleInstanceOf = "http://rawindra.hucompute.org:9999/blazegraph/sparql?query=SELECT%20%3FlinkTo%20%7B%0Awd%3A"+wikidataId+"%20wdt%3AP31%20%3FlinkTo%0A%7D&format=json";
+			String sparqleInstanceOf = paramBlazegraph+"?query=SELECT%20%3FlinkTo%20%7B%0Awd%3A"+wikidataId+"%20wdt%3AP31%20%3FlinkTo%0A%7D&format=json";
 			jsonHyponymsInstanceOf = new JSONObject(Jsoup.connect(sparqleInstanceOf).ignoreContentType(true).execute().body());
 		}catch (ConnectException e) {
 			String sparqleInstanceOf = "https://query.wikidata.org/sparql?query=SELECT%20%3FlinkTo%20%7B%0Awd%3A"+wikidataId+"%20wdt%3AP31%20%3FlinkTo%0A%7D&format=json";
@@ -336,14 +346,14 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 	}
 
 	//	private class WikiDataThread implements Runnable{
-	//		WikipediaLink wikipediaLink; 
+	//		WikipediaLink wikipediaLink;
 	//		JCas aJCas;
-	//		
+	//
 	//		public WikiDataThread(JCas aJCas,WikipediaLink wikipediaLink) {
 	//			this.wikipediaLink = wikipediaLink;
 	//			this.aJCas = aJCas;
 	//		}
-	//		
+	//
 	//		@Override
 	//		public void run() {
 	//			org.hucompute.textimager.uima.type.wikipedia.WikipediaLink wikilink = new org.hucompute.textimager.uima.type.wikipedia.WikipediaLink(aJCas,wikipediaLink.getBegin(),wikipediaLink.getEnd());
@@ -370,14 +380,14 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 	//			wikilink.addToIndexes();
 	//			wikipediaLink.removeFromIndexes();
 	//		}
-	//		
+	//
 	//	}
 	//
 	//
 	//
 	//	public List<String>wikidataHyponyms(String wikidataId) throws JSONException, IOException{
 	//		try{
-	//		String query = 
+	//		String query =
 	//				"SELECT ?item{"+
 	//						"wd:"+ wikidataId +" wdt:P31|wdt:P279*|wdt:P31/wdt:P279 ?item"+
 	//						"}";
