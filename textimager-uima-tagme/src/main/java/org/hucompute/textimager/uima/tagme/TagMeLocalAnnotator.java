@@ -72,13 +72,13 @@ extends JCasAnnotator_ImplBase
 	{
 		for (Paragraph paragraph : JCasUtil.select(aJCas, Paragraph.class)) {
 			RelatednessMeasure rel;
-			Disambiguator disamb; 
+			Disambiguator disamb;
 			Segmentation segmentation;
 			RhoMeasure rho;
 			TagmeParser parser = null;
 
 			String lang = aJCas.getDocumentLanguage();
-			
+
 			switch (lang) {
 			case "en":
 				lang = "en";
@@ -99,7 +99,7 @@ extends JCasAnnotator_ImplBase
 			segmentation = new Segmentation();
 			rho = new RhoMeasure();
 			AnnotatedText ann_text = new AnnotatedText(paragraph.getCoveredText());
-			
+
 			parser.parse(ann_text);
 			if(ann_text.getAnnotations().size()>1000)
 				continue;
@@ -115,11 +115,18 @@ extends JCasAnnotator_ImplBase
 					if (a.isDisambiguated() && a.getRho() >= 0.1) {
 						int begin = ann_text.getOriginalTextStart(a) + paragraph.getBegin();
 						int end = ann_text.getOriginalTextEnd(a) + paragraph.getBegin();
-						if(JCasUtil.selectCovered(aJCas, WikipediaLink.class, begin, end).size()==0 && searcher.getTitle(a.getTopic()) != null){
-							WikipediaLink wiki = new WikipediaLink(aJCas, begin , end);
-							wiki.setTarget(searcher.getTitle(a.getTopic()).replace(" ", "_"));
-							wiki.setLinkType("internal");
-							wiki.addToIndexes();
+						try{
+							if (JCasUtil.selectCovered(aJCas, WikipediaLink.class, begin, end).size() == 0 && searcher.getTitle(a.getTopic()) != null) {
+								WikipediaLink wiki = new WikipediaLink(aJCas, begin, end);
+								wiki.setTarget(searcher.getTitle(a.getTopic()).replace(" ", "_"));
+								wiki.setLinkType("internal");
+								wiki.addToIndexes();
+							}
+						}
+						catch (IndexOutOfBoundsException e){
+							System.out.println("Begin: "+begin+"\t End: "+end);
+							System.out.println(ann_text.getText());
+							e.printStackTrace();
 						}
 					}
 				}
