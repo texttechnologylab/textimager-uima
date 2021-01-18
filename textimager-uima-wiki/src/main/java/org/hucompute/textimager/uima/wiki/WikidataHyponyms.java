@@ -15,7 +15,6 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.mapdb.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.URLEncoder;
@@ -27,17 +26,17 @@ import java.util.concurrent.Executors;
 public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 
 	/**
-	 * Number of Threads for wiki service call.
+	 * Param for Blazegraph-Query
 	 */
 	public static final String PARAM_BLAZEGRAPH = "blazegraph";
-	@ConfigurationParameter(name = PARAM_BLAZEGRAPH, mandatory = false,defaultValue="http://huaxal.hucompute.org:8975/bigdata/")
+	@ConfigurationParameter(name = PARAM_BLAZEGRAPH, mandatory = false,defaultValue="http://huaxal.hucompute.org:8975/bigdata/sparql")
 	protected String paramBlazegraph;
 
 	/**
-	 * Number of Threads for wiki service call.
+	 * Cache path for the wikidata results. If not set, a MemoryDB will used.
 	 */
 	public static final String PARAM_CACHE_PATH = "cachePath";
-	@ConfigurationParameter(name = PARAM_CACHE_PATH, mandatory = true,defaultValue="mapdb/database")
+	@ConfigurationParameter(name = PARAM_CACHE_PATH, mandatory = false,defaultValue="mapdb/database")
 	protected String mapDBCachePath;
 
 	/**
@@ -270,15 +269,18 @@ public class WikidataHyponyms extends JCasAnnotator_ImplBase {
 		String response = null;
 		try{
 			String url = paramBlazegraph+"?query="+URLEncoder.encode(query)+"&format=json";
+			System.out.println("Ask: "+url);
 			response = Jsoup.connect(url).userAgent("Mozilla").ignoreHttpErrors(true).ignoreContentType(true).execute().body();
 		}catch (ConnectException e) {
 			String url = "https://query.wikidata.org/sparql?query="+URLEncoder.encode(query,"UTF-8")+"&format=json";
 			response = Jsoup.connect(url).userAgent("Mozilla").ignoreHttpErrors(true).ignoreContentType(true).execute().body();
 		}
+		System.out.println(response);
 		JSONObject jsonHyponyms = new JSONObject(response);
 		HashSet<WikidataHyponymObject>objects = json2Wikidata(jsonHyponyms,depthOffset);
 		return objects;
 	}
+
 
 	public HashSet<WikidataHyponymObject>getParentTaxon(String wikidataId, int depthOffset) throws JSONException, IOException{
 
