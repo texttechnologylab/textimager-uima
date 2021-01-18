@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.hucompute.textimager.uima</groupId>
+            <artifactId>textimager-uima-types</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.uima</groupId>
             <artifactId>uimaj-core</artifactId>
             <version>2.10.0</version>
@@ -93,6 +98,22 @@
         <dependency>
             <groupId>org.dkpro.core</groupId>
             <artifactId>dkpro-core-io-xmi-asl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hucompute.textimager.uima</groupId>
+            <artifactId>textimager-uima-HUComputeNER</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hucompute.textimager.uima</groupId>
+            <artifactId>textimager-uima-heideltime</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+            <artifactId>de.tudarmstadt.ukp.dkpro.core.tokit-asl</artifactId>
+            <version>1.9.2</version>
             <scope>test</scope>
         </dependency>
         <!--        <dependency>-->

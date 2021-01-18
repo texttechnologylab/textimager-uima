@@ -192,6 +192,16 @@ public class DocumentReader extends JCasCollectionReader_ImplBase {
 		jCas.setDocumentText(text);
 		jCas.setDocumentLanguage(language);
 
+		//SetDocumentMetaData
+
+		DocumentMetaData dmd = DocumentMetaData.get(jCas);
+
+		if(dmd==null){
+			dmd = DocumentMetaData.create(jCas);
+		}
+
+		dmd.setDocumentId(documentId);
+
 		// Iterate over pages
 		int lastOffset = 0;
 		for (int i = 0; i < inputFiles.size(); i++) {
