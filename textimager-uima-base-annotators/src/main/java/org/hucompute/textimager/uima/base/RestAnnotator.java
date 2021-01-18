@@ -10,11 +10,12 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
 	/**
-	 * The endpoint of the rest server
+	 * The endpoint of the rest server. If there are many restEndpoints, please seperate them with an ';'
 	 */
 	public static final String PARAM_REST_ENDPOINT = "restEndpoint";
 	@ConfigurationParameter(name = PARAM_REST_ENDPOINT, mandatory = false)
@@ -23,7 +24,7 @@ public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
 	protected String getRestRoute() {
 		return "";
 	}
-	
+
 	// Build request JSON object
 	protected abstract JSONObject buildJSON(JCas aJCas);
 
@@ -33,24 +34,39 @@ public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
 	protected String getRestEndpoint() {
 		return restEndpoint + getRestRoute();
 	}
-	
-	protected String sendRequest(String body) throws IOException {
-		URL url = new URL(getRestEndpoint());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setDoInput(true);
-		connection.setDoOutput(true);
-		connection.setUseCaches(false);
-		connection.setRequestProperty("Content-Type", "application/json");
-		connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
 
-		OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-		writer.write(body);
-		writer.flush();
-		String res = IOUtils.toString(connection.getInputStream(), "UTF-8");
-		writer.close();
-		
-		return res;
+	protected String sendRequest(String body) throws IOException {
+
+		String[] splitEndpoints = getRestEndpoint().split(";");
+
+		JSONArray tArray = new JSONArray();
+
+		for (String splitEndpoint : splitEndpoints) {
+			URL url = new URL(splitEndpoint);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+			connection.setUseCaches(false);
+			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
+
+			OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+			writer.write(body);
+			writer.flush();
+			String res = IOUtils.toString(connection.getInputStream(), "UTF-8");
+			writer.close();
+
+			JSONObject rObject = new JSONObject(res);
+			JSONArray iArray = rObject.getJSONArray("results");
+
+			for(int a=0; a<iArray.length(); a++){
+				tArray.put(iArray.getJSONObject(a));
+			}
+
+		}
+
+		return new JSONObject().put("results", tArray).toString();
 	}
 
 	@Override

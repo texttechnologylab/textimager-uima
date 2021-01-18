@@ -226,7 +226,7 @@ extends JCasAnnotator_ImplBase
 									lowestDeptSize = hyponym.getDepth();
 								}
 							}
-							if(lowestDepth != null){
+							if(lowestDepth != null) {
 
 								//								if(!indexEntitiy.get(token).isEmpty()){
 								//									for (NamedEntity ne : indexEntitiy.get(token)) {
@@ -238,28 +238,37 @@ extends JCasAnnotator_ImplBase
 									ne.removeFromIndexes();
 								}
 								boolean isInstance = indexWikidataWikipedia.get(lowestDepth).iterator().next().getIsInstance();
-								Type type = mappingProvider.getTagType(lowestDepth.getId()+(isInstance?"":"_abstract"));
+								Type type = mappingProvider.getTagType(lowestDepth.getId() + (isInstance ? "" : "_abstract"));
 								Annotation ne = (Annotation) aJCas.getCas().createAnnotation(type, lowestDepth.getBegin(), lowestDepth.getEnd());
-								if(ne instanceof NamedEntity)
-								{
+								if (ne instanceof NamedEntity) {
 //									((NamedEntity)ne).setValue(classMap.get(lowestDepth.getId()));
-									((NamedEntity)ne).setValue(
-											"http://www.wikidata.org/entity/"+
-											indexWikidataWikipedia.get(lowestDepth).iterator().next().getWikiData());
-								}
-								else{
+									((NamedEntity) ne).setValue(
+											"http://www.wikidata.org/entity/" +
+													indexWikidataWikipedia.get(lowestDepth).iterator().next().getWikiData());
+								} else {
 //									((AbstractNamedEntity)ne).setValue(classMap.get(lowestDepth.getId())+"_abstract");
-									((AbstractNamedEntity)ne).setValue(
-											"http://www.wikidata.org/entity/"+
-											indexWikidataWikipedia.get(lowestDepth).iterator().next().getWikiData());
+									((AbstractNamedEntity) ne).setValue(
+											"http://www.wikidata.org/entity/" +
+													indexWikidataWikipedia.get(lowestDepth).iterator().next().getWikiData());
 								}
 
-								if(token.getBegin() == ne.getBegin() && token.getEnd() == ne.getEnd() && (token.getPos().getClass() == POS_ADJ.class || token.getPos().getClass() == POS_VERB.class  || token.getPos().getClass() == POS_CONJ.class|| token.getPos().getClass() == POS_ADV.class)){
-									//									System.out.println("is ADJ");
+								if (token != null && token.getPos() != null && ne != null) {
+									if (token.getBegin() == ne.getBegin()
+											&& token.getEnd() == ne.getEnd()
+											&& (token.getPos().getClass() == POS_ADJ.class
+													|| token.getPos().getClass() == POS_VERB.class
+													|| token.getPos().getClass() == POS_CONJ.class
+													|| token.getPos().getClass() == POS_ADV.class))
+									{
+										//									System.out.println("is ADJ");
+									} else
+										ne.addToIndexes();
 								}
-								else
+								else{
 									ne.addToIndexes();
+								}
 							}
+
 						}
 						if(!indexTimex.get(token).isEmpty()){
 							Timex3 time = indexTimex.get(token).iterator().next();
@@ -272,7 +281,7 @@ extends JCasAnnotator_ImplBase
 						if((token.getCoveredText().endsWith("heit")||
 								token.getCoveredText().endsWith("heiten")||
 								token.getCoveredText().endsWith("keit")||
-								token.getCoveredText().endsWith("keiten")) && Character.isUpperCase(token.getCoveredText().charAt(0)) && 
+								token.getCoveredText().endsWith("keiten")) && Character.isUpperCase(token.getCoveredText().charAt(0)) &&
 								JCasUtil.selectCovering(NamedEntity.class, token).isEmpty())
 						{
 
@@ -280,7 +289,7 @@ extends JCasAnnotator_ImplBase
 							ne.setValue("Attribute_Property_abstract");
 							ne.addToIndexes();
 						}
-						if(token.getLemma().getValue().endsWith("ismus") && Character.isUpperCase(token.getLemma().getValue().charAt(0)) && 
+						if(token.getLemma().getValue().endsWith("ismus") && Character.isUpperCase(token.getLemma().getValue().charAt(0)) &&
 								JCasUtil.selectCovering(NamedEntity.class, token).isEmpty()){
 
 							Cognition_Ideation ne = new Cognition_Ideation(aJCas, token.getBegin(), token.getEnd());
