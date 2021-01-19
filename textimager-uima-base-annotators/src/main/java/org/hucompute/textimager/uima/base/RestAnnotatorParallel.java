@@ -75,7 +75,7 @@ public abstract class RestAnnotatorParallel extends JCasAnnotator_ImplBase {
 					}
 					return result;
 				})
-				//.filter(r -> !r.isEmpty())
+				.filter(r -> !r.isEmpty())
 				.collect(Collectors.toList());
 
 		return results;
