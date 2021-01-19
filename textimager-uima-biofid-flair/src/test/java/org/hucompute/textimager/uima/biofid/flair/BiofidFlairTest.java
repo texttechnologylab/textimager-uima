@@ -29,7 +29,7 @@ public class BiofidFlairTest {
         sentence2.addToIndexes();
 
         AnalysisEngineDescription biodidFlairTagger = createEngineDescription(BiofidFlair.class,
-                BiofidFlair.PARAM_REST_ENDPOINT, "http://localhost:5567"
+                BiofidFlair.PARAM_REST_ENDPOINT, "http://localhost:5567;http://localhost:5568;http://localhost:5569"
         );
 
         SimplePipeline.runPipeline(jCas, biodidFlairTagger);

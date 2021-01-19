@@ -3,24 +3,18 @@ package org.hucompute.textimager.uima.base;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
 	/**
-	 * The endpoint of the rest server. If there are many restEndpoints, please seperate them with an ';'
+	 * The endpoint of the rest server
 	 */
 	public static final String PARAM_REST_ENDPOINT = "restEndpoint";
 	@ConfigurationParameter(name = PARAM_REST_ENDPOINT, mandatory = false)
@@ -41,51 +35,22 @@ public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
 	}
 
 	protected String sendRequest(String body) throws IOException {
+		URL url = new URL(getRestEndpoint());
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("POST");
+		connection.setDoInput(true);
+		connection.setDoOutput(true);
+		connection.setUseCaches(false);
+		connection.setRequestProperty("Content-Type", "application/json");
+		connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
 
-		String[] splitEndpoints = getRestEndpoint().split(";");
+		OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+		writer.write(body);
+		writer.flush();
+		String res = IOUtils.toString(connection.getInputStream(), "UTF-8");
+		writer.close();
 
-		JSONArray tArray = new JSONArray();
-
-        List<String> listHost = new ArrayList<>();
-        for (String splitEndpoint : splitEndpoints) {
-            listHost.add(splitEndpoint);
-        }
-
-		listHost.parallelStream().forEach(splitEndpoint->{
-
-            try {
-                URL url = url = new URL(splitEndpoint);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setDoInput(true);
-                connection.setDoOutput(true);
-                connection.setUseCaches(false);
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
-
-                OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                writer.write(body);
-                writer.flush();
-                String res = IOUtils.toString(connection.getInputStream(), "UTF-8");
-                writer.close();
-
-                JSONObject rObject = new JSONObject(res);
-                JSONArray iArray = rObject.getJSONArray("results");
-
-                for(int a=0; a<iArray.length(); a++){
-                    tArray.put(iArray.getJSONObject(a));
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (ProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        });
-
-		return new JSONObject().put("results", tArray).toString();
+		return res;
 	}
 
 	@Override
