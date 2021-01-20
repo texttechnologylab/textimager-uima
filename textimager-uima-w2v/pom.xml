@@ -7,14 +7,17 @@
 		<version>0.3.0</version>
 	</parent>
 	<artifactId>textimager-uima-w2v</artifactId>
-	
+
 	<properties>
 		<dl4j.version>0.4.0</dl4j.version>
 		<arbiter.version>0.0.0.8</arbiter.version>
 		<nd4j.version>0.4-rc3.10</nd4j.version>
 		<canova.version>0.0.0.16</canova.version>
 	</properties>
-	
+
+
+
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -29,7 +32,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
@@ -50,7 +53,19 @@
 			<groupId>org.deeplearning4j</groupId>
 			<artifactId>deeplearning4j-core</artifactId>
 			<version>${dl4j.version}</version>
+<!--			<exclusions>-->
+<!--				<exclusion>-->
+<!--					<groupId>org.projectlombok</groupId>-->
+<!--					<artifactId>lombok</artifactId>-->
+<!--				</exclusion>-->
+<!--			</exclusions>-->
 		</dependency>
+<!--			<dependency>-->
+<!--				<groupId>org.projectlombok</groupId>-->
+<!--				<artifactId>lombok</artifactId>-->
+<!--				<version>1.16.4</version>-->
+<!--				<scope>provided</scope>-->
+<!--			</dependency>-->
 		<dependency>
 			<groupId>org.deeplearning4j</groupId>
 			<artifactId>deeplearning4j-ui</artifactId>

@@ -1,15 +1,12 @@
 package org.hucompute.textimager.uima.w2v;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
+import com.srbenoit.math.delaunay.GraphEdge;
+import com.srbenoit.math.delaunay.Vertex;
+import com.srbenoit.math.delaunay.Voronoi;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.unihd.dbs.uima.types.heideltime.Timex3;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.MatrixUtils;
 import org.apache.commons.math.linear.RealMatrix;
@@ -30,6 +27,13 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFac
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.hucompute.textimager.uima.type.ImageVector;
 import org.hucompute.textimager.uima.type.Sentiment;
+import org.jgrapht.alg.DijkstraShortestPath;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleWeightedGraph;
+import org.nd4j.linalg.api.ndarray.INDArray;
+
+import java.util.*;
+
 //import org.deeplearning4j.text.sentenceiterator.CollectionSentenceIterator;
 //import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 //import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
@@ -38,19 +42,6 @@ import org.hucompute.textimager.uima.type.Sentiment;
 //import org.hucompute.services.type.GrammaticalCategory;
 //import org.hucompute.services.type.ImageVector;
 //import org.hucompute.services.type.Sentiment;
-import org.jgrapht.alg.DijkstraShortestPath;
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleWeightedGraph;
-import org.nd4j.linalg.api.ndarray.INDArray;
-
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.unihd.dbs.uima.types.heideltime.Timex3;
-import com.srbenoit.math.delaunay.GraphEdge;
-import com.srbenoit.math.delaunay.Vertex;
-import com.srbenoit.math.delaunay.Voronoi;
 
 //import util.Util;
 public class W2V extends JCasAnnotator_ImplBase {
@@ -58,12 +49,12 @@ public class W2V extends JCasAnnotator_ImplBase {
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		String docString = "";
-		
+
 		double[][] mainMatrix = null;
 		RealMatrix mainRealMatrix = null;
 		WeightLookupTable<VocabWord> mainLookupTable = null;
 		System.out.println("Bereite W2V Daten vor");
-			
+
 			docString = "";
 			for(Sentence tmpSen : JCasUtil.select(aJCas, Sentence.class)){
 				HashSet<Token> alreadySet = new HashSet<Token>();
@@ -140,7 +131,7 @@ public class W2V extends JCasAnnotator_ImplBase {
 			}
 			System.out.println("Berechne Word Embeddings");
 			System.out.println(sentenceCollection);
-			SentenceIterator iter = new CollectionSentenceIterator(sentenceCollection); 
+			SentenceIterator iter = new CollectionSentenceIterator(sentenceCollection);
 			TokenizerFactory t = new DefaultTokenizerFactory();
 
 			Word2Vec vec = new Word2Vec.Builder()
@@ -270,7 +261,7 @@ public class W2V extends JCasAnnotator_ImplBase {
 					//							System.out.println("index nicht gleich");
 					//						System.out.println(vb.getWord());
 					//						System.out.println(da);
-					//					}					
+					//					}
 					embedding.setEmbedding(da);
 					embedding.setValue(vb.getWord());
 					embedding.addToIndexes(aJCas);
@@ -522,7 +513,7 @@ public class W2V extends JCasAnnotator_ImplBase {
 				String edgeNode1 = sortedFeatures.get(ge.site1);
 				String edgeNode2 = sortedFeatures.get(ge.site2);
 				DefaultWeightedEdge e1 = g.addEdge(edgeNode1, edgeNode2);
-				g.setEdgeWeight(e1, distance);					
+				g.setEdgeWeight(e1, distance);
 				if(!edgeVerteilung.containsKey(sortedFeatures.get(ge.site1)))
 					edgeVerteilung.put(sortedFeatures.get(ge.site1), new ArrayList<GraphEdge>(){
 						{
@@ -687,7 +678,7 @@ public class W2V extends JCasAnnotator_ImplBase {
 			for (int i = 0; i < da.size(); i++) {
 				imageVecString += da.get(i) + "\t";
 			}
-			
+
 			//try {
 			//	FileUtils.write(new File("ImageVectorsRun2.txt"), tmpDoc.getName() + "\t" + imageVecString + "\n", true);
 			//} catch (IOException e) {

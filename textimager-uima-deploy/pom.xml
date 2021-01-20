@@ -48,7 +48,7 @@
 	</build>
 
 	<repositories>
-		<repository>	
+		<repository>
 		    <id>jitpack.io</id>
 		    <url>https://jitpack.io</url>
 		</repository>
@@ -78,6 +78,11 @@
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-types</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-disambiguation</artifactId>
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>
@@ -150,16 +155,16 @@
 					<artifactId>textimager-uima-database</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-flair-ner</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-w2v</artifactId>
-					<version>${project.version}</version>
-				</dependency>
+<!--				<dependency>-->
+<!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+<!--					<artifactId>textimager-uima-flair-ner</artifactId>-->
+<!--					<version>${project.version}</version>-->
+<!--				</dependency>-->
+<!--				<dependency>-->
+<!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+<!--					<artifactId>textimager-uima-w2v</artifactId>-->
+<!--					<version>${project.version}</version>-->
+<!--				</dependency>-->
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-disambiguation</artifactId>
