@@ -1,5 +1,6 @@
 import de.tudarmstadt.ukp.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import de.tudarmstadt.ukp.dkpro.core.languagetool.LanguageToolLemmatizer;
+import de.tudarmstadt.ukp.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -47,7 +48,8 @@ public class BIOfidTest {
 		Set<String> outSet = FileUtils.getFiles(sBase+"out", ".gz").stream().map(f->f.getName()).collect(Collectors.toSet());
 
 		FileUtils.getFiles(sPath, ".gz").stream()
-				.filter(f->!outSet.contains(f.getName()))
+//				.filter(f->!outSet.contains(f.getName()))
+				.filter(f->f.getName().equals("90532.gz"))
 			.forEach(f->{
 			try {
 				System.out.println("Processing: "+f.getName());
@@ -66,7 +68,7 @@ public class BIOfidTest {
 					CollectionReader reader = CollectionReaderFactory.createReader(DocumentReader.class,
 							DocumentReader.PARAM_SOURCE_LOCATION, tFile.getPath());
 
-//					AnalysisEngineDescription languageTool = createEngineDescription(LanguageToolLemmatizer.class);
+					AnalysisEngineDescription languageTool = createEngineDescription(LanguageToolSegmenter.class);
 
 					AnalysisEngineDescription writer = createEngineDescription(XMIWriter.class,
 							XMIWriter.PARAM_PRETTY_PRINT, true,
@@ -82,6 +84,13 @@ public class BIOfidTest {
 					sContent = sContent.substring(0, iPlace+10);
 
 					StringUtils.writeContent(sContent, nFile);
+
+					JCas test = JCasFactory.createJCas();
+					CasIOUtil.readXmi(test, nFile);
+
+					SimplePipeline.runPipeline(test, languageTool);
+
+					CasIOUtil.writeXmi(test, nFile);
 
 					compressGZ(Paths.get(nFile.getAbsolutePath()), Paths.get(targetFile.getAbsolutePath()));
 
