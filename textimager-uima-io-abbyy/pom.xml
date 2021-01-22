@@ -73,6 +73,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.hucompute.textimager.uima</groupId>
+            <artifactId>textimager-uima-heideltime</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.texttechnologylab</groupId>
             <artifactId>UIMATypeSystem</artifactId>
             <version>${ttlab.typesystem.version}</version>
