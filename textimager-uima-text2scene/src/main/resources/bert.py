@@ -1,5 +1,6 @@
+import argparse
 import copy
-
+from collections import Counter
 from pprint import pprint
 from typing import List
 
@@ -9,32 +10,42 @@ from transformers import AutoModelForMaskedLM, AutoTokenizer
 
 
 class Bert:
-    __model_path = "distilbert-base-cased"
+    __model_path = "./objectTagger"
 
     def __init__(self):
         self.__obj = wn.wordnet.synsets('object')[0]
-        self.__tokenizer = AutoTokenizer.from_pretrained(self.__model_path)
+        self.__living_thing = wn.wordnet.synsets('living_thing')[0]
+        self.__abstract_entity = wn.wordnet.synsets('abstract_entity')[0]
+        self.__tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+        self.absatze = []
+        with open('934.txt', 'r', encoding='utf-8') as doc:
+            lines = doc.read()
+            self.absatze = [ab.split('\n') for ab in lines.split('\n-------\n')]
 
-    def process_text(self, text, top_n = 1) -> List[List[str]]:
+    def process_text(self, text, top_n=1) -> List[List[str]]:
         result: List[List[str]] = []
-
+        i = 0
         for mask in self.__preprocess_text(text):
             resultTexts, masked_tok = self.predict_masks(mask.maskedText, top_n, mask.masks)
-            pprint(resultTexts)
-            masked_tok = [[x[0].split('_')[0], x[0].split('_')[1]] for x in masked_tok[0]]
-            pprint(masked_tok)
-            result = masked_tok# .append(masked_tok)
+            masked_tok = [[x[0].split('_')[0], x[0].split('_')[1], x[1], x[2]] if '_' in x[0] else ['', x[0], x[1], x[2]] for x in
+                          masked_tok[0]]
+            i += 1
+            result += masked_tok
         pprint(result)
         return result
 
+    top_n = 1
+
     def __preprocess_text(self, text):
         tags = pos_tag(word_tokenize(text), tagset='universal')
+        tags = self.__add_indices(tags)
+
         confirmedObjects = []
         completeMasks = []
         tagger = []
         masked_words = []
         counter = 0
-        for (word, pos) in tags:
+        for (word, pos, start, end) in tags:
             # print(len(masked_words) % 512 == 0)
             if len(tagger) >= 400 and len(tagger) > 0:
                 completeMasks.append(MaskedText(masked_words, tagger))
@@ -44,11 +55,13 @@ class Bert:
                 if word in confirmedObjects:
                     t = (f"{self.__tokenizer.mask_token}" + word, pos)
                     tagger.append(t)
+                    t = (f"{self.__tokenizer.mask_token}" + word, pos, start, end)
                     masked_words.append(t)
                 elif self.__is_object(word):
                     confirmedObjects.append(word)
                     t = (f"{self.__tokenizer.mask_token}" + word, pos)
                     tagger.append(t)
+                    t = (f"{self.__tokenizer.mask_token}" + word, pos, start, end)
                     masked_words.append(t)
                 else:
                     tagger.append((word, pos))
@@ -56,23 +69,28 @@ class Bert:
                 tagger.append((word, pos))
             counter += 1
         completeMasks.append(MaskedText(masked_words, tagger))
-        return completeMasks  # , completeTags
-        # tags = [word for (pos, word) in tags if pos == 'NOUN']
-        # confirmedObjects = []
-        # objects = []
-        # for word in tags:
-        #    if word in confirmedObjects:
-        #        objects.append(word)
-        #    elif self.__is_object(word):
-        #        confirmedObjects.append(word)
-        #        objects.append(word)
+        return completeMasks
+
+    def __add_indices(self, tags):
+        tagger = []
+        last_index = 0
+        for (word, pos) in tags:
+            if "." in pos:
+                last_index -= 1
+            tagger.append((word, pos, last_index, last_index + len(word)))
+            last_index += len(word) + 1
+
+        return tagger
 
     def __is_object(self, word):
         isObj = False
         try:
-            for synset in wn.wordnet.synsets(word):
+            for synset in wn.wordnet.synsets(word, pos='n'):
                 # isObj = isObj or synset.lowest_common_hypernyms(self.__obj)[0] == self.__obj
-                isObj = synset.lowest_common_hypernyms(self.__obj)[0] == self.__obj
+                isObj = (synset.lowest_common_hypernyms(self.__obj)[0] == self.__obj
+                         and synset.lowest_common_hypernyms(self.__living_thing)[0] != self.__living_thing
+                         and synset.lowest_common_hypernyms(self.__abstract_entity)[
+                             0] != self.__abstract_entity)
                 break
         finally:
             return isObj
@@ -107,13 +125,12 @@ class Bert:
                 if '#' not in self.__tokenizer.decode([token]) and len(self.__tokenizer.decode([token])) > 1:
                     res[counter] = (
                         res[counter][0].replace(self.__tokenizer.mask_token, self.__tokenizer.decode([token]) + "_", 1),
-                        res[counter][1])
+                        res[counter][2], res[counter][3])
                 else:
-                    res[counter] = (res[counter][0].replace(self.__tokenizer.mask_token, "", 1), res[counter][1])
+                    res[counter] = (res[counter][0].replace(self.__tokenizer.mask_token, "", 1), res[counter][2], res[counter][3])
                 counter += 1
             masks.append(res)
-        # pprint(masks)
-        # pprint(len(masks))
+
         # replace mask
         for masked_list in top_5_result:
             res = text

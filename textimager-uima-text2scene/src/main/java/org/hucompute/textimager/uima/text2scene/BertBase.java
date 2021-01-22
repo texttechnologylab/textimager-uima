@@ -17,20 +17,12 @@ import java.util.Objects;
 
 public abstract class BertBase extends JepAnnotator {
 
-    //public static final String PARAM_MODEL_LOCATION = ComponentParameters.PARAM_MODEL_LOCATION;
-    //@ConfigurationParameter(name = PARAM_MODEL_LOCATION, mandatory = true)
-    //protected String modelLocation;
-
     public static final String PARAM_LANGUAGE = ComponentParameters.PARAM_LANGUAGE;
     @ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
     protected String language;
 
-    //public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = ComponentParameters.PARAM_NAMED_ENTITY_MAPPING_LOCATION;
-    //@ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
-    //protected String pMappingProviderLocation;
-
     protected MappingProvider mappingProvider;
-    private String[] resourceFiles = new String[] { "python/bert.py" };
+    private String[] resourceFiles = new String[] {"bert.py"};
 
 
     private Path tempFolder;
@@ -46,10 +38,10 @@ public abstract class BertBase extends JepAnnotator {
             envPythonVersion = "3.8";
         }
         if (envDepsConda == null || envDepsConda.isEmpty()) {
-            envDepsConda = "";//"uarray=0.6.0 -c conda-forge"; nltk==3.5 torch huggingface-transformers==3.4.0 -c conda-forge
+            envDepsConda = "uarray=0.6.0 -c conda-forge";
         }
         if (envDepsPip == null || envDepsPip.isEmpty()) {
-            envDepsPip = "nltk torch transformers";
+            envDepsPip = "nltk transformers torch";
         }
         if (condaVersion == null || condaVersion.isEmpty()) {
             condaVersion = "py38_4.8.3";
@@ -73,13 +65,13 @@ public abstract class BertBase extends JepAnnotator {
             System.out.println("-------------------- Interpreter start --------------------");
 
             String tempFolderPath = tempFolder.toAbsolutePath().toString();
+            System.out.println("os.chdir('" + tempFolderPath + "')");
             interpreter.exec("import os");
             interpreter.exec("import sys");
 
-            interpreter.exec("sys.path = ['" + tempFolderPath + "/'] + sys.path");
             interpreter.exec("os.chdir('" + tempFolderPath + "')");
+            interpreter.exec("sys.path = ['" + tempFolderPath + "/'] + sys.path");
             interpreter.exec("from bert import Bert");
-            //interpreter.exec("from model_flair import SpanModel, TokenModel, MultiModel, CachedMultiModel");
         } catch (Exception e) {
             throw new ResourceInitializationException(e);
         }
