@@ -34,11 +34,11 @@
             <artifactId>dkpro-core-stanfordnlp-gpl</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-            <artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-gpl</artifactId>
-            <version>1.9.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>-->
+<!--            <artifactId>de.tudarmstadt.ukp.dkpro.core.corenlp-gpl</artifactId>-->
+<!--            <version>1.9.0</version>-->
+<!--        </dependency>-->
     </dependencies>
     <!--<build>
         <plugins>

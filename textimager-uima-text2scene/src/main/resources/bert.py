@@ -10,7 +10,8 @@ from transformers import AutoModelForMaskedLM, AutoTokenizer
 
 
 class Bert:
-    __model_path = "./objectTagger"
+    #__model_path = "./objectTagger"
+    __model_path = "/resources/nlp/models/text2scene"
 
     def __init__(self):
         self.__obj = wn.wordnet.synsets('object')[0]
