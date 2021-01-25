@@ -46,7 +46,7 @@ public abstract class RestAnnotatorParallel extends JCasAnnotator_ImplBase {
 
 	protected List<String> sendRequest(String body) throws IOException {
 		List<String> results = getRestEndpoints()
-				.parallelStream()
+				.stream()
 				.map(splitEndpoint -> {
 					String result = "";
 					try {
