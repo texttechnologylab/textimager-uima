@@ -18,10 +18,6 @@ class Bert:
         self.__living_thing = wn.wordnet.synsets('living_thing')[0]
         self.__abstract_entity = wn.wordnet.synsets('abstract_entity')[0]
         self.__tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
-        self.absatze = []
-        with open('934.txt', 'r', encoding='utf-8') as doc:
-            lines = doc.read()
-            self.absatze = [ab.split('\n') for ab in lines.split('\n-------\n')]
 
     def process_text(self, text, top_n=1) -> List[List[str]]:
         result: List[List[str]] = []

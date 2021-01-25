@@ -41,7 +41,7 @@ public abstract class BertBase extends JepAnnotator {
             envDepsConda = "uarray=0.6.0 -c conda-forge";
         }
         if (envDepsPip == null || envDepsPip.isEmpty()) {
-            envDepsPip = "nltk==3.5 transformers==3.4.0 torch==1.7.0+cpu torchvision==0.8.1+cpu torchaudio==0.7.0 -f https://download.pytorch.org/whl/torch_stable.html";
+            envDepsPip = "nltk==3.5 transformers==3.4.0 torch==1.7.0+cpu torchaudio==0.7.0 -f https://download.pytorch.org/whl/torch_stable.html";
         }
         if (condaVersion == null || condaVersion.isEmpty()) {
             condaVersion = "py38_4.8.3";
