@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.hucompute.textimager.uima</groupId>
             <artifactId>textimager-uima-base-annotators</artifactId>
-            <version>0.3.0</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -40,7 +40,7 @@
             <version>1.9.0</version>
         </dependency>
     </dependencies>
-    <build>
+    <!--<build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -51,5 +51,5 @@
                 </configuration>
             </plugin>
         </plugins>
-    </build>
+    </build>-->
 </project>
