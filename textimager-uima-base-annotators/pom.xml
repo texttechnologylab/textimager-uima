@@ -8,18 +8,26 @@
 	</parent>
 	<artifactId>textimager-uima-base-annotators</artifactId>
 
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
+
 	<dependencies>
 		<dependency>
 			<groupId>com.github.texttechnologylab</groupId>
 			<artifactId>Utilities</artifactId>
-			<version>1.1.1-uima-2.10.4</version>
+			<version>1.0.9-uima-2.10.4</version>
 			<exclusions>
 				<exclusion>
-					<groupId>org.dkpro</groupId>
+					<groupId>org.dkpro.core</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>org.dkpro</groupId>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
