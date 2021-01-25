@@ -18,21 +18,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.github.texttechnologylab</groupId>
-			<artifactId>Utilities</artifactId>
-			<version>1.0.9-uima-2.10.4</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.dkpro.core</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>
