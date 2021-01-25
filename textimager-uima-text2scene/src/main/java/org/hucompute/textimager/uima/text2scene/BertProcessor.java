@@ -35,18 +35,18 @@ public class BertProcessor extends BertBase {
     public void process(JCas jCas) throws AnalysisEngineProcessException {
 
         try {
-            ArrayList<ArrayList<String>> result;
-            result = (ArrayList<ArrayList<String>>) interpreter.invoke("model.process_text",
+            ArrayList<ArrayList> result;
+            result = (ArrayList<ArrayList>) interpreter.invoke("model.process_text",
                     jCas.getDocumentText(), 2);
 
-            for (ArrayList<String> entry : result) {
-                String prefix = entry.get(0);
-                String word = entry.get(1);
+            for (ArrayList entry : result) {
+                String prefix = entry.get(0).toString();
+                String word = entry.get(1).toString();
 
                 SpatialEntity iso = new SpatialEntity(jCas);//new SpatialEntity(jCas.getView("type7:Token"), 0, 10);
                 iso.setComment(word);
-                iso.setBegin(Integer.parseInt(entry.get(2)));
-                iso.setEnd(Integer.parseInt(entry.get(3)));
+                iso.setBegin(((Long)entry.get(2)).intValue());
+                iso.setEnd(((Long)entry.get(3)).intValue());
 
                 MetaLink ml = new MetaLink(jCas);
                 ml.setRel_type("MASK");
