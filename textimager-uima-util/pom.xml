@@ -7,6 +7,14 @@
 		<version>0.3.0</version>
 	</parent>
 	<artifactId>textimager-uima-util</artifactId>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
@@ -16,7 +24,7 @@
         <dependency>
             <groupId>org.hucompute.textimager.uima</groupId>
             <artifactId>textimager-uima-heideltime</artifactId>
-            <version>0.3.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.texttechnologylab</groupId>
