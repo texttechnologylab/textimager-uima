@@ -155,6 +155,11 @@
 					<artifactId>textimager-uima-database</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-text2scene</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 <!--				<dependency>-->
 <!--					<groupId>org.hucompute.textimager.uima</groupId>-->
 <!--					<artifactId>textimager-uima-flair-ner</artifactId>-->
