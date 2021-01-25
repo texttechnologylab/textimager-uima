@@ -7,6 +7,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.texttechnologylab.utilities.helper.RESTUtils;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -15,7 +16,9 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class RestAnnotatorParallel extends JCasAnnotator_ImplBase {
@@ -50,27 +53,38 @@ public abstract class RestAnnotatorParallel extends JCasAnnotator_ImplBase {
 				.map(splitEndpoint -> {
 					String result = "";
 					try {
-						URL url = new URL(splitEndpoint);
-						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-						connection.setRequestMethod("POST");
-						connection.setDoInput(true);
-						connection.setDoOutput(true);
-						connection.setUseCaches(false);
-						connection.setRequestProperty("Content-Type", "application/json");
-						connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
 
-						OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-						writer.write(body);
-						writer.flush();
-						String res = IOUtils.toString(connection.getInputStream(), "UTF-8");
-						writer.close();
+						Map<String, Object> map = new HashMap<>();
+						map.put("input_text", String.valueOf(body.length()));
+						JSONObject rObject = RESTUtils.getObjectFromRest(splitEndpoint, RESTUtils.METHODS.POST, map);
 
-						result = res;
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
-					} catch (ProtocolException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
+						result = rObject.toString();
+
+//						URL url = new URL(splitEndpoint);
+//						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//						connection.setRequestMethod("POST");
+//						connection.setDoInput(true);
+//						connection.setDoOutput(true);
+//						connection.setUseCaches(false);
+//						connection.setRequestProperty("Content-Type", "application/json");
+//						connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
+//
+//						OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+//						writer.write(body);
+//						writer.flush();
+//						String res = IOUtils.toString(connection.getInputStream(), "UTF-8");
+//						writer.close();
+//
+//						result = res;
+//					} catch (MalformedURLException e) {
+//						e.printStackTrace();
+//					} catch (ProtocolException e) {
+//						e.printStackTrace();
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+					}
+					catch (Exception e){
 						e.printStackTrace();
 					}
 					return result;

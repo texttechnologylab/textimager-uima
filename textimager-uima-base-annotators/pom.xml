@@ -10,6 +10,21 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.github.texttechnologylab</groupId>
+			<artifactId>Utilities</artifactId>
+			<version>1.1.1-uima-2.10.4</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.dkpro</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.dkpro</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>
