@@ -117,6 +117,10 @@ public class TreeReducer {
 		return senseSet;
 	}
 	
+	public HashMap<String, ArrayList<GraphVertex>> groups() {
+		return grouping;
+	}
+	
 	public void resetMarks() {
 		for (GraphVertex vertex : graph.vertexSet()) {
 			vertex.setMark(MARK.PLAIN);
