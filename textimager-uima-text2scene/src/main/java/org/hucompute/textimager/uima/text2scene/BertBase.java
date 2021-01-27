@@ -73,6 +73,7 @@ public abstract class BertBase extends JepAnnotator {
             interpreter.exec("sys.path = ['" + tempFolderPath + "/'] + sys.path");
             interpreter.exec("from bert import Bert");
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ResourceInitializationException(e);
         }
         System.out.println("-------------------- Init done --------------------");
