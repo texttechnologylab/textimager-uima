@@ -69,6 +69,12 @@ public abstract class BertBase extends JepAnnotator {
             interpreter.exec("import os");
             interpreter.exec("import sys");
 
+            interpreter.exec("import nltk");
+            interpreter.exec("nltk.download('wordnet')");
+            interpreter.exec("nltk.download('punkt')");
+            interpreter.exec("nltk.download('averaged_perceptron_tagger')");
+            interpreter.exec("nltk.download('universal_tagset')");
+
             interpreter.exec("os.chdir('" + tempFolderPath + "')");
             interpreter.exec("sys.path = ['" + tempFolderPath + "/'] + sys.path");
             interpreter.exec("from bert import Bert");
