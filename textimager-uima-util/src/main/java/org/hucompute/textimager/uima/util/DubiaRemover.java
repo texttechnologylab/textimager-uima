@@ -42,7 +42,18 @@ public class DubiaRemover extends JCasAnnotator_ImplBase {
     public void process(JCas aJCas) throws AnalysisEngineProcessException {
 
 
-        System.out.println("Remove Dubia from: "+ DocumentMetaData.get(aJCas).getDocumentId());
+        if(DocumentMetaData.get(aJCas)!=null) {
+            System.out.println("Remove Dubia from: " + DocumentMetaData.get(aJCas).getDocumentId());
+        }
+        else{
+            if(aJCas.getDocumentText().length()>10){
+                System.out.println("Remove Dubia from: "+aJCas.getDocumentText().substring(0, 10));
+            }
+            else{
+                System.out.println("Remove Dubia from: "+aJCas.getDocumentText());
+            }
+
+        }
 
 
         if(remove_token){
