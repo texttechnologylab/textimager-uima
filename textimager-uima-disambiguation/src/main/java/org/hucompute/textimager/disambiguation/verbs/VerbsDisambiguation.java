@@ -91,7 +91,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 		}
 		if(activateReducer){
 			 tr = new TreeReducer();
-			 tr.loadgnet(gnet);
+			 tr.loadgnet(gnet, WordCategory.verben);
 			 tr.reduce();
 		}
 		modelProvider = new ModelProviderBase<JFastText>()

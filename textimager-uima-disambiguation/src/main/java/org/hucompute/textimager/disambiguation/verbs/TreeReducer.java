@@ -45,13 +45,13 @@ public class TreeReducer {
 	private HashMap<String, GraphVertex> labelref = new HashMap<String, GraphVertex>();
 	
 	
-	public void loadgnet(GermaNet gnet) {
+	public void loadgnet(GermaNet gnet, WordCategory category) {
 		System.out.println("Loading GermaNet into graph");
 		int counter = 1;
 		
 		int lexcounter = 0;
 		
-		for (Synset syn : gnet.getSynsets(WordCategory.verben)) {
+		for (Synset syn : gnet.getSynsets(category)) {
 			if (counter % 1000 == 0) System.out.println("Processed " + counter + " Synsets");
 			counter += 1;
 			
@@ -107,10 +107,10 @@ public class TreeReducer {
 		System.out.println("Finished importing GermaNet! The graph contains " + lexcounter + " ambiguous senses");
 	}
 
-	public void loadgnet(String gnetpath) throws FileNotFoundException, XMLStreamException, IOException {
+	public void loadgnet(String gnetpath, WordCategory category) throws FileNotFoundException, XMLStreamException, IOException {
 		System.out.println("Opening GermaNet");
 		GermaNet gnet = new GermaNet(gnetpath);
-		loadgnet(gnet);
+		loadgnet(gnet, category);
 	}
 	
 	public Set<GraphVertex> senseSet() {
