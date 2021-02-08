@@ -4,7 +4,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.jcas.JCas;
 import org.texttechnologylab.annotation.GeoNamesEntity;
 
-import java.net.URI;
 import java.util.stream.Collectors;
 
 public class GeoNamesTreeGazetteer extends GeneralTreeGazetteer {

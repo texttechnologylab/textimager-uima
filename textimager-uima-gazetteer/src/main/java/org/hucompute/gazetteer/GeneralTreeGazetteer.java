@@ -17,10 +17,8 @@ import org.hucompute.textimager.uima.tree.ITreeGazetteerModel;
 import org.hucompute.textimager.uima.tree.SkipGramGazetteerModel;
 import org.hucompute.textimager.uima.tree.StringTreeGazetteerModel;
 import org.hucompute.textimager.uima.tree.TreeSearch.ITreeNode;
-import org.texttechnologylab.annotation.GeoNamesEntity;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
