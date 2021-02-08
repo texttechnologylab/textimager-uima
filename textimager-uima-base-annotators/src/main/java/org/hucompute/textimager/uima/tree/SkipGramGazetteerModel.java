@@ -32,10 +32,10 @@ import java.util.zip.ZipFile;
 public class SkipGramGazetteerModel {
 
 	public static Pattern nonTokenCharacterClass = Pattern.compile("[^\\p{Alpha}\\- ]+", Pattern.UNICODE_CHARACTER_CLASS);
-	private static final Path tempPath = Paths.get("/tmp/biofid-gazetteer/");
-	private static final Path cachePath = Paths.get(System.getenv("HOME"), ".cache/biofid-gazetteer/").toAbsolutePath();
+	private static final Path tempPath = Paths.get("/tmp/"+System.currentTimeMillis());
+	private static final Path cachePath = Paths.get(System.getenv("HOME"), ".cache/"+System.currentTimeMillis()+"/").toAbsolutePath();
 	public LinkedHashSet<String> skipGramSet;
-	public LinkedHashMap<String, HashSet<URI>> elementUriMap;
+	public LinkedHashMap<String, HashSet<Object>> elementUriMap;
 	public LinkedHashMap<String, String> skipGramElementLookup;
 	public HashMap<String, HashSet<String>> elementSkipGramMap;
 	public static boolean getAllSkips;
@@ -93,18 +93,18 @@ public class SkipGramGazetteerModel {
 		// Map: Taxon -> {URI}
 		elementUriMap = new LinkedHashMap<>();
 		for (String sourceLocation : sourceLocations) {
-			SkipGramGazetteerModel.loadTaxaMap(sourceLocation, bUseLowercase, sLanguage).forEach((taxon, uri) ->
-					elementUriMap.merge(taxon, uri, (uUri, vUri) -> {
+			SkipGramGazetteerModel.loadDefinition(sourceLocation, bUseLowercase, sLanguage).forEach((element, uri) ->
+					elementUriMap.merge(element, uri, (uUri, vUri) -> {
 						duplicateKeys.incrementAndGet();
 						return new HashSet<>(SetUtils.union(uUri, vUri));
 					}));
 		}
-		System.out.printf("%s: Loaded %d taxa from %d files.\n", this.getClass().getSimpleName(), elementUriMap.size(), sourceLocations.size());
+		System.out.printf("%s: Loaded %d entry from %d files.\n", this.getClass().getSimpleName(), elementUriMap.size(), sourceLocations.size());
 		if (duplicateKeys.get() > 0)
-			System.err.printf("%s: Merged %d duplicate taxa!\n", this.getClass().getSimpleName(), duplicateKeys.get());
+			System.err.printf("%s: Merged %d duplicate entry!\n", this.getClass().getSimpleName(), duplicateKeys.get());
 		duplicateKeys.set(0);
 
-		// Map: Taxon -> {Skip-Grams}
+		// Map: Element -> {Skip-Grams}
 		elementSkipGramMap = elementUriMap.keySet().stream()
 				.collect(Collectors.toMap(
 						Function.identity(),
@@ -127,8 +127,8 @@ public class SkipGramGazetteerModel {
 						LinkedHashMap::new));
 		System.err.printf("%s: Ignoring %d duplicate skip-grams!\n", this.getClass().getSimpleName(), duplicateKeys.get());
 
-		// Ensure actual taxa are contained in skipGramTaxonLookup
-		elementUriMap.keySet().forEach(tax -> skipGramElementLookup.put(tax, tax));
+		// Ensure actual elements are contained in skipGramTaxonLookup
+		elementUriMap.keySet().forEach(element -> skipGramElementLookup.put(element, element));
 
 		// Set: {Skip-Gram}
 		skipGramSet = skipGramElementLookup.keySet().stream()
@@ -147,7 +147,7 @@ public class SkipGramGazetteerModel {
 	 * @param skipGram the target Skip-Gram
 	 * @return elementUriMap.get(skipGramTaxonLookup.get ( skipGram))
 	 */
-	public HashSet<URI> getUriFromSkipGram(String skipGram) {
+	public HashSet<Object> getUriFromSkipGram(String skipGram) {
 		return elementUriMap.get(skipGramElementLookup.get(skipGram));
 	}
 
@@ -167,7 +167,7 @@ public class SkipGramGazetteerModel {
 	 * @return ArrayList of taxa.
 	 * @throws IOException if file is not found or an error occurs.
 	 */
-	private static LinkedHashMap<String, HashSet<URI>> loadTaxaMap(String sourceLocation, Boolean pUseLowercase, String language) throws IOException {
+	private static LinkedHashMap<String, HashSet<Object>> loadDefinition(String sourceLocation, Boolean pUseLowercase, String language) throws IOException {
 		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(sourceLocation)), StandardCharsets.UTF_8))) {
 			return bufferedReader.lines()
 					.filter(s -> !Strings.isNullOrEmpty(s))
@@ -201,7 +201,7 @@ public class SkipGramGazetteerModel {
 	}
 
 	private static ArrayList<String> extractElementFiles(String sourceLocation) throws IOException {
-		System.out.println(String.format("%s: Extracting taxa files from '%s'..", SkipGramGazetteerModel.class.getSimpleName(), sourceLocation));
+		System.out.println(String.format("%s: Extracting Elements files from '%s'..", SkipGramGazetteerModel.class.getSimpleName(), sourceLocation));
 
 		File gazetteerFolder = getElementLocation().toFile();
 		ArrayList<String> extractedFiles = new ArrayList<>();

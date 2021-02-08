@@ -39,7 +39,7 @@ public class GeneralTreeGazetteer extends SegmenterBase {
      * Location from which the geonames data is read.
      */
     public static final String PARAM_SOURCE_LOCATION = ComponentParameters.PARAM_SOURCE_LOCATION;
-    @ConfigurationParameter(name = PARAM_SOURCE_LOCATION, mandatory = false, defaultValue = "https://www.texttechnologylab.org/files/GeoNames.zip")
+    @ConfigurationParameter(name = PARAM_SOURCE_LOCATION, mandatory = false, defaultValue = "")
     protected String[] sourceLocation;
 
     /**

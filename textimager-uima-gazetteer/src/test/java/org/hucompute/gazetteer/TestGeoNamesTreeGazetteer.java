@@ -12,6 +12,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.util.CasIOUtils;
 import org.junit.Test;
+import org.texttechnologylab.annotation.GeoNamesEntity;
 import org.texttechnologylab.annotation.type.Taxon;
 import org.xml.sax.SAXException;
 
@@ -24,15 +25,15 @@ import java.util.stream.Collectors;
 
 public class TestGeoNamesTreeGazetteer {
 
-    private String sourceLocation = "src/test/resources/geonames.zip";
+    private String sourceLocation = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/Arbeit/geonames/test.txt";
 
     @Test
     public void testRegularGazetteer() {
         try {
             final AnalysisEngine gazetterEngine = AnalysisEngineFactory.createEngine(AnalysisEngineFactory.createEngineDescription(
                     GeoNamesTreeGazetteer.class,
-                    GeneralTreeGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
-                    GeneralTreeGazetteer.PARAM_USE_LOWERCASE, false));
+                    GeoNamesTreeGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
+                    GeoNamesTreeGazetteer.PARAM_USE_LOWERCASE, false));
 
             runTest(gazetterEngine);
         } catch (UIMAException e) {
@@ -42,27 +43,15 @@ public class TestGeoNamesTreeGazetteer {
     }
 
     private void runTest(AnalysisEngine gazetterEngine) throws UIMAException {
-        for (String fname : Arrays.asList("src/test/resources/9031034.xmi", "src/test/resources/4058393.xmi")) {
-            try {
-                File file = new File(fname);
-                {
-                    JCas jCas = JCasFactory.createJCas();
-                    CasIOUtils.load(java.nio.file.Files.newInputStream(file.toPath()), null, jCas.getCas(), true);
-                    jCas.removeAllIncludingSubtypes(Taxon.type);
 
-                    StopWatch stopWatch = StopWatch.createStarted();
-                    SimplePipeline.runPipeline(jCas, gazetterEngine);
-                    XmiSerializationSharedData sharedData = new XmiSerializationSharedData();
-                    XmiCasSerializer.serialize(jCas.getCas(), jCas.getTypeSystem(), new FileOutputStream(new File("/tmp/temp.xmi")), true, sharedData);
-                    System.out.printf("Finished tagging in %dms.\n", stopWatch.getTime(TimeUnit.MILLISECONDS));
+        JCas jCas = JCasFactory.createText("Hamburg liegt im Norden von Deutschland und München im Süden.");
+        StopWatch stopWatch = StopWatch.createStarted();
+        SimplePipeline.runPipeline(jCas, gazetterEngine);
+        System.out.printf("Finished tagging in %dms.\n", stopWatch.getTime(TimeUnit.MILLISECONDS));
 
-                    System.out.printf("Found %d taxa.\n", JCasUtil.select(jCas, Taxon.class).size());
-                    System.out.println(JCasUtil.select(jCas, Taxon.class).stream().map(taxon -> String.format("%s@(%d, %d): %s", taxon.getCoveredText(), taxon.getBegin(), taxon.getEnd(), taxon.getValue())).collect(Collectors.joining("\n")));
-                }
-            } catch (IOException | SAXException e) {
-                e.printStackTrace();
-            }
-        }
+        System.out.printf("Found %d GeoNames.\n", JCasUtil.select(jCas, GeoNamesEntity.class).size());
+        System.out.println(JCasUtil.select(jCas, GeoNamesEntity.class).stream().map(element -> String.format("%s@(%d, %d): %s", element.getCoveredText(), element.getBegin(), element.getEnd(), element.getId())).collect(Collectors.joining("\n")));
+
     }
 
 }

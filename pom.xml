@@ -117,6 +117,6 @@
 <!-- 		<module>textimager-uima-transformers</module> -->
 		<module>textimager-uima-w2v</module>
 		<module>textimager-uima-biofid-flair</module>
-        <module>textimager-uima-geonames-gazetteer</module>
+        <module>textimager-uima-gazetteer</module>
     </modules>
 </project>

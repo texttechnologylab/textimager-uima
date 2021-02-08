@@ -19,9 +19,26 @@ public class GeoNamesTreeGazetteer extends GeneralTreeGazetteer {
 
             String el = skipGramGazetteerModel.skipGramElementLookup.get(match.value);
             String sID = skipGramGazetteerModel.elementUriMap.get(el).stream()
-                    .map(URI::toString)
+                    .map(Object::toString)
                     .collect(Collectors.joining(","));
-            geoNames.setId(Integer.valueOf(sID));
+
+            String[] sSplit = sID.split("~");
+
+            if(sSplit[0]!=null){
+                geoNames.setId(Integer.valueOf(sSplit[0]));
+            }
+            try {
+                if (sSplit.length>1 && sSplit[1] != null) {
+                    geoNames.setMainclass(sSplit[1]);
+                }
+                if (sSplit.length>2 && sSplit[2] != null) {
+                    geoNames.setSubclass(sSplit[2]);
+                }
+            }
+            catch (Exception e){
+
+            }
+
             aJCas.addFsToIndexes(geoNames);
         } catch (NullPointerException e) {
             // FIXME: Remove this
