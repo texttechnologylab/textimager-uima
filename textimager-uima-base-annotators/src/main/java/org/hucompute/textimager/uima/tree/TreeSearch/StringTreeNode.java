@@ -51,6 +51,7 @@ public class StringTreeNode implements ITreeNode {
 	}
 
 	public void insert(String value) {
+		System.out.println(value.trim()+"\t"+value);
 		this.insert(value.trim(), value);
 	}
 
