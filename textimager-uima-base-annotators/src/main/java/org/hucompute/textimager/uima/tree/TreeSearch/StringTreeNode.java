@@ -56,6 +56,8 @@ public class StringTreeNode implements ITreeNode {
 	}
 
 	public void insert(String subString, final String value) {
+		System.out.println(subString+"\t"+value);
+
 		if (subString.length() == 0) {
 			synchronized (this.children) {
 				this.value = value;
