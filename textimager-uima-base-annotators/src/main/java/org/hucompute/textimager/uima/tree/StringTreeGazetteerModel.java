@@ -30,9 +30,17 @@ public class StringTreeGazetteerModel extends SkipGramGazetteerModel implements 
         System.out.printf("%s: Building tree..\n", this.getClass().getSimpleName());
 
         tree = new StringTreeNode();
-        skipGramSet.stream()
-                .map(skipGram -> bUseLowercase ? skipGram.toLowerCase() : skipGram)
-                .forEach(tree::insert);
+        skipGramSet.forEach(sk->{
+            if(bUseLowercase){
+                tree.insert(sk.toLowerCase());
+            }
+            else{
+                tree.insert(sk);
+            }
+        });
+//        skipGramSet.stream()
+//                .map(skipGram -> bUseLowercase ? skipGram.toLowerCase() : skipGram)
+//                .forEach(tree::insert);
 
         System.out.printf(
                 "%s: Finished building tree with %d nodes from %d skip-grams in %dms.\n",
