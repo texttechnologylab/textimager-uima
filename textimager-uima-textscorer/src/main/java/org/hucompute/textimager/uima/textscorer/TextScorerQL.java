@@ -1,4 +1,4 @@
-package org.hucompute.textimager.uima.ta;
+package org.hucompute.textimager.uima.textscorer;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package org.hucompute.textimager.uima.ta;
+package org.hucompute.textimager.uima.textscorer;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
@@ -9,6 +9,7 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.hucompute.textimager.uima.textscorer.TextScorerQL;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
