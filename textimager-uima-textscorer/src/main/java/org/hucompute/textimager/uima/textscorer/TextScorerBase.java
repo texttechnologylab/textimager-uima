@@ -35,7 +35,8 @@ public abstract class TextScorerBase extends JepAnnotator {
 			condaBashScript = "ta_setup.sh";
 		}
 		if (envDepsPip == null || envDepsPip.isEmpty()) {
-			envDepsPip = "spacy>=3.0.0 polyglot>=16.7.4 transformers>=3.0.2";
+			envDepsPip = "spacy>=3.0.0 polyglot>=16.7.4 transformers>=3.0.2 pandas>=1.2.2 dcor>=0.3 "
+					+ "statsmodels>=0.11.0 pyts>=0.11.0 sklearn>=0.0 nltk>=3.5";
 		}
 		if (envDepsConda == null || envDepsConda.isEmpty()) {
 			envDepsConda = "";

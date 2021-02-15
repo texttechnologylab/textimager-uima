@@ -2,6 +2,7 @@
 #import glob
 import hashlib
 #import json
+import math
 import numpy as np
 import os
 #import pandas as pd
@@ -13,7 +14,7 @@ import sys
 import torch
 
 from collections import OrderedDict
-from math import ceil
+from nltk import ngrams
 #from multiprocessing import Pool, cpu_count
 #from os import listdir, path
 #from sklearn.feature_extraction.text import TfidfVectorizer
@@ -325,6 +326,8 @@ class TextScorer:
         })
         return scores
 
+
+#############################################################################################
 # Baseclass for all Scorers
 class TextScore:
     def id(self):
@@ -336,8 +339,238 @@ class TextScore:
     def score(self, text: Text):
         pass
 
-#############################################################################################
 ## Scorers
+class ADJPD(TextScore):
+    def id(self):
+        return "adjpd"
+
+    def name(self):
+        return "Number of Adjectives per Document"
+
+    def score(self, text: Text):
+        pro = [pos for pos in text.pos if pos == 'ADJ']
+        return len(pro)
+
+
+class AdjustedModulus(TextScore):
+    def id(self):
+        return "A"
+
+    def name(self):
+        return "Adjusted Modulus"
+
+    def score(self, text: Text):
+        m_score = (np.amax(text.token_frequencies)) ** 2 + len(text.token_unique) ** 2
+        y = HPoint().score(text)
+        # TODO Fehler oder kann das wirklich vorkommen?
+        if y == 0:
+            return 0
+        m_score = (m_score ** .5) / y
+        x = math.log10(len(text.token))
+        # TODO Fehler oder kann das wirklich vorkommen?
+        if x == 0:
+            return 0
+        return m_score / x
+
+
+class ADVPD(TextScore):
+    def id(self):
+        return "advpd"
+
+    def name(self):
+        return "Number of Adverbs per Document"
+
+    def score(self, text: Text):
+        pro = [pos for pos in text.pos if pos == 'ADV']
+        return len(pro)
+
+
+class Alpha(TextScore):
+    def id(self):
+        return "alpha"
+
+    def name(self):
+        return "Writers View"
+
+    def score(self, text: Text):
+        hp = HPoint().score(text)
+        v = len(np.unique(text.token))
+        tf = text.token_frequencies[0] 
+        cos1 = -1 * ((hp - 1) * (tf - hp) + (hp - 1) * (v - hp))
+        cos2 = ((hp - 1) ** 2 + (tf - hp) ** 2 ) ** 0.5 
+        cos3 = ((hp - 1) ** 2 + (v - hp) ** 2) ** 0.5
+
+        try:
+            cos = cos1 / cos2 / cos3
+        except UnboundLocalError:
+            return 0
+            #print("IsNaN")
+        arccos = np.arccos(cos)
+        if math.isnan(arccos):
+            return 0
+        else:
+            return arccos
+
+
+class APD(TextScore):
+    def id(self):
+        return "apd"
+
+    def name(self):
+        return "Number of Auxiliary Words per Document"
+
+    def score(self, text: Text):
+        pro = [pos for pos in text.pos if pos == 'AUX']
+        return len(pro)
+
+
+class ASL(TextScore):
+    def id(self):
+        return "ASL"
+
+    def name(self):
+        return "Average Sentence Length"
+
+    def score(self, text: Text):
+        score = np.sum(text.l_sentences)/text.n_sentences
+        #print(score, text.l_sentences, text.n_sentences)
+        #print(text.text)
+        #sys.exit(-1)
+
+        return score
+
+
+class ATL(TextScore):
+    def id(self):
+        return "ATL"
+
+    def name(self):
+        return "Average Token Length"
+
+    def score(self, text: Text):
+        tokens = [str(t) for t in text.token]
+        tl = []
+        for t in tokens:
+            tl.append(len(list(t)))
+        return np.average(tl)
+
+
+class CurveLength(TextScore):
+    def id(self):
+        return "L"
+
+    def name(self):
+        return "Curve Length"
+
+    def score(self, text: Text):
+        l_score = (np.diff(text.token_frequencies) ** 2 + 1) ** 0.5
+        return np.sum(l_score)
+
+
+class DPD(TextScore):
+    def id(self):
+        return "dpd"
+
+    def name(self):
+        return "Number of Determiners per Document"
+
+    def score(self, text: Text):
+        pro = [pos for pos in text.pos if pos == 'DET']
+        return len(pro)
+
+
+class Entropy(TextScore):
+    def id(self):
+        return "H"
+
+    def name(self):
+        return "Entropy"
+
+    def score(self, text: Text):
+        n = len(text.token)
+        h = np.log2(n) - ((1 / n) * np.sum(f * np.log2(f) for f in text.token_frequencies))
+        return h
+
+
+class Gini(TextScore):
+    def id(self):
+        return "G"
+
+    def name(self):
+        return "Gini Coefficient"
+
+    def score(self, text: Text):
+        m_score = 0
+        for i in range(len(text.token_frequencies)):
+            m_score = m_score + (i + 1) * text.token_frequencies[i]
+        m_score = m_score / len(text.token)
+        n = len(np.unique(text.token))
+
+        return (1 / n) * (n + 1 - 2 * m_score)
+
+
+class HL(TextScore):
+    def id(self):
+        return "hl"
+
+    def name(self):
+        return "Hapax Legomenon Percentage"
+
+    def score(self, text: Text):
+        n = len(text.token)
+
+        tokens, frequencies = np.unique(text.token, return_counts=True)
+
+        return len(frequencies[np.where(frequencies == 1)]) / n
+
+
+class HPoint(TextScore):
+    def id(self):
+        return "h"
+
+    def name(self):
+        return "h-point"
+
+    def score(self, text: Text):
+        #point, where r > f
+        bp = 0
+        # there is a r == f(r)
+        for ri, f in enumerate(text.token_frequencies):
+            r = ri + 1
+            # r starts at 0
+            if r == f:
+                return r
+            if r > f:
+                bp = r
+                break
+
+        # there is not
+        #print(f'r2: {bp}, r1: {bp-1}, f1: {text.token_frequencies[bp-1-1]}, f2: {text.token_frequencies[bp-1]}')
+
+
+        f1 = text.token_frequencies[bp - 1 - 1]
+        f2 = text.token_frequencies[bp - 1]
+        try:
+            h = (f1*bp - f2*(bp-1)) / (bp - (bp - 1) + f1 - f2)
+        except ZeroDivisionError:
+            h = 0
+
+        return h
+
+
+class IPD(TextScore):
+    def id(self):
+        return "ipd"
+
+    def name(self):
+        return "Number of Interjections per Document"
+
+    def score(self, text: Text):
+        res = [pos for pos in text.pos if pos == 'INTJ']
+
+        return len(res)
+
+
 class NPD(TextScore):
     def id(self):
         return "npd"
@@ -347,6 +580,322 @@ class NPD(TextScore):
 
     def score(self, text: Text):
         pro = [pos for pos in text.pos if pos == 'NOUN']
+        return len(pro)
+
+class Lambda(TextScore):
+    def id(self):
+        return "lmbd"
+
+    def name(self):
+        return "Lambda"
+
+    def score(self, text: Text):
+        l_score = CurveLength().score(text)
+        lambda_score = l_score * math.log10(len(text.token)) / len(text.token)
+        return lambda_score
+
+
+class lmbd(TextScore):
+    def id(self):
+        return "lmbd"
+
+    def name(self):
+        return "Lambda"
+
+    def score(self, text: Text):
+        n = len(text.token)
+        l = (np.diff(text.token_frequencies) ** 2 + 1) ** 0.5
+
+        return np.sum(l) * np.log10(n) / n
+
+
+class NDW(TextScore):
+    def id(self):
+        return "NDW"
+
+    def name(self):
+        return "Number of difficult words (more than 8 letters)"
+
+    def score(self, text: Text):
+        dw = [t for t in text.token if len(t) > 8]
+
+        return len(dw)
+
+
+class PPD(TextScore):
+    def id(self):
+        return "ppd"
+
+    def name(self):
+        return "Number of Pronouns per Document"
+
+    def score(self, text: Text):
+        pro = [pos for pos in text.pos if pos == 'PRON']
+        return len(pro)
+
+
+class PREPPD(TextScore):
+    def id(self):
+        return "preppd"
+
+    def name(self):
+        return "Number of Prepositions per Document"
+
+    def score(self, text: Text):
+        pro = [pos for pos in text.pos if pos == 'ADP']
+        return len(pro)
+
+
+class Q(TextScore):
+    def id(self):
+        return "Q"
+
+    def name(self):
+        return "Activity"
+
+    def score(self, text: Text):
+        pos = text.pos
+        if len(pos) == 0:
+            return 0
+        p = zip(text.token, text.pos)
+        v = len([p for p in text.pos if p == 'VERB'])
+        a = len([p for p in text.pos if p == 'ADJ'])
+        try:
+            return v / (v + a)
+        except:
+            return 0
+
+
+class R1(TextScore):
+    def id(self):
+        return "R1"
+
+    def name(self):
+        return "Vocabulary Richness"
+
+    def score(self, text: Text):
+        n = len(text.token)
+        #h = math.floor(HPoint().score(text))
+        h = HPoint().score(text)
+        fh = 0
+        tokens, frequencies = np.unique(text.token, return_counts=True)
+        frequencies[::-1].sort()
+
+        if len(frequencies) < h + 2:
+            return 0
+        
+        for i in range(math.floor(h)):
+            fh += frequencies[i]
+
+        #h = frequencies[h + 1]
+        #fh += h
+        return 1 - (fh / n - h ** 2 / 2 / n)
+
+
+class RR(TextScore):
+    def id(self):
+        return "RR"
+
+    def name(self):
+        return "Repeat Rate"
+
+    def score(self, text: Text):
+        n = len(text.token)
+        tokens, frequencies = np.unique(text.token, return_counts=True)
+
+        return np.sum(frequencies ** 2) / n ** 2
+
+
+class RRR(TextScore):
+    def id(self):
+        return "RRR"
+
+    def name(self):
+        return "Relative Repeat Rate"
+
+    def score(self, text: Text):
+        rr = RR().score(text)
+        n = len(np.unique(text.token))
+        return (1 - rr ** 0.5)/(1 - n ** -0.5)
+
+
+#class STC(TextScore):
+#    def id(self):
+#        return "stc"
+#
+#    def name(self):
+#        return "Secondary Thematic Concentration"
+#
+#    def score(self, text: Text):
+#        thematic_ws = []
+#
+#        h = HPoint().score(text)
+#        h_floor = math.floor(h*2)
+#
+#        if h_floor == 0:
+#            print('h==0')
+#            return 0
+#
+#        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
+#                len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
+#        df = df.groupby(1).mean().sort_index(ascending=False)
+#
+#        r = 0
+#        for i in text.token_unique_indices[:h_floor]:
+#            try:
+#                f = text.token_frequencies[r]
+#                if text.pos[i] in ['NOUN', 'VERB', 'ADJ']:
+#                    rank = r + 1
+#                    for j, row in df.iterrows():
+#                        if f == j:
+#                            rank = row[0]
+#                        
+#                    thematic_ws.append((rank, text.token_frequencies[r]))
+#            except IndexError:
+#                #print(f'pos: {text.pos.shape} token: {text.token.shape}, i: {i}')
+#                return 0
+#            r += 1
+#
+#        if len(thematic_ws) == 0:
+#            return 0
+#
+#        stc = 0 
+#        for r, f in thematic_ws:
+#            stc += (2*h - r) * f / (h* (2*h-1)*text.token_frequencies[0])
+#            
+#        return stc
+#
+#
+#class TC(TextScore):
+#    def id(self):
+#        return "tc"
+#
+#    def name(self):
+#        return "Thematic Concentration"
+#
+#    def score(self, text: Text):
+#        thematic_ws = []
+#
+#        h = HPoint().score(text)
+#        h_floor = math.floor(h)
+#        
+#        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
+#                len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
+#        df = df.groupby(1).mean().sort_index(ascending=False)
+#
+#        r = 0
+#        for i in text.token_unique_indices[:h_floor]:
+#            try:
+#                f = text.token_frequencies[r]
+#                if text.pos[i] in ['NOUN', 'VERB', 'ADJ']:
+#                    rank = r + 1
+#                    for j, row in df.iterrows():
+#                        if f == j:
+#                            rank = row[0]
+#                        
+#                    #print(f'token: {text.token[i]}, pos: {text.pos[i]},'
+#                    #        f'rank: {rank}, freq: {text.token_frequencies[r]}')
+#                        
+#                    thematic_ws.append((rank, text.token_frequencies[r]))
+#            except IndexError:
+#                 #print(f'pos: {text.pos.shape} token: {text.token.shape}, i: {i}')
+#                 return 0
+#               
+#            r += 1
+#
+#        if len(thematic_ws) == 0:
+#            return 0
+#
+#        tc = 0 
+#        for r, f in thematic_ws:
+#            tc += 2*(h - r) * f / (h* (h-1)*text.token_frequencies[0])
+#            
+#        return tc
+
+
+class TypeTokenRatio(TextScore):
+    def id(self):
+        return "ttr"
+
+    def name(self):
+        return "Type Token Ratio"
+
+    def score(self, text: Text):
+        return len(text.token_unique) / len(text.token)
+
+
+class uniquegrams(TextScore):
+    def id(self):
+        return "UG"
+
+    def name(self):
+        return "Unique Grams"
+
+    def score(self, text: Text):
+        length = len(text.token)
+        grams = list()
+
+        for token in text.token_unique:
+            #print(token)
+            #print(self.get_gram(token))
+            grams += self.get_gram(token)
+        
+        #print(len(set(grams)))
+        #print(length)
+        #print(len(set(grams))/length)
+        #sys.exit(0)
+        return len(set(grams)) / length
+
+    def get_gram(self, tokens):
+        grams = list()
+
+        if len(tokens) < 3:
+            return grams
+
+        gram_generator = ngrams(tokens, 3)
+
+        for gram in gram_generator:
+            grams.append(gram)
+
+        return grams
+
+
+class VD(TextScore):
+    def id(self):
+        return "VD"
+
+    def name(self):
+        return "Verb Distances"
+
+    def score(self, text: Text):
+        junk = ['PUNCT', 'SPACE']
+        pos = [str(w) for w in text.pos if w not in junk]
+        if len(pos) == 0:
+            return 0
+        vi = []
+        for i in range(len(pos)):
+            if pos[i] == 'VERB':
+                vi.append(i)
+        diff = [x - vi[i - 1] for i, x in enumerate(vi)][1:]
+
+        if len(diff) == 0:
+            return 0
+        
+        try:
+            return np.average(diff)
+        except FloatingPointError:
+            return 0
+
+
+class VPD(TextScore):
+    def id(self):
+        return "vpd"
+
+    def name(self):
+        return "Number of Verbs per Document"
+
+    def score(self, text: Text):
+        pro = [pos for pos in text.pos if pos == 'VERB']
         return len(pro)
 
 #############################################################################################

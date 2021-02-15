@@ -65,7 +65,12 @@ public class TextScorerQL extends TextScorerBase {
 
 		try {
 			System.out.println("initializing scorer...");
-			interpreter.exec("scorer = scorer.Scorer(scorers=[scorer.NPD()])");
+			interpreter.exec("scorers = list([cls() for name, cls in scorer.__dict__.items() if isinstance(cls, type) "
+					+ "and issubclass(cls, scorer.TextScore) and name != 'TextScore'])");
+//			interpreter.exec("sc = scorer.Scorer(scorers=[scorer.NPD(), scorer.ADJPD()])");
+//			interpreter.exec("scorers = [scorer.NPD(), scorer.ADJPD(), scorer.ADVPD(), scorer.HPoint(), "
+//					+ "scorer.AdjustedModulus()]");
+			interpreter.exec("sc = scorer.Scorer(scorers=scorers)");
 			System.out.println("done initializing scorer.");
 
 		} catch (JepException e) {
@@ -258,7 +263,7 @@ public class TextScorerQL extends TextScorerBase {
 				interpreter.set("lang", (Object)aJCas.getDocumentLanguage());
 				interpreter.set("text", (Object)text);
 //				interpreter.set("label", (Object)text);
-				interpreter.exec("scores, names, text_hash = scorer.run(lang, 'dummy', text)");
+				interpreter.exec("scores, names, text_hash = sc.run(lang, 'dummy', text)");
 				
 				ArrayList<Integer> scores = (ArrayList<Integer>) interpreter.getValue("scores");
 				ArrayList<String> names = (ArrayList<String>) interpreter.getValue("names");

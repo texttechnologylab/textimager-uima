@@ -16,6 +16,11 @@
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-util</artifactId>
 			<version>${project.version}</version>
-		</dependency>		
+		</dependency>
+		<dependency>
+		    <groupId>com.github.texttechnologylab</groupId>
+		    <artifactId>UIMATypeSystem</artifactId>
+		    <version>419244d436</version>
+		</dependency>	
 	</dependencies>
 </project>
