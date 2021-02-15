@@ -15,12 +15,10 @@ import org.dkpro.core.api.segmentation.SegmenterBase;
 import org.hucompute.textimager.uima.tree.CharTreeGazetteerModel;
 import org.hucompute.textimager.uima.tree.ITreeGazetteerModel;
 import org.hucompute.textimager.uima.tree.SkipGramGazetteerModel;
-import org.hucompute.textimager.uima.tree.StringTreeGazetteerModel;
 import org.hucompute.textimager.uima.tree.TreeSearch.ITreeNode;
-import org.texttechnologylab.annotation.GeoNamesEntity;
+import org.hucompute.textimager.uima.tree.neo4j.StringTreeGazetteerModel;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +37,7 @@ public class GeneralTreeGazetteer extends SegmenterBase {
      * Location from which the geonames data is read.
      */
     public static final String PARAM_SOURCE_LOCATION = ComponentParameters.PARAM_SOURCE_LOCATION;
-    @ConfigurationParameter(name = PARAM_SOURCE_LOCATION, mandatory = false, defaultValue = "https://www.texttechnologylab.org/files/GeoNames.zip")
+    @ConfigurationParameter(name = PARAM_SOURCE_LOCATION, mandatory = false, defaultValue = "")
     protected String[] sourceLocation;
 
     /**

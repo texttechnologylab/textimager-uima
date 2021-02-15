@@ -1,14 +1,14 @@
-package org.hucompute.textimager.uima.tree;
+package org.hucompute.textimager.uima.string;
 
+import org.hucompute.textimager.uima.tree.ITreeGazetteerModel;
+import org.hucompute.textimager.uima.tree.SkipGramGazetteerModel;
 import org.hucompute.textimager.uima.tree.TreeSearch.ITreeNode;
 import org.hucompute.textimager.uima.tree.TreeSearch.StringTreeNode;
 
 import java.io.IOException;
 import java.util.stream.Stream;
 
-public class StringTreeGazetteerModel extends SkipGramGazetteerModel implements ITreeGazetteerModel {
-
-    public final StringTreeNode tree;
+public class StringGazetteerModel extends SkipGramGazetteerModel {
 
     /**
      * Create 1-skip-n-grams from each element in a file from a given list of files.
@@ -23,35 +23,10 @@ public class StringTreeGazetteerModel extends SkipGramGazetteerModel implements 
      * @param bSplitHyphen     If true, taxon tokens will be split at hyphens.
      * @throws IOException
      */
-    public StringTreeGazetteerModel(String[] aSourceLocations, Boolean bUseLowercase, String sLanguage, double dMinLength, boolean bAllSkips, boolean bSplitHyphen) throws IOException {
+    public StringGazetteerModel(String[] aSourceLocations, Boolean bUseLowercase, String sLanguage, double dMinLength, boolean bAllSkips, boolean bSplitHyphen) throws IOException {
         super(aSourceLocations, bUseLowercase, sLanguage, dMinLength, bAllSkips, bSplitHyphen);
         long startTime = System.currentTimeMillis();
 
-        System.out.printf("%s: Building tree..\n", this.getClass().getSimpleName());
-
-        tree = new StringTreeNode();
-        skipGramSet.forEach(sk->{
-            if(bUseLowercase){
-                tree.insert(sk.toLowerCase());
-            }
-            else{
-                tree.insert(sk);
-            }
-        });
-//        skipGramSet.stream()
-//                .map(skipGram -> bUseLowercase ? skipGram.toLowerCase() : skipGram)
-//                .forEach(tree::insert);
-
-        System.out.printf(
-                "%s: Finished building tree with %d nodes from %d skip-grams in %dms.\n",
-                this.getClass().getSimpleName(), tree.size(), skipGramSet.size(),
-                System.currentTimeMillis() - startTime
-        );
-    }
-
-    @Override
-    public ITreeNode getTree() {
-        return this.tree;
     }
 
     public
