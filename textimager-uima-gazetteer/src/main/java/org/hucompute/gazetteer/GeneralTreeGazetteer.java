@@ -15,8 +15,8 @@ import org.dkpro.core.api.segmentation.SegmenterBase;
 import org.hucompute.textimager.uima.tree.CharTreeGazetteerModel;
 import org.hucompute.textimager.uima.tree.ITreeGazetteerModel;
 import org.hucompute.textimager.uima.tree.SkipGramGazetteerModel;
-import org.hucompute.textimager.uima.tree.StringTreeGazetteerModel;
 import org.hucompute.textimager.uima.tree.TreeSearch.ITreeNode;
+import org.hucompute.textimager.uima.tree.neo4j.StringTreeGazetteerModel;
 
 import java.io.IOException;
 import java.util.ArrayList;

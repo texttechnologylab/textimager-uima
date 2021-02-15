@@ -80,7 +80,6 @@
         <artifactId>Utilities</artifactId>
         <version>1.0.5</version>
     </dependency>
-
 </dependencies>
 <profiles>
     <profile>

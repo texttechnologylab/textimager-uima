@@ -11,6 +11,7 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.util.CasIOUtils;
+import org.hucompute.textimager.uima.tree.neo4j.StringTreeGazetteerModel;
 import org.junit.Test;
 import org.texttechnologylab.annotation.GeoNamesEntity;
 import org.texttechnologylab.annotation.type.Taxon;
