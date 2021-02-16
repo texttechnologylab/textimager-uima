@@ -6,6 +6,12 @@
     <version>0.3.0</version>
   </parent>
   <artifactId>textimager-uima-textscorer</artifactId>
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
   <dependencies>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
@@ -20,7 +26,7 @@
 		<dependency>
 		    <groupId>com.github.texttechnologylab</groupId>
 		    <artifactId>UIMATypeSystem</artifactId>
-		    <version>419244d436</version>
-		</dependency>	
+		    <version>324137afbe</version>
+		</dependency>
 	</dependencies>
 </project>
