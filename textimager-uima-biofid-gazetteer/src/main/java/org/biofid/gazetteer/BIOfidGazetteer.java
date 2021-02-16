@@ -2,9 +2,6 @@ package org.biofid.gazetteer;
 
 import com.google.common.collect.Lists;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -13,6 +10,9 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.biofid.gazetteer.Models.SkipGramGazetteerModel;
+import org.dkpro.core.api.parameter.ComponentParameters;
+import org.dkpro.core.api.resources.MappingProvider;
+import org.dkpro.core.api.segmentation.SegmenterBase;
 import org.texttechnologylab.annotation.type.Taxon;
 
 import java.io.IOException;
