@@ -2,7 +2,6 @@ package org.hucompute.gazetteer;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UimaContext;
@@ -11,6 +10,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.parameter.ComponentParameters;
 import org.dkpro.core.api.segmentation.SegmenterBase;
 import org.hucompute.textimager.uima.tree.CharTreeGazetteerModel;
 import org.hucompute.textimager.uima.tree.ITreeGazetteerModel;

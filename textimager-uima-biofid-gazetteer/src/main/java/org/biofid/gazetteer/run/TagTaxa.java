@@ -1,7 +1,5 @@
 package org.biofid.gazetteer.run;
 
-import de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiReader;
-import de.tudarmstadt.ukp.dkpro.core.io.xmi.XmiWriter;
 import org.apache.commons.cli.*;
 import org.apache.uima.UIMAException;
 import org.apache.uima.collection.CollectionReader;
@@ -10,6 +8,8 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.biofid.gazetteer.BIOfidTreeGazetteer;
+import org.dkpro.core.io.xmi.XmiReader;
+import org.dkpro.core.io.xmi.XmiWriter;
 
 import java.io.IOException;
 
