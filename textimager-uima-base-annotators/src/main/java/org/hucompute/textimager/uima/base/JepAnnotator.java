@@ -361,7 +361,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			return;
 		}
 		
-		System.out.println("initializing new python nterpreter...");
+		System.out.println("initializing new python interpreter...");
 
         PyConfig pyConfig = new PyConfig();
         pyConfig.setPythonHome(envDir.toString());
