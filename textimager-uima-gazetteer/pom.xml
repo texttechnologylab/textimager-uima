@@ -78,7 +78,7 @@
     <dependency>
         <groupId>com.github.texttechnologylab</groupId>
         <artifactId>Utilities</artifactId>
-        <version>1.0.5</version>
+        <version>${ttlab.utilities.version}</version>
     </dependency>
 </dependencies>
 <profiles>
