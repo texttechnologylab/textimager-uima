@@ -3,7 +3,9 @@ package org.hucompute.textimager.uima.util;
 
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.unihd.dbs.heideltime.standalone.components.impl.XMIResultFormatter;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -18,6 +20,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.parameter.ComponentParameters;
 import org.junit.jupiter.api.Test;
+import org.texttechnologylab.annotation.ocr.OCRToken;
+import org.texttechnologylab.utilities.helper.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,13 +34,30 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDesc
  */
 public class DubiaRemover extends JCasAnnotator_ImplBase {
 
-
     /**
      * Remove regular Tokens and
      */
     public static final String REMOVE_TOKEN = "remove_token";
     @ConfigurationParameter(name = REMOVE_TOKEN, mandatory = false, defaultValue = "false")
     protected boolean remove_token;
+
+    /**
+     * Remove nested Sentences
+     */
+    public static final String REMOVE_NESTED_SENTENCE = "remove_nested_sentence";
+    @ConfigurationParameter(name = REMOVE_NESTED_SENTENCE, mandatory = false, defaultValue = "false")
+    protected boolean remove_nested_sentence;
+
+
+    /**
+     * Remove nested Sentences
+     */
+    public static final String TRANSFER_TOKEN_TO_OCRTOKEN = "transfer_token_to_ocrtoken";
+    @ConfigurationParameter(name = TRANSFER_TOKEN_TO_OCRTOKEN, mandatory = false, defaultValue = "false")
+    protected boolean transfer_token_to_ocrtoken;
+
+
+
 
     @Override
     public void process(JCas aJCas) throws AnalysisEngineProcessException {
@@ -59,18 +80,47 @@ public class DubiaRemover extends JCasAnnotator_ImplBase {
         if(remove_token){
             JCasUtil.select(aJCas, Token.class).forEach(t->{
                 if(t.getType().getName().equalsIgnoreCase("de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token")){
-                    if(t.getLemma()!=null) {
-                        t.getLemma().removeFromIndexes();
+
+                    if(transfer_token_to_ocrtoken){
+
+                        JCasUtil.selectAt(aJCas, OCRToken.class, t.getBegin(), t.getEnd()).forEach(ocr->{
+                            ocr.setLemma(t.getLemma());
+                            ocr.setForm(t.getForm());
+                            ocr.setPos(t.getPos());
+                        });
+
                     }
-                    if(t.getPos()!=null){
-                        t.getPos().removeFromIndexes();
+                    else{
+                        if(t.getLemma()!=null) {
+                            t.getLemma().removeFromIndexes();
+                        }
+                        if(t.getPos()!=null){
+                            t.getPos().removeFromIndexes();
+                        }
+                        if(t.getForm()!=null) {
+                            t.getForm().removeFromIndexes();
+                        }
                     }
-                    if(t.getForm()!=null) {
-                        t.getForm().removeFromIndexes();
-                    }
+
+                    t.setLemma(null);
+                    t.setPos(null);
+                    t.setForm(null);
 
                     t.removeFromIndexes();
                 }
+            });
+
+        }
+
+        if(remove_nested_sentence){
+            JCasUtil.select(aJCas, Sentence.class).forEach(t->{
+
+                JCasUtil.selectCovered(aJCas, Sentence.class, t).forEach(nestedSentence->{
+                    if(!nestedSentence.equals(t)){
+                        nestedSentence.removeFromIndexes();
+                    }
+                });
+
             });
 
         }
@@ -124,9 +174,9 @@ public class DubiaRemover extends JCasAnnotator_ImplBase {
     public void test() throws UIMAException, IOException {
 
 
-        AnalysisEngineDescription dubia = createEngineDescription(DubiaRemover.class, REMOVE_TOKEN, true);
+        AnalysisEngineDescription dubia = createEngineDescription(DubiaRemover.class, REMOVE_TOKEN, true, REMOVE_NESTED_SENTENCE, true, TRANSFER_TOKEN_TO_OCRTOKEN, true);
 
-        File nFile = new File("");
+        File nFile = new File("/home/gabrami/Downloads/4450070.xml.xmi");
 
         JCas test = JCasFactory.createJCas();
         CasIOUtil.readXmi(test, nFile);
@@ -138,7 +188,11 @@ public class DubiaRemover extends JCasAnnotator_ImplBase {
             System.out.println(a);
         });
 
-        CasIOUtil.writeXmi(test, new File(""));
+        String stringToSave = XmlFormatter.getPrettyString(test);
+
+        FileUtils.writeContent(stringToSave, new File("/home/gabrami/Downloads/re_4450070.xml.xmi"));
+
+        //CasIOUtil.writeXmi(test, new File("/home/gabrami/Downloads/re_4450070.xml.xmi"));
 
     }
 }

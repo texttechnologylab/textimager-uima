@@ -83,7 +83,7 @@
 	<modules>
 		<module>textimager-uima-base-annotators</module>
 		<module>textimager-uima-types</module>
-<!--		<module>textimager-uima-io</module>
+		<module>textimager-uima-io</module>
 		<module>textimager-uima-marmot</module>
 		<module>textimager-uima-wiki</module>
 		<module>textimager-uima-OpenerProject</module> 
@@ -116,8 +116,8 @@
 		<module>textimager-uima-textblob</module>
  		<module>textimager-uima-transformers</module> 
 		<module>textimager-uima-w2v</module>
-		<module>textimager-uima-biofid-flair</module> -->
-		<module>textimager-uima-spacy</module>
-		<module>textimager-uima-ta</module>
-	</modules>
+    <module>textimager-uima-ta</module>
+    <module>textimager-uima-biofid-flair</module>
+    <module>textimager-uima-gazetteer</module>
+    </modules>
 </project>
