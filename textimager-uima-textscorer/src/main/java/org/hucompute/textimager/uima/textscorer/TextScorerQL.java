@@ -18,50 +18,16 @@ import java.util.HashMap;
 
 public class TextScorerQL extends TextScorerBase {
 
-	/**
-	 * Overwrite CAS Language?
-	 */
-//	public static final String PARAM_LANGUAGE = "language";
-//	@ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
-//	protected String language;
-//
-//	/**
-//	 * Overwrite POS mapping location?
-//	 */
-//	public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
-//	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
-//	protected String posMappingLocation;
-//
-//	/**
-//	 * Overwrite model variant?
-//	 */
-//	public static final String PARAM_VARIANT = "variant";
-//	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
-//	protected String variant;
-//
-//	/**
-//	 * Max Text Length
-//	 */
-//	public static final String PARAM_MAX_TEXT_LENGTH = "maxTextLength";
-//	@ConfigurationParameter(name = PARAM_MAX_TEXT_LENGTH, defaultValue = "-1")
-//	protected long maxTextLength;
-//
-//	private MappingProvider mappingProvider;
-
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 
 		// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
-//		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant, language);
 
 		try {
 			System.out.println("initializing scorer...");
 			interpreter.exec("scorers = list([cls() for name, cls in scorer.__dict__.items() if isinstance(cls, type) "
 					+ "and issubclass(cls, scorer.TextScore) and name != 'TextScore'])");
-//			interpreter.exec("sc = scorer.Scorer(scorers=[scorer.NPD(), scorer.ADJPD()])");
-//			interpreter.exec("scorers = [scorer.NPD(), scorer.ADJPD(), scorer.ADVPD(), scorer.HPoint(), "
-//					+ "scorer.AdjustedModulus()]");
 			interpreter.exec("sc = scorer.Scorer(scorers=scorers)");
 			System.out.println("done initializing scorer.");
 
@@ -109,6 +75,7 @@ public class TextScorerQL extends TextScorerBase {
 			interpreter.set("text", (Object)text);
 	//				interpreter.set("label", (Object)text);
 			interpreter.exec("scores, names, text_hash = sc.run(lang, 'dummy', text)");
+
 			@SuppressWarnings("unchecked")
 			ArrayList<Double> scores = (ArrayList<Double>) interpreter.getValue("scores");
 			@SuppressWarnings("unchecked")

@@ -41,3 +41,7 @@ else
   echo "installing torch for amd"
   pip3 install /home/mx/Gits/tools/pytorch/dist/*.whl
 fi
+# prevents  jep.JepException: <class 'ImportError'>: Can't determine version for bottleneck
+echo "updating packages"
+conda update --all
+pip3 install Bottleneck
