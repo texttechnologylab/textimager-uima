@@ -11,6 +11,14 @@
             <param name="StringToMatch" value="Import by name" />
             <param name="AcceptOnMatch" value="false"/>
         </filter>
+        <filter class="org.apache.log4j.filter.StringMatchFilter">
+            <param name="StringToMatch" value="Import by location" />
+            <param name="AcceptOnMatch" value="false"/>
+        </filter>
+        <filter class="org.apache.log4j.filter.StringMatchFilter">
+            <param name="StringToMatch" value="Parameter" />
+            <param name="AcceptOnMatch" value="false"/>
+        </filter>
     </appender>
 
     <root>
