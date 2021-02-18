@@ -11,7 +11,7 @@ import spacy
 import string
 import sys
 #import time
-import torch
+#import torch
 
 from collections import OrderedDict
 from nltk import ngrams
@@ -97,7 +97,7 @@ class Text:
             nlp = spacy.load('ja_core_news_lg')
         else:
             print(f'Language you specified is not supported.')
-        
+
         text = self.text
         #text = re.sub('1_sec_pause|2_sec_pause|3_sec_pause|multiSecPause|/', '', text)
         #text = re.sub(r'\([^)]*\)', '', text)
@@ -139,7 +139,7 @@ class Text:
 
         self.sentences = [str(s) for s in doc.sents]# if len(s) != 1]
         ## sentence length
-        self.l_sentences = [len([doc[i] for i in range(sent.start, sent.end) 
+        self.l_sentences = [len([doc[i] for i in range(sent.start, sent.end)
             if doc[i].pos_ != 'PUNCT'])
                     for sent in doc.sents]
         self.n_sentences = len(self.sentences)
@@ -157,7 +157,7 @@ class Text:
             for s in sentences:
                 self.l_sentences.append(len(s.split(' ')))
 
-            self.token = [x for x in list(text.words) if not self._is_control(x) 
+            self.token = [x for x in list(text.words) if not self._is_control(x)
                     and not self._is_punct(x)]
         except ValueError as e:
             print(e)
@@ -202,16 +202,16 @@ class Text:
         """Split text into chunks TextImager can handle"""
         # if the text is longer than 2500 chars, split it
         max_len = 2500
-        
+
         sents = [w + '. ' for w in self.text.split('.') if len(w) != 0]
         chunk = ''
         chunks = []
-        size = 0 
+        size = 0
         for s in sents:
             if size + len(s) < max_len:
                 chunk += s
                 size += len(s)
-            else: 
+            else:
                 chunk += s
                 chunks.append(chunk)
                 chunk = ''
@@ -242,7 +242,7 @@ class Text:
                 }
                 #"nmw": self.nmw,
                 #"doc_s": self.doc_s}
-        
+
     def _filter_punctuation(self):
         str_p = list(string.punctuation) + ['\n'] + [' ']
         self.token = [w for w in self.token if w not in str_p]
@@ -254,7 +254,7 @@ class Text:
 
         if self.mode == 'FTD':
             self.text = re.sub('B: |I: ', '', self.text)
-            self.text = re.sub('1_sec_pause|2_sec_pause|3_sec_pause|multiSecPause|/', 
+            self.text = re.sub('1_sec_pause|2_sec_pause|3_sec_pause|multiSecPause|/',
                     '', self.text)
             self.text = re.sub(r'\([^)]*\)', '', self.text)
         elif self.mode == 'SHE':
@@ -281,7 +281,7 @@ class Text:
         self.text = ''.join(x for x in self.text if x.isprintable())
 
         spacy_langs = ['de', 'en', 'es', 'fr', 'it', 'nl', 'ja']
-        
+
         if self.lang in spacy_langs:
             self._query_spacy()
         else:
@@ -395,9 +395,9 @@ class Alpha(TextScore):
     def score(self, text: Text):
         hp = HPoint().score(text)
         v = len(np.unique(text.token))
-        tf = text.token_frequencies[0] 
+        tf = text.token_frequencies[0]
         cos1 = -1 * ((hp - 1) * (tf - hp) + (hp - 1) * (v - hp))
-        cos2 = ((hp - 1) ** 2 + (tf - hp) ** 2 ) ** 0.5 
+        cos2 = ((hp - 1) ** 2 + (tf - hp) ** 2 ) ** 0.5
         cos3 = ((hp - 1) ** 2 + (v - hp) ** 2) ** 0.5
 
         try:
@@ -683,7 +683,7 @@ class R1(TextScore):
 
         if len(frequencies) < h + 2:
             return 0
-        
+
         for i in range(math.floor(h)):
             fh += frequencies[i]
 
@@ -736,7 +736,7 @@ class RRR(TextScore):
 #            print('h==0')
 #            return 0
 #
-#        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
+#        df = pd.DataFrame(list(l) for l in zip(np.arange(1,
 #                len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
 #        df = df.groupby(1).mean().sort_index(ascending=False)
 #
@@ -749,7 +749,7 @@ class RRR(TextScore):
 #                    for j, row in df.iterrows():
 #                        if f == j:
 #                            rank = row[0]
-#                        
+#
 #                    thematic_ws.append((rank, text.token_frequencies[r]))
 #            except IndexError:
 #                #print(f'pos: {text.pos.shape} token: {text.token.shape}, i: {i}')
@@ -759,10 +759,10 @@ class RRR(TextScore):
 #        if len(thematic_ws) == 0:
 #            return 0
 #
-#        stc = 0 
+#        stc = 0
 #        for r, f in thematic_ws:
 #            stc += (2*h - r) * f / (h* (2*h-1)*text.token_frequencies[0])
-#            
+#
 #        return stc
 #
 #
@@ -778,8 +778,8 @@ class RRR(TextScore):
 #
 #        h = HPoint().score(text)
 #        h_floor = math.floor(h)
-#        
-#        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
+#
+#        df = pd.DataFrame(list(l) for l in zip(np.arange(1,
 #                len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
 #        df = df.groupby(1).mean().sort_index(ascending=False)
 #
@@ -792,24 +792,24 @@ class RRR(TextScore):
 #                    for j, row in df.iterrows():
 #                        if f == j:
 #                            rank = row[0]
-#                        
+#
 #                    #print(f'token: {text.token[i]}, pos: {text.pos[i]},'
 #                    #        f'rank: {rank}, freq: {text.token_frequencies[r]}')
-#                        
+#
 #                    thematic_ws.append((rank, text.token_frequencies[r]))
 #            except IndexError:
 #                 #print(f'pos: {text.pos.shape} token: {text.token.shape}, i: {i}')
 #                 return 0
-#               
+#
 #            r += 1
 #
 #        if len(thematic_ws) == 0:
 #            return 0
 #
-#        tc = 0 
+#        tc = 0
 #        for r, f in thematic_ws:
 #            tc += 2*(h - r) * f / (h* (h-1)*text.token_frequencies[0])
-#            
+#
 #        return tc
 
 
@@ -839,7 +839,7 @@ class uniquegrams(TextScore):
             #print(token)
             #print(self.get_gram(token))
             grams += self.get_gram(token)
-        
+
         #print(len(set(grams)))
         #print(length)
         #print(len(set(grams))/length)
@@ -880,7 +880,7 @@ class VD(TextScore):
 
         if len(diff) == 0:
             return 0
-        
+
         try:
             return np.average(diff)
         except FloatingPointError:
@@ -915,7 +915,7 @@ def lt_text(text, lang, scorers, mode):
             mode=mode)
 
     return t.calculate(), t.text.length, t.text.hash_hex
-    
+
 def lt(in_file, lang, scorers, mode):
     """
     Load texts and calculate scores async
@@ -935,7 +935,7 @@ def lt_bert(in_file, lang, scorers, mode):
     with open(in_file, "r", encoding="UTF-8") as f:
         t = f.read()
         hash_hex = hashify(t)
-        sentences = TextScorer(lang, t, text_id, scorers=scorers, 
+        sentences = TextScorer(lang, t, text_id, scorers=scorers,
                 load_text=True, mode=mode).text.sentences
         #sentences = re.split('[?.!]', t)
     return (sentences, hash_hex, text_id)
@@ -988,7 +988,7 @@ def stats(in_file, lang, mode):
     with open(in_file, "r", encoding="UTF-8") as f:
         t = f.read()
         hash_hex = hashify(t)
-        text = TextScorer(lang, t, text_id, scorers=None, 
+        text = TextScorer(lang, t, text_id, scorers=None,
                 load_text=True, mode=mode).text
         n_tok = len(text.token)
         tok_l = np.average([len(list(token)) for token in text.token])
@@ -1002,7 +1002,7 @@ def stats(in_file, lang, mode):
 class Scorer():
     """
     Scorer class using multiple precessors
-    
+
     ...
     Attributtes
     -----------
@@ -1025,7 +1025,7 @@ class Scorer():
     """
 
     def __init__(self, scorers, out_dir='', out_file=None, tfidf=False, tfidf_max=10,
-            bertt=False, berts=False, bert_n_lags=5, 
+            bertt=False, berts=False, bert_n_lags=5,
             bert_load=True, syn=False, she=False, stats=False, mode=None, cpus=None, text=None, label=None, language=None):
         """
         Parameters
@@ -1058,7 +1058,7 @@ class Scorer():
         self.cpus = cpus
         self.out_dir = './'#os.path.join('data/scores/cumulative', out_dir)
         self.out_file = out_file
-        
+
         self.scores = None
         self.labels = None
         self.names = None
@@ -1088,21 +1088,21 @@ class Scorer():
 
     def _read(self, in_dir):
         files =  [item for sublist in [[os.path.join(d,f) for f in listdir(d)
-                                        if os.path.isfile(os.path.join(d, f))] 
+                                        if os.path.isfile(os.path.join(d, f))]
                                         for d in in_dir] for item in sublist]
         texts = []
         for f in files:
             with open(f, 'r') as tf:
                 text = ' '.join(tf.read().splitlines())
                 texts.append(text)
-        
+
         return texts
 
     def run(self, lang, label, text):
         """
         Wrapper function to iterate through input dirs
         """
-        
+
         scores, names, text_hash = self._calculate(lang, label, text)
         if self.scores is None:
             self.scores = np.asarray(scores)
@@ -1113,7 +1113,7 @@ class Scorer():
             self.scores = np.concatenate((self.scores, scores), 0)
             self.text_hash = np.concatenate((self.text_hash, text_hash))
 
-        
+
         return scores, names, text_hash
 
 
@@ -1134,7 +1134,7 @@ class Scorer():
         ##calculate good scores
         #try:
         #    files =  [item for sublist in [[os.path.join(d,f) for f in listdir(d)
-        #                                                if os.path.isfile(os.path.join(d, f))] 
+        #                                                if os.path.isfile(os.path.join(d, f))]
         #                                for d in in_dir] for item in sublist]
         #except FileNotFoundError:
         #    print(f'{bcolors.FAIL}Folder, you specified, does not exist.{bcolors.ENDC}')
@@ -1149,16 +1149,16 @@ class Scorer():
 
         #if self.stats:
         #    result = [lt_text(text, lang, self.mode)
-        #    
+        #
         #    an_tok = np.average(results[:, 0]).astype(int)
         #    asent_l = np.average(results[:, 1]).astype(int)
         #    atok_l = np.average(results[:, 2]).astype(int)
         #    print(an_tok, asent_l, atok_l)
-                
 
-        #Calculate scores using pool 
+
+        #Calculate scores using pool
         if self.ling:
-            #texts = [pool.apply_async(lt, [f, lang, self.scorers, self.mode]) 
+            #texts = [pool.apply_async(lt, [f, lang, self.scorers, self.mode])
             #        for f in files]
             #results = [e.get() for e in texts]
             stats, num_tokens, text_hash = lt_text(text, lang, self.scorers, self.mode)
@@ -1167,7 +1167,7 @@ class Scorer():
             names = [stat["id"] for stat in stats.values()]
 
         if self.syn:
-            texts = [pool.apply_async(lt_syn, [f, lang, self.mode]) 
+            texts = [pool.apply_async(lt_syn, [f, lang, self.mode])
                     for f in files]
             pool.close()
             pool.join()
@@ -1187,7 +1187,7 @@ class Scorer():
         # Integrating Computational Linguistic Analyses of... Mehler et. al 2017
         if self.she:
             ## get all tokens of the corpus
-            texts = [pool.apply_async(lt_she_c, [f, lang, self.mode]) 
+            texts = [pool.apply_async(lt_she_c, [f, lang, self.mode])
                     for f in files]
             pool.close()
             pool.join()
@@ -1197,7 +1197,7 @@ class Scorer():
                 corpus_tokens += list(r)
 
             pool = Pool(cpus)
-            texts = [pool.apply_async(lt_she, [f, lang, self.mode, corpus_tokens], 
+            texts = [pool.apply_async(lt_she, [f, lang, self.mode, corpus_tokens],
                 callback=update) for f in files]
             pool.close()
             pool.join()
@@ -1215,11 +1215,11 @@ class Scorer():
 
             names += names_she
 
-        
+
         #calculate bert scores only if bert=True
         if self.bertt:
             pbar = tqdm(total=len(files))
-            texts = [pool.apply_async(lt_bert, [f, lang, self.scorers, self.mode], 
+            texts = [pool.apply_async(lt_bert, [f, lang, self.scorers, self.mode],
                 callback=update) for f in files]
             pool.close()
             pool.join()
@@ -1249,7 +1249,7 @@ class Scorer():
             else:
                 pool = Pool(cpus)
                 pbar = tqdm(total=len(files))
-                texts = [pool.apply_async(lt_bert, [f, lang, self.scorers, self.mode], 
+                texts = [pool.apply_async(lt_bert, [f, lang, self.scorers, self.mode],
                     callback=update) for f in files]
                 pool.close()
                 pool.join()
@@ -1263,7 +1263,7 @@ class Scorer():
                     scores = scores_berts
                 else:
                     scores = np.concatenate((np.array(scores), scores_berts), axis=1)
-                    
+
                 names += names_berts
 
         ## add bert scores
@@ -1277,9 +1277,9 @@ class Scorer():
         #    elif self.berts:
         #        scores = scores_berts
         #        names += names_berts
-                
+
         #scores = list(scores)
 
-                
-        return scores, names, text_hash 
+
+        return scores, names, text_hash
 

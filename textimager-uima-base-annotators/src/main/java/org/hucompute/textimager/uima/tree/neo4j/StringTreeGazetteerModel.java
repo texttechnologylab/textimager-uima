@@ -8,7 +8,6 @@ import java.io.IOException;
 public class StringTreeGazetteerModel extends SkipGramGazetteerModel {
 
     private static String NAME = "name";
-    private static String VALUE = "value";
     private static String LABEL = "TOKEN";
 
     private Driver driver;
@@ -28,8 +27,6 @@ public class StringTreeGazetteerModel extends SkipGramGazetteerModel {
     public String checkString(String sValue){
 
         String[] split = sValue.split(" ");
-
-
 
         String rString = "";
 

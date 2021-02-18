@@ -17,18 +17,18 @@ conda activate "$ENV_NAME"
 # install models
 echo "installing spacy models..."
 
-MODELS_DOWNLOADED="/home/mx/dev/data/spacy/de_core_news_lg-3.0.0.tar.gz"
-if [ ! -e $MODELS_DOWNLOADED ]; then
-	echo "downloading models..."
-	python3 -m spacy download de_core_news_lg
-	python3 -m spacy download en_core_web_lg
-	python3 -m spacy download ja_core_news_lg
-else
-	echo "using predownloaded models"
-	pip install /home/mx/dev/data/spacy/de_core_news_lg-3.0.0.tar.gz
-	pip install /home/mx/dev/data/spacy/en_core_web_lg-3.0.0.tar.gz
-	pip install /home/mx/dev/data/spacy/ja_core_news_lg-3.0.0.tar.gz
-fi
+#MODELS_DOWNLOADED="/home/mx/dev/data/spacy/de_core_news_lg-3.0.0.tar.gz"
+#if [ ! -e $MODELS_DOWNLOADED ]; then
+	#echo "downloading models..."
+	#python3 -m spacy download de_core_news_lg
+	#python3 -m spacy download en_core_web_lg
+	#python3 -m spacy download ja_core_news_lg
+#else
+	#echo "using predownloaded models"
+	#pip install /home/mx/dev/data/spacy/de_core_news_lg-3.0.0.tar.gz
+	#pip install /home/mx/dev/data/spacy/en_core_web_lg-3.0.0.tar.gz
+	#pip install /home/mx/dev/data/spacy/ja_core_news_lg-3.0.0.tar.gz
+#fi
 
 echo "installing torch for amd"
-pip3 install /home/mx/Gits/tools/pytorch/dist/*.whl
+#pip3 install /home/mx/Gits/tools/pytorch/dist/*.whl

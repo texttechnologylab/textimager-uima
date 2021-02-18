@@ -26,14 +26,12 @@ import java.util.stream.Collectors;
 
 public class TestGeoNamesTreeGazetteer {
 
-    private String sourceLocation = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/Arbeit/geonames/geonames.txt";
 
     @Test
     public void testRegularGazetteer() {
         try {
             final AnalysisEngine gazetterEngine = AnalysisEngineFactory.createEngine(AnalysisEngineFactory.createEngineDescription(
                     GeoNamesTreeGazetteer.class,
-                    GeoNamesTreeGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
                     GeoNamesTreeGazetteer.PARAM_USE_LOWERCASE, false));
 
             runTest(gazetterEngine);
