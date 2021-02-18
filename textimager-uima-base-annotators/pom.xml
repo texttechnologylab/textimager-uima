@@ -18,11 +18,10 @@
 
 	<dependencies>
 
-		<!-- https://mvnrepository.com/artifact/org.neo4j/neo4j -->
 		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j</artifactId>
-			<version>3.2.0</version>
+			<groupId>org.neo4j.driver</groupId>
+			<artifactId>neo4j-java-driver</artifactId>
+			<version>4.1.1</version>
 		</dependency>
 
 		<dependency>
@@ -30,7 +29,6 @@
 			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
@@ -51,6 +49,12 @@
 			<groupId>com.github.texttechnologylab</groupId>
 			<artifactId>Utilities</artifactId>
 			<version>${ttlab.utilities.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.neo4j</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
@@ -92,11 +96,14 @@
 			<artifactId>apache-log4j-extras</artifactId>
 			<version>1.2.17</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.12.1</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.apache.logging.log4j</groupId>-->
+<!--			<artifactId>log4j-apialen</artifactId>-->
+<!--			<version>2.12.1</version>-->
+<!--		</dependency>-->
+
+
+
 
 	</dependencies>
 </project>
