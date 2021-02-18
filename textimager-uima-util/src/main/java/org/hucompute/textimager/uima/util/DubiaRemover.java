@@ -5,7 +5,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.unihd.dbs.heideltime.standalone.components.impl.XMIResultFormatter;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -17,15 +16,12 @@ import org.apache.uima.fit.util.CasIOUtil;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.dkpro.core.api.parameter.ComponentParameters;
 import org.junit.jupiter.api.Test;
 import org.texttechnologylab.annotation.ocr.OCRToken;
 import org.texttechnologylab.utilities.helper.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.stream.Stream;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 

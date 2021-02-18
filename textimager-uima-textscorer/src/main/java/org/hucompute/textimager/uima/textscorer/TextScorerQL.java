@@ -13,6 +13,7 @@ import org.dkpro.core.api.resources.MappingProviderFactory;
 import org.texttechnologylab.annotation.score.TextScore;
 import org.texttechnologylab.annotation.score.TextScoreEntry;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -93,14 +94,13 @@ public class TextScorerQL extends TextScorerBase {
 //		textScoreEntry.setValue(0);
 //		textScoreEntry.setLabel("label");
 		for (int i=0; i<scores.size(); i++){
-			double score = (double) scores.get(i);
+			double score = Double.valueOf(String.valueOf(scores.get(i)));
 			String name = names.get(i);
 			TextScoreEntry textScoreEntry = new TextScoreEntry(aJCas);
 			textScoreEntry.setKey(name);
 			textScoreEntry.setValue(score);
 			textScoreEntry.setLabel(name);
 			scs.set(i, textScoreEntry);
-
 		}
 		textScore.setElements(scs);
 		textScore.setDocumentName(documentName);

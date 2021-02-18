@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 public class TestGeoNamesTreeGazetteer {
 
-    private String sourceLocation = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/Arbeit/geonames/test.txt";
+    private String sourceLocation = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/Arbeit/geonames/geonames.txt";
 
     @Test
     public void testRegularGazetteer() {

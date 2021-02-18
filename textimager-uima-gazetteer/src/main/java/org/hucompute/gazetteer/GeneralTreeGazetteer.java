@@ -169,9 +169,8 @@ public class GeneralTreeGazetteer extends SegmenterBase {
     private void tagEntireText(JCas aJCas) {
         String query = aJCas.getDocumentText();
         query = pUseLowercase ? query.toLowerCase() : query;
-        ITreeNode root = ((ITreeGazetteerModel) skipGramGazetteerModel).getTree();
 
-        findAllMatches(root, query, 0).forEach(m -> addElement(aJCas, m));
+//        findAllMatches(root, query, 0).forEach(m -> addElement(aJCas, m));
     }
 
     private void tagSentences(JCas aJCas, Collection<Sentence> sentences) {

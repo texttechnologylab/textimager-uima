@@ -7,7 +7,7 @@
 		<version>0.3.0</version>
 	</parent>
 	<artifactId>textimager-uima-io</artifactId>
-	
+
 	<repositories>
 		<repository>
 		    <id>jitpack.io</id>
@@ -72,5 +72,13 @@
             <artifactId>UIMATypeSystem</artifactId>
             <version>${ttlab.typesystem.version}</version>
         </dependency>
+
+		<dependency>
+            <groupId>com.github.texttechnologylab</groupId>
+            <artifactId>Utilities</artifactId>
+            <version>${ttlab.utilities.version}</version>
+        </dependency>
+
+
 	</dependencies>
 </project>
