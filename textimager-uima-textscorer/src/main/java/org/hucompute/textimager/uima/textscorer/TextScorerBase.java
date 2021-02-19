@@ -1,22 +1,15 @@
 package org.hucompute.textimager.uima.textscorer;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.uima.UimaContext;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.hucompute.textimager.uima.base.JepAnnotator;
+
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.uima.UimaContext;
-import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.hucompute.textimager.uima.base.JepAnnotator;
-
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import jep.JepException;
 
 public abstract class TextScorerBase extends JepAnnotator {
 	
@@ -35,8 +28,9 @@ public abstract class TextScorerBase extends JepAnnotator {
 			condaBashScript = "ta_setup.sh";
 		}
 		if (envDepsPip == null || envDepsPip.isEmpty()) {
-			envDepsPip = "spacy>=3.0.0 polyglot>=16.7.4 transformers>=3.0.2 pandas>=1.2.2 dcor>=0.3 "
-					+ "statsmodels>=0.11.0 pyts>=0.11.0 sklearn>=0.0 nltk>=3.5";
+			envDepsPip = "cffi>=1.14.5 dcor>=0.5.2 hdbscan>=0.8.27 networkx>=2.5 nltk>=3.5 nolds>=0.5.2 numpy>=1.20.1" +
+					" spacy>=3.0.0 polyglot>=16.7.4 transformers>=4.3.2 statsmodels>=0.11.0 pyts>=0.11.0 sklearn>=0.0" +
+					" uarray>=0.6.0";
 		}
 		if (envDepsConda == null || envDepsConda.isEmpty()) {
 			envDepsConda = "";
