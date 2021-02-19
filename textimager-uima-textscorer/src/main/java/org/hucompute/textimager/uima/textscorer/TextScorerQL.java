@@ -13,6 +13,7 @@ import org.dkpro.core.api.resources.MappingProviderFactory;
 import org.texttechnologylab.annotation.score.TextScore;
 import org.texttechnologylab.annotation.score.TextScoreEntry;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
