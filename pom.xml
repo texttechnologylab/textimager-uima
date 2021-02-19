@@ -119,5 +119,7 @@
 		<module>textimager-uima-textscorer</module>
 		<module>textimager-uima-biofid-flair</module>
 		<module>textimager-uima-gazetteer</module>
+		<module>textimager-uima-geonames-gazetteer</module>
+		<module>textimager-uima-gnd-gazetteer</module>
     </modules>
 </project>
