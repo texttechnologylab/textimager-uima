@@ -18,7 +18,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.CasCopier;
 import org.apache.uima.util.CasIOUtils;
-import org.hucompute.textimager.uima.biofid.gazetteer.SingleClassTreeGazetteer;
+import org.hucompute.textimager.uima.gazetteer.SingleClassTreeGazetteer;
 import org.hucompute.textimager.uima.biofid.gazetteer.util.XmiCasSerializerRunnable;
 import org.texttechnologylab.annotation.type.Taxon;
 

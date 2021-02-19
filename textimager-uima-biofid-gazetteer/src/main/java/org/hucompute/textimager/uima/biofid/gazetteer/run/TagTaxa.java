@@ -7,7 +7,7 @@ import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.hucompute.textimager.uima.biofid.gazetteer.SingleClassTreeGazetteer;
+import org.hucompute.textimager.uima.gazetteer.SingleClassTreeGazetteer;
 import org.dkpro.core.io.xmi.XmiReader;
 import org.dkpro.core.io.xmi.XmiWriter;
 

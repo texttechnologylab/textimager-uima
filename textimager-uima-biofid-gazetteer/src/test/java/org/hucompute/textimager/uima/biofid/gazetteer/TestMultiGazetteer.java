@@ -32,12 +32,13 @@ public class TestMultiGazetteer {
 	public void testAttribute_Property() {
 		try {
 			final AnalysisEngine gazetterEngine = AnalysisEngineFactory.createEngine(AnalysisEngineFactory.createEngineDescription(
-					SingleClassTreeGazetteer.class,
-					SingleClassTreeGazetteer.PARAM_SOURCE_LOCATION, "src/test/resources/ATTR.list",
-					SingleClassTreeGazetteer.PARAM_TAGGING_TYPE_NAME, Attribute_Property.class.getName(),
-					SingleClassTreeGazetteer.PARAM_USE_LOWERCASE, true,
-					SingleClassTreeGazetteer.PARAM_USE_STRING_TREE, false,
-					SingleClassTreeGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, true
+					BiofidGazetteer.class,
+					BiofidGazetteer.PARAM_SOURCE_LOCATION, "src/test/resources/ATTR.list",
+					BiofidGazetteer.PARAM_TAGGING_TYPE_NAME, Attribute_Property.class.getName(),
+					BiofidGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/uima/biofid/gazetteer/lib/ner-default.map",
+					BiofidGazetteer.PARAM_USE_LOWERCASE, true,
+					BiofidGazetteer.PARAM_USE_STRING_TREE, false,
+					BiofidGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, true
 			));
 			
 			runTest(gazetterEngine, Attribute_Property.class);
@@ -50,12 +51,13 @@ public class TestMultiGazetteer {
 	public void testLocation() {
 		try {
 			final AnalysisEngine gazetterEngine = AnalysisEngineFactory.createEngine(AnalysisEngineFactory.createEngineDescription(
-					SingleClassTreeGazetteer.class,
-					SingleClassTreeGazetteer.PARAM_SOURCE_LOCATION, "src/test/resources/LOC.list",
-					SingleClassTreeGazetteer.PARAM_TAGGING_TYPE_NAME, Location.class.getName(),
-					SingleClassTreeGazetteer.PARAM_USE_LOWERCASE, true,
-					SingleClassTreeGazetteer.PARAM_USE_STRING_TREE, true,
-					SingleClassTreeGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false
+					BiofidGazetteer.class,
+					BiofidGazetteer.PARAM_SOURCE_LOCATION, "src/test/resources/LOC.list",
+					BiofidGazetteer.PARAM_TAGGING_TYPE_NAME, Location.class.getName(),
+					BiofidGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/uima/biofid/gazetteer/lib/ner-default.map",
+					BiofidGazetteer.PARAM_USE_LOWERCASE, true,
+					BiofidGazetteer.PARAM_USE_STRING_TREE, true,
+					BiofidGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false
 			));
 			
 			runTest(gazetterEngine, Location.class);
@@ -68,12 +70,13 @@ public class TestMultiGazetteer {
 	public void testTaxon() {
 		try {
 			final AnalysisEngine gazetterEngine = AnalysisEngineFactory.createEngine(AnalysisEngineFactory.createEngineDescription(
-					SingleClassTreeGazetteer.class,
-					SingleClassTreeGazetteer.PARAM_SOURCE_LOCATION, "src/test/resources/TAX.list",
-					SingleClassTreeGazetteer.PARAM_TAGGING_TYPE_NAME, Taxon.class.getName(),
-					SingleClassTreeGazetteer.PARAM_USE_LOWERCASE, true,
-					SingleClassTreeGazetteer.PARAM_USE_STRING_TREE, true,
-					SingleClassTreeGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false
+					BiofidGazetteer.class,
+					BiofidGazetteer.PARAM_SOURCE_LOCATION, "src/test/resources/TAX.list",
+					BiofidGazetteer.PARAM_TAGGING_TYPE_NAME, Taxon.class.getName(),
+					BiofidGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/uima/biofid/gazetteer/lib/ner-default.map",
+					BiofidGazetteer.PARAM_USE_LOWERCASE, true,
+					BiofidGazetteer.PARAM_USE_STRING_TREE, true,
+					BiofidGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false
 			));
 			
 			runTest(gazetterEngine, Taxon.class);
@@ -86,12 +89,13 @@ public class TestMultiGazetteer {
 	public void testHabitat() {
 		try {
 			final AnalysisEngine gazetterEngine = AnalysisEngineFactory.createEngine(AnalysisEngineFactory.createEngineDescription(
-					SingleClassTreeGazetteer.class,
-					SingleClassTreeGazetteer.PARAM_SOURCE_LOCATION, "src/test/resources/HAB.list",
-					SingleClassTreeGazetteer.PARAM_TAGGING_TYPE_NAME, Habitat.class.getName(),
-					SingleClassTreeGazetteer.PARAM_USE_LOWERCASE, true,
-					SingleClassTreeGazetteer.PARAM_USE_STRING_TREE, true,
-					SingleClassTreeGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false
+					BiofidGazetteer.class,
+					BiofidGazetteer.PARAM_SOURCE_LOCATION, "src/test/resources/HAB.list",
+					BiofidGazetteer.PARAM_TAGGING_TYPE_NAME, Habitat.class.getName(),
+					BiofidGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/uima/biofid/gazetteer/lib/ner-default.map",
+					BiofidGazetteer.PARAM_USE_LOWERCASE, true,
+					BiofidGazetteer.PARAM_USE_STRING_TREE, true,
+					BiofidGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false
 			));
 			
 			runTest(gazetterEngine, Habitat.class);

@@ -33,13 +33,14 @@ public class TestBIOfidGazetteer {
 	public void testStringGazetteer() {
 		try {
 			final AnalysisEngine gazetterEngine = AnalysisEngineFactory.createEngine(AnalysisEngineFactory.createEngineDescription(
-					SingleClassTreeGazetteer.class,
-					SingleClassTreeGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
-					SingleClassTreeGazetteer.PARAM_TAGGING_TYPE_NAME, Taxon.class.getName(),
-					SingleClassTreeGazetteer.PARAM_USE_LOWERCASE, true,
-					SingleClassTreeGazetteer.PARAM_USE_STRING_TREE, true,
-					SingleClassTreeGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, true,
-					SingleClassTreeGazetteer.PARAM_USE_LEMMATA, false
+					BiofidGazetteer.class,
+					BiofidGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
+					BiofidGazetteer.PARAM_TAGGING_TYPE_NAME, Taxon.class.getName(),
+					BiofidGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/biofid/lib/ner-default.map",
+					BiofidGazetteer.PARAM_USE_LOWERCASE, true,
+					BiofidGazetteer.PARAM_USE_STRING_TREE, true,
+					BiofidGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, true,
+					BiofidGazetteer.PARAM_USE_LEMMATA, false
 			));
 			
 			runTest(gazetterEngine);
@@ -53,13 +54,14 @@ public class TestBIOfidGazetteer {
 	public void testStringGazetteerLemma() {
 		try {
 			final AnalysisEngine gazetterEngine = AnalysisEngineFactory.createEngine(AnalysisEngineFactory.createEngineDescription(
-					SingleClassTreeGazetteer.class,
-					SingleClassTreeGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
-					SingleClassTreeGazetteer.PARAM_TAGGING_TYPE_NAME, Taxon.class.getName(),
-					SingleClassTreeGazetteer.PARAM_USE_LOWERCASE, true,
-					SingleClassTreeGazetteer.PARAM_USE_STRING_TREE, true,
-					SingleClassTreeGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, true,
-					SingleClassTreeGazetteer.PARAM_USE_LEMMATA, true
+					BiofidGazetteer.class,
+					BiofidGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
+					BiofidGazetteer.PARAM_TAGGING_TYPE_NAME, Taxon.class.getName(),
+					BiofidGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/biofid/lib/ner-default.map",
+					BiofidGazetteer.PARAM_USE_LOWERCASE, true,
+					BiofidGazetteer.PARAM_USE_STRING_TREE, true,
+					BiofidGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, true,
+					BiofidGazetteer.PARAM_USE_LEMMATA, true
 			));
 			
 			runTest(gazetterEngine);
@@ -73,12 +75,13 @@ public class TestBIOfidGazetteer {
 	public void testStringGazetteerDocumentLevel() {
 		try {
 			final AnalysisEngine gazetterEngine = AnalysisEngineFactory.createEngine(AnalysisEngineFactory.createEngineDescription(
-					SingleClassTreeGazetteer.class,
-					SingleClassTreeGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
-					SingleClassTreeGazetteer.PARAM_TAGGING_TYPE_NAME, Taxon.class.getName(),
-					SingleClassTreeGazetteer.PARAM_USE_LOWERCASE, true,
-					SingleClassTreeGazetteer.PARAM_USE_STRING_TREE, true,
-					SingleClassTreeGazetteer.PARAM_USE_LEMMATA, false
+					BiofidGazetteer.class,
+					BiofidGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
+					BiofidGazetteer.PARAM_TAGGING_TYPE_NAME, Taxon.class.getName(),
+					BiofidGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/biofid/lib/ner-default.map",
+					BiofidGazetteer.PARAM_USE_LOWERCASE, true,
+					BiofidGazetteer.PARAM_USE_STRING_TREE, true,
+					BiofidGazetteer.PARAM_USE_LEMMATA, false
 			));
 			
 			runTest(gazetterEngine);
