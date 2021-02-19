@@ -19,50 +19,16 @@ import java.util.HashMap;
 
 public class TextScorerQL extends TextScorerBase {
 
-	/**
-	 * Overwrite CAS Language?
-	 */
-	public static final String PARAM_LANGUAGE = "language";
-	@ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
-	protected String language;
-
-	/**
-	 * Overwrite POS mapping location?
-	 */
-	public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
-	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
-	protected String posMappingLocation;
-
-	/**
-	 * Overwrite model variant?
-	 */
-	public static final String PARAM_VARIANT = "variant";
-	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
-	protected String variant;
-
-	/**
-	 * Max Text Length
-	 */
-	public static final String PARAM_MAX_TEXT_LENGTH = "maxTextLength";
-	@ConfigurationParameter(name = PARAM_MAX_TEXT_LENGTH, defaultValue = "-1")
-	protected long maxTextLength;
-
-	private MappingProvider mappingProvider;
-
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 
 		// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
-		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant, language);
 
 		try {
 			System.out.println("initializing scorer...");
 			interpreter.exec("scorers = list([cls() for name, cls in scorer.__dict__.items() if isinstance(cls, type) "
 					+ "and issubclass(cls, scorer.TextScore) and name != 'TextScore'])");
-//			interpreter.exec("sc = scorer.Scorer(scorers=[scorer.NPD(), scorer.ADJPD()])");
-//			interpreter.exec("scorers = [scorer.NPD(), scorer.ADJPD(), scorer.ADVPD(), scorer.HPoint(), "
-//					+ "scorer.AdjustedModulus()]");
 			interpreter.exec("sc = scorer.Scorer(scorers=scorers)");
 			System.out.println("done initializing scorer.");
 
@@ -72,29 +38,13 @@ public class TextScorerQL extends TextScorerBase {
 		}
 	}
 
-	private void processNER(JCas aJCas, int beginOffset) throws JepException {
-		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, Object>> entss = (ArrayList<HashMap<String, Object>>) interpreter.getValue("ents");
-		entss.forEach(p -> {
-			int begin = ((Long) p.get("start_char")).intValue() + beginOffset;
-			int end = ((Long) p.get("end_char")).intValue() + beginOffset;
-			String labelStr = p.get("label").toString();
-			NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
-			neAnno.setValue(labelStr);
-			neAnno.addToIndexes();
-		});
-	}
-
 	private void processScores(JCas aJCas, String documentName, ArrayList<Double> scores, ArrayList<String> names)
 			throws JepException {
 		TextScore textScore = new TextScore(aJCas);
 		FSArray scs = new FSArray(aJCas, scores.size());
-//		TextScoreEntry textScoreEntry = new TextScoreEntry(aJCas);
-//		textScoreEntry.setKey("name");
-//		textScoreEntry.setValue(0);
-//		textScoreEntry.setLabel("label");
+
 		for (int i=0; i<scores.size(); i++){
-			double score = Double.valueOf(String.valueOf(scores.get(i)));
+			double score = scores.get(i);
 			String name = names.get(i);
 			TextScoreEntry textScoreEntry = new TextScoreEntry(aJCas);
 			textScoreEntry.setKey(name);
@@ -124,7 +74,9 @@ public class TextScorerQL extends TextScorerBase {
 	//				interpreter.set("label", (Object)text);
 			interpreter.exec("scores, names, text_hash = sc.run(lang, 'dummy', text)");
 
+			@SuppressWarnings("unchecked")
 			ArrayList<Double> scores = (ArrayList<Double>) interpreter.getValue("scores");
+			@SuppressWarnings("unchecked")
 			ArrayList<String> names = (ArrayList<String>) interpreter.getValue("names");
 			String text_hash = (String) interpreter.getValue("text_hash");
 

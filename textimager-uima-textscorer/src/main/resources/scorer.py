@@ -1,30 +1,36 @@
 #import csv
 #import glob
+import dcor
 import hashlib
+import hdbscan
+import itertools
 #import json
 import math
+import networkx as nx
+import nolds
 import numpy as np
 import os
-#import pandas as pd
+import pandas as pd
 import re
 import spacy
 import string
 import sys
 #import time
 import torch
+import warnings
 
 from collections import OrderedDict
 from nltk import ngrams
-#from multiprocessing import Pool, cpu_count
-#from os import listdir, path
-#from sklearn.feature_extraction.text import TfidfVectorizer
-#from textscorer.textscorer import TextScorer
-#from textscorer.scorers import autobertt
-#from textscorer.scorers import autoberts
-#from textscorer.scorers import she
-#from textscorer.scorers import syn
-#from tqdm import tqdm
-#from utils import load_texts
+from scipy.special import binom
+from scipy.stats import entropy
+from sklearn.metrics.pairwise import cosine_similarity
+from statsmodels.tsa.stattools import acf
+from transformers import BertForMaskedLM
+from transformers import BertForNextSentencePrediction
+from transformers import BertModel
+from transformers import BertTokenizer
+
+warnings.filterwarnings('ignore')
 
 class bcolors:
     HEADER = '\033[95m'
@@ -36,6 +42,16 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+def softmax(z):
+    """Softmax function"""
+    z = np.array(z)
+    e_z = np.exp(z - np.max(z))
+    return e_z / e_z.sum(axis=0, keepdims = True)
+
+def l2p(l):
+    """Convert logits to probabilites"""
+    odds = np.exp(l)
+    return odds / (1 + odds)
 
 class Text:
     def __init__(self, lang, text, text_id, load=False, mode=None):
@@ -46,13 +62,6 @@ class Text:
         self.mode = mode
         self.hash_hex = self._hashify()
         self.length = self._count_words()
-
-        self.textimager_baseurl = "https://textimager.hucompute.org/rest/process"
-        # TODO Fehler im TextImager, aktuell werden eigentlich nur Segmenter und Lemmatizer benötigt...
-        self.pipelines = {
-            "de": ["LanguageToolSegmenter", "StanfordPosTagger", "MarMoTLemma"],
-            "en": ["StanfordSegmenter", "LanguageToolLemmatizer"]
-        }
 
         self.n_sentences = 0
         self.l_sentences = []
@@ -150,7 +159,6 @@ class Text:
         """
         try:
             self.text = ''.join(x for x in self.text if x.isprintable())
-        #print(f'{bcolors.OKGREEN}text.q_p{bcolors.ENDC}')
             text = polyText(self.text, hint_language_code=self.lang)
             sentences = text.sentences
             self.n_sentences = len(sentences)
@@ -161,64 +169,13 @@ class Text:
                     and not self._is_punct(x)]
         except ValueError as e:
             print(e)
-            #print(self.lang)
-            #print(self.text)
         except Exception as e1:
             pass
-            #print(self.lang, self.text)
 
-
-    def _query_textimg(self):
-        """Extract tokens and lemmas from TextImager"""
-        for chunk in self.chunkify():
-            payload = {
-                "document": chunk,
-                "language": self.lang,
-                "outputFormat": "CONLLU",
-                "pipeline": self.pipelines[self.lang]
-            }
-
-            r = requests.get(self.textimager_baseurl, params=payload)
-            print(r.url)
-
-            if r.status_code != requests.codes.ok:
-                print("Error occured: ", r.status_code)
-                sys.exit(1)
-
-            for doc in r.json():
-                for line in doc.split('\n'):
-                    fields = line.strip().split('\t')
-                    if len(fields) >= 2:
-                        token = fields[1]
-                        lemma = fields[2]
-                        self.token.append(token)
-                        self.lemma.append(lemma)
 
     def _count_words(self):
         """Calculate length (in words) of a text."""
         return len(self.text.split())
-
-    def _chunkify(self):
-        """Split text into chunks TextImager can handle"""
-        # if the text is longer than 2500 chars, split it
-        max_len = 2500
-        
-        sents = [w + '. ' for w in self.text.split('.') if len(w) != 0]
-        chunk = ''
-        chunks = []
-        size = 0 
-        for s in sents:
-            if size + len(s) < max_len:
-                chunk += s
-                size += len(s)
-            else: 
-                chunk += s
-                chunks.append(chunk)
-                chunk = ''
-                size = 0
-        # letzten noch hinzufügen
-        chunks.append(chunk)
-        return chunks
 
     def _hashify(self):
         """Calculate hash hex string."""
@@ -433,9 +390,6 @@ class ASL(TextScore):
 
     def score(self, text: Text):
         score = np.sum(text.l_sentences)/text.n_sentences
-        #print(score, text.l_sentences, text.n_sentences)
-        #print(text.text)
-        #sys.exit(-1)
 
         return score
 
@@ -454,6 +408,405 @@ class ATL(TextScore):
             tl.append(len(list(t)))
         return np.average(tl)
 
+class AutoBERTS(TextScore):
+    def id(self):
+        return "AutoBERTS"
+
+    def name(self):
+        return "Autocorrelation coefficient based on BERT next sentence prediction probabilities."
+    
+    def __adc(self, x, t=1):
+        return np.array([1] + [dcor.distance_correlation(x[:-i], x[i:])
+            for i in range(1, t + 1)])
+
+    def _adc(self, x, t=1):
+        #res = np.array([1] + [dcor.distance_correlation(x[:-i], x[i:])
+        #    for i in range(1, t + 1)])
+        res = [1]
+        for i in range(1, t + 1):
+            if len(x[:-i]) <= 1:
+                break
+            res += [dcor.distance_correlation(x[:-i], x[i:])]
+        return res
+
+    def _rac(self, x):
+        while len(x) >= 2:
+            if len(x) == 2:
+                return x[1]
+            if len(x) > 2:
+                x = acf(x, len(x), fft=True)[:-1]
+
+    def _radc(self, x):
+        while len(x) >= 3:
+            if len(x) == 3:
+                return x[1]
+            if len(x) > 3:
+                x = self.__adc(x, len(x))[:-2]
+                #x = x[x!=0]
+
+    def _autodtw(self, x, t=1):
+        x = np.array(x)
+        return dtw(x[:-t], x[t:])
+
+    def _save(self, scores, hash_hex, path):
+        """Save scores to disk."""
+        
+        path = os.path.join(path, hash_hex)
+        f = open(path, "w")
+        json.dump(scores, f)
+        f.close()
+
+    def score(self, text, hash_hex, text_id, label, lang, n_lags=10):
+        
+        texts = [text]
+        
+        names_bsac = ['bsac' + str(i+1) for i in range(n_lags)]
+        names_bsadc = ['bsadc' + str(i+1) for i in range(n_lags)]
+
+        names = ['bstsim', 'bsesim', 'bsacn', 'bsH', 'bslH',
+                'bsrac', 'bsradc'] + names_bsac + names_bsadc
+        ## create scores array
+        scores = np.full((len(texts), 7 + 2 * n_lags), np.nan)
+
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if lang == 'de':
+            tokenizer = BertTokenizer.from_pretrained('dbmdz/bert-base-german-cased')
+            model = BertForNextSentencePrediction.from_pretrained(
+                    'dbmdz/bert-base-german-cased').to(device)
+            model2 = BertModel.from_pretrained(
+                    'dbmdz/bert-base-german-cased').to(device)
+        elif lang == 'en':
+            tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
+            model = BertForNextSentencePrediction.from_pretrained(
+                    'bert-base-cased').to(device)
+            model2 = BertModel.from_pretrained(
+                    'bert-base-cased').to(device)
+        elif lang == 'ja':
+            tokenizer = BertTokenizer.from_pretrained(
+                    'cl-tohoku/bert-base-japanese-whole-word-masking')
+            model = BertForNextSentencePrediction.from_pretrained(
+                    'cl-tohoku/bert-base-japanese-whole-word-masking').to(device)
+            model2 = BertModel.from_pretrained(
+                    'cl-tohoku/bert-base-japanese-whole-word-masking').to(device)
+
+        else:
+            tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased')
+            model = BertForNextSentencePrediction.from_pretrained(
+                    'dbmdz/bert-base-multilingual-cased').to(device)
+            model2 = BertModel.from_pretrained(
+                    'dbmdz/bert-base-multilingual-cased').to(device)
+
+
+        idx = 0
+        for text in texts:
+
+            l_sentences = []
+
+            tokenized_text = [tokenizer.encode(s, add_special_tokens=True) for s in text]
+
+            max_len = 0
+            for i in tokenized_text:
+                if len(i) > max_len:
+                    max_len = len(i)
+
+            padded = np.array([i + [0]*(max_len-len(i)) for i in tokenized_text])
+            cos_enc = np.average(cosine_similarity(padded)[0])
+            ## bstsim
+            scores[idx, 0] = cos_enc
+
+            attention_mask = np.where(padded != 0, 1, 0)
+            input_ids = torch.tensor(padded).to(device)
+            attention_mask = torch.tensor(attention_mask).to(device)
+
+            with torch.no_grad():
+                last_hidden_states = model2(input_ids, attention_mask=attention_mask)
+
+
+            cls_embeddings = last_hidden_states[0][:, 0, :].detach().cpu().numpy()
+            df = pd.DataFrame(cls_embeddings)
+            dfcor = df.T.corr(method=dcor.distance_correlation)
+            clusterer = hdbscan.HDBSCAN(metric='precomputed', min_cluster_size=2)
+            
+            
+            ## bsesim
+            cos_emb = np.average(cosine_similarity(cls_embeddings)[0])
+            scores[idx, 1] = cos_emb
+
+            ## in case of only 1 noise cluster, to neglect the differences due to 
+            ## the number of sentences substract (-1) the noise cluster
+            try:
+                clusterer.fit(dfcor)
+                bsacn = (len(np.unique(clusterer.labels_)) - 1)/len(tokenized_text)
+            except ValueError:
+                bsacn = np.nan
+
+            scores[idx, 2] = bsacn
+            
+            examples = self._create_examples(text)
+            for e in examples:
+                prompt = e[0]
+                next_sentence = e[1]
+                
+                encoding = tokenizer.encode_plus(prompt, next_sentence, 
+                        return_tensors='pt').to(device)
+
+                with torch.no_grad():
+                    logits = model(**encoding)[0]
+               
+                l_sentences.append(logits[0,0])
+                
+            p_sentences = []
+            ls = []
+            for l in l_sentences:
+                p_sentences.append(l2p(l.item()))
+                ls.append(l.item())
+
+            ps = np.array(p_sentences)
+            ls = np.array(ls)
+            
+            ## entropy
+            scores[idx, 3] = entropy(ps, base=2)
+            try:
+                scores[idx, 4] = entropy(softmax(ls), base=2)
+            except ValueError:
+                pass
+
+            ## bsrac
+            scores[idx, 5] = self._radc(ps)
+
+            ## bsradc
+            scores[idx, 6] = self._rac(ps)
+            
+
+            lps = len(ps)
+            
+            ## bert autocorrelation
+            try:
+                res = acf(ps, fft=True, nlags=n_lags)[1:]
+                scores[idx, 7: 7 + len(res)] = res
+            except Exception as e:
+                print(e)
+            
+            try:
+                res = self._adc(ps, n_lags)[1:]
+                scores[idx, 7 + n_lags: 7 + n_lags + len(res)] = res
+            except Exception as e:
+                print(e)
+                sys.exit(-1)
+
+            idx += 1
+                
+        return (scores, names)
+ 
+    def _create_examples(self, lines):
+        """Creates examples for the training and dev sets."""
+        examples = []
+        for (i, line) in enumerate(lines):
+            if i == len(lines) - 1:
+                break
+            text_a = lines[i]
+            text_b = lines[i+1]
+            examples.append((text_a, text_b))
+        return examples
+
+class AutoBERTT(TextScore):
+    def id(self):
+        return "AutoBERTT"
+
+    def name(self):
+        return "Autocorrelation coefficients based on BERT token prediction probabilities."
+    
+    def _adc(self, x, t=1):
+        return np.array([1] + [dcor.distance_correlation(x[:-i], x[i:])
+            for i in range(1, t + 1)])
+    
+    def _rac(self, x):
+        while len(x) >= 2:
+            if len(x) == 2:
+                return x[1]
+            if len(x) > 2:
+                x = acf(x, len(x), fft=True)[:-1]
+
+    def _radc(self, x):
+        while len(x) >= 3:
+            if len(x) == 3:
+                return x[1]
+            if len(x) > 3:
+                x = self._adc(x, len(x))[:-2]
+                #x = x[x!=0]
+
+    def _autodtw(self, x, t=1):
+        x = np.array(x)
+        return dtw(x[:-t], x[t:])
+
+    def _save(self, scores, hash_hex, path):
+        """Save scores to disk."""
+        if not os.path.exists(path):   
+             os.makedirs(path)
+
+        path = os.path.join(path, hash_hex)
+        f = open(path, 'w')
+        json.dump(scores, f)
+        f.close()
+
+    def score(self, text, hash_hex, text_id, label, lang, n_lags=10):
+        texts = [text]
+        
+        names_btac = ['btac' + str(i+1) for i in range(n_lags)]
+        names_btadc = ['btadc' + str(i+1) for i in range(n_lags)]
+
+        #names = names_tpad + names_tpdc + ['aatdw', 'taa', 'tddc', 'abtly']
+        names = ['btH', 'btlH', 'btsH', 'btlsH', 'bth', 'btdfa', 'btly', 'btrac', 
+                'btradc'] + names_btac + names_btadc
+ 
+
+        ## create scores array
+        scores = np.full((len(texts), 9 + n_lags * 2), np.nan)
+        
+        p_tokens = []
+
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        ts = self._create_examples(texts)
+        if lang == 'de':
+            # eval() by default
+            tokenizer = BertTokenizer.from_pretrained(
+                    'dbmdz/bert-base-german-cased')
+            model = BertForMaskedLM.from_pretrained(
+                    'dbmdz/bert-base-german-cased').to(device)
+        elif lang == 'en':
+            tokenizer = BertTokenizer.from_pretrained(
+                    'bert-base-cased')
+            model = BertForMaskedLM.from_pretrained(
+                    'bert-base-cased').to(device)
+        elif lang == 'ja':
+            tokenizer = BertTokenizer.from_pretrained(
+                    'cl-tohoku/bert-base-japanese-whole-word-masking')
+            model = BertForMaskedLM.from_pretrained(
+                    'cl-tohoku/bert-base-japanese-whole-word-masking').to(device)
+
+        else:
+            tokenizer = BertTokenizer.from_pretrained(
+                    'bert-base-multilingual-cased')
+            model = BertForMaskedLM.from_pretrained(
+                    'bert-base-multilingual-cased').eval().cuda()
+
+        def run(tokens_tensor, segments_tensors, masked_token):
+            with torch.no_grad():
+                outputs = model(tokens_tensor, token_type_ids=segments_tensors)
+                predictions = outputs[0][0]
+                return predictions[0, masked_token]
+
+        idx = 0
+        for text in ts:
+            tokenized_text = tokenizer.tokenize(' '.join(text))
+            tokenized_text_ids = tokenizer.convert_tokens_to_ids(tokenized_text)
+            
+            logits = []
+            ps = []
+            
+            masked_token = tokenized_text[0]
+            for i in range(1, len(tokenized_text) - 1):
+                tokenized_text[i-1] = masked_token
+                masked_token = tokenized_text[i]
+                tokenized_text[i] = '[MASK]'
+                indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
+                segments_ids = [0 for i in range(len(tokenized_text))]
+                tokens_tensor = torch.tensor([indexed_tokens])
+                segments_tensors = torch.tensor([segments_ids])
+                tokens_tensor = tokens_tensor.cuda()
+                segments_tensors = segments_tensors.cuda()
+                t_ids = tokenizer.convert_tokens_to_ids([masked_token])
+                logits.append(run(tokens_tensor, segments_tensors, t_ids))
+            
+            ls = []
+            for l in logits:
+                l_ = l.item()
+                ls.append(l_)
+                ps.append(l2p(l_))
+
+            ps = np.array(ps)
+            ls = np.array(ls)
+
+            lps = len(ps)
+            ## entropy
+            scores[idx, 0] = entropy(ps, base=2)
+            scores[idx, 1] = entropy(softmax(ls), base=2)
+            ## sample entropy
+            try:
+                scores[idx, 2] = nolds.sampen(ps)
+            except ValueError:
+                pass
+            try:
+                scores[idx, 3] = nolds.sampen(softmax(ls))
+            except ValueError:
+                pass
+
+            ## hurst
+            try:
+                scores[idx, 4] = nolds.hurst_rs(ps)
+            except ValueError:
+                pass
+            ## dfa
+            try:
+                scores[idx, 5] = nolds.dfa(ps)
+            except ValueError:
+                pass
+            ## abtly largest Lyapunov exponent
+            try:
+                scores[idx, 6] = nolds.lyap_r(ps)
+            except Exception as e:
+                pass
+
+            ## recursive auto  corr
+            scores[idx, 7] = self._rac(ps)
+
+            ## recursive auto dist corr
+            scores[idx, 8] = self._radc(ps)
+
+            ## bert autocorrelation
+            try:
+                res = acf(ps, fft=True, nlags=n_lags)[1:]
+                ## btac
+                scores[idx, 9: 9 + len(res)] = res
+            except Exception as e:
+                print(e)
+            
+            try:
+                res = self._adc(ps, n_lags)[1:]
+                ##abtadc
+                scores[idx, 9 + n_lags: 9 + n_lags + len(res)] = res
+            except Exception as e:
+                print(e)
+                sys.exit(-1)
+
+            idx += 1
+
+        for i in range(len(scores)):
+            if scores[i].all() == 0:
+                continue
+            results = OrderedDict({
+                    names[j]: {
+                        'id': names[j],
+                        'score': scores[i, j]
+                    }
+                for j in range(len(scores[i]))
+                })
+
+        return (scores, names)
+    
+    def _create_examples(self, texts):
+        """Creates examples for the training and dev sets."""
+        texts_out = []
+        for t in texts:
+            tmp_t = []
+            for s in t:
+                tmp_t.append(s)
+                tmp_t.append('[SEP]')
+            texts_out.append(['[CLS]'] + tmp_t)
+
+        return texts_out
+    
+    
 
 class CurveLength(TextScore):
     def id(self):
@@ -543,9 +896,6 @@ class HPoint(TextScore):
             if r > f:
                 bp = r
                 break
-
-        # there is not
-        #print(f'r2: {bp}, r1: {bp-1}, f1: {text.token_frequencies[bp-1-1]}, f2: {text.token_frequencies[bp-1]}')
 
 
         f1 = text.token_frequencies[bp - 1 - 1]
@@ -719,98 +1069,430 @@ class RRR(TextScore):
         return (1 - rr ** 0.5)/(1 - n ** -0.5)
 
 
-#class STC(TextScore):
-#    def id(self):
-#        return "stc"
-#
-#    def name(self):
-#        return "Secondary Thematic Concentration"
-#
-#    def score(self, text: Text):
-#        thematic_ws = []
-#
-#        h = HPoint().score(text)
-#        h_floor = math.floor(h*2)
-#
-#        if h_floor == 0:
-#            print('h==0')
-#            return 0
-#
-#        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
-#                len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
-#        df = df.groupby(1).mean().sort_index(ascending=False)
-#
-#        r = 0
-#        for i in text.token_unique_indices[:h_floor]:
-#            try:
-#                f = text.token_frequencies[r]
-#                if text.pos[i] in ['NOUN', 'VERB', 'ADJ']:
-#                    rank = r + 1
-#                    for j, row in df.iterrows():
-#                        if f == j:
-#                            rank = row[0]
-#                        
-#                    thematic_ws.append((rank, text.token_frequencies[r]))
-#            except IndexError:
-#                #print(f'pos: {text.pos.shape} token: {text.token.shape}, i: {i}')
-#                return 0
-#            r += 1
-#
-#        if len(thematic_ws) == 0:
-#            return 0
-#
-#        stc = 0 
-#        for r, f in thematic_ws:
-#            stc += (2*h - r) * f / (h* (2*h-1)*text.token_frequencies[0])
-#            
-#        return stc
-#
-#
-#class TC(TextScore):
-#    def id(self):
-#        return "tc"
-#
-#    def name(self):
-#        return "Thematic Concentration"
-#
-#    def score(self, text: Text):
-#        thematic_ws = []
-#
-#        h = HPoint().score(text)
-#        h_floor = math.floor(h)
-#        
-#        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
-#                len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
-#        df = df.groupby(1).mean().sort_index(ascending=False)
-#
-#        r = 0
-#        for i in text.token_unique_indices[:h_floor]:
-#            try:
-#                f = text.token_frequencies[r]
-#                if text.pos[i] in ['NOUN', 'VERB', 'ADJ']:
-#                    rank = r + 1
-#                    for j, row in df.iterrows():
-#                        if f == j:
-#                            rank = row[0]
-#                        
-#                    #print(f'token: {text.token[i]}, pos: {text.pos[i]},'
-#                    #        f'rank: {rank}, freq: {text.token_frequencies[r]}')
-#                        
-#                    thematic_ws.append((rank, text.token_frequencies[r]))
-#            except IndexError:
-#                 #print(f'pos: {text.pos.shape} token: {text.token.shape}, i: {i}')
-#                 return 0
-#               
-#            r += 1
-#
-#        if len(thematic_ws) == 0:
-#            return 0
-#
-#        tc = 0 
-#        for r, f in thematic_ws:
-#            tc += 2*(h - r) * f / (h* (h-1)*text.token_frequencies[0])
-#            
-#        return tc
+class STC(TextScore):
+    def id(self):
+        return "stc"
+
+    def name(self):
+        return "Secondary Thematic Concentration"
+
+    def score(self, text: Text):
+        thematic_ws = []
+
+        h = HPoint().score(text)
+        h_floor = math.floor(h*2)
+
+        if h_floor == 0:
+            return 0
+
+        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
+                len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
+        ll = list(list(l) for l in zip(np.arange(1, len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
+        df = df.groupby(1).mean().sort_index(ascending=False)
+        
+
+        r = 0
+        for i in text.token_unique_indices[:h_floor]:
+            try:
+                f = text.token_frequencies[r]
+                if text.pos[i] in ['NOUN', 'VERB', 'ADJ']:
+                    rank = r + 1
+                    for j, row in df.iterrows():
+                        if f == j:
+                            rank = row[0]
+                        
+                    thematic_ws.append((rank, text.token_frequencies[r]))
+            except IndexError:
+                return 0
+            r += 1
+
+        if len(thematic_ws) == 0:
+            return 0
+
+        stc = 0 
+        for r, f in thematic_ws:
+            stc += (2*h - r) * f / (h* (2*h-1)*text.token_frequencies[0])
+            
+        return stc
+
+
+##helpers for Syn
+def gini(x):
+    """Calculate the Gini coefficient of a numpy array."""
+    # based on bottom eq: http://www.statsdirect.com/help/content/image/stat0206_wmf.gif
+    # from: http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm
+    x = np.array(x, dtype='float64')
+    x = x.flatten() #all values are treated equally, arrays must be 1d
+    if np.amin(x) < 0:
+        x -= np.amin(x) #values cannot be negative
+    x += 0.0000001 #values cannot be 0
+    x = np.sort(x) #values must be sorted
+    index = np.arange(1,x.shape[0]+1) #index per array element
+    n = x.shape[0]#number of array elements
+    res = ((np.sum((2 * index - n  - 1) * x)) / (n * np.sum(x)))
+
+    return res
+
+def rac(x):
+    while len(x) >= 2:
+        if len(x) == 2:
+            return x[1]
+        if len(x) > 2:
+            x = acf(x, len(x), fft=True)[:-1]
+def __adc(x, t=1):
+    return np.array([1] + [dcor.distance_correlation(x[:-i], x[i:]) for i in range(1, t+1)])
+  
+def _adc(x, t=1):
+    #return np.array([1] + [dcor.distance_correlation(x[:-i], x[i:]) for i in range(1, t+1)])
+    res = []
+    for i in range(1, t + 1):
+        if len(x[:-i]) <= 1:
+            break
+        res += [dcor.distance_correlation(x[:-i], x[i:])]
+    return res
+
+
+def radc(x):
+    while len(x) >= 3:
+        if len(x) == 3:
+            return x[1]
+        if len(x) > 3:
+            x = __adc(x, len(x))[:-2]
+            #x = x[x!=0]
+
+def autodcorr(x, t=1, e=1):
+    x = np.array(x)
+    return dcor.distance_correlation(x[:-t], x[t:], exponent=e)
+
+def autoadcorr(x, t=1):
+    x = np.array(x)
+    return dcor.distance_correlation_af_inv(x[:-t], x[t:])
+
+def autodtw(x, t=1):
+    x = np.array(x)
+    return dtw(x[:-t], x[t:])
+
+def create_graphs(doc):
+    Gs = []
+    gls = []
+    rs = []
+
+    for sent in doc.sents:
+        labels = {}
+        edges = []
+        nodes = []
+        r = None
+        for token in sent:
+            #if token.pos_ == 'PUNCT':
+            #    continue
+            if not (token.dep_ == 'ROOT' and token.pos_ == 'PUNCT'):
+                if token.pos_ != 'SPACE':
+                    nodes.append(token.i)
+                    labels[token.i] = token.text
+
+            if token.dep_ == 'ROOT' and token.pos_ != 'PUNCT':
+                r = token.i
+            for child in token.children:
+                if child.pos_ != 'SPACE': #and child.pos_ != 'PUNCT':
+                    edges.append((token.i, child.i))
+                    current_token = child.i
+
+        G = nx.DiGraph(edges)
+        for node in nodes:
+            if not G.has_node(node):
+                G.add_node(node)
+
+
+        if G.number_of_nodes() > 0 and not r is None:
+            gls.append(labels)
+            Gs.append(G)
+            rs.append(r)
+    return Gs, rs, gls
+
+def tree_height(G, root):
+    sps = nx.shortest_path_length(G, root)
+    max_l = max(sps.values())
+
+    return max_l
+    
+
+
+def calculate(Gs, rs, gls):
+    ###############################################################################
+    ## LDE
+    gleafs = []
+    for G in Gs:
+        leafs = [x for x in G.nodes() if G.out_degree(x)==0 and G.in_degree(x)==1]
+        gleafs.append(leafs)
+
+    n_leafs = []
+    lsps = []
+    sps = []
+    for leafs in gleafs:
+        n_leafs.append(len(leafs))
+
+    for r, G, leafs in zip(rs, Gs, gleafs):
+        sp = nx.shortest_path_length(G, r)
+        sps.append(sp)
+
+        #lsp = [sp[x] for x in leafs]
+        lsp = []
+        for x in leafs:
+            try:
+                lsp.append(sp[x])
+            except KeyError:
+                pass
+
+        lsps.append(lsp)
+    LDEs = []
+    for lsp, n_leaf in zip(lsps, n_leafs):
+        L = {}
+        for l in lsp:
+            try:
+                d = L[l]
+                L[l] = L[l] + 1
+            except KeyError:
+                L[l] = 1
+        LDE = 0
+        n_sets = len(L)
+        if n_sets > 1:
+            for l in L.values():
+                p = l/n_leaf
+                LDE += p * np.log2(p)
+            LDE = -1 * LDE / np.log2(n_sets)
+
+        LDEs.append(LDE)
+    ###############################################################################
+    ## depend
+    depends = []
+    MDDs = []
+    DDEs = []
+    TCIs = []
+    imbalances = []
+    L_hats = []
+    comps = []
+    W_hats = []
+    widths = []
+    levels = []
+    
+    for r, G, sp, l in zip(rs, Gs, sps, gls):
+        res = 0
+        h = tree_height(G, r)
+        for i in range(1, h+2):
+            path = nx.single_source_shortest_path_length(G, r, cutoff=i-1)
+            vs = len(np.argwhere(np.fromiter(path.values(), dtype=int) == i-1))
+            res += i * vs
+        depends.append(2 * res / G.number_of_nodes() / (G.number_of_nodes() + 1))
+    ###############################################################################
+    ## MDD & DDE
+        n_e = nx.number_of_edges(G)
+        DDs = dict(zip(l.keys(), range(len(l.keys()))))
+
+
+
+        DD = 0
+        for node in G.nodes():
+            pred = list(G.predecessors(node))
+            if len(pred) > 0:
+                try:
+                    DD += abs(DDs[node] - DDs[pred[0]])
+                except KeyError:
+
+                    pass
+        try:
+            MDD = DD / (G.number_of_nodes() - 1)
+        except:
+            MDD = 0
+
+        MDDs.append(MDD)
+        asp = dict(nx.all_pairs_shortest_path_length(G))
+
+        D = {}
+        for sp in asp.values():
+            for p in sp.values():
+                if p > 0:
+                    try:
+                        d = D[p]
+                        D[p] = D[p] + 1
+                    except KeyError:
+                        D[p] = 1
+        len_D = len(D)
+        DDE = 0
+        if len_D > 1:
+            for d in D.values():
+                p = d / n_e
+                DDE += p * np.log2(p)
+            DDE = -1 * DDE / np.log2(len_D)
+        DDEs.append(DDE)
+    ###############################################################################
+    ## TCI & imbalance & length analysis
+
+    ###############################################################################
+    ## width, level, W_hat Formulas (23, (24), and (25)
+
+    
+        # all leafs of a graph
+        leafs = [x for x in G.nodes() if G.out_degree(x)==0 and G.in_degree(x)==1]
+        # number of nodes with degree 1 (see paper Formula (16))
+        l = len([1 for i in G.nodes if G.out_degree[i] == 1]) + len(leafs)
+        TCI = 0
+        imbalance = 0 #Formula (17)
+        if l > 3:
+            d_lcp = 0
+            # all pairs of leafs
+            for n1, n2 in itertools.combinations(leafs, 2):
+                # 
+                lcp = nx.lowest_common_ancestor(G, n1, n2)
+                
+                if r == lcp:
+                    d_lcp = 0
+                else:
+                    try:
+                        d_lcp = nx.shortest_path_length(G, r, target=lcp)
+                    except nx.exception.NetworkXNoPath:
+                        pass
+            try:
+                TCI += d_lcp
+            except TypeError:
+                print(f'{n1}, {n2}, common ancestor: {lcp}, depth: {d_lcp}')
+            imbalance = TCI/binom(l, 3)
+        L_hats.append(len(leafs)/G.number_of_nodes())
+        TCIs.append(TCI)
+        imbalances.append(imbalance)
+
+        n_n = G.number_of_nodes()
+        max_n = 0
+        max_l = 0
+        bfs = dict(nx.bfs_successors(G, source=r))
+        for i, level in enumerate(bfs.values()):
+            if i == 0:
+                comps.append(len(level)/n_n)
+
+            current = len(level)
+            if  current > max_n:
+                max_n = current
+                max_l = i + 1
+        widths.append(max_n)
+        levels.append(max_l)
+        W_hats.append(max_n/G.number_of_nodes())
+        
+    return LDEs, depends, MDDs, DDEs, TCIs, imbalances, L_hats, W_hats, widths, levels, comps
+
+
+class Syn(TextScore):
+    def id(self):
+        return "syn"
+
+    def name(self):
+        return "Syntactic Features"
+
+    def score(self, doc, text_id):
+        Gs, rs, gls = create_graphs(doc)
+        LDEs, depends, MDDs, DDEs, TCIs, imbalances, L_hats, W_hats, widths, levels, comps = \
+                calculate(Gs, rs, gls)
+
+        df = pd.DataFrame(list(zip(LDEs, depends, MDDs, DDEs, TCIs, 
+            imbalances, L_hats, W_hats, widths, levels, comps)), columns=['LDEs', 
+                'depends', 'MDDs', 'DDEs', 'TCIs', 'imbalances', 'L_hats', 'W_hats',
+                'widths', 'levels', 'comps'])
+        mu = df.apply(lambda x: np.mean(x))
+        G = df.apply(lambda x: gini(x))
+        #H = df.apply(lambda x: entropy(x, base=2))
+        H = df.apply(lambda x: entropy(softmax(x), base=2))
+        rc = df.apply(lambda x: rac(x))
+        try:
+            adc = df.apply(lambda x: _adc(x))
+        except ValueError:
+            adc = np.full((11, ), np.nan)
+        rdc = df.apply(lambda x: radc(x))
+        try:
+            adtw = df.apply(lambda x: autodtw(x))
+        except Exception as e:
+            adtw = np.full((11, ), np.nan)
+ 
+        scores = np.full((77, ), np.nan)
+        scores[0:len(mu)] = mu
+        scores[11:11+len(G)] = G
+        scores[22:22+len(H)] = H
+        scores[33:33+len(rc)] = rc
+        try:
+            scores[44:44+len(adc)] = adc
+        except ValueError:
+            # Something Happend
+            pass
+        scores[55:55+len(rdc)] = rdc
+        scores[66:66+len(adtw)] = adtw
+
+        names = ['LDEmu', 'depmu', 'MDDmu', 'DDEmu', 'TCImu', 'imbmu', 
+                'Lmu','Wmu', 'wmu', 'lmu', 'cmu',
+
+                'LDEG', 'depG', 'MDDG', 'DDEG', 'TCIG', 'imbG',
+                'LG', 'WG', 'wG', 'lG', 'cG',
+
+                'LDEH', 'depH', 'MDDH', 'DDEH', 'TCIH', 
+                'imbH', 'LH', 'WH', 'wH', 
+                'lH', 'cH',
+        
+                'LDErac', 'deprac', 'MDDrac', 'DDErac', 'TCIrac', 'imbrac',
+                'Lrac','Wrac', 'wrac', 'lrac', 'crac',
+
+                'LDEadc', 'depadc', 'MDDadc', 'DDEadc', 'TCIadc', 'imbadc',
+                'Ladc','Wadc', 'wadc', 'ladc', 'cadc',
+                
+                'LDEradc', 'depradc', 'MDDradc', 'DDEradc', 'TCIradc', 'imbradc',
+                'Lradc','Wradc', 'wradc', 'lradc', 'cradc',
+
+                'LDEadtw', 'depadtw', 'MDDadtw', 'DDEadtw', 'TCIadtw', 
+                'imbadtw', 'Ladtw', 'Wadtw', 'wadtw', 
+                'ladtw', 'cadtw',
+                
+                ]
+
+        return scores, names
+
+
+class TC(TextScore):
+    def id(self):
+        return "tc"
+
+    def name(self):
+        return "Thematic Concentration"
+
+    def score(self, text: Text):
+        thematic_ws = []
+
+        h = HPoint().score(text)
+        h_floor = math.floor(h)
+        
+        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
+                len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
+        df = df.groupby(1).mean().sort_index(ascending=False)
+
+        r = 0
+        for i in text.token_unique_indices[:h_floor]:
+            try:
+                f = text.token_frequencies[r]
+                if text.pos[i] in ['NOUN', 'VERB', 'ADJ']:
+                    rank = r + 1
+                    for j, row in df.iterrows():
+                        if f == j:
+                            rank = row[0]
+                        
+                        
+                    thematic_ws.append((rank, text.token_frequencies[r]))
+            except IndexError:
+                 return 0
+               
+            r += 1
+
+        if len(thematic_ws) == 0:
+            return 0
+
+        tc = 0 
+        for r, f in thematic_ws:
+            tc += 2*(h - r) * f / (h* (h-1)*text.token_frequencies[0])
+            
+        return tc
 
 
 class TypeTokenRatio(TextScore):
@@ -836,14 +1518,8 @@ class uniquegrams(TextScore):
         grams = list()
 
         for token in text.token_unique:
-            #print(token)
-            #print(self.get_gram(token))
             grams += self.get_gram(token)
         
-        #print(len(set(grams)))
-        #print(length)
-        #print(len(set(grams))/length)
-        #sys.exit(0)
         return len(set(grams)) / length
 
     def get_gram(self, tokens):
@@ -906,7 +1582,7 @@ def hashify(text):
         hash_hex = hash_object.hexdigest()
         return hash_hex
 
-def lt_text(text, lang, scorers, mode):
+def lt(text, lang, scorers, mode):
     """
     Load texts and calculate scores async
     """
@@ -916,68 +1592,30 @@ def lt_text(text, lang, scorers, mode):
 
     return t.calculate(), t.text.length, t.text.hash_hex
     
-def lt(in_file, lang, scorers, mode):
-    """
-    Load texts and calculate scores async
-    """
-    text_id = in_file.split('/')[-1]
-    with open(in_file, "r", encoding="UTF-8") as f:
-        t = TextScorer(lang, f.read(), text_id, scorers=scorers, load=False, load_text=False,
-                mode=mode)
-    return (t.calculate(), t.text.length, t.text.hash_hex)
-
-def lt_bert(in_file, lang, scorers, mode):
+def lt_bert(text, lang, scorers, mode):
     """
     Load and split texts for autobert
     """
 
-    text_id = in_file.split('/')[-1]
-    with open(in_file, "r", encoding="UTF-8") as f:
-        t = f.read()
-        hash_hex = hashify(t)
-        sentences = TextScorer(lang, t, text_id, scorers=scorers, 
-                load_text=True, mode=mode).text.sentences
-        #sentences = re.split('[?.!]', t)
+    text_id = hashify(text)
+    ## TODO text_id?
+    hash_hex = text_id
+    sentences = TextScorer(lang, text, text_id, scorers=scorers, 
+            load_text=True, mode=mode).text.sentences
+
     return (sentences, hash_hex, text_id)
 
-def lt_syn(in_file, lang, mode):
+def lt_syn(text, lang, mode):
     """
     Load and split texts for autobert
     """
 
-    text_id = in_file.split('/')[-1]
-    with open(in_file, "r", encoding="UTF-8") as f:
-        t = f.read()
-        hash_hex = hashify(t)
-        ts = TextScorer(lang, t, text_id, mode=mode)
-        scores, names = syn.Syn().score(ts.text.doc, text_id)
-        #sentences = re.split('[?.!]', t)
+    text_id = hashify(text)
+    hash_hex = hashify(text)
+    ts = TextScorer(lang, text, text_id, mode=mode)
+    scores, names = Syn().score(ts.text.doc, text_id)
+
     return (scores, names, hash_hex, text_id)
-
-def lt_she(in_file, lang, mode, corpus_tokens):
-    """
-    Load and split texts for autobert
-    """
-
-    text_id = in_file.split('/')[-1]
-    with open(in_file, "r", encoding="UTF-8") as f:
-        t = f.read()
-        hash_hex = hashify(t)
-        ts = TextScorer(lang, t, text_id, mode=mode)
-        scores, names = she.She().score(ts.text, text_id, corpus_tokens)
-        #sentences = re.split('[?.!]', t)
-    return (scores, names, hash_hex, text_id)
-
-def lt_she_c(in_file, lang, mode):
-    """
-    Load and split texts for autobert
-    """
-
-    text_id = in_file.split('/')[-1]
-    with open(in_file, "r", encoding="UTF-8") as f:
-        t = f.read()
-        ts = TextScorer(lang, t, text_id, mode=mode)
-    return ts.text.token
 
 def stats(in_file, lang, mode):
     """
@@ -1026,7 +1664,7 @@ class Scorer():
 
     def __init__(self, scorers, out_dir='', out_file=None, tfidf=False, tfidf_max=10,
             bertt=False, berts=False, bert_n_lags=5, 
-            bert_load=True, syn=False, she=False, stats=False, mode=None, cpus=None, text=None, label=None, language=None):
+            bert_load=True, syn=False, stats=False, mode=None, cpus=None, text=None, label=None, language=None):
         """
         Parameters
         ----------
@@ -1053,7 +1691,7 @@ class Scorer():
             changed, the scores will be saved in data/scores.
         """
         #self.id = 'scorer'
-        self.scorers = scorers
+        #self.scorers = scorers
         self.mode = mode
         self.cpus = cpus
         self.out_dir = './'#os.path.join('data/scores/cumulative', out_dir)
@@ -1067,15 +1705,11 @@ class Scorer():
         self.text_hash = None
         self.text_ids_ext = None
 
-        self.tfidf = tfidf
-        self.tfidf_max = tfidf_max
-        self.bert = berts or bertt
-        self.bertt = bertt
-        self.berts = berts
+        self.bertt = False
+        self.berts = False
         self.bert_load = bert_load
         self.bert_n_lags = bert_n_lags
-        self.syn = syn
-        self.she = she
+        self.syn = False
         self.stats = stats
 
         self.text = text
@@ -1083,6 +1717,17 @@ class Scorer():
         self.language = language
 
         self.ling = False
+
+        self.scorers = []
+        for s in scorers:
+            if isinstance(s, Syn):
+                self.syn = True
+            elif isinstance(s, AutoBERTT):
+                self.bertt = True
+            elif isinstance(s, AutoBERTS):
+                self.berts = True
+            else:
+                self.scorers.append(s)
         if not scorers is None and len(scorers) != 0:
             self.ling = True
 
@@ -1109,7 +1754,6 @@ class Scorer():
             self.text_hash = np.asarray(text_hash)
             self.names = names
         else:
-            #print(scores.shape, self.scores.shape)
             self.scores = np.concatenate((self.scores, scores), 0)
             self.text_hash = np.concatenate((self.text_hash, text_hash))
 
@@ -1124,162 +1768,58 @@ class Scorer():
         scores = []
         names = []
         hash_list = []
-        #use 80% of available processors
-        #if self.cpus is None:
-        #    cpus = ceil(cpu_count()*0.8)
-        #elif isinstance(self.cpus, int):
-        #    cpus = self.cpus
-        #else:
-        #    cpus = ceil(cpu_count()*self.cpus)
-        ##calculate good scores
-        #try:
-        #    files =  [item for sublist in [[os.path.join(d,f) for f in listdir(d)
-        #                                                if os.path.isfile(os.path.join(d, f))] 
-        #                                for d in in_dir] for item in sublist]
-        #except FileNotFoundError:
-        #    print(f'{bcolors.FAIL}Folder, you specified, does not exist.{bcolors.ENDC}')
-        #    sys.exit(-1)
-
-        #if len(files) == 0:
-        #    print(f'{bcolors.FAIL}No files found in {in_dir}{bcolors.ENDC} '
-        #            f'Make sure, the folder is not empty, and try again.')
-        #    sys.exit(-1)
-
-        #pbar for tracking progress via callback of apply_async
-
-        #if self.stats:
-        #    result = [lt_text(text, lang, self.mode)
-        #    
-        #    an_tok = np.average(results[:, 0]).astype(int)
-        #    asent_l = np.average(results[:, 1]).astype(int)
-        #    atok_l = np.average(results[:, 2]).astype(int)
-        #    print(an_tok, asent_l, atok_l)
-                
 
         #Calculate scores using pool 
         if self.ling:
             #texts = [pool.apply_async(lt, [f, lang, self.scorers, self.mode]) 
             #        for f in files]
             #results = [e.get() for e in texts]
-            stats, num_tokens, text_hash = lt_text(text, lang, self.scorers, self.mode)
+            stats, num_tokens, text_hash = lt(text, lang, self.scorers, self.mode)
             #Do not use multiprocessing for BERT, as it fully utilizes the GPU with one process
             scores = [stat["score"] for stat in stats.values()]
             names = [stat["id"] for stat in stats.values()]
 
         if self.syn:
-            texts = [pool.apply_async(lt_syn, [f, lang, self.mode]) 
-                    for f in files]
-            pool.close()
-            pool.join()
-            pbar.close()
-            results = [e.get() for e in texts]
-            stats_list = [x for x, y, z, w in results]
-            names_list = [y for x, y, z, w in results]
-            hash_list = [z for x, y, z, w in results]
-            scores_syn = [[stat for stat in stats] for stats in stats_list]
-            names_syn = [name for name in names_list][-1]
+            scores_syn, names_syn, text_hash, _ = lt_syn(text, lang, self.mode)
             if len(scores) == 0:
                 scores = scores_syn
             else:
-                scores = np.concatenate((np.array(scores), scores_syn), axis=1)
+                scores = np.concatenate((np.array(scores), scores_syn))
 
             names += names_syn
-        # Integrating Computational Linguistic Analyses of... Mehler et. al 2017
-        if self.she:
-            ## get all tokens of the corpus
-            texts = [pool.apply_async(lt_she_c, [f, lang, self.mode]) 
-                    for f in files]
-            pool.close()
-            pool.join()
-            results = [e.get() for e in texts]
-            corpus_tokens = []
-            for r in results:
-                corpus_tokens += list(r)
-
-            pool = Pool(cpus)
-            texts = [pool.apply_async(lt_she, [f, lang, self.mode, corpus_tokens], 
-                callback=update) for f in files]
-            pool.close()
-            pool.join()
-            pbar.close()
-            results = [e.get() for e in texts]
-            stats_list = [x for x, y, z, w in results]
-            names_list = [y for x, y, z, w in results]
-            hash_list = [z for x, y, z, w in results]
-            scores_she = [[stat for stat in stats] for stats in stats_list]
-            names_she = [name for name in names_list][-1]
-            if len(scores) == 0:
-                scores = scores_she
-            else:
-                scores = np.concatenate((np.array(scores), scores_she), axis=1)
-
-            names += names_she
-
         
         #calculate bert scores only if bert=True
         if self.bertt:
-            pbar = tqdm(total=len(files))
-            texts = [pool.apply_async(lt_bert, [f, lang, self.scorers, self.mode], 
-                callback=update) for f in files]
-            pool.close()
-            pool.join()
-            pbar.close()
-
-            results = [e.get() for e in texts]
-            hash_list = [y for x, y, z  in results]
-            ab = autobertt.AutoBERTT()
-            scores_bertt, names_bertt = ab.score(results, label, lang, load=self.bert_load)
+            sentences, hash_hex, text_id = lt_bert(text, lang, self.scorers, self.mode)
+            ab = AutoBERTT()
+            scores_bertt, names_bertt = ab.score(sentences, hash_hex, text_id, label, lang)
             if len(scores) == 0:
                 scores = scores_bertt
             else:
-                scores = np.concatenate((np.array(scores), scores_bertt), axis=1)
+                scores = np.concatenate((np.array(scores), scores_bertt.squeeze()))
 
             names += names_bertt
 
         #calculate bert scores only if bert=True
         if self.berts:
-            ab = autoberts.AutoBERTS()
+            ab = AutoBERTS()
             ## reuse prepared texts
             if self.bertt:
-                scores_berts, names_berts = ab.score(results, label, lang,
-                        load=self.bert_load)
-                scores = np.concatenate((np.array(scores), scores_berts), axis=1)
+                scores_berts, names_berts = ab.score(sentences, hash_hex, text_id, label, lang)
+                scores = np.concatenate((np.array(scores), scores_berts.squeeze()))
                 names += names_berts
 
             else:
-                pool = Pool(cpus)
-                pbar = tqdm(total=len(files))
-                texts = [pool.apply_async(lt_bert, [f, lang, self.scorers, self.mode], 
-                    callback=update) for f in files]
-                pool.close()
-                pool.join()
-                pbar.close()
-
-                results = [e.get() for e in texts]
-                hash_list = [y for x, y, z  in results]
-                scores_berts, names_berts = ab.score(results, label, lang, n_lags=self.bert_n_lags,
-                        load=self.bert_load)
+                sentences, hash_hex, _ = lt_bert(text, lang, self.scorers, self.mode)
+                scores_berts, names_berts = ab.score(sentences, label, lang, n_lags=self.bert_n_lags)
                 if len(scores) == 0:
                     scores = scores_berts
                 else:
-                    scores = np.concatenate((np.array(scores), scores_berts), axis=1)
+                    scores = np.concatenate((np.array(scores), scores_berts))
                     
                 names += names_berts
 
-        ## add bert scores
-        #if not self.ling:
-        #    if self.bertt and self.berts:
-        #        scores = np.concatenate((scores_bertt, scores_berts), axis=1)
-        #        names += names_bertt + names_berts
-        #    elif self.bertt:
-        #        scores = scores_bertt
-        #        names += names_bertt
-        #    elif self.berts:
-        #        scores = scores_berts
-        #        names += names_berts
-                
-        #scores = list(scores)
-
+        scores = list(map(float, scores))
                 
         return scores, names, text_hash 
 
