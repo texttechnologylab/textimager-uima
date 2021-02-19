@@ -43,8 +43,6 @@ public class TextScorerQL extends TextScorerBase {
 		FSArray scs = new FSArray(aJCas, scores.size());
 
 		for (int i=0; i<scores.size(); i++){
-//			Object o = scores.get(i);
-//			double score = ((Number)o).doubleValue();
 			double score = scores.get(i);
 			String name = names.get(i);
 			TextScoreEntry textScoreEntry = new TextScoreEntry(aJCas);
@@ -52,7 +50,6 @@ public class TextScorerQL extends TextScorerBase {
 			textScoreEntry.setValue(score);
 			textScoreEntry.setLabel(name);
 			scs.set(i, textScoreEntry);
-
 		}
 		textScore.setElements(scs);
 		textScore.setDocumentName(documentName);
