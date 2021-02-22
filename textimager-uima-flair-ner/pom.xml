@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>com.github.texttechnologylab</groupId>
 			<artifactId>Utilities</artifactId>
-			<version>1.0.7-uima-2.10.4</version>
+			<version>${ttlab.utilities.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>

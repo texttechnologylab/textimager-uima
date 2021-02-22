@@ -8,7 +8,6 @@
     </parent>
 
     <artifactId>textimager-uima-io-abbyy</artifactId>
-    <version>0.0.1</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -69,7 +68,7 @@
         <dependency>
             <groupId>com.github.texttechnologylab</groupId>
             <artifactId>Utilities</artifactId>
-            <version>1.0.3</version>
+            <version>${ttlab.utilities.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -108,7 +107,7 @@
         <dependency>
             <groupId>org.hucompute.textimager.uima</groupId>
             <artifactId>textimager-uima-HUComputeNER</artifactId>
-            <version>0.3.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hucompute.textimager.uima</groupId>

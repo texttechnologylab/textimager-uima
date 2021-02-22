@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.hucompute.textimager.uima</groupId>
+            <artifactId>textimager-uima-gazetteer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
@@ -25,6 +30,11 @@
             <groupId>log4j</groupId>
             <artifactId>apache-log4j-extras</artifactId>
             <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.12.1</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -73,7 +83,7 @@
         <dependency>
             <groupId>com.github.texttechnologylab</groupId>
             <artifactId>Utilities</artifactId>
-            <version>1.0.5</version>
+            <version>${ttlab.utilities.version}</version>
         </dependency>
 
     </dependencies>
