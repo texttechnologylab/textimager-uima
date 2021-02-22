@@ -284,6 +284,14 @@ class TextScorer:
         return scores
 
 
+## in case of multiple GPUs get the GPU with max free memory
+def get_gpu():
+    exit_code = os.system('nvidia-smi -q -d memory | grep -A4 GPU | grep Free > tmp')
+    if not exit_code:
+        memory_available = [int(x.split()[2]) for x in open('tmp', 'r').readlines()]
+        return np.argmax(memory_available)
+    else:
+        return -1
 #############################################################################################
 # Baseclass for all Scorers
 class TextScore:
@@ -468,7 +476,12 @@ class AutoBERTS(TextScore):
         ## create scores array
         scores = np.full((len(texts), 7 + 2 * n_lags), np.nan)
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device_num = get_gpu()
+        if device_num == -1:
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        else:
+            device = torch.device(f'cuda:{device_num}' if torch.cuda.is_available() else 'cpu')
+
         if lang == 'de':
             tokenizer = BertTokenizer.from_pretrained('dbmdz/bert-base-german-cased')
             model = BertForNextSentencePrediction.from_pretrained(
@@ -649,6 +662,7 @@ class AutoBERTT(TextScore):
         json.dump(scores, f)
         f.close()
 
+
     def score(self, text, hash_hex, text_id, label, lang, n_lags=10):
         texts = [text]
         
@@ -665,7 +679,12 @@ class AutoBERTT(TextScore):
         
         p_tokens = []
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device_num = get_gpu()
+        if device_num == -1:
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        else:
+            device = torch.device(f'cuda:{device_num}' if torch.cuda.is_available() else 'cpu')
+
         ts = self._create_examples(texts)
         if lang == 'de':
             # eval() by default
@@ -688,7 +707,7 @@ class AutoBERTT(TextScore):
             tokenizer = BertTokenizer.from_pretrained(
                     'bert-base-multilingual-cased')
             model = BertForMaskedLM.from_pretrained(
-                    'bert-base-multilingual-cased').eval().cuda()
+                    'bert-base-multilingual-cased').eval().to(device)
 
         def run(tokens_tensor, segments_tensors, masked_token):
             with torch.no_grad():
@@ -713,8 +732,8 @@ class AutoBERTT(TextScore):
                 segments_ids = [0 for i in range(len(tokenized_text))]
                 tokens_tensor = torch.tensor([indexed_tokens])
                 segments_tensors = torch.tensor([segments_ids])
-                tokens_tensor = tokens_tensor.cuda()
-                segments_tensors = segments_tensors.cuda()
+                tokens_tensor = tokens_tensor.to(device)
+                segments_tensors = segments_tensors.to(device)
                 t_ids = tokenizer.convert_tokens_to_ids([masked_token])
                 logits.append(run(tokens_tensor, segments_tensors, t_ids))
             
