@@ -1768,13 +1768,9 @@ class Scorer():
         """
         
         scores, names, text_hash = self._calculate(lang, label, text)
-        if self.scores is None:
-            self.scores = np.asarray(scores)
-            self.text_hash = np.asarray(text_hash)
-            self.names = names
-        else:
-            self.scores = np.concatenate((self.scores, scores), 0)
-            self.text_hash = np.concatenate((self.text_hash, text_hash))
+        self.scores = np.asarray(scores)
+        self.text_hash = np.asarray(text_hash)
+        self.names = names
 
         
         return scores, names, text_hash
