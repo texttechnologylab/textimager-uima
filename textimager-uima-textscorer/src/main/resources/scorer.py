@@ -286,6 +286,7 @@ class TextScorer:
 
 ## in case of multiple GPUs get the GPU with max free memory
 def get_gpu():
+    # dirty, but currently not implemented --> docker/duca!
     return 0
     exit_code = os.system('nvidia-smi -q -d memory | grep -A4 GPU | grep Free > tmp')
     if not exit_code:
