@@ -137,6 +137,11 @@
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-textscorer</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-biofid-gazetteer</artifactId>
 					<version>${project.version}</version>
 				</dependency>
@@ -163,6 +168,11 @@
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-gazetteer</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-geonames-gazetteer</artifactId>
 					<version>${project.version}</version>
 				</dependency>
 <!--				<dependency>-->
@@ -458,6 +468,12 @@
 					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-coref-en</artifactId>
 					<version>20120709.0</version>
+				</dependency>
+
+				<dependency>
+					<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+					<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-model-coref-de-default</artifactId>
+					<version>20181005.1</version>
 				</dependency>
 
 				<dependency>

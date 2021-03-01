@@ -1,21 +1,15 @@
 package org.hucompute.textimager.uima.textscorer;
 
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import jep.JepException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.dkpro.core.api.resources.MappingProvider;
-import org.dkpro.core.api.resources.MappingProviderFactory;
 import org.texttechnologylab.annotation.score.TextScore;
 import org.texttechnologylab.annotation.score.TextScoreEntry;
 
-
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class TextScorerQL extends TextScorerBase {
 
@@ -38,8 +32,7 @@ public class TextScorerQL extends TextScorerBase {
 		}
 	}
 
-	private void processScores(JCas aJCas, String documentName, ArrayList<Double> scores, ArrayList<String> names)
-			throws JepException {
+	private void processScores(JCas aJCas, String documentName, ArrayList<Double> scores, ArrayList<String> names) throws JepException {
 		TextScore textScore = new TextScore(aJCas);
 		FSArray scs = new FSArray(aJCas, scores.size());
 

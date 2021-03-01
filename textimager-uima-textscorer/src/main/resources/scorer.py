@@ -106,7 +106,7 @@ class Text:
             nlp = spacy.load('ja_core_news_lg')
         else:
             print(f'Language you specified is not supported.')
-        
+
         text = self.text
         #text = re.sub('1_sec_pause|2_sec_pause|3_sec_pause|multiSecPause|/', '', text)
         #text = re.sub(r'\([^)]*\)', '', text)
@@ -148,7 +148,7 @@ class Text:
 
         self.sentences = [str(s) for s in doc.sents]# if len(s) != 1]
         ## sentence length
-        self.l_sentences = [len([doc[i] for i in range(sent.start, sent.end) 
+        self.l_sentences = [len([doc[i] for i in range(sent.start, sent.end)
             if doc[i].pos_ != 'PUNCT'])
                     for sent in doc.sents]
         self.n_sentences = len(self.sentences)
@@ -165,7 +165,7 @@ class Text:
             for s in sentences:
                 self.l_sentences.append(len(s.split(' ')))
 
-            self.token = [x for x in list(text.words) if not self._is_control(x) 
+            self.token = [x for x in list(text.words) if not self._is_control(x)
                     and not self._is_punct(x)]
         except ValueError as e:
             print(e)
@@ -199,7 +199,7 @@ class Text:
                 }
                 #"nmw": self.nmw,
                 #"doc_s": self.doc_s}
-        
+
     def _filter_punctuation(self):
         str_p = list(string.punctuation) + ['\n'] + [' ']
         self.token = [w for w in self.token if w not in str_p]
@@ -211,7 +211,7 @@ class Text:
 
         if self.mode == 'FTD':
             self.text = re.sub('B: |I: ', '', self.text)
-            self.text = re.sub('1_sec_pause|2_sec_pause|3_sec_pause|multiSecPause|/', 
+            self.text = re.sub('1_sec_pause|2_sec_pause|3_sec_pause|multiSecPause|/',
                     '', self.text)
             self.text = re.sub(r'\([^)]*\)', '', self.text)
         elif self.mode == 'SHE':
@@ -238,7 +238,7 @@ class Text:
         self.text = ''.join(x for x in self.text if x.isprintable())
 
         spacy_langs = ['de', 'en', 'es', 'fr', 'it', 'nl', 'ja']
-        
+
         if self.lang in spacy_langs:
             self._query_spacy()
         else:
@@ -286,6 +286,8 @@ class TextScorer:
 
 ## in case of multiple GPUs get the GPU with max free memory
 def get_gpu():
+    # dirty, but currently not implemented --> docker/duca!
+    return 0
     exit_code = os.system('nvidia-smi -q -d memory | grep -A4 GPU | grep Free > tmp')
     if not exit_code:
         memory_available = [int(x.split()[2]) for x in open('tmp', 'r').readlines()]
@@ -360,9 +362,9 @@ class Alpha(TextScore):
     def score(self, text: Text):
         hp = HPoint().score(text)
         v = len(np.unique(text.token))
-        tf = text.token_frequencies[0] 
+        tf = text.token_frequencies[0]
         cos1 = -1 * ((hp - 1) * (tf - hp) + (hp - 1) * (v - hp))
-        cos2 = ((hp - 1) ** 2 + (tf - hp) ** 2 ) ** 0.5 
+        cos2 = ((hp - 1) ** 2 + (tf - hp) ** 2 ) ** 0.5
         cos3 = ((hp - 1) ** 2 + (v - hp) ** 2) ** 0.5
 
         try:
@@ -422,7 +424,7 @@ class AutoBERTS(TextScore):
 
     def name(self):
         return "Autocorrelation coefficient based on BERT next sentence prediction probabilities."
-    
+
     def __adc(self, x, t=1):
         return np.array([1] + [dcor.distance_correlation(x[:-i], x[i:])
             for i in range(1, t + 1)])
@@ -458,16 +460,16 @@ class AutoBERTS(TextScore):
 
     def _save(self, scores, hash_hex, path):
         """Save scores to disk."""
-        
+
         path = os.path.join(path, hash_hex)
         f = open(path, "w")
         json.dump(scores, f)
         f.close()
 
     def score(self, text, hash_hex, text_id, label, lang, n_lags=10):
-        
+
         texts = [text]
-        
+
         names_bsac = ['bsac' + str(i+1) for i in range(n_lags)]
         names_bsadc = ['bsadc' + str(i+1) for i in range(n_lags)]
 
@@ -539,13 +541,13 @@ class AutoBERTS(TextScore):
             df = pd.DataFrame(cls_embeddings)
             dfcor = df.T.corr(method=dcor.distance_correlation)
             clusterer = hdbscan.HDBSCAN(metric='precomputed', min_cluster_size=2)
-            
-            
+
+
             ## bsesim
             cos_emb = np.average(cosine_similarity(cls_embeddings)[0])
             scores[idx, 1] = cos_emb
 
-            ## in case of only 1 noise cluster, to neglect the differences due to 
+            ## in case of only 1 noise cluster, to neglect the differences due to
             ## the number of sentences substract (-1) the noise cluster
             try:
                 clusterer.fit(dfcor)
@@ -554,20 +556,20 @@ class AutoBERTS(TextScore):
                 bsacn = np.nan
 
             scores[idx, 2] = bsacn
-            
+
             examples = self._create_examples(text)
             for e in examples:
                 prompt = e[0]
                 next_sentence = e[1]
-                
-                encoding = tokenizer.encode_plus(prompt, next_sentence, 
+
+                encoding = tokenizer.encode_plus(prompt, next_sentence,
                         return_tensors='pt').to(device)
 
                 with torch.no_grad():
                     logits = model(**encoding)[0]
-               
+
                 l_sentences.append(logits[0,0])
-                
+
             p_sentences = []
             ls = []
             for l in l_sentences:
@@ -576,7 +578,7 @@ class AutoBERTS(TextScore):
 
             ps = np.array(p_sentences)
             ls = np.array(ls)
-            
+
             ## entropy
             scores[idx, 3] = entropy(ps, base=2)
             try:
@@ -589,17 +591,17 @@ class AutoBERTS(TextScore):
 
             ## bsradc
             scores[idx, 6] = self._rac(ps)
-            
+
 
             lps = len(ps)
-            
+
             ## bert autocorrelation
             try:
                 res = acf(ps, fft=True, nlags=n_lags)[1:]
                 scores[idx, 7: 7 + len(res)] = res
             except Exception as e:
                 print(e)
-            
+
             try:
                 res = self._adc(ps, n_lags)[1:]
                 scores[idx, 7 + n_lags: 7 + n_lags + len(res)] = res
@@ -608,9 +610,9 @@ class AutoBERTS(TextScore):
                 sys.exit(-1)
 
             idx += 1
-                
+
         return (scores, names)
- 
+
     def _create_examples(self, lines):
         """Creates examples for the training and dev sets."""
         examples = []
@@ -628,11 +630,11 @@ class AutoBERTT(TextScore):
 
     def name(self):
         return "Autocorrelation coefficients based on BERT token prediction probabilities."
-    
+
     def _adc(self, x, t=1):
         return np.array([1] + [dcor.distance_correlation(x[:-i], x[i:])
             for i in range(1, t + 1)])
-    
+
     def _rac(self, x):
         while len(x) >= 2:
             if len(x) == 2:
@@ -654,7 +656,7 @@ class AutoBERTT(TextScore):
 
     def _save(self, scores, hash_hex, path):
         """Save scores to disk."""
-        if not os.path.exists(path):   
+        if not os.path.exists(path):
              os.makedirs(path)
 
         path = os.path.join(path, hash_hex)
@@ -665,18 +667,18 @@ class AutoBERTT(TextScore):
 
     def score(self, text, hash_hex, text_id, label, lang, n_lags=10):
         texts = [text]
-        
+
         names_btac = ['btac' + str(i+1) for i in range(n_lags)]
         names_btadc = ['btadc' + str(i+1) for i in range(n_lags)]
 
         #names = names_tpad + names_tpdc + ['aatdw', 'taa', 'tddc', 'abtly']
-        names = ['btH', 'btlH', 'btsH', 'btlsH', 'bth', 'btdfa', 'btly', 'btrac', 
+        names = ['btH', 'btlH', 'btsH', 'btlsH', 'bth', 'btdfa', 'btly', 'btrac',
                 'btradc'] + names_btac + names_btadc
- 
+
 
         ## create scores array
         scores = np.full((len(texts), 9 + n_lags * 2), np.nan)
-        
+
         p_tokens = []
 
         device_num = get_gpu()
@@ -719,10 +721,10 @@ class AutoBERTT(TextScore):
         for text in ts:
             tokenized_text = tokenizer.tokenize(' '.join(text))
             tokenized_text_ids = tokenizer.convert_tokens_to_ids(tokenized_text)
-            
+
             logits = []
             ps = []
-            
+
             masked_token = tokenized_text[0]
             for i in range(1, len(tokenized_text) - 1):
                 tokenized_text[i-1] = masked_token
@@ -736,7 +738,7 @@ class AutoBERTT(TextScore):
                 segments_tensors = segments_tensors.to(device)
                 t_ids = tokenizer.convert_tokens_to_ids([masked_token])
                 logits.append(run(tokens_tensor, segments_tensors, t_ids))
-            
+
             ls = []
             for l in logits:
                 l_ = l.item()
@@ -789,7 +791,7 @@ class AutoBERTT(TextScore):
                 scores[idx, 9: 9 + len(res)] = res
             except Exception as e:
                 print(e)
-            
+
             try:
                 res = self._adc(ps, n_lags)[1:]
                 ##abtadc
@@ -812,7 +814,7 @@ class AutoBERTT(TextScore):
                 })
 
         return (scores, names)
-    
+
     def _create_examples(self, texts):
         """Creates examples for the training and dev sets."""
         texts_out = []
@@ -824,8 +826,8 @@ class AutoBERTT(TextScore):
             texts_out.append(['[CLS]'] + tmp_t)
 
         return texts_out
-    
-    
+
+
 
 class CurveLength(TextScore):
     def id(self):
@@ -1052,7 +1054,7 @@ class R1(TextScore):
 
         if len(frequencies) < h + 2:
             return 0
-        
+
         for i in range(math.floor(h)):
             fh += frequencies[i]
 
@@ -1104,11 +1106,11 @@ class STC(TextScore):
         if h_floor == 0:
             return 0
 
-        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
+        df = pd.DataFrame(list(l) for l in zip(np.arange(1,
                 len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
         ll = list(list(l) for l in zip(np.arange(1, len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
         df = df.groupby(1).mean().sort_index(ascending=False)
-        
+
 
         r = 0
         for i in text.token_unique_indices[:h_floor]:
@@ -1119,7 +1121,7 @@ class STC(TextScore):
                     for j, row in df.iterrows():
                         if f == j:
                             rank = row[0]
-                        
+
                     thematic_ws.append((rank, text.token_frequencies[r]))
             except IndexError:
                 return 0
@@ -1128,10 +1130,10 @@ class STC(TextScore):
         if len(thematic_ws) == 0:
             return 0
 
-        stc = 0 
+        stc = 0
         for r, f in thematic_ws:
             stc += (2*h - r) * f / (h* (2*h-1)*text.token_frequencies[0])
-            
+
         return stc
 
 
@@ -1160,7 +1162,7 @@ def rac(x):
             x = acf(x, len(x), fft=True)[:-1]
 def __adc(x, t=1):
     return np.array([1] + [dcor.distance_correlation(x[:-i], x[i:]) for i in range(1, t+1)])
-  
+
 def _adc(x, t=1):
     #return np.array([1] + [dcor.distance_correlation(x[:-i], x[i:]) for i in range(1, t+1)])
     res = []
@@ -1233,7 +1235,7 @@ def tree_height(G, root):
     max_l = max(sps.values())
 
     return max_l
-    
+
 
 
 def calculate(Gs, rs, gls):
@@ -1293,7 +1295,7 @@ def calculate(Gs, rs, gls):
     W_hats = []
     widths = []
     levels = []
-    
+
     for r, G, sp, l in zip(rs, Gs, sps, gls):
         res = 0
         h = tree_height(G, r)
@@ -1349,7 +1351,7 @@ def calculate(Gs, rs, gls):
     ###############################################################################
     ## width, level, W_hat Formulas (23, (24), and (25)
 
-    
+
         # all leafs of a graph
         leafs = [x for x in G.nodes() if G.out_degree(x)==0 and G.in_degree(x)==1]
         # number of nodes with degree 1 (see paper Formula (16))
@@ -1360,9 +1362,9 @@ def calculate(Gs, rs, gls):
             d_lcp = 0
             # all pairs of leafs
             for n1, n2 in itertools.combinations(leafs, 2):
-                # 
+                #
                 lcp = nx.lowest_common_ancestor(G, n1, n2)
-                
+
                 if r == lcp:
                     d_lcp = 0
                 else:
@@ -1394,7 +1396,7 @@ def calculate(Gs, rs, gls):
         widths.append(max_n)
         levels.append(max_l)
         W_hats.append(max_n/G.number_of_nodes())
-        
+
     return LDEs, depends, MDDs, DDEs, TCIs, imbalances, L_hats, W_hats, widths, levels, comps
 
 
@@ -1410,8 +1412,8 @@ class Syn(TextScore):
         LDEs, depends, MDDs, DDEs, TCIs, imbalances, L_hats, W_hats, widths, levels, comps = \
                 calculate(Gs, rs, gls)
 
-        df = pd.DataFrame(list(zip(LDEs, depends, MDDs, DDEs, TCIs, 
-            imbalances, L_hats, W_hats, widths, levels, comps)), columns=['LDEs', 
+        df = pd.DataFrame(list(zip(LDEs, depends, MDDs, DDEs, TCIs,
+            imbalances, L_hats, W_hats, widths, levels, comps)), columns=['LDEs',
                 'depends', 'MDDs', 'DDEs', 'TCIs', 'imbalances', 'L_hats', 'W_hats',
                 'widths', 'levels', 'comps'])
         mu = df.apply(lambda x: np.mean(x))
@@ -1428,7 +1430,7 @@ class Syn(TextScore):
             adtw = df.apply(lambda x: autodtw(x))
         except Exception as e:
             adtw = np.full((11, ), np.nan)
- 
+
         scores = np.full((77, ), np.nan)
         scores[0:len(mu)] = mu
         scores[11:11+len(G)] = G
@@ -1442,29 +1444,29 @@ class Syn(TextScore):
         scores[55:55+len(rdc)] = rdc
         scores[66:66+len(adtw)] = adtw
 
-        names = ['LDEmu', 'depmu', 'MDDmu', 'DDEmu', 'TCImu', 'imbmu', 
+        names = ['LDEmu', 'depmu', 'MDDmu', 'DDEmu', 'TCImu', 'imbmu',
                 'Lmu','Wmu', 'wmu', 'lmu', 'cmu',
 
                 'LDEG', 'depG', 'MDDG', 'DDEG', 'TCIG', 'imbG',
                 'LG', 'WG', 'wG', 'lG', 'cG',
 
-                'LDEH', 'depH', 'MDDH', 'DDEH', 'TCIH', 
-                'imbH', 'LH', 'WH', 'wH', 
+                'LDEH', 'depH', 'MDDH', 'DDEH', 'TCIH',
+                'imbH', 'LH', 'WH', 'wH',
                 'lH', 'cH',
-        
+
                 'LDErac', 'deprac', 'MDDrac', 'DDErac', 'TCIrac', 'imbrac',
                 'Lrac','Wrac', 'wrac', 'lrac', 'crac',
 
                 'LDEadc', 'depadc', 'MDDadc', 'DDEadc', 'TCIadc', 'imbadc',
                 'Ladc','Wadc', 'wadc', 'ladc', 'cadc',
-                
+
                 'LDEradc', 'depradc', 'MDDradc', 'DDEradc', 'TCIradc', 'imbradc',
                 'Lradc','Wradc', 'wradc', 'lradc', 'cradc',
 
-                'LDEadtw', 'depadtw', 'MDDadtw', 'DDEadtw', 'TCIadtw', 
-                'imbadtw', 'Ladtw', 'Wadtw', 'wadtw', 
+                'LDEadtw', 'depadtw', 'MDDadtw', 'DDEadtw', 'TCIadtw',
+                'imbadtw', 'Ladtw', 'Wadtw', 'wadtw',
                 'ladtw', 'cadtw',
-                
+
                 ]
 
         return scores, names
@@ -1482,8 +1484,8 @@ class TC(TextScore):
 
         h = HPoint().score(text)
         h_floor = math.floor(h)
-        
-        df = pd.DataFrame(list(l) for l in zip(np.arange(1, 
+
+        df = pd.DataFrame(list(l) for l in zip(np.arange(1,
                 len(text.token_frequencies[:h_floor])+1), text.token_frequencies))
         df = df.groupby(1).mean().sort_index(ascending=False)
 
@@ -1496,21 +1498,21 @@ class TC(TextScore):
                     for j, row in df.iterrows():
                         if f == j:
                             rank = row[0]
-                        
-                        
+
+
                     thematic_ws.append((rank, text.token_frequencies[r]))
             except IndexError:
                  return 0
-               
+
             r += 1
 
         if len(thematic_ws) == 0:
             return 0
 
-        tc = 0 
+        tc = 0
         for r, f in thematic_ws:
             tc += 2*(h - r) * f / (h* (h-1)*text.token_frequencies[0])
-            
+
         return tc
 
 
@@ -1538,7 +1540,7 @@ class uniquegrams(TextScore):
 
         for token in text.token_unique:
             grams += self.get_gram(token)
-        
+
         return len(set(grams)) / length
 
     def get_gram(self, tokens):
@@ -1575,7 +1577,7 @@ class VD(TextScore):
 
         if len(diff) == 0:
             return 0
-        
+
         try:
             return np.average(diff)
         except FloatingPointError:
@@ -1610,7 +1612,7 @@ def lt(text, lang, scorers, mode):
             mode=mode)
 
     return t.calculate(), t.text.length, t.text.hash_hex
-    
+
 def lt_bert(text, lang, scorers, mode):
     """
     Load and split texts for autobert
@@ -1619,7 +1621,7 @@ def lt_bert(text, lang, scorers, mode):
     text_id = hashify(text)
     ## TODO text_id?
     hash_hex = text_id
-    sentences = TextScorer(lang, text, text_id, scorers=scorers, 
+    sentences = TextScorer(lang, text, text_id, scorers=scorers,
             load_text=True, mode=mode).text.sentences
 
     return (sentences, hash_hex, text_id)
@@ -1645,7 +1647,7 @@ def stats(in_file, lang, mode):
     with open(in_file, "r", encoding="UTF-8") as f:
         t = f.read()
         hash_hex = hashify(t)
-        text = TextScorer(lang, t, text_id, scorers=None, 
+        text = TextScorer(lang, t, text_id, scorers=None,
                 load_text=True, mode=mode).text
         n_tok = len(text.token)
         tok_l = np.average([len(list(token)) for token in text.token])
@@ -1659,7 +1661,7 @@ def stats(in_file, lang, mode):
 class Scorer():
     """
     Scorer class using multiple precessors
-    
+
     ...
     Attributtes
     -----------
@@ -1682,7 +1684,7 @@ class Scorer():
     """
 
     def __init__(self, scorers, out_dir='', out_file=None, tfidf=False, tfidf_max=10,
-            bertt=False, berts=False, bert_n_lags=5, 
+            bertt=False, berts=False, bert_n_lags=5,
             bert_load=True, syn=False, stats=False, mode=None, cpus=None, text=None, label=None, language=None):
         """
         Parameters
@@ -1715,7 +1717,7 @@ class Scorer():
         self.cpus = cpus
         self.out_dir = './'#os.path.join('data/scores/cumulative', out_dir)
         self.out_file = out_file
-        
+
         self.scores = None
         self.labels = None
         self.names = None
@@ -1752,27 +1754,27 @@ class Scorer():
 
     def _read(self, in_dir):
         files =  [item for sublist in [[os.path.join(d,f) for f in listdir(d)
-                                        if os.path.isfile(os.path.join(d, f))] 
+                                        if os.path.isfile(os.path.join(d, f))]
                                         for d in in_dir] for item in sublist]
         texts = []
         for f in files:
             with open(f, 'r') as tf:
                 text = ' '.join(tf.read().splitlines())
                 texts.append(text)
-        
+
         return texts
 
     def run(self, lang, label, text):
         """
         Wrapper function to iterate through input dirs
         """
-        
+
         scores, names, text_hash = self._calculate(lang, label, text)
         self.scores = np.asarray(scores)
         self.text_hash = np.asarray(text_hash)
         self.names = names
 
-        
+
         return scores, names, text_hash
 
 
@@ -1784,9 +1786,9 @@ class Scorer():
         names = []
         hash_list = []
 
-        #Calculate scores using pool 
+        #Calculate scores using pool
         if self.ling:
-            #texts = [pool.apply_async(lt, [f, lang, self.scorers, self.mode]) 
+            #texts = [pool.apply_async(lt, [f, lang, self.scorers, self.mode])
             #        for f in files]
             #results = [e.get() for e in texts]
             stats, num_tokens, text_hash = lt(text, lang, self.scorers, self.mode)
@@ -1802,7 +1804,7 @@ class Scorer():
                 scores = np.concatenate((np.array(scores), scores_syn))
 
             names += names_syn
-        
+
         #calculate bert scores only if bert=True
         if self.bertt:
             sentences, hash_hex, text_id = lt_bert(text, lang, self.scorers, self.mode)
@@ -1831,10 +1833,10 @@ class Scorer():
                     scores = scores_berts
                 else:
                     scores = np.concatenate((np.array(scores), scores_berts))
-                    
+
                 names += names_berts
 
         scores = list(map(float, scores))
-                
-        return scores, names, text_hash 
+
+        return scores, names, text_hash
 

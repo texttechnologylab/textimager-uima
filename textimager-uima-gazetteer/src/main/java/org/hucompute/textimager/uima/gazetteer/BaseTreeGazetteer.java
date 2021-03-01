@@ -160,15 +160,15 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 						UnicodeRegexSegmenter.PARAM_WRITE_FORM, false,
 						UnicodeRegexSegmenter.PARAM_WRITE_SENTENCE, false);
 			}
-			
+
 			createTreeModel();
-			
+
 			localJCas = JCasFactory.createJCas();
 		} catch (IOException | ClassNotFoundException | UIMAException e) {
 			throw new ResourceInitializationException(e);
 		}
 	}
-	
+
 	protected void createTreeModel() throws IOException, ClassNotFoundException {
 		getLogger().info("Initializing StringTreeGazetteerModel");
 		stringTreeGazetteerModel = new TreeGazetteerModel(
@@ -187,7 +187,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 		skipGramTreeRoot = stringTreeGazetteerModel.getTree();
 		skipGramTreeDepth = skipGramTreeRoot.depth();
 	}
-	
+
 	protected HashSet<String> getFilterSet() throws IOException {
 		HashSet<String> filterSet = new HashSet<>();
 		if (StringUtils.isNotEmpty(pFilterLocation)) {
@@ -198,23 +198,23 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 		}
 		return filterSet;
 	}
-	
+
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		process(aJCas, aJCas.getDocumentText(), 0);
 	}
-	
+
 	@Override
 	protected void process(JCas originalJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {
 		namedEntityMappingProvider.configure(originalJCas.getCas());
 		inferTaggingType(originalJCas.getTypeSystem());
 		tokenBeginIndex = new ConcurrentHashMap<>();
-		
+
 		if (originalJCas.getDocumentText().trim().length() == 0) {
 			getLogger().debug("Skipping empty JCas");
 			return;
 		}
-		
+
 		getLogger().debug("Tagging");
 		try {
 			if (pRetokenize) {
@@ -222,7 +222,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 			} else {
 				localJCas = originalJCas;
 			}
-			
+
 			Collection<Sentence> sentences = JCasUtil.select(localJCas, Sentence.class);
 			if (!pUseSentenceLevelTagging || sentences.isEmpty()) {
 				tagEntireDocumentText(originalJCas, localJCas);
@@ -242,29 +242,29 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 		localJCas.reset();
 		localJCas.setDocumentText(originalJCas.getDocumentText());
 		localJCas.setDocumentLanguage(originalJCas.getDocumentLanguage());
-		
+
 		SimplePipeline.runPipeline(localJCas, regexSegmenter);
-		
+
 		if (pUseSentenceLevelTagging) {
 			JCasUtil.select(originalJCas, Sentence.class).forEach(
 					sentence -> localJCas.addFsToIndexes(new Sentence(localJCas, sentence.getBegin(), sentence.getEnd()))
 			);
 		}
-		
+
 		return localJCas;
 	}
-	
+
 	protected void tagEntireDocumentText(JCas originalJCas, JCas localJCas) {
 		getLogger().debug(String.format(
 				"%s, tagging entire document text.",
 				pUseSentenceLevelTagging ? "PARAM_FORCE_DOCUMENT_TEXT_TAGGING=true" : "Found no sentences"
 				)
 		);
-		
+
 		ArrayList<String> query = getDocumentLevelQuery(localJCas);
 		findAllMatches(skipGramTreeRoot, query, 0).forEach(m -> addAnnotation(originalJCas, m));
 	}
-	
+
 	protected ArrayList<String> getDocumentLevelQuery(JCas aJCas) {
 		ArrayList<String> query = new ArrayList<>();
 		tokens = Lists.newArrayList(JCasUtil.select(aJCas, Lemma.class));
@@ -277,7 +277,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 		}
 		return query;
 	}
-	
+
 	protected void tagSentences(JCas originalJCas, JCas localJCas, Collection<Sentence> sentences) {
 		tokens = Lists.newArrayList(JCasUtil.select(localJCas, Lemma.class));
 		final ConcurrentHashMap<Sentence, Collection<Annotation>> sentenceIndex;
@@ -307,7 +307,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 				.collect(Collectors.toList())
 				.forEach(m -> addAnnotation(originalJCas, m));
 	}
-	
+
 	/**
 	 * Get a list of tokens or lemmata covered by this sentence.
 	 *
@@ -318,7 +318,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 	protected ImmutablePair<Integer, ArrayList<String>> getSentenceList(Map<Sentence, Collection<Annotation>> sentenceIndex, Sentence sentence) {
 		ArrayList<String> arrayList = new ArrayList<>();
 		ArrayList<Annotation> annotations = new ArrayList<>(sentenceIndex.get(sentence));
-		
+
 		int sentenceBeginIndex = -1;
 		if (annotations.size() > 0) {
 			sentenceBeginIndex = tokenBeginIndex.get(annotations.get(0).getBegin());
@@ -328,7 +328,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 		}
 		return ImmutablePair.of(sentenceBeginIndex, arrayList);
 	}
-	
+
 	/**
 	 * Get the text for this annotation. Returns the lemma value if the annotation is a {@link Lemma} and its value is
 	 * not empty or null. Defaults to {@link Annotation#getCoveredText()} otherwise.
@@ -347,7 +347,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 			return pUseLowercase ? annotation.getCoveredText().toLowerCase() : annotation.getCoveredText();
 		}
 	}
-	
+
 	protected ArrayList<Match> findAllMatches(ITreeNode root, final ArrayList<String> query, int globalOffset) {
 		ArrayList<Match> matches = new ArrayList<>();
 		int offset = 0;
@@ -361,10 +361,12 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 				offset += matchedString.right;
 			}
 			offset += 1;
-		} while (offset < (query.size() - skipGramTreeDepth) && offset > -1);
+		} while (offset < query.size() && offset > -1);
+		// old
+		//} while (offset < (query.size() - skipGramTreeDepth) && offset > -1);
 		return matches;
 	}
-	
+
 	protected void addAnnotation(JCas aJCas, Match match) {
 		try {
 			Annotation fromToken = tokens.get(match.start);
@@ -388,13 +390,13 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 	protected abstract Type getTaggingType(String taxon);
 
 	protected abstract String getGazetteerName();
-	
+
 	protected static class Match {
-		
+
 		final int start;
 		final int end;
 		final String value;
-		
+
 		public Match(int start, int end, String value) {
 			this.start = start;
 			this.end = end;

@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestGeonamesGazetteer {
-	
-	private final String sourceLocation = "/home/daniel/data/hiwi/geonames_sample.txt";
+
+	private final String sourceLocation = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/Arbeit/geonames/test.txt";
 
 	@Test
 	public void testGeonamesGazetteer() {
@@ -36,16 +36,16 @@ public class TestGeonamesGazetteer {
 					GeonamesGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false,
 					GeonamesGazetteer.PARAM_USE_LEMMATA, false
 			));
-			
+
 			runTest(segmewnter, gazetterEngine);
 		} catch (UIMAException e) {
 			e.printStackTrace();
 			fail();
 		}
 	}
-	
+
 	private void runTest(AnalysisEngine segmenter, AnalysisEngine gazetterEngine) throws UIMAException {
-		JCas jCas = JCasFactory.createText("Svarthornbotnen liegt im Norden von Deutschland und München im Süden.");
+		JCas jCas = JCasFactory.createText("Svarthornbotnen liegt im Norden von Svarthornbotnen und Svarthornbotnen im Süden.");
 		jCas.setDocumentLanguage("de");
 		StopWatch stopWatch = StopWatch.createStarted();
 		SimplePipeline.runPipeline(jCas, segmenter, gazetterEngine);
@@ -54,5 +54,5 @@ public class TestGeonamesGazetteer {
 		System.out.printf("Found %d GeoNames.\n", JCasUtil.select(jCas, GeoNamesEntity.class).size());
 		System.out.println(JCasUtil.select(jCas, GeoNamesEntity.class).stream().map(element -> String.format("%s@(%d, %d): %s", element.getCoveredText(), element.getBegin(), element.getEnd(), element.getId())).collect(Collectors.joining("\n")));
 	}
-	
+
 }
