@@ -1819,7 +1819,7 @@ class Scorer():
         if self.berts:
             ab = AutoBERTS()
             ## reuse prepared texts
-            if self.bertt:
+            if self.bertt and len(scores) != 0:
                 scores_berts, names_berts = ab.score(sentences, hash_hex, text_id, label, lang)
                 scores = np.concatenate((np.array(scores), scores_berts.squeeze()))
                 names += names_berts
