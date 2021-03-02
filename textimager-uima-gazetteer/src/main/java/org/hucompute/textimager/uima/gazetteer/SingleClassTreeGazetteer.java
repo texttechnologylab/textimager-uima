@@ -36,7 +36,8 @@ public abstract class SingleClassTreeGazetteer extends BaseTreeGazetteer {
 				pMinWordCount,
 				tokenBoundaryRegex,
 				getFilterSet(),
-				getGazetteerName()
+				getGazetteerName(),
+				useSimpleLoading()
 		);
 		skipGramTreeRoot = stringTreeGazetteerModel.getTree();
 		skipGramTreeDepth = skipGramTreeRoot.depth();

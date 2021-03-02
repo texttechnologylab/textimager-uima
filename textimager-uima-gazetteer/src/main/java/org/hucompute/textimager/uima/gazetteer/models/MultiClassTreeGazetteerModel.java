@@ -31,8 +31,8 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 	 * @param pFilterSet
 	 * @throws IOException
 	 */
-	public MultiClassTreeGazetteerModel(String[] aSourceLocations, Boolean bUseLowercase, String sLanguage, double dMinLength, boolean bAllSkips, boolean bSplitHyphen, boolean bAddAbbreviatedTaxa, int iMinWordCountForSkipGrams, String tokenBoundaryRegex, HashSet<String> pFilterSet, String gazetteerName) throws IOException {
-		super(aSourceLocations, bUseLowercase, sLanguage, dMinLength, bAllSkips, bSplitHyphen, bAddAbbreviatedTaxa, iMinWordCountForSkipGrams, tokenBoundaryRegex, pFilterSet, gazetteerName);
+	public MultiClassTreeGazetteerModel(String[] aSourceLocations, Boolean bUseLowercase, String sLanguage, double dMinLength, boolean bAllSkips, boolean bSplitHyphen, boolean bAddAbbreviatedTaxa, int iMinWordCountForSkipGrams, String tokenBoundaryRegex, HashSet<String> pFilterSet, String gazetteerName, boolean simpleLoading) throws IOException {
+		super(aSourceLocations, bUseLowercase, sLanguage, dMinLength, bAllSkips, bSplitHyphen, bAddAbbreviatedTaxa, iMinWordCountForSkipGrams, tokenBoundaryRegex, pFilterSet, gazetteerName, simpleLoading);
 	}
 	
 	@Override
@@ -71,7 +71,7 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 	}
 	
 	@Override
-	protected LinkedHashMap<String, HashSet<Object>> buildTaxaUriMap() throws IOException {
+	protected LinkedHashMap<String, HashSet<Object>> buildTaxaUriMap(boolean simpleLoading) throws IOException {
 		final AtomicInteger duplicateKeys = new AtomicInteger(0);
 		final LinkedHashMap<String, HashSet<Object>> lTaxonUriMap = new LinkedHashMap<>();
 		
@@ -79,7 +79,7 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 		for (int i = 0; i < sourceLocations.size(); i++) {
 			String sourceLocation = sourceLocations.get(i);
 			logger.info(String.format("[%d/%d] Loading file %s", i + 1, sourceLocations.size(), sourceLocation));
-			loadTaxaMap(sourceLocation, useLowercase, language).forEach((taxon, uri) ->
+			loadTaxaMap(sourceLocation, useLowercase, language, simpleLoading).forEach((taxon, uri) ->
 					{
 						lTaxonUriMap.merge(taxon, uri, (uUri, vUri) -> {
 							duplicateKeys.incrementAndGet();
