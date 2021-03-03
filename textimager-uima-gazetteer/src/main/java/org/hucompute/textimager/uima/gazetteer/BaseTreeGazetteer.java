@@ -182,7 +182,8 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 				pMinWordCount,
 				tokenBoundaryRegex,
 				getFilterSet(),
-				getGazetteerName()
+				getGazetteerName(),
+				useSimpleLoading()
 		);
 		skipGramTreeRoot = stringTreeGazetteerModel.getTree();
 		skipGramTreeDepth = skipGramTreeRoot.depth();
@@ -390,6 +391,10 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 	protected abstract Type getTaggingType(String taxon);
 
 	protected abstract String getGazetteerName();
+
+	protected boolean useSimpleLoading() {
+		return false;
+	}
 
 	protected static class Match {
 

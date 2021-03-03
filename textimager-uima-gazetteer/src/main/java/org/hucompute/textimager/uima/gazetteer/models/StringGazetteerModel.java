@@ -80,7 +80,8 @@ public class StringGazetteerModel implements IGazetteerModel {
 			int iMinWordCountForSkipGrams,
 			String tokenBoundaryRegex,
 			HashSet<String> pFilterSet,
-			String gazetteerName
+			String gazetteerName,
+			boolean simpleLoading
 	) throws IOException {
 		tempPath = Paths.get("/tmp/" + gazetteerName + "/");
 		cachePath = Paths.get(System.getenv("HOME"), ".textimager/gazetteer/" + gazetteerName + "/").toAbsolutePath();
@@ -98,7 +99,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 		long startTime = System.currentTimeMillis();
 		
 		// Map: Taxon -> {URI}
-		taxonUriMap = buildTaxaUriMap();
+		taxonUriMap = buildTaxaUriMap(simpleLoading);
 		
 		// Map: {Skip-Grams} -> Taxon
 		skipGramTaxonLookup = buildSkipGramTaxonLookup();
@@ -111,7 +112,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 		);
 	}
 	
-	protected LinkedHashMap<String, HashSet<Object>> buildTaxaUriMap() throws IOException {
+	protected LinkedHashMap<String, HashSet<Object>> buildTaxaUriMap(boolean simpleLoading) throws IOException {
 		final AtomicInteger duplicateKeys = new AtomicInteger(0);
 		final LinkedHashMap<String, HashSet<Object>> lTaxonUriMap = new LinkedHashMap<>();
 		
@@ -119,7 +120,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 		for (int i = 0; i < sourceLocations.size(); i++) {
 			String sourceLocation = sourceLocations.get(i);
 			logger.info(String.format("[%d/%d] Loading file %s", i + 1, sourceLocations.size(), sourceLocation));
-			loadTaxaMap(sourceLocation, useLowercase, language).forEach((taxon, uri) ->
+			loadTaxaMap(sourceLocation, useLowercase, language, simpleLoading).forEach((taxon, uri) ->
 					lTaxonUriMap.merge(taxon, uri, (uUri, vUri) -> {
 						duplicateKeys.incrementAndGet();
 						return new HashSet<>(SetUtils.union(uUri, vUri));
@@ -206,8 +207,22 @@ public class StringGazetteerModel implements IGazetteerModel {
 	 * @return ArrayList of taxa.
 	 * @throws IOException if file is not found or an error occurs.
 	 */
-	protected static LinkedHashMap<String, HashSet<Object>> loadTaxaMap(String sourceLocation, Boolean pUseLowercase, String language) throws IOException {
+	protected static LinkedHashMap<String, HashSet<Object>> loadTaxaMap(String sourceLocation, Boolean pUseLowercase, String language, boolean simpleLoad) throws IOException {
 		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(sourceLocation)), StandardCharsets.UTF_8))) {
+			if (simpleLoad) {
+				return bufferedReader.lines()
+						.filter(s -> !Strings.isNullOrEmpty(s))
+						.collect(Collectors.toMap(
+								s -> {
+									String taxon = s.split("\t", 2)[0].trim();
+									return pUseLowercase ? taxon.toLowerCase(Locale.forLanguageTag(language)) : taxon;
+								},
+								s -> Stream.of(s.split("\t", 2)[1]).collect(Collectors.toCollection(HashSet::new)),
+								(u, v) -> new HashSet<>(SetUtils.union(u, v)),
+								LinkedHashMap::new)
+						);
+			}
+
 			return bufferedReader.lines()
 					.filter(s -> !Strings.isNullOrEmpty(s))
 					.collect(Collectors.toMap(

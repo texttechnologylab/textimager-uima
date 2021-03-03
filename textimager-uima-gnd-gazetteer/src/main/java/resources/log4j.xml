@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{HH:mm:ss.SSS} %5p [%t] (%F:%L) - %m%n"/>
+        </layout>
+        <filter class="org.apache.log4j.filter.StringMatchFilter">
+            <param name="StringToMatch" value="Import by name" />
+            <param name="AcceptOnMatch" value="false"/>
+        </filter>
+        <filter class="org.apache.log4j.filter.StringMatchFilter">
+            <param name="StringToMatch" value="Import by location" />
+            <param name="AcceptOnMatch" value="false"/>
+        </filter>
+        <filter class="org.apache.log4j.filter.StringMatchFilter">
+            <param name="StringToMatch" value="Parameter" />
+            <param name="AcceptOnMatch" value="false"/>
+        </filter>
+    </appender>
+
+    <root>
+        <priority value ="INFO" />
+        <appender-ref ref="console" />
+    </root>
+
+</log4j:configuration>
