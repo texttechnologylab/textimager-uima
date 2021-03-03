@@ -15,7 +15,7 @@ public class GNDGazetteer extends SingleClassTreeGazetteer {
 
         String name = objects.stream()
                 .map(Object::toString)
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining("¤~¤"));
 
         person.setValue(name);
 
