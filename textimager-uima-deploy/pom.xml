@@ -64,6 +64,7 @@
 				<finalName>${project.artifactId}-${project.version}-source</finalName>
 			</build>
 			<dependencies>
+
 				<dependency>
 					<groupId>com.github.texttechnologylab</groupId>
 					<artifactId>UIMATypeSystem</artifactId>
