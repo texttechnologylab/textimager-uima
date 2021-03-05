@@ -10,6 +10,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.junit.jupiter.api.Test;
+import org.texttechnologylab.annotation.AnnotationComment;
 import org.texttechnologylab.annotation.type.Person_HumanBeing;
 
 import java.util.Arrays;
@@ -59,23 +60,45 @@ public class TestGNDGazetteer {
 		System.out.printf("Found %d GND.\n", JCasUtil.select(jCas, Person_HumanBeing.class).size());
 		System.out.println(JCasUtil.select(jCas, Person_HumanBeing.class).stream().map(element -> String.format("%s (%d, %d): %s", element.getCoveredText(), element.getBegin(), element.getEnd(), element.getValue())).collect(Collectors.joining("\n")));
 
-		String[] expected = new String[] {
+		System.out.printf("Found %d AnnotationCOmments.\n", JCasUtil.select(jCas, AnnotationComment.class).size());
+		System.out.println(JCasUtil.select(jCas, AnnotationComment.class).stream().map(element -> String.format("%s: %s = %s", element.getReference(), element.getKey(), element.getValue())).collect(Collectors.joining("\n")));
+
+		String[] expectedNames = new String[] {
 				// Text, Name
-				"'Abd al-Mun'im 'Akifs", "'Abd al-Mun'im 'Akif¤",
-				"G. Dorje", "'Gyur-med-rdo-rje¤",
+				"'Abd al-Mun'im 'Akifs", "'Abd al-Mun'im 'Akif",
+				"G. Dorje", "'Gyur-med-rdo-rje",
 				"Abdul B.", "",
-				"C. R. Rinpoche" ,"'Chi-med rig-'dzin¤http://de.wikipedia.org/wiki/Chhimed_Rigdzin",
-				"'Jigs-med-dpa'-bo", "'Jigs-med-dpa'-bo¤",
-				"G.-Drukpa", "'Jigs-med pad-ma dbang-chen <'Brug-chen, XII.>¤",
+				"C. R. Rinpoche" ,"'Chi-med rig-'dzin",
+				"'Jigs-med-dpa'-bo", "'Jigs-med-dpa'-bo",
+				"G.-Drukpa", "'Jigs-med pad-ma dbang-chen <'Brug-chen, XII.>",
 		};
 
-		String[] result = JCasUtil
+		String[] resultNames = JCasUtil
 				.select(jCas, Person_HumanBeing.class)
 				.stream()
 				.flatMap(p -> Arrays.stream(new String[]{p.getCoveredText(), p.getValue()}))
 				.toArray(String[]::new);
 
-		assertArrayEquals(expected, result);
+		assertArrayEquals(expectedNames, resultNames);
+
+		String[] expectedComments = new String[] {
+				// Text, key, value
+				"'Abd al-Mun'im 'Akifs", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"G. Dorje", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"Abdul B.", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"C. R. Rinpoche", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"C. R. Rinpoche", "url", "http://de.wikipedia.org/wiki/Chhimed_Rigdzin",
+				"'Jigs-med-dpa'-bo", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"G.-Drukpa", "ttlab_model", "ttlab_gnd_v_1.0.1"
+		};
+
+		String[] resultComments = JCasUtil
+				.select(jCas, AnnotationComment.class)
+				.stream()
+				.flatMap(p -> Arrays.stream(new String[]{((Person_HumanBeing)p.getReference()).getCoveredText(), p.getKey(), p.getValue()}))
+				.toArray(String[]::new);
+
+		assertArrayEquals(expectedComments, resultComments);
 	}
 
 }
