@@ -10,7 +10,9 @@ import org.hucompute.textimager.uima.gazetteer.models.MultiClassTreeGazetteerMod
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -78,5 +80,21 @@ public abstract class MultiClassTreeGazetteer extends BaseTreeGazetteer {
 		}
 
 		return types;
+	}
+
+	@Override
+	protected Map<Type, Set<Integer>> getTaggingTypeWithSourceIds(String taxon) {
+		Map<Type, Set<Integer>> result = new HashMap<>();
+
+		Set<Integer> ids = ((MultiClassTreeGazetteerModel) stringTreeGazetteerModel).getClassIdFromTaxon(taxon);
+		for (Integer id : ids) {
+			Type type = taggingTypes[id];
+			if (!result.containsKey(type)) {
+				result.put(type, new HashSet<>());
+			}
+			result.get(type).add(id);
+		}
+
+		return result;
 	}
 }

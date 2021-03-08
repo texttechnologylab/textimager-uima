@@ -120,11 +120,15 @@ public class StringGazetteerModel implements IGazetteerModel {
 		for (int i = 0; i < sourceLocations.size(); i++) {
 			String sourceLocation = sourceLocations.get(i);
 			logger.info(String.format("[%d/%d] Loading file %s", i + 1, sourceLocations.size(), sourceLocation));
-			loadTaxaMap(sourceLocation, useLowercase, language, simpleLoading).forEach((taxon, uri) ->
-					lTaxonUriMap.merge(taxon, uri, (uUri, vUri) -> {
+			loadTaxaMap(sourceLocation, useLowercase, language, simpleLoading).forEach((taxon, uri) -> {
+					// always use "0", only one class
+					HashSet<Object> uriNew = (HashSet<Object>) uri.stream().map(u -> (Object)("0:" + u)).collect(Collectors.toSet());
+
+					lTaxonUriMap.merge(taxon, uriNew, (uUri, vUri) -> {
 						duplicateKeys.incrementAndGet();
 						return new HashSet<>(SetUtils.union(uUri, vUri));
-					}));
+					});
+			});
 		}
 		logger.info(String.format("Loaded %d entries from %d files.", lTaxonUriMap.size(), sourceLocations.size()));
 		

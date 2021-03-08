@@ -387,7 +387,23 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 
 			HashSet<Object> objects = stringTreeGazetteerModel.getTaxonUriMap().get(taxon);
 
-			addMyAnnotation(aJCas, fromToken, toToken, taxon, objects);
+			for (Map.Entry<Type, Set<Integer>> entry : getTaggingTypeWithSourceIds(taxon).entrySet()) {
+				Type type = entry.getKey();
+
+				// each object is of the form "0:abc", containing the source index and the additional string data
+				// filter for this type
+				HashSet<Object> myObjects = (HashSet<Object>) objects
+						.stream()
+						.filter(o -> {
+							Integer id = Integer.valueOf(o.toString().split(":", -1)[0]);
+							return entry.getValue().contains(id);
+						})
+						.map(o -> (Object) Stream.of(o.toString().split(":", -1)).skip(1).collect(Collectors.joining(":")))
+						.collect(Collectors.toSet());
+
+				addMyAnnotation(aJCas, fromToken, toToken, type, myObjects);
+			};
+
 		} catch (NullPointerException e) {
 			// FIXME: Remove this
 			System.err.println(e.getMessage());
@@ -418,9 +434,11 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 		}
 	}
 
-	abstract protected void addMyAnnotation(JCas aJCas, Annotation fromToken, Annotation toToken, String element, HashSet<Object> objects);
+	abstract protected void addMyAnnotation(JCas aJCas, Annotation fromToken, Annotation toToken, Type type, HashSet<Object> objects);
 
 	protected abstract Set<Type> getTaggingType(String taxon);
+
+	protected abstract Map<Type, Set<Integer>> getTaggingTypeWithSourceIds(String taxon);
 
 	protected abstract String getGazetteerName();
 
