@@ -11,6 +11,7 @@ import org.apache.uima.jcas.JCas;
 import org.dkpro.core.languagetool.LanguageToolLemmatizer;
 import org.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.junit.jupiter.api.Test;
+import org.texttechnologylab.annotation.AnnotationComment;
 import org.texttechnologylab.annotation.NamedEntity;
 import org.texttechnologylab.annotation.type.Communication;
 import org.texttechnologylab.annotation.type.Motive;
@@ -69,6 +70,9 @@ public class TestBiofidGeneralGazetteer {
 		System.out.printf("Found %d Named Entities.\n", JCasUtil.select(jCas, NamedEntity.class).size());
 		System.out.println(JCasUtil.select(jCas, NamedEntity.class).stream().map(element -> String.format("%s (%d, %d): %s", element.getCoveredText(), element.getBegin(), element.getEnd(), element.getType().getName())).collect(Collectors.joining("\n")));
 
+		System.out.printf("Found %d AnnotationComments.\n", JCasUtil.select(jCas, AnnotationComment.class).size());
+		System.out.println(JCasUtil.select(jCas, AnnotationComment.class).stream().map(element -> String.format("%s: %s = %s", element.getReference(), element.getKey(), element.getValue())).collect(Collectors.joining("\n")));
+
 		String[] expectedNames = new String[] {
 				// Text, class
 				"Grund", Motive.class.getName(),
@@ -92,6 +96,28 @@ public class TestBiofidGeneralGazetteer {
 		Arrays.stream(resultNames).forEach(System.out::println);
 
 		assertArrayEquals(expectedNames, resultNames);
+
+		String[] expectedComments = new String[] {
+				// Text, key, value
+				"Grund", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Vorhaben", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Intention", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Intention", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Plan", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"hervorheben", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"erklären", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"hoffen auf", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Begründung", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Vorwand", "ttlab_model", "ttlab_biofid_general_v_1.0.1"
+		};
+
+		String[] resultComments = JCasUtil
+				.select(jCas, AnnotationComment.class)
+				.stream()
+				.flatMap(p -> Arrays.stream(new String[]{((NamedEntity)p.getReference()).getCoveredText(), p.getKey(), p.getValue()}))
+				.toArray(String[]::new);
+
+		assertArrayEquals(expectedComments, resultComments);
 	}
 
 }
