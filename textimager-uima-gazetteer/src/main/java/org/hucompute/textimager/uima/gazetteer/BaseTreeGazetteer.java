@@ -388,7 +388,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 
 	abstract protected void addMyAnnotation(JCas aJCas, Annotation fromToken, Annotation toToken, String element, HashSet<Object> objects);
 
-	protected abstract Type getTaggingType(String taxon);
+	protected abstract Set<Type> getTaggingType(String taxon);
 
 	protected abstract String getGazetteerName();
 

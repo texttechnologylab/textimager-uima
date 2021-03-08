@@ -10,6 +10,8 @@ import org.hucompute.textimager.uima.gazetteer.models.MultiClassTreeGazetteerMod
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * UIMA Engine for tagging taxa from taxonomic lists or gazetteers as resource.
@@ -67,7 +69,14 @@ public abstract class MultiClassTreeGazetteer extends BaseTreeGazetteer {
 	}
 	
 	@Override
-	protected Type getTaggingType(String taxon) {
-		return taggingTypes[((MultiClassTreeGazetteerModel) stringTreeGazetteerModel).getClassIdFromTaxon(taxon)];
+	protected Set<Type> getTaggingType(String taxon) {
+		Set<Integer> ids = ((MultiClassTreeGazetteerModel) stringTreeGazetteerModel).getClassIdFromTaxon(taxon);
+
+		Set<Type> types = new HashSet<>();
+		for (Integer id : ids) {
+			types.add(taggingTypes[id]);
+		}
+
+		return types;
 	}
 }
