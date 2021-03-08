@@ -98,6 +98,7 @@ public class TestBiofidGeneralGazetteer {
 
 		assertArrayEquals(expectedNames, resultNames);
 
+		// TODO reihenfolge nicht fest...
 		String[] expectedComments = new String[] {
 				// Text, key, value
 				"Grund", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
@@ -105,12 +106,12 @@ public class TestBiofidGeneralGazetteer {
 				"Vorhaben", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Vorhaben", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
 				"Intention", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
-				"Intention", "duplicate", "Kommunikation",
-				"Intention", "more", "less",
-				"Intention", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
-				"Intention", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Intention", "duplicate", "Motive",
 				"Intention", "test", "motive test",
+				"Intention", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Intention", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
+				"Intention", "duplicate", "Kommunikation",
+				"Intention", "more", "less",
 				"Intention", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
 				"Plan", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Plan", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
