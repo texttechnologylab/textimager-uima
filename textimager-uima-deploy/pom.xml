@@ -181,6 +181,11 @@
 					<artifactId>textimager-uima-gnd-gazetteer</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-biofid-gazetteer</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 <!--				<dependency>-->
 <!--					<groupId>org.hucompute.textimager.uima</groupId>-->
 <!--					<artifactId>textimager-uima-flair-ner</artifactId>-->
