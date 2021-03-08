@@ -8,6 +8,7 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 
 public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
@@ -81,14 +82,18 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 			logger.info(String.format("[%d/%d] Loading file %s", i + 1, sourceLocations.size(), sourceLocation));
 			loadTaxaMap(sourceLocation, useLowercase, language, simpleLoading).forEach((taxon, uri) ->
 					{
-						lTaxonUriMap.merge(taxon, uri, (uUri, vUri) -> {
+						Integer src = fileLocationSourceMapping.get(sourceLocation);
+
+						HashSet<Object> uriNew = (HashSet<Object>) uri.stream().map(u -> (Object)(src + ":" + u)).collect(Collectors.toSet());
+
+						lTaxonUriMap.merge(taxon, uriNew, (uUri, vUri) -> {
 							duplicateKeys.incrementAndGet();
 							return new HashSet<>(SetUtils.union(uUri, vUri));
 						});
 						if (!taxonSourceMapping.containsKey(taxon)) {
 							taxonSourceMapping.put(taxon, new HashSet<>());
 						}
-						taxonSourceMapping.get(taxon).add(fileLocationSourceMapping.get(sourceLocation));
+						taxonSourceMapping.get(taxon).add(src);
 					}
 			);
 		}
