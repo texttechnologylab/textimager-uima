@@ -121,5 +121,6 @@
 		<module>textimager-uima-gazetteer</module>
 		<module>textimager-uima-geonames-gazetteer</module>
 		<module>textimager-uima-gnd-gazetteer</module>
+		<module>textimager-uima-biofid-general-gazetteer</module>
     </modules>
 </project>

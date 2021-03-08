@@ -39,7 +39,8 @@ public class TestGNDGazetteer {
 					//GNDGazetteer.PARAM_TOKEN_BOUNDARY_REGEX, "(?=\\p{PUNCT})|(?<=\\p{PUNCT})|(\\s+)",
 					GNDGazetteer.PARAM_TOKEN_BOUNDARY_REGEX, "(\\p{PUNCT})|(\\s+)",
 					GNDGazetteer.PARAM_RETOKENIZE, true,
-					GNDGazetteer.PARAM_SPLIT_HYPEN, false
+					GNDGazetteer.PARAM_SPLIT_HYPEN, false,
+					GNDGazetteer.PARAM_ANNOTATION_COMMENTS, new String[]{ "ttlab_model", "ttlab_gnd_v_1.0.1" }
 			));
 
 			runTest(segmewnter, gazetterEngine);
@@ -83,12 +84,18 @@ public class TestGNDGazetteer {
 
 		String[] expectedComments = new String[] {
 				// Text, key, value
+				"'Abd al-Mun'im 'Akifs", "ttlab_annotator", "ttlab_gnd_v_1.0.1",
 				"'Abd al-Mun'im 'Akifs", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"G. Dorje", "ttlab_annotator", "ttlab_gnd_v_1.0.1",
 				"G. Dorje", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"Abdul B.", "ttlab_annotator", "ttlab_gnd_v_1.0.1",
 				"Abdul B.", "ttlab_model", "ttlab_gnd_v_1.0.1",
-				"C. R. Rinpoche", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"C. R. Rinpoche", "ttlab_annotator", "ttlab_gnd_v_1.0.1",
 				"C. R. Rinpoche", "url", "http://de.wikipedia.org/wiki/Chhimed_Rigdzin",
+				"C. R. Rinpoche", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"'Jigs-med-dpa'-bo", "ttlab_annotator", "ttlab_gnd_v_1.0.1",
 				"'Jigs-med-dpa'-bo", "ttlab_model", "ttlab_gnd_v_1.0.1",
+				"G.-Drukpa", "ttlab_annotator", "ttlab_gnd_v_1.0.1",
 				"G.-Drukpa", "ttlab_model", "ttlab_gnd_v_1.0.1"
 		};
 

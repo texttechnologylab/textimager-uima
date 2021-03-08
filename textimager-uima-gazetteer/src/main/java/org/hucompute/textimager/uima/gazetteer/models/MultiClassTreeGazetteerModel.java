@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 	private HashMap<String, Integer> fileLocationSourceMapping;
-	private HashMap<String, Integer> taxonSourceMapping;
+	private HashMap<String, Set<Integer>> taxonSourceMapping;
 	
 	/**
 	 * Create 1-skip-n-grams from each taxon in a file from a given list of files.
@@ -85,7 +85,10 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 							duplicateKeys.incrementAndGet();
 							return new HashSet<>(SetUtils.union(uUri, vUri));
 						});
-						taxonSourceMapping.put(taxon, fileLocationSourceMapping.get(sourceLocation));
+						if (!taxonSourceMapping.containsKey(taxon)) {
+							taxonSourceMapping.put(taxon, new HashSet<>());
+						}
+						taxonSourceMapping.get(taxon).add(fileLocationSourceMapping.get(sourceLocation));
 					}
 			);
 		}
@@ -97,7 +100,7 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 		return lTaxonUriMap;
 	}
 	
-	public Integer getClassIdFromTaxon(String taxon) {
+	public Set<Integer> getClassIdFromTaxon(String taxon) {
 		return this.taxonSourceMapping.get(taxon);
 	}
 }

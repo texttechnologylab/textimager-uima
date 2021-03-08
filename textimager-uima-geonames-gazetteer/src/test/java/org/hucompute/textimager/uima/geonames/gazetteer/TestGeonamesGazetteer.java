@@ -34,7 +34,8 @@ public class TestGeonamesGazetteer {
 					GeonamesGazetteer.PARAM_USE_LOWERCASE, true,
 					GeonamesGazetteer.PARAM_USE_STRING_TREE, true,
 					GeonamesGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false,
-					GeonamesGazetteer.PARAM_USE_LEMMATA, false
+					GeonamesGazetteer.PARAM_USE_LEMMATA, false,
+					GeonamesGazetteer.PARAM_ANNOTATION_COMMENTS, new String[]{ "ttlab_model", "ttlab_geonames_v_1.0.1" }
 			));
 
 			runTest(segmewnter, gazetterEngine);

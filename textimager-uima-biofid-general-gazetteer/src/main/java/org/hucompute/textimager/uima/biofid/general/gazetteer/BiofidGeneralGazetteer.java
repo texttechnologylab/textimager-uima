@@ -1,12 +1,12 @@
-package org.hucompute.textimager.uima.gnd.gazetteer;
+package org.hucompute.textimager.uima.biofid.general.gazetteer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.hucompute.textimager.uima.gazetteer.SingleClassTreeGazetteer;
+import org.hucompute.textimager.uima.gazetteer.MultiClassTreeGazetteer;
 import org.texttechnologylab.annotation.AnnotationComment;
-import org.texttechnologylab.annotation.type.Person_HumanBeing;
+import org.texttechnologylab.annotation.NamedEntity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,24 +15,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class GNDGazetteer extends SingleClassTreeGazetteer {
+public class BiofidGeneralGazetteer extends MultiClassTreeGazetteer {
     protected static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     protected void addMyAnnotation(JCas aJCas, Annotation fromToken, Annotation toToken, String element, HashSet<Object> objects) {
         getTaggingType(element).forEach(type -> {
-            // Prepare annotation, currently only "person"
-            Person_HumanBeing person = (Person_HumanBeing) aJCas.getCas().createAnnotation(type, fromToken.getBegin(), toToken.getEnd());
-            person.setValue("");
+            NamedEntity ne = (NamedEntity) aJCas.getCas().createAnnotation(type, fromToken.getBegin(), toToken.getEnd());
 
             // All additional anotation comments
             List<AnnotationComment> comments = new ArrayList<>();
 
-            // Model/Annotator version
+            // Annotator version
             AnnotationComment commentVersion = new AnnotationComment(aJCas);
-            commentVersion.setReference(person);
+            commentVersion.setReference(ne);
             commentVersion.setKey("ttlab_annotator");
-            commentVersion.setValue("ttlab_gnd_v_1.0.1");
+            commentVersion.setValue("ttlab_biofid_general_v_1.0.1");
             comments.add(commentVersion);
 
             // Get data as json strings for this annotation
@@ -46,20 +44,14 @@ public class GNDGazetteer extends SingleClassTreeGazetteer {
                 try {
                     Map<String, String> data = mapper.readValue(json, new TypeReference<Map<String, String>>(){});
                     for (Map.Entry<String, String> entry : data.entrySet()) {
-                        // "fullname" is special, add to "person" annotation
-                        if (entry.getKey().equals("fullname")) {
-                            person.setValue(entry.getValue());
-                        }
-                        else {
-                            // TODO empty values might be usefull?
-                            if (!entry.getValue().isEmpty()) {
-                                // Add data to annotation
-                                AnnotationComment comment = new AnnotationComment(aJCas);
-                                comment.setReference(person);
-                                comment.setKey(entry.getKey());
-                                comment.setValue(entry.getValue());
-                                comments.add(comment);
-                            }
+                        // TODO empty values might be usefull?
+                        if (!entry.getValue().isEmpty()) {
+                            // Add data to annotation
+                            AnnotationComment comment = new AnnotationComment(aJCas);
+                            comment.setReference(ne);
+                            comment.setKey(entry.getKey());
+                            comment.setValue(entry.getValue());
+                            comments.add(comment);
                         }
                     }
                 } catch (IOException e) {
@@ -69,19 +61,19 @@ public class GNDGazetteer extends SingleClassTreeGazetteer {
             }
 
             // Add all to cas
-            aJCas.addFsToIndexes(person);
+            aJCas.addFsToIndexes(ne);
             for (AnnotationComment comment : comments) {
                 aJCas.addFsToIndexes(comment);
             }
 
             // Additional comments from config
-            addAdditionalComments(aJCas, person);
+            addAdditionalComments(aJCas, ne);
         });
     }
 
     @Override
     protected String getGazetteerName() {
-        return "gnd";
+        return "biofid-general";
     }
 
     @Override
