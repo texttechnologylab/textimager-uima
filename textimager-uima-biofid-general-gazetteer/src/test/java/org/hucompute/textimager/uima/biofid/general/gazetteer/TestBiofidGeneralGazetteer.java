@@ -46,7 +46,8 @@ public class TestBiofidGeneralGazetteer {
 					BiofidGeneralGazetteer.PARAM_USE_STRING_TREE, true,
 					BiofidGeneralGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false,
 					BiofidGeneralGazetteer.PARAM_USE_LEMMATA, true,
-					BiofidGeneralGazetteer.PARAM_MIN_LENGTH, 4
+					BiofidGeneralGazetteer.PARAM_MIN_LENGTH, 4,
+					BiofidGeneralGazetteer.PARAM_ANNOTATION_COMMENTS, new String[]{ "ttlab_model", "ttlab_biofid_general_v_1.0.1" }
 					//BiofidGeneralGazetteer.PARAM_TOKEN_BOUNDARY_REGEX, "(\\p{PUNCT})|(\\s+)",
 					//BiofidGeneralGazetteer.PARAM_RETOKENIZE, true,
 					//BiofidGeneralGazetteer.PARAM_SPLIT_HYPEN, false
@@ -99,15 +100,25 @@ public class TestBiofidGeneralGazetteer {
 
 		String[] expectedComments = new String[] {
 				// Text, key, value
+				"Grund", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Grund", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Vorhaben", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Vorhaben", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Intention", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Intention", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Intention", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Intention", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Plan", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Plan", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"hervorheben", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"hervorheben", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"erklären", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"erklären", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"hoffen auf", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"hoffen auf", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Begründung", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Begründung", "ttlab_model", "ttlab_biofid_general_v_1.0.1",
+				"Vorwand", "ttlab_annotator", "ttlab_biofid_general_v_1.0.1",
 				"Vorwand", "ttlab_model", "ttlab_biofid_general_v_1.0.1"
 		};
 

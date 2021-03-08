@@ -3,6 +3,7 @@ package org.hucompute.textimager.uima.geonames.gazetteer;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.hucompute.textimager.uima.gazetteer.SingleClassTreeGazetteer;
+import org.texttechnologylab.annotation.AnnotationComment;
 import org.texttechnologylab.annotation.GeoNamesEntity;
 
 import java.util.HashSet;
@@ -36,6 +37,16 @@ public class GeonamesGazetteer extends SingleClassTreeGazetteer {
             }
 
             aJCas.addFsToIndexes(geoNames);
+
+            // Annotator version
+            AnnotationComment commentVersion = new AnnotationComment(aJCas);
+            commentVersion.setReference(geoNames);
+            commentVersion.setKey("ttlab_annotator");
+            commentVersion.setValue("ttlab_geonamesl_v_1.0.1");
+            aJCas.addFsToIndexes(commentVersion);
+
+            // Additional comments from config
+            addAdditionalComments(aJCas, geoNames);
         });
     }
 

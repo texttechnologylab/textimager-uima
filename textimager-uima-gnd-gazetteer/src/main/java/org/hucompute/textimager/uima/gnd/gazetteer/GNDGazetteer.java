@@ -31,7 +31,7 @@ public class GNDGazetteer extends SingleClassTreeGazetteer {
             // Model/Annotator version
             AnnotationComment commentVersion = new AnnotationComment(aJCas);
             commentVersion.setReference(person);
-            commentVersion.setKey("ttlab_model");
+            commentVersion.setKey("ttlab_annotator");
             commentVersion.setValue("ttlab_gnd_v_1.0.1");
             comments.add(commentVersion);
 
@@ -73,6 +73,9 @@ public class GNDGazetteer extends SingleClassTreeGazetteer {
             for (AnnotationComment comment : comments) {
                 aJCas.addFsToIndexes(comment);
             }
+
+            // Additional comments from config
+            addAdditionalComments(aJCas, person);
         });
     }
 

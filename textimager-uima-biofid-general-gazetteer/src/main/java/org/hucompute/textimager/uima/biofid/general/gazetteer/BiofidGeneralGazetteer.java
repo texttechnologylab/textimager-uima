@@ -26,10 +26,10 @@ public class BiofidGeneralGazetteer extends MultiClassTreeGazetteer {
             // All additional anotation comments
             List<AnnotationComment> comments = new ArrayList<>();
 
-            // Model/Annotator version
+            // Annotator version
             AnnotationComment commentVersion = new AnnotationComment(aJCas);
             commentVersion.setReference(ne);
-            commentVersion.setKey("ttlab_model");
+            commentVersion.setKey("ttlab_annotator");
             commentVersion.setValue("ttlab_biofid_general_v_1.0.1");
             comments.add(commentVersion);
 
@@ -65,6 +65,9 @@ public class BiofidGeneralGazetteer extends MultiClassTreeGazetteer {
             for (AnnotationComment comment : comments) {
                 aJCas.addFsToIndexes(comment);
             }
+
+            // Additional comments from config
+            addAdditionalComments(aJCas, ne);
         });
     }
 

@@ -22,6 +22,7 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.gazetteer.models.ITreeGazetteerModel;
@@ -31,6 +32,7 @@ import org.hucompute.textimager.uima.gazetteer.util.UnicodeRegexSegmenter;
 import org.dkpro.core.api.parameter.ComponentParameters;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.segmentation.SegmenterBase;
+import org.texttechnologylab.annotation.AnnotationComment;
 
 import java.io.File;
 import java.io.IOException;
@@ -141,6 +143,14 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 	protected JCas localJCas;
 	protected ITreeGazetteerModel stringTreeGazetteerModel;
 	MappingProvider namedEntityMappingProvider;
+
+	/**
+	 * Array of annotation comments, always as pairs: 0 = key, 1 = value, 2 = key, ...
+	 * Has to be added manually in "addMyAnnotation" via "addAdditionalComments"
+	 */
+	public static final String PARAM_ANNOTATION_COMMENTS = "pAnnotationComments";
+	@ConfigurationParameter(name = PARAM_ANNOTATION_COMMENTS, mandatory = false)
+	protected String[] pAnnotationComments;
 
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
@@ -383,6 +393,28 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 			System.err.println(e.getMessage());
 			System.err.println(match.value);
 			e.printStackTrace();
+		}
+	}
+
+	protected void addAdditionalComments(JCas aJCas, TOP ref) {
+		if (pAnnotationComments != null) {
+			if (pAnnotationComments.length > 0 && pAnnotationComments.length % 2 == 0) {
+				for (int i = 0; i < pAnnotationComments.length - 1; i += 2) {
+					String key = pAnnotationComments[i];
+					String value = pAnnotationComments[i + 1];
+
+					if (!key.isEmpty() && !value.isEmpty()) {
+						AnnotationComment comment = new AnnotationComment(aJCas);
+						comment.setReference(ref);
+						comment.setKey(key);
+						comment.setValue(value);
+						aJCas.addFsToIndexes(comment);
+					}
+				}
+			}
+			else {
+				getLogger().info("Not adding accitional AnnotationComments, this may be a config error. Array contains elements: " + pAnnotationComments.length);
+			}
 		}
 	}
 
