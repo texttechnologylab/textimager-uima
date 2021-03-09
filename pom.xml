@@ -106,7 +106,7 @@
 <!--		<module>textimager-uima-deep-eos</module>-->
 		<module>textimager-uima-similarity</module>
 		<module>textimager-uima-database</module>
-<!--		<module>textimager-uima-io-mediawiki</module>-->
+		<module>textimager-uima-io-mediawiki</module>
 		<module>textimager-uima-util</module>
 		<module>textimager-uima-stanza</module>
 		<module>textimager-uima-io-embeddings</module>
