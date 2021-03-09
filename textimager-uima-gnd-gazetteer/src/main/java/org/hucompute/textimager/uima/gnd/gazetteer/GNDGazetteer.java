@@ -1,24 +1,20 @@
 package org.hucompute.textimager.uima.gnd.gazetteer;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.hucompute.textimager.uima.gazetteer.SingleClassTreeGazetteer;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.texttechnologylab.annotation.AnnotationComment;
 import org.texttechnologylab.annotation.type.Person_HumanBeing;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GNDGazetteer extends SingleClassTreeGazetteer {
-    protected static final ObjectMapper mapper = new ObjectMapper();
-
     @Override
     protected void addMyAnnotation(JCas aJCas, Annotation fromToken, Annotation toToken, Type type, HashSet<Object> objects) {
         // Prepare annotation, currently only "person"
@@ -44,25 +40,27 @@ public class GNDGazetteer extends SingleClassTreeGazetteer {
         // Get data from json, always a map of string -> string
         for (String json : jsons) {
             try {
-                Map<String, String> data = mapper.readValue(json, new TypeReference<Map<String, String>>(){});
-                for (Map.Entry<String, String> entry : data.entrySet()) {
+                JSONObject data = new JSONObject(json);
+                data.keys().forEachRemaining(key -> {
+                    String value = data.getString(key);
+
                     // "fullname" is special, add to "person" annotation
-                    if (entry.getKey().equals("fullname")) {
-                        person.setValue(entry.getValue());
+                    if (key.equals("fullname")) {
+                        person.setValue(value);
                     }
                     else {
                         // TODO empty values might be usefull?
-                        if (!entry.getValue().isEmpty()) {
+                        if (!value.isEmpty()) {
                             // Add data to annotation
                             AnnotationComment comment = new AnnotationComment(aJCas);
                             comment.setReference(person);
-                            comment.setKey(entry.getKey());
-                            comment.setValue(entry.getValue());
+                            comment.setKey(key);
+                            comment.setValue(value);
                             comments.add(comment);
                         }
                     }
-                }
-            } catch (IOException e) {
+                });
+            } catch (JSONException e) {
                 // ignore errors, this is only extra metadata...
                 e.printStackTrace();
             }
