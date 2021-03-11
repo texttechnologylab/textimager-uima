@@ -1,5 +1,6 @@
 package org.hucompute.textimager.uima.biofid.general.gazetteer;
 
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
@@ -7,13 +8,10 @@ import org.hucompute.textimager.uima.gazetteer.MultiClassTreeGazetteer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.texttechnologylab.annotation.AnnotationComment;
-import org.texttechnologylab.annotation.NamedEntity;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BiofidGeneralGazetteer extends MultiClassTreeGazetteer {
