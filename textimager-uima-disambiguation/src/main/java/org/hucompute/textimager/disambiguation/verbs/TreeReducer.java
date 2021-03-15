@@ -447,6 +447,10 @@ public class TreeReducer {
 		public String getLabel() {
 			return label;
 		}
+		
+		public String getId() {
+			return label.replace(MEMBER_PREFIX, "").replace(GROUP_PREFIX, "");
+		}
 			
 		public void setLabel(String label) {
 			this.label = label;
