@@ -19,7 +19,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestGeonamesGazetteer {
 
-	private final String sourceLocation = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/Arbeit/geonames/test.txt";
+	//private final String sourceLocation = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/Arbeit/geonames/test.txt";
+	private final String sourceLocation = "/home/daniel/data/hiwi/geonames_sample.txt";
 
 	@Test
 	public void testGeonamesGazetteer() {
@@ -31,10 +32,11 @@ public class TestGeonamesGazetteer {
 					GeonamesGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
 					GeonamesGazetteer.PARAM_TAGGING_TYPE_NAME, GeoNamesEntity.class.getName(),
 					GeonamesGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/uima/geonames/gazetteer/lib/ner-default.map",
-					GeonamesGazetteer.PARAM_USE_LOWERCASE, true,
+					GeonamesGazetteer.PARAM_USE_LOWERCASE, false,
 					GeonamesGazetteer.PARAM_USE_STRING_TREE, true,
 					GeonamesGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false,
-					GeonamesGazetteer.PARAM_USE_LEMMATA, false,
+					GeonamesGazetteer.PARAM_USE_LEMMATA, true,
+					GeonamesGazetteer.PARAM_NO_SKIPGRAMS, true,
 					GeonamesGazetteer.PARAM_ANNOTATION_COMMENTS, new String[]{ "ttlab_model", "ttlab_geonames_v_1.0.1" }
 			));
 

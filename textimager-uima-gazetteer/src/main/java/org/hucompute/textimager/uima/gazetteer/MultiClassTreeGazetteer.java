@@ -57,7 +57,8 @@ public abstract class MultiClassTreeGazetteer extends BaseTreeGazetteer {
 				tokenBoundaryRegex,
 				getFilterSet(),
 				getGazetteerName(),
-				useSimpleLoading()
+				useSimpleLoading(),
+				pNoSkipGrams
 		);
 		skipGramTreeRoot = ((ITreeGazetteerModel) stringTreeGazetteerModel).getTree();
 		skipGramTreeDepth = skipGramTreeRoot.depth();
