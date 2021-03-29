@@ -40,9 +40,10 @@ public class TreeGazetteerModel extends StringGazetteerModel implements ITreeGaz
 			String tokenBoundaryRegex,
 			HashSet<String> pFilterSet,
 			String gazetteerName,
-			boolean simpleLoading
+			boolean simpleLoading,
+			boolean noSkipGrams
 	) throws IOException {
-		super(aSourceLocations, bUseLowercase, sLanguage, dMinLength, bAllSkips, bSplitHyphen, bAddAbbreviatedTaxa, iMinWordCountForSkipGrams, tokenBoundaryRegex, pFilterSet, gazetteerName, simpleLoading);
+		super(aSourceLocations, bUseLowercase, sLanguage, dMinLength, bAllSkips, bSplitHyphen, bAddAbbreviatedTaxa, iMinWordCountForSkipGrams, tokenBoundaryRegex, pFilterSet, gazetteerName, simpleLoading, noSkipGrams);
 		long startTime = System.currentTimeMillis();
 		tree = buildTree(bUseLowercase, tokenBoundaryRegex);
 		

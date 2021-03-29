@@ -32,8 +32,8 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 	 * @param pFilterSet
 	 * @throws IOException
 	 */
-	public MultiClassTreeGazetteerModel(String[] aSourceLocations, Boolean bUseLowercase, String sLanguage, double dMinLength, boolean bAllSkips, boolean bSplitHyphen, boolean bAddAbbreviatedTaxa, int iMinWordCountForSkipGrams, String tokenBoundaryRegex, HashSet<String> pFilterSet, String gazetteerName, boolean simpleLoading) throws IOException {
-		super(aSourceLocations, bUseLowercase, sLanguage, dMinLength, bAllSkips, bSplitHyphen, bAddAbbreviatedTaxa, iMinWordCountForSkipGrams, tokenBoundaryRegex, pFilterSet, gazetteerName, simpleLoading);
+	public MultiClassTreeGazetteerModel(String[] aSourceLocations, Boolean bUseLowercase, String sLanguage, double dMinLength, boolean bAllSkips, boolean bSplitHyphen, boolean bAddAbbreviatedTaxa, int iMinWordCountForSkipGrams, String tokenBoundaryRegex, HashSet<String> pFilterSet, String gazetteerName, boolean simpleLoading, boolean noSkipGrams) throws IOException {
+		super(aSourceLocations, bUseLowercase, sLanguage, dMinLength, bAllSkips, bSplitHyphen, bAddAbbreviatedTaxa, iMinWordCountForSkipGrams, tokenBoundaryRegex, pFilterSet, gazetteerName, simpleLoading, noSkipGrams);
 	}
 	
 	@Override

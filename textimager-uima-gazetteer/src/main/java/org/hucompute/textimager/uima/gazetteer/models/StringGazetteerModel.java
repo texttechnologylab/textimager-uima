@@ -47,6 +47,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 	protected final boolean addAbbreviatedTaxa;
 	protected final HashSet<String> filterSet;
 	protected final int minWordCountForSkipGrams;
+	protected final boolean noSkipGrams;
 	
 	Map<String, String> skipGramTaxonLookup;
 	Set<String> sortedSkipGramSet;
@@ -81,7 +82,8 @@ public class StringGazetteerModel implements IGazetteerModel {
 			String tokenBoundaryRegex,
 			HashSet<String> pFilterSet,
 			String gazetteerName,
-			boolean simpleLoading
+			boolean simpleLoading,
+			boolean noSkipGrams
 	) throws IOException {
 		tempPath = Paths.get("/tmp/" + gazetteerName + "/");
 		cachePath = Paths.get(System.getenv("HOME"), ".textimager/gazetteer/" + gazetteerName + "/").toAbsolutePath();
@@ -95,6 +97,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 		addAbbreviatedTaxa = bAddAbbreviatedTaxa;
 		minWordCountForSkipGrams = iMinWordCountForSkipGrams;
 		filterSet = pFilterSet;
+		this.noSkipGrams = noSkipGrams;
 		
 		long startTime = System.currentTimeMillis();
 		
@@ -141,7 +144,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 	protected LinkedHashMap<String, String> buildSkipGramTaxonLookup() {
 		AtomicInteger duplicateKeys = new AtomicInteger(0);
 		final LinkedHashMap<String, String> lSkipGramTaxonLookup = taxonUriMap.keySet().stream()
-				.flatMap(s -> getSkipGramsFromTaxon(s, this.addAbbreviatedTaxa, this.minWordCountForSkipGrams, this.getAllSkips, this.splitHyphen)
+				.flatMap(s -> getSkipGramsFromTaxon(this.noSkipGrams, s, this.addAbbreviatedTaxa, this.minWordCountForSkipGrams, this.getAllSkips, this.splitHyphen)
 						.stream().map(val -> new Pair<>(s, val)))
 				.collect(Collectors.toMap(
 						Pair::getSecond,    // the skip-gram
@@ -323,8 +326,8 @@ public class StringGazetteerModel implements IGazetteerModel {
 	 * @param splitHyphen
 	 * @return a List of Strings.
 	 */
-	public static Set<String> getSkipGramsFromTaxon(String pString, boolean addAbbreviatedTaxa, int minWordCountForSkipGrams, boolean getAllSkips, boolean splitHyphen) {
-		HashSet<String> basicSkipGrams = getSkipGramsFromTaxonAsStream(pString, minWordCountForSkipGrams, getAllSkips, splitHyphen, 5);
+	public static Set<String> getSkipGramsFromTaxon(boolean noSkipGrams, String pString, boolean addAbbreviatedTaxa, int minWordCountForSkipGrams, boolean getAllSkips, boolean splitHyphen) {
+		HashSet<String> basicSkipGrams = getSkipGramsFromTaxonAsStream(noSkipGrams, pString, minWordCountForSkipGrams, getAllSkips, splitHyphen, 5);
 		
 		if (addAbbreviatedTaxa) {
 			ArrayList<String> words = getWords(pString, splitHyphen);
@@ -333,7 +336,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 				String abbreviatedString = String.join(" ", words);
 				basicSkipGrams.add(abbreviatedString);
 				if (words.size() > 2) {
-					basicSkipGrams.addAll(getSkipGramsFromTaxonAsStream(abbreviatedString, minWordCountForSkipGrams, getAllSkips, splitHyphen, 5));
+					basicSkipGrams.addAll(getSkipGramsFromTaxonAsStream(noSkipGrams, abbreviatedString, minWordCountForSkipGrams, getAllSkips, splitHyphen, 5));
 				}
 			}
 		}
@@ -352,9 +355,9 @@ public class StringGazetteerModel implements IGazetteerModel {
 	 * @param maxWordCountForSkipGrams
 	 * @return a Stream of Strings.
 	 */
-	protected static HashSet<String> getSkipGramsFromTaxonAsStream(String pString, int minWordCountForSkipGrams, boolean getAllSkips, boolean splitHyphen, int maxWordCountForSkipGrams) {
+	protected static HashSet<String> getSkipGramsFromTaxonAsStream(boolean noSkipGrams, String pString, int minWordCountForSkipGrams, boolean getAllSkips, boolean splitHyphen, int maxWordCountForSkipGrams) {
 		ArrayList<String> words = getWords(pString, splitHyphen);
-		if (words.size() < minWordCountForSkipGrams | words.size() > maxWordCountForSkipGrams) {
+		if (noSkipGrams || (words.size() < minWordCountForSkipGrams | words.size() > maxWordCountForSkipGrams)) {
 			return Sets.newHashSet(pString);
 		} else {
 			IntStream combinationRange;

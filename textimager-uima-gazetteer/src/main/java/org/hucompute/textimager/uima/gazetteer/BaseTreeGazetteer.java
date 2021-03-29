@@ -101,6 +101,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 	 * Boolean, if true, use StringTree implementation. Default: true.
 	 */
 	public static final String PARAM_USE_STRING_TREE = "pUseStringTree";
+	public static final String PARAM_NO_SKIPGRAMS = "pNoSkipGrams";
 	protected static AnalysisEngine regexSegmenter;
 	@ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false, defaultValue = "de")
 	protected String language;
@@ -135,6 +136,8 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 	protected boolean pAddAbbreviatedTaxa;
 	@ConfigurationParameter(name = PARAM_RETOKENIZE, mandatory = false, defaultValue = "false")
 	protected boolean pRetokenize;
+	@ConfigurationParameter(name = PARAM_NO_SKIPGRAMS, mandatory = false, defaultValue = "false")
+	protected boolean pNoSkipGrams;
 	protected ArrayList<Annotation> tokens;
 	protected ConcurrentHashMap<Integer, Integer> tokenBeginIndex;
 	protected Type taggingType;
@@ -193,7 +196,8 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 				tokenBoundaryRegex,
 				getFilterSet(),
 				getGazetteerName(),
-				useSimpleLoading()
+				useSimpleLoading(),
+				pNoSkipGrams
 		);
 		skipGramTreeRoot = stringTreeGazetteerModel.getTree();
 		skipGramTreeDepth = skipGramTreeRoot.depth();
