@@ -115,7 +115,7 @@
 		<module>textimager-uima-text2scene</module>
 		<module>textimager-uima-textblob</module>
 <!-- 		<module>textimager-uima-transformers</module>-->
-		<module>textimager-uima-w2v</module>
+<!--		<module>textimager-uima-w2v</module>-->
 		<module>textimager-uima-textscorer</module>
 		<module>textimager-uima-biofid-flair</module>
 		<module>textimager-uima-gazetteer</module>
