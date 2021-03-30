@@ -100,6 +100,8 @@ public class StepsParser extends RestAnnotator {
 	@Override
 	protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
 		if (!jsonResult.has("sentences")) {
+			System.out.println("no sentences in response?!");
+			System.out.println(jsonResult.toString());
 			return;
 		}
 
@@ -111,6 +113,11 @@ public class StepsParser extends RestAnnotator {
 			Map<Integer, ConllLine> tokenMap = new HashMap<>();
 
 			for (String line : sentenceStr.split("\n", -1)) {
+				if (line.trim().isEmpty()) {
+					System.out.println("skipping empty line...");
+					continue;
+				}
+
 				String[] fields = line.trim().split("\t", 10);
 				if (fields.length == 10) {
 					// token id
@@ -129,7 +136,13 @@ public class StepsParser extends RestAnnotator {
 
 					tokenMap.put(tokenIndex, new ConllLine(tokenIndex, begin, end, governorIndex, dep));
 				}
+				else {
+					System.out.println("line malformed");
+					System.out.println(line);
+				}
 			}
+
+			System.out.println("found dep for token: " + tokenMap.size());
 
 			// add annotations
 			for (Map.Entry<Integer, ConllLine> entry : tokenMap.entrySet()) {
