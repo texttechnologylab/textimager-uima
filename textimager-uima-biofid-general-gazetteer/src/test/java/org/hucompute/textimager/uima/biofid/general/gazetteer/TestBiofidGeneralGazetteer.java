@@ -42,12 +42,15 @@ public class TestBiofidGeneralGazetteer {
 							Communication.class.getName()
 					},
 					BiofidGeneralGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/uima/biofid/general/gazetteer/lib/ner-default.map",
-					BiofidGeneralGazetteer.PARAM_USE_LOWERCASE, true,
+					BiofidGeneralGazetteer.PARAM_USE_LOWERCASE, false,
 					BiofidGeneralGazetteer.PARAM_USE_STRING_TREE, true,
-					BiofidGeneralGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, false,
+					BiofidGeneralGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, true,
 					BiofidGeneralGazetteer.PARAM_USE_LEMMATA, true,
-					BiofidGeneralGazetteer.PARAM_MIN_LENGTH, 4,
 					BiofidGeneralGazetteer.PARAM_NO_SKIPGRAMS, true,
+					BiofidGeneralGazetteer.PARAM_ADD_ABBREVIATED_TAXA, false,
+					BiofidGeneralGazetteer.PARAM_GET_ALL_SKIPS, false,
+					BiofidGeneralGazetteer.PARAM_SPLIT_HYPEN, false,
+					BiofidGeneralGazetteer.PARAM_MIN_LENGTH, 3,
 					BiofidGeneralGazetteer.PARAM_ANNOTATION_COMMENTS, new String[]{ "ttlab_model", "ttlab_biofid_general_v_1.0.1" }
 					//BiofidGeneralGazetteer.PARAM_TOKEN_BOUNDARY_REGEX, "(\\p{PUNCT})|(\\s+)",
 					//BiofidGeneralGazetteer.PARAM_RETOKENIZE, true,
