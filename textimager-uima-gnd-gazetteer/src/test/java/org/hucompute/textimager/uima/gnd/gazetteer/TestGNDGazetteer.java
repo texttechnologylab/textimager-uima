@@ -48,6 +48,8 @@ public class TestGNDGazetteer {
 					GNDGazetteer.PARAM_RETOKENIZE, true,
 					GNDGazetteer.PARAM_SPLIT_HYPEN, false,
 					GNDGazetteer.PARAM_NO_SKIPGRAMS, true,
+					GNDGazetteer.PARAM_GET_ALL_SKIPS, false,
+					GNDGazetteer.PARAM_ADD_ABBREVIATED_TAXA, false,
 					GNDGazetteer.PARAM_ANNOTATION_COMMENTS, new String[]{ "ttlab_model", "ttlab_gnd_v_1.0.1" }
 			));
 
