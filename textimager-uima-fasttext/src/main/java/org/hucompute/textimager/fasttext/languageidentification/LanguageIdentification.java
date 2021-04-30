@@ -3,10 +3,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.CasIOUtil;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.parameter.ComponentParameters;
@@ -17,11 +23,14 @@ import org.dkpro.core.api.resources.ResourceUtils;
 import com.github.jfasttext.JFastText;
 
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import org.dkpro.core.io.xmi.XmiWriter;
+import org.junit.jupiter.api.Test;
 
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 
 public class LanguageIdentification extends JCasAnnotator_ImplBase{
-	
+
 	/**
      * Location from which the model is read.
      */
@@ -29,7 +38,7 @@ public class LanguageIdentification extends JCasAnnotator_ImplBase{
     @ConfigurationParameter(name = PARAM_MODEL_LOCATION, mandatory = false)
     protected String modelLocation;
     private CasConfigurableProviderBase<JFastText> modelProvider;
-    
+
     /**
      * Variant of a model the model. Used to address a specific model if here are multiple models
      * for one language.
@@ -37,7 +46,7 @@ public class LanguageIdentification extends JCasAnnotator_ImplBase{
     public static final String PARAM_VARIANT = ComponentParameters.PARAM_VARIANT;
     @ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
     protected String variant;
-    
+
 
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
@@ -79,6 +88,20 @@ public class LanguageIdentification extends JCasAnnotator_ImplBase{
 			e.printStackTrace();
 		}
 		aJCas.setDocumentLanguage(probLabel.label.replace("__label__", ""));
+	}
+
+	@Test
+	public void test() throws UIMAException, IOException {
+
+		AnalysisEngineDescription language = createEngineDescription(LanguageIdentification.class);
+
+		JCas test = JCasFactory.createText("Dies ist ein schöner Text.");
+
+		SimplePipeline.runPipeline(test, language);
+
+		System.out.println(test.getDocumentLanguage());
+
+
 	}
 
 }
