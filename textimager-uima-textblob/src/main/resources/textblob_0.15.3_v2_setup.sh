@@ -18,6 +18,9 @@ conda activate "$ENV_NAME"
 echo "installing textblob/nltk corpora..."
 python -m textblob.download_corpora
 
+# nltk
+python -m nltk.downloader punkt
+
 # install models
 echo "installing spacy models..."
 
