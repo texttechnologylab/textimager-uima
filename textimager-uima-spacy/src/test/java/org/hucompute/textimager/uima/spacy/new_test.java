@@ -49,8 +49,8 @@ public class new_test {
                 //System.out.println("Mit Strip " + json_cut[i]);
                 System.out.println("Endprodukt " + json_cut[i]);
             }
-            //System.out.print(Arrays.toString(json_cut));
 
+            //System.out.print(Arrays.toString(json_cut));
             //JSONObject json = new JSONObject(jsonText);
             System.out.println("erstmal fertig");
 
