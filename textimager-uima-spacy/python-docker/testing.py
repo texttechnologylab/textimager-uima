@@ -1,8 +1,5 @@
 import os
 import json
-import spacy
-import uvicorn
-from fastapi import FastAPI
 
 
 def check_packages():
@@ -34,6 +31,14 @@ def process():
 
 if __name__ == '__main__':
 
+# Just for first run of the docker
+    os.system("pip install spacy")
+    os.system("pip install uvicorn")
+    os.system("pip install fastapi")
+
+    import spacy
+    import uvicorn
+    from fastapi import FastAPI
 
     check_packages()
 
