@@ -15,7 +15,6 @@ public class test_rest_anno extends RestAnnotator {
         JSONObject json = new JSONObject();
         json.put("text", aJCas.getDocumentText());
         json.put("lang", aJCas.getDocumentLanguage());
-
         return json;
     }
 
