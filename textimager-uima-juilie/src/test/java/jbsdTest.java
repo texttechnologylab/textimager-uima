@@ -37,4 +37,30 @@ public class jbsdTest {
         assertArrayEquals(sentence, casSentence);
         assertArrayEquals(senText, casSenTex);
     }
+
+    @Test
+    public void basicTestDe() throws UIMAException {
+
+        JCas jCas = JCasFactory.createText("Das ist erste Satz. Das ist zweite Satz.",
+                "de");
+
+        AnalysisEngineDescription jbsdEngine = createEngineDescription(jbsd.class, jbsd.PARAM_REST_ENDPOINT, "http://localhost:8080");
+
+        SimplePipeline.runPipeline(jCas, jbsdEngine);
+
+        int[][] sentence = new int[][] {
+                new int[] { 0, 19 },
+                new int[] { 20, 40 }
+        };
+        int[][] casSentence = (int[][]) JCasUtil.select(jCas, Sentiment.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+
+        String[] senText = new String[] {
+                "Das ist erste Satz.", "Das ist zweite Satz."
+        };
+        String[] casSenTex = (String[]) JCasUtil.select(jCas, Sentiment.class).stream().map(s -> s.getCoveredText()).toArray(String[]::new);
+
+        Assert.assertTrue(2 == JCasUtil.select(jCas, Sentiment.class).size() );
+        assertArrayEquals(sentence, casSentence);
+        assertArrayEquals(senText, casSenTex);
+    }
 }

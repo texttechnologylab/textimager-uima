@@ -1,11 +1,6 @@
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
+
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.RestAnnotator;
@@ -13,8 +8,6 @@ import org.hucompute.textimager.uima.type.Sentiment;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class jbsd extends  RestAnnotator {
 
@@ -53,13 +46,12 @@ public class jbsd extends  RestAnnotator {
         JSONArray jsonSentences = jsonResult.getJSONArray("Sentences");
 
         for (Object object : jsonSentences) {
-            String sd = "";
+
             JSONObject jsObj = (JSONObject)object;
 
             Sentiment sentiment = new Sentiment(aJCas,(Integer)jsObj.get("begin"),(Integer)jsObj.get("end"));
 
             sentiment.addToIndexes();
-            String fdg = "";
 
         }
         ;
