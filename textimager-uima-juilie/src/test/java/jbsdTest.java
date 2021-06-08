@@ -1,3 +1,4 @@
+import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -8,17 +9,35 @@ import org.hucompute.textimager.uima.type.Sentiment;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
+
+/**
+ * Jbsd
+ *
+ * @date 04.06.2021
+ *
+ * @author Grzegorz Siwiecki, Chieh Kang
+ * @version 1.1
+ *
+ * This class provide several test cases for different languages and inputs types*/
 
 public class jbsdTest {
     @Test
     public void basicTestEn() throws UIMAException {
 
-        JCas jCas = JCasFactory.createText("This is a simple test sentence to test this tool. Using a second sentence.",
-                "en");
+        //JCas jCas = JCasFactory.createText("This is a simple test sentence to test this tool. Using a second sentence.","en");
+        JCas jCas = null;
+        try {
+            jCas = JCasFactory.createText(FileUtils.readFileToString(new File("src/main/resources/test.txt"),"UTF-8"),"en");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        AnalysisEngineDescription jbsdEngine = createEngineDescription(jbsd.class, jbsd.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription jbsdEngine = createEngineDescription(Jbsd.class, Jbsd.PARAM_REST_ENDPOINT, "http://localhost:8080");
 
         SimplePipeline.runPipeline(jCas, jbsdEngine);
 
@@ -44,7 +63,7 @@ public class jbsdTest {
         JCas jCas = JCasFactory.createText("Das ist erste Satz. Das ist zweite Satz.",
                 "de");
 
-        AnalysisEngineDescription jbsdEngine = createEngineDescription(jbsd.class, jbsd.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription jbsdEngine = createEngineDescription(Jbsd.class, Jbsd.PARAM_REST_ENDPOINT, "http://localhost:8080");
 
         SimplePipeline.runPipeline(jCas, jbsdEngine);
 

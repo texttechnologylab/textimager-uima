@@ -11,6 +11,7 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.json.JSONObject;
+import org.xml.sax.SAXException;
 
 public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
 	/**
@@ -25,7 +26,7 @@ public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
 	}
 
 	// Build request JSON object
-	protected abstract JSONObject buildJSON(JCas aJCas);
+	protected abstract JSONObject buildJSON(JCas aJCas) throws IOException, SAXException;
 
 	// Update CAS with JSON results
 	protected abstract void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException;

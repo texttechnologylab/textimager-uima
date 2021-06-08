@@ -34,7 +34,11 @@
             <artifactId>textimager-uima-base-annotators</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.texttechnologylab</groupId>
+            <artifactId>UIMADatabaseInterface</artifactId>
+            <version>1.1.3</version>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.dkpro.core</groupId>
