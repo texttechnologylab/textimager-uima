@@ -52,7 +52,6 @@ public class Jbsd extends  RestAnnotator {
 
         //XCASSerializer serializer = new XCASSerializer();
         //TODO Create the jsonArray
-        StringWriter sw = new StringWriter();
         ByteArrayOutputStream tmpStream = new ByteArrayOutputStream();
         //serializer.serialize(aJCas.getCas(), sw);
         XCASSerializer.serialize(aJCas.getCas(), tmpStream);
