@@ -94,10 +94,12 @@ def process(data):
                 'deps': deps,
                 'ents': ents
                 }
-    print('Tokens: \n', tokens, '\n Sents: \n', sents, '\n Pos: \n', pos, '\n Deps: \n', deps, '\n Ents: \n', ents)
+
+    #print('Tokens: \n', tokens, '\n Sents: \n', sents, '\n Pos: \n', pos, '\n Deps: \n', deps, '\n Ents: \n', ents)
     print(res_dict)
     # return tokens, sents, pos, deps, ents
-    return json.dumps(res_dict)
+
+    return res_dict
 
 
 if __name__ == '__main__':
