@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
 
+
 # spacy multithreading bei mehreren requests
 
 def check_packages():
@@ -82,25 +83,37 @@ def process(data):
 
     for ent in data.ents:
         ents_dict = {'start_char': ent.start_char,
-                      'end_char': ent.end_char,
-                      'label': ent.label_
-                      }
+                     'end_char': ent.end_char,
+                     'label': ent.label_
+                     }
         ents.append(ents_dict)
 
-    return tokens, sents, pos, deps, ents
+    res_dict = {'tokens': tokens,
+                'sents': sents,
+                'pos': pos,
+                'deps': deps,
+                'ents': ents
+                }
+    print('Tokens: \n', tokens, '\n Sents: \n', sents, '\n Pos: \n', pos, '\n Deps: \n', deps, '\n Ents: \n', ents)
+    print(res_dict)
+    # return tokens, sents, pos, deps, ents
+    return json.dumps(res_dict)
 
 
 if __name__ == '__main__':
     app = FastAPI()
 
+
     class JavaData(BaseModel):
         text: str
         lang: str
+
 
     @app.post("/data/")
     def read_from_java(data: JavaData):
         print(data.text)
         print(data.lang)
         return process(data)
+
 
     uvicorn.run(app)

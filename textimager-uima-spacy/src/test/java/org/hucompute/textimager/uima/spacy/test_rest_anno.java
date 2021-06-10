@@ -20,6 +20,7 @@ public class test_rest_anno extends RestAnnotator {
 
     @Override
     protected void updateCAS(JCas test_cas, JSONObject jsonResult) {
+        System.out.println("we inside");
         String text = (String) jsonResult.get("text");
         String lang = (String) jsonResult.get("lang");
         try {
