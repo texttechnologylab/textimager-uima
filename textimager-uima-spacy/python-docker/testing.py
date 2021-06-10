@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
 
+# spacy multithreading bei mehreren requests
 
 def check_packages():
     try:
@@ -56,12 +57,37 @@ def process(data):
                        'token_text': token.text}
         tokens.append(tokens_dict)
 
+        pos_dict = {'tag': token.tag_,
+                    'idx': token.idx,
+                    'length': len(token),
+                    'is_space': token.is_space
+                    }
+        pos.append(pos_dict)
+
+        deps_dict = {'dep': token.dep_,
+                     'idx': token.idx,
+                     'length': len(token),
+                     'is_space': token.is_space,
+                     'head': {'idx': token.head.idx,
+                              'length': len(token.head),
+                              'is_space': token.head.is_space
+                              }
+                     }
+        deps.append(deps_dict)
+
     for sent in data.sents:
         sents_dict = {'begin': sent.start_char,
                       'end': sent.end_char}
         sents.append(sents_dict)
 
-    return tokens, sents
+    for ent in data.ents:
+        ents_dict = {'start_char': ent.start_char,
+                      'end_char': ent.end_char,
+                      'label': ent.label_
+                      }
+        ents.append(ents_dict)
+
+    return tokens, sents, pos, deps, ents
 
 
 if __name__ == '__main__':
