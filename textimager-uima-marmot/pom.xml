@@ -10,20 +10,65 @@
 	
 	<repositories>
 		<repository>
+			<id>lemma-tagger</id>
+			<url>http://localhost:8082/artifactory/lemma-tagger/</url>
+		</repository>
+
+		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
+
 	<dependencies>
+		<dependency>
+			<groupId>marmot_modell</groupId>
+			<artifactId>all-tiger</artifactId>
+			<version>1.0</version>
+			<type>marmot</type>
+		</dependency>
+
 		<dependency>
 			<groupId>com.github.hemati</groupId>
 			<artifactId>cistern</artifactId>
 			<version>-SNAPSHOT</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
+
+	<!--<build>
+	<plugins>
+	<plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-dependency-plugin</artifactId>
+		<executions>
+			<execution>
+				<id>copy</id>
+				<phase>package</phase>
+				<goals>
+					<goal>copy</goal>
+				</goals>
+				<configuration>
+					<artifactItems>
+						<artifactItem>
+							<groupId>marmot_modell</groupId>
+							<artifactId>all-tiger</artifactId>
+							<version>1.0</version>
+							<type>marmot</type>
+							<overWrite>true</overWrite>
+							<outputDirectory>${project.build.directory}/resources</outputDirectory>
+							<destFileName>all-tiger-1.0.marmot</destFileName>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</execution>
+		</executions>
+	</plugin>
+	</plugins>
+	</build>-->
 </project>
