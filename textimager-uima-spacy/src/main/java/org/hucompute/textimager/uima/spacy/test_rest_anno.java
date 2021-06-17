@@ -11,11 +11,16 @@ import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
 import jep.JepException;
 import org.apache.uima.UIMAException;
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
+import org.dkpro.core.api.resources.MappingProvider;
+import org.dkpro.core.api.resources.MappingProviderFactory;
 import org.hucompute.textimager.uima.base.RestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,6 +39,30 @@ public class test_rest_anno extends RestAnnotator {
     ArrayList<HashMap<String, Object>> pos = new ArrayList<>();
     ArrayList<HashMap<String, Object>> deps = new ArrayList<>();
     ArrayList<HashMap<String, Object>> ents = new ArrayList<>();
+
+    public static final String PARAM_VARIANT = "variant";
+    @ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
+    protected String variant;
+
+    public static final String PARAM_LANGUAGE = "language";
+    @ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
+    protected String language;
+
+    public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
+    @ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
+    protected String posMappingLocation;
+
+    private MappingProvider mappingProvider;
+
+    @Override
+    public void initialize(UimaContext aContext) throws ResourceInitializationException {
+        super.initialize(aContext);
+
+        // TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
+        mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant, language);
+
+    }
+
 
     @Override
     protected JSONObject buildJSON(JCas aJCas) {
@@ -64,6 +93,37 @@ public class test_rest_anno extends RestAnnotator {
                     sents.add(hash);
                 }
             }
+
+            jArray =  (JSONArray) jsonResult.get("pos");
+            if (jArray != null) {
+                for (int i = 0; i < jArray.length(); i++) {
+                    JSONObject json = (JSONObject) jArray.get(i);
+                    HashMap<String, Object> hash = new Gson().fromJson(json.toString(), new TypeToken<HashMap<String, Object>>() {
+                    }.getType());
+                    pos.add(hash);
+                }
+            }
+
+            jArray =  (JSONArray) jsonResult.get("ents");
+            if (jArray != null) {
+                for (int i = 0; i < jArray.length(); i++) {
+                    JSONObject json = (JSONObject) jArray.get(i);
+                    HashMap<String, Object> hash = new Gson().fromJson(json.toString(), new TypeToken<HashMap<String, Object>>() {
+                    }.getType());
+                    ents.add(hash);
+                }
+            }
+
+            jArray =  (JSONArray) jsonResult.get("deps");
+            if (jArray != null) {
+                for (int i = 0; i < jArray.length(); i++) {
+                    JSONObject json = (JSONObject) jArray.get(i);
+                    HashMap<String, Object> hash = new Gson().fromJson(json.toString(), new TypeToken<HashMap<String, Object>>() {
+                    }.getType());
+                    deps.add(hash);
+                }
+            }
+
             /*
             System.out.println("we inside");
             System.out.println(jsonResult.get("tokens"));
@@ -119,6 +179,7 @@ public class test_rest_anno extends RestAnnotator {
     }
 
     private Map<Integer, Map<Integer, Token>> processToken(JCas aJCas) {
+
         Map<Integer, Map<Integer, Token>> tokensMap = new HashMap<>();
         ArrayList<HashMap<String, Object>> output = tokens;
         for (HashMap<String, Object> token : output) {
@@ -139,17 +200,32 @@ public class test_rest_anno extends RestAnnotator {
     }
 
     private void processPOS(JCas aJCas, Map<Integer, Map<Integer, Token>> tokensMap) throws AnalysisEngineProcessException {
+
+
+        mappingProvider.configure(aJCas.getCas());
+
+        System.out.println(pos);
+
         pos.forEach(p -> {
             if (!(Boolean) p.get("is_space")) {
                 int begin = ((Double) p.get("idx")).intValue();
                 int end = begin + ((Double) p.get("length")).intValue();
-                Type posTag = (Type) p.get("tag");
+                String tagStr = p.get("tag").toString();
+
+                Type posTag = mappingProvider.getTagType(tagStr);
+
+                //System.out.println("Erfolg");
+
+                //System.out.println(posTag);
+
                 POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
-                posAnno.setPosValue((String) p.get("tag"));
+                posAnno.setPosValue(tagStr);
                 POSUtils.assignCoarseValue(posAnno);
+
                 Token tokenAnno = tokensMap.get(begin).get(end);
                 tokenAnno.setPos(posAnno);
                 posAnno.addToIndexes();
+
             }
         });
     }
@@ -197,8 +273,10 @@ public class test_rest_anno extends RestAnnotator {
         });
     }
 
-    public void process_data(JCas aJCas) throws AnalysisEngineProcessException {
-        process(aJCas);
+    @Override
+    public void process(JCas aJCas) throws AnalysisEngineProcessException {
+
+        //process(aJCas);
         long textLength = aJCas.getDocumentText().length();
         System.out.println("text length: " + textLength);
         // abort on empty
@@ -207,10 +285,23 @@ public class test_rest_anno extends RestAnnotator {
             return;
         }
 
-        test_rest_anno x = new test_rest_anno();
-        x.restEndpoint = "http://127.0.0.1:8000/data";
-        x.process(aJCas);
-        System.out.println(x.tokens);
+        restEndpoint = "http://127.0.0.1:8000/data";
+
+        try {
+            String body = buildJSON(aJCas).toString();
+            //System.out.println(body);
+
+            String res = sendRequest(body);
+            //System.out.println(res);
+
+            updateCAS(aJCas, new JSONObject(res));
+
+
+        } catch (Exception ex) {
+            throw new AnalysisEngineProcessException(ex);
+        }
+
+        System.out.println(tokens);
 
         try {
             /*
@@ -249,7 +340,7 @@ public class test_rest_anno extends RestAnnotator {
             processPOS(aJCas, tokensMap);
 
             // PARSER
-            processDep(aJCas, tokensMap);
+            //processDep(aJCas, tokensMap);
 
             // NER
             processNER(aJCas);
@@ -266,11 +357,11 @@ public class test_rest_anno extends RestAnnotator {
         String lang = "de";
         JCas test_cas = JCasFactory.createJCas();
         test_cas.setDocumentLanguage(lang);
-        test_cas.setDocumentText(cas);
+        test_cas.setDocumentText(bsp_text);
 
         test_rest_anno x = new test_rest_anno();
         x.restEndpoint = "http://127.0.0.1:8000/data";
-        x.process_data(cas);
+        x.process_data(test_cas);
 
 
 
@@ -284,6 +375,6 @@ public class test_rest_anno extends RestAnnotator {
         //System.out.println(x.processToken(test_cas, 0));
 
 
-    }
- */
+    }*/
+
 }

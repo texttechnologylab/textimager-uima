@@ -26,6 +26,7 @@ import jep.JepException;
 
 public class SpaCyMultiTagger extends SpaCyBase {
 
+
 	/**
 	 * Overwrite CAS Language?
 	 */
