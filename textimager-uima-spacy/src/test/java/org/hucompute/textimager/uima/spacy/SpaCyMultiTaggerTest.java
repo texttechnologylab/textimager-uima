@@ -23,8 +23,7 @@ public class SpaCyMultiTaggerTest {
 		//JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.  Und das ist ein iMac.", "de");
 		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.", "de");
 
-		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger.class);
-
+		AnalysisEngineDescription spacyMulti = createEngineDescription(test_rest_anno.class);
 		SimplePipeline.runPipeline(cas, spacyMulti);
 		
 		for (Token t : JCasUtil.select(cas, Token.class)) {

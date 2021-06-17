@@ -43,6 +43,14 @@ def process(data):
     else:
         nlp = nlps["en"]
 
+    if nlp.max_length < len(text):
+        nlp.max_length = len(text) + 100
+    else:
+        pass
+
+    # ggflls. pipeline verkleinern mit doc = nlp("The sentences we'd like to do lemmatization on", disable = ['ner', 'parser'])
+    # https://datascience.stackexchange.com/questions/38745/increasing-spacy-max-nlp-limit/55725
+
     data = nlp(text)
 
     tokens = []
