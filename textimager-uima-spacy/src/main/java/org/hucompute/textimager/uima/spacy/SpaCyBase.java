@@ -23,7 +23,6 @@ public abstract class SpaCyBase extends JepAnnotator {
 
 		// set defaults
 		// TODO schönerer Weg?
-		/*
 
 		if (condaBashScript == null || condaBashScript.isEmpty()) {
 			condaBashScript = "spacy230_v3_setup.sh";
@@ -49,8 +48,7 @@ public abstract class SpaCyBase extends JepAnnotator {
 		initConda();
 		
 		System.out.println("initializing spacy base class: interprter extras...");
-		 */
-		/*
+
 		try {
 			interpreter.exec("import os");
 			interpreter.exec("import sys");
@@ -61,7 +59,7 @@ public abstract class SpaCyBase extends JepAnnotator {
 		}
 		
 		System.out.println("initializing spacy base class done");
-		*/
+
 	}
 
 	// Adds the "words" and "spaces" arrays for spaCy to the JSON object
