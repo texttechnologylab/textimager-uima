@@ -1,8 +1,9 @@
 package org.hucompute.textimager.uima.spacy;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertArrayEquals;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -12,18 +13,18 @@ import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.junit.Assert.assertArrayEquals;
 
-public class SpaCyMultiTaggerTest {
+public class SpaCyMultiTaggerImprovedTest {
 	@Test
 	public void multiTaggerTest() throws UIMAException {
 		//JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.  Und das ist ein iMac.", "de");
 		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.", "de");
 
-		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger.class);
+		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTaggerImproved.class,
+				SpaCyMultiTaggerImproved.PARAM_REST_ENDPOINT, "http://127.0.0.1:8000/data"
+		);
 
 		SimplePipeline.runPipeline(cas, spacyMulti);
 		
