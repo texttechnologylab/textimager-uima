@@ -143,7 +143,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				int end = begin + ((Long) dep.get("length")).intValue();
 
 				@SuppressWarnings("unchecked")
-				HashMap<String, Object> headToken = (HashMap<String, Object>) dep.get("head");
+				Map<String, Object> headToken = (Map<String, Object>) dep.get("head");
 				int beginHead = ((Long) headToken.get("idx")).intValue() + beginOffset;
 				int endHead = beginHead + ((Long) headToken.get("length")).intValue();
 

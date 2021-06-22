@@ -60,7 +60,7 @@ public class SpaCyMultiTaggerTest {
 		System.out.println(XmlFormatter.getPrettyString(cas));
 		assertArrayEquals(tokens, casTokens);
 		assertArrayEquals(pos, casPos);
-		//assertArrayEquals(deps, casDeps);
+		assertArrayEquals(deps, casDeps);
 		assertArrayEquals(ents, casEnts);
 	}
 }

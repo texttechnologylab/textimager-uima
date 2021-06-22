@@ -239,7 +239,7 @@ public class test_rest_anno extends RestAnnotator {
                 int end = begin + ((Double) dep.get("length")).intValue();
 
                 @SuppressWarnings("unchecked")
-                HashMap<String, Object> headToken = (HashMap<String, Object>) dep.get("head");
+                Map<String, Object> headToken = (Map<String, Object>) dep.get("head");
                 int beginHead = ((Double) headToken.get("idx")).intValue();
                 int endHead = beginHead + ((Double) headToken.get("length")).intValue();
 
@@ -340,7 +340,7 @@ public class test_rest_anno extends RestAnnotator {
             processPOS(aJCas, tokensMap);
 
             // PARSER
-            //processDep(aJCas, tokensMap);
+            processDep(aJCas, tokensMap);
 
             // NER
             processNER(aJCas);
