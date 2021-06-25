@@ -43,6 +43,7 @@ public class EnhancedMorphologicalFeatures implements Comparable {
 					String value = keyValueSplit[1];
 					switch (keyValueSplit[0].toLowerCase()) {
 						case "gender":       if (gender       == null) gender = value; break;
+						case "masc":       	 if (gender       == null) gender = value; break;
 						case "number":       if (number       == null) number = value; break;
 						case "case":         if (mcase        == null) mcase = value; break;
 						case "degree":       if (degree       == null) degree = value; break;
