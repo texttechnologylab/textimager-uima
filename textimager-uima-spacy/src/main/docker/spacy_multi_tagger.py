@@ -27,7 +27,7 @@ lang_nlps = {
             "pl": "pl_core_news_sm",        # Polish
             "pt": "pt_core_news_sm",        # Portugese
             "ro": "ro_core_news_sm",        # Romanian
-            "ru": "ru_core_news_sm",        # Russian
+            # "ru": "ru_core_news_sm",        # Russian
             "es": "es_core_news_sm"         # Spanish
             }
 

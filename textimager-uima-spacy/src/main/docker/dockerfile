@@ -21,7 +21,8 @@ RUN python3 -m spacy download nb_core_news_sm
 RUN python3 -m spacy download pl_core_news_sm
 RUN python3 -m spacy download pt_core_news_sm
 RUN python3 -m spacy download ro_core_news_sm
-RUN python3 -m spacy download ru_core_news_sm
+# following doesn't work
+# RUN python3 -m spacy download ru_core_news_sm
 RUN python3 -m spacy download es_core_news_sm
 
 EXPOSE 8000
