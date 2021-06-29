@@ -1,3 +1,4 @@
+import Reader.JsonReader;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
@@ -5,36 +6,21 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.RestAnnotator;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
-import Reader.JsonReader;
-import java.io.*;
 
+import java.io.IOException;
 
-/**
- * Jbsd
- *
- * @date 04.06.2021
- *
- * @author Grzegorz Siwiecki, Chieh Kang
- * @version 1.1
- *
- * This class provide connection between julie-api and give the sentence from JULIELab Tagger back as UIMA Sentence type
- *
- * Input: UIMA-JCas
- * Output: Textimager-UIMA-Sentiment*/
-
-public class Jbsd extends  RestAnnotator {
+public class Acronym extends RestAnnotator {
     /**
      * Tagger address.
      * @return endpoint
      */
     @Override
     protected String getRestRoute() {
-        return "/jbsd";
+        return "/acronym";
     }
 
-
     @Override
-    public void initialize(UimaContext aContext) throws  ResourceInitializationException
+    public void initialize(UimaContext aContext) throws ResourceInitializationException
     {
         super.initialize(aContext);
     }
@@ -60,5 +46,4 @@ public class Jbsd extends  RestAnnotator {
         reader.UpdateJsonToCas(jsonResult, aJCas);
 
     }
-
 }

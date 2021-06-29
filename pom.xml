@@ -123,7 +123,10 @@
 		<module>textimager-uima-gnd-gazetteer</module>
 		<module>textimager-uima-biofid-general-gazetteer</module>
 		<module>textimager-uima-steps</module>
-<<<<<<< Updated upstream
+		<module>textimager-uima-juilie</module>
+		<module>jcore-base/jcore-types</module>
+	</modules>
+<!--<<<<<<< Updated upstream
     </modules>
 =======
 		<module>textimager-uima-polyglot</module>
@@ -131,5 +134,5 @@
         <module>JuliLab</module>
 		<module>textimager-uima-juilie</module>
 	</modules>
->>>>>>> Stashed changes
+>>>>>>> Stashed changes-->
 </project>
