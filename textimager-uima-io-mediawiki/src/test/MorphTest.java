@@ -1,8 +1,8 @@
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.util.CasIOUtils;
@@ -43,10 +43,13 @@ public class MorphTest {
 
         AggregateBuilder builder = new AggregateBuilder();
 
+        AnalysisEngineDescription writer = AnalysisEngineFactory.createEngineDescription(MediawikiWriter.class, PARAM_TARGET_LOCATION, "/tmp/");
         builder.add(AnalysisEngineFactory.createEngineDescription(MateMorphTagger.class));
-        builder.add(AnalysisEngineFactory.createEngineDescription(MediawikiWriter.class, PARAM_TARGET_LOCATION, "/tmp/"));
+        builder.add(writer);
 
-        SimplePipeline.runPipeline(cas,builder.createAggregate());
+        TTLabSimplePipeline.runPipeline(cas, builder.createAggregate());
+
+
 
         System.out.println("warten");
     }

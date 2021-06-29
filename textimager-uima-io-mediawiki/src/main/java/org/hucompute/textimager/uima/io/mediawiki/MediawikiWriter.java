@@ -828,4 +828,15 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase {
 		mappedList.get(key).add(value);
 	}
 
+    @Override
+    public void batchProcessComplete() throws AnalysisEngineProcessException {
+        super.batchProcessComplete();
+        this.destroy();
+    }
+
+    @Override
+    public void collectionProcessComplete() throws AnalysisEngineProcessException {
+        super.collectionProcessComplete();
+        this.destroy();
+    }
 }
