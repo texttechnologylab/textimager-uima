@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -595,6 +596,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 
+		System.out.println("VERSUCH1");
 		DocumentMetaData meta = DocumentMetaData.get(jCas);		 
 		String lang = meta.getLanguage();
 
@@ -820,6 +822,12 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 			pageBuilder.append(category).append("\n");
 		}
 		pageBuilder.append("\n\n\n");
+ 		String mapsString = buildMapsString(extractLocations(jCas));
+		System.out.println("-----------------------------------------------------------------------");
+		System.out.println(mapsString);
+		pageBuilder.append(mapsString);
+
+		pageBuilder.append("\n\n\n");
 		writePage(pageTitle, comment, pageBuilder.toString(), nsPage);
 		documentCount++;
 	}
@@ -837,5 +845,33 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 		}
 		mappedList.get(key).add(value);
 	}
+
+	public static HashSet<String> extractLocations(JCas jCas){
+        HashSet<String> loc = new HashSet<String>();
+        
+        for (NamedEntity ne : JCasUtil.select(jCas, NamedEntity.class)) {
+            if (ne.getValue().equals("LOC")) {
+                String text = ne.getCoveredText();
+                loc.add(text);
+            }
+        }
+return loc;
+    }
+
+    public static String buildMapsString(HashSet<String> locs){
+        StringBuilder str = new StringBuilder();
+        if(locs.isEmpty() == true){
+            return "[No locations found in present text]";
+        }else{
+            str.append("{{#display_map:");
+            Iterator<String> it = locs.iterator();
+            while(it.hasNext()) {
+                str.append(it.next());
+                str.append(";");
+            }
+            str.append("}}");
+            return str.toString();
+        }
+}
 
 }
