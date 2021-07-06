@@ -56,6 +56,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	protected String dockerNetwork;
 
 	/**
+	 * The Docker network mode
+	 */
+	public static final String PARAM_DOCKER_SERVICE_IP = "dockerServiceIp";
+	@ConfigurationParameter(name = PARAM_DOCKER_SERVICE_IP, mandatory = false, defaultValue = "127.0.0.1")
+	protected String dockerServiceIp;
+
+	/**
 	 * Port inside the container to map to host
 	 * If left empty uses the default of the annotation class
 	 */
@@ -131,16 +138,16 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	// Check if service is ready
 	protected boolean isReady() throws IOException {
-		URL url = new URL(getRestEndpointTextImagerReady());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setDoInput(true);
-		connection.setUseCaches(false);
-
-		String res = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-
-		JSONObject status = new JSONObject(res);
 		try {
+			URL url = new URL(getRestEndpointTextImagerReady());
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setDoInput(true);
+			connection.setUseCaches(false);
+
+			String res = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+
+			JSONObject status = new JSONObject(res);
 			return status.getBoolean("ready");
 		}
 		catch (Exception ignored) {
@@ -197,12 +204,9 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				throw new ResourceInitializationException(e);
 			}
 
-			// TODO check if really works in swarm mode
-			String dockerRestEndpointIP = "127.0.0.1";
-
 			// Find free port
 			int port = portMin;
-			while (!isPortFree(dockerRestEndpointIP, port)) {
+			while (!isPortFree(dockerServiceIp, port)) {
 				System.out.println("Port " + port + " not available, checking next...");
 				port++;
 				if (port > portMax) {
@@ -212,7 +216,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 			System.out.println("Using host port " + port);
 
 			// Update endpoint of RestAnnotator
-			restEndpoint = "http://" + dockerRestEndpointIP + ":" + port;
+			restEndpoint = "http://" + dockerServiceIp + ":" + port;
 			System.out.println("Container endpoint is " + restEndpoint);
 
 			// Container name based on timestamp
