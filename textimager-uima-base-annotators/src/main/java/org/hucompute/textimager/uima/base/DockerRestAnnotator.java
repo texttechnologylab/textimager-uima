@@ -49,6 +49,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	protected String dockerImageTag;
 
 	/**
+	 * The Docker network mode
+	 */
+	public static final String PARAM_DOCKER_NETWORK = "dockerNetwork";
+	@ConfigurationParameter(name = PARAM_DOCKER_NETWORK, mandatory = false)
+	protected String dockerNetwork;
+
+	/**
 	 * Port inside the container to map to host
 	 * If left empty uses the default of the annotation class
 	 */
@@ -216,6 +223,11 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				// Build container
 				ContainerParametersBuilder parametersBuilder = new ContainerParametersBuilder(fullDockerImage);
 				parametersBuilder.set_port_mapping(dockerPort, port);
+
+				if (dockerNetwork != null) {
+					System.out.println("Using Docker network " + dockerNetwork);
+					parametersBuilder.set_network_mode(dockerNetwork);
+				}
 
 				// TODO add volumes
 				/*if (dockerVolumes != null) {
