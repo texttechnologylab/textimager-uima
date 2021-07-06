@@ -18,7 +18,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
-import org.hucompute.textimager.uima.base.RestAnnotator;
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpaCyMultiTaggerImproved extends RestAnnotator {
+public class SpaCyMultiTaggerImproved extends DockerRestAnnotator {
     public static final String PARAM_VARIANT = "variant";
     @ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
     protected String variant;
@@ -41,6 +41,21 @@ public class SpaCyMultiTaggerImproved extends RestAnnotator {
     protected String posMappingLocation;
 
     private MappingProvider mappingProvider;
+
+    @Override
+    protected String getDefaultDockerImage() {
+        return "textimager-uima-spacy-tagger:0.1";
+    }
+
+    @Override
+    protected int getDefaultDockerPort() {
+        return 8000;
+    }
+
+    @Override
+    protected String getRestRoute() {
+        return "/multi";
+    }
 
     @Override
     public void initialize(UimaContext aContext) throws ResourceInitializationException {

@@ -22,10 +22,7 @@ public class SpaCyMultiTaggerImprovedTest {
 		//JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.  Und das ist ein iMac.", "de");
 		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.", "de");
 
-		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTaggerImproved.class,
-				SpaCyMultiTaggerImproved.PARAM_REST_ENDPOINT, "http://127.0.0.1:8000/data"
-		);
-
+		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTaggerImproved.class);
 		SimplePipeline.runPipeline(cas, spacyMulti);
 		
 		for (Token t : JCasUtil.select(cas, Token.class)) {
