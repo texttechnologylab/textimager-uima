@@ -44,7 +44,12 @@ public class SpaCyMultiTaggerImproved extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImage() {
-        return "textimager-uima-spacy-tagger:0.1";
+        return "textimager-uima-spacy-tagger";
+    }
+
+    @Override
+    protected String getDefaultDockerImageTag() {
+        return "0.1";
     }
 
     @Override

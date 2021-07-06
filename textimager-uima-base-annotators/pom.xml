@@ -17,6 +17,16 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.github.jnr</groupId>
+			<artifactId>jnr-ffi</artifactId>
+			<version>2.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.jnr</groupId>
+			<artifactId>jnr-unixsocket</artifactId>
+			<version>0.38.8</version>
+		</dependency>
+		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>

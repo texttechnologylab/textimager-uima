@@ -41,6 +41,14 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
     protected String dockerImage;
 
 	/**
+	 * The tag of the docker image for the annotator
+	 * If left empty uses the default of the annotation class
+	 */
+	public static final String PARAM_DOCKER_IMAGE_TAG = "dockerImageTag";
+	@ConfigurationParameter(name = PARAM_DOCKER_IMAGE_TAG, mandatory = false)
+	protected String dockerImageTag;
+
+	/**
 	 * Port inside the container to map to host
 	 * If left empty uses the default of the annotation class
 	 */
@@ -79,6 +87,9 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	// Provides default Docker Image, if none is configured
 	abstract protected String getDefaultDockerImage();
+
+	// Provides default Docker Image tag, if none is configured
+	abstract protected String getDefaultDockerImageTag();
 
 	// Provides default Docker Port, if none is configured
 	abstract protected int getDefaultDockerPort();
@@ -141,10 +152,21 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 			if (dockerImage == null) {
 				dockerImage = getDefaultDockerImage();
 			}
-			if (dockerRegistry != null) {
-				dockerImage = dockerRegistry + "/" + dockerImage;
+
+			// Get Docker image tag from annotator class if not specified
+			if (dockerImageTag == null) {
+				dockerImageTag = getDefaultDockerImageTag();
 			}
-			System.out.println("Using Docker image: " + dockerImage);
+
+			// Build full image name from image and repository
+			String fullDockerImageName = dockerImage;
+			if (dockerRegistry != null) {
+				fullDockerImageName = dockerRegistry + "/" + fullDockerImageName;
+			}
+
+			// Full Docker image name
+			String fullDockerImage = fullDockerImageName + ":" + dockerImageTag;
+			System.out.println("Using Docker image: " + fullDockerImage);
 
 			// Get Docker port from annotator class if not specified
 			if (dockerPort == 0) {
@@ -156,7 +178,15 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 			try {
 				docker = new DockerAPI(dockerSocket);
 				System.out.println("Connected to Docker API");
-			} catch (IOException e) {
+			} catch (Exception e) {
+				throw new ResourceInitializationException(e);
+			}
+
+			// Pull the docker image to use
+			System.out.println("Pulling docker image...");
+			try {
+				docker.get_handle().images().pull(fullDockerImageName, dockerImageTag);
+			} catch (Exception e) {
 				throw new ResourceInitializationException(e);
 			}
 
@@ -184,7 +214,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	        try {
 				// Build container
-				ContainerParametersBuilder parametersBuilder = new ContainerParametersBuilder(dockerImage);
+				ContainerParametersBuilder parametersBuilder = new ContainerParametersBuilder(fullDockerImage);
 				parametersBuilder.set_port_mapping(dockerPort, port);
 
 				// TODO add volumes
@@ -227,7 +257,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 				System.out.println("Docker container should be running now");
 
-			} catch (IOException e) {
+			} catch (Exception e) {
 				throw new ResourceInitializationException(e);
 			}
 		}
