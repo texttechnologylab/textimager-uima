@@ -1,1 +1,0 @@
-docker build -t textimager-uima-spacy-multi-tagger:0.1 src/main/docker
