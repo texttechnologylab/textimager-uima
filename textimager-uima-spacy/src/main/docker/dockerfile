@@ -11,7 +11,7 @@ RUN python3 -m spacy download en_core_web_sm
 
 EXPOSE 8000
 
-COPY ./spacy_multi_tagger.py ./spacy_multi_tagger.py
+COPY ./spacy_tagger.py ./spacy_tagger.py
 
-CMD ["spacy_multi_tagger.py"]
+CMD ["spacy_tagger.py"]
 ENTRYPOINT ["python3"]
