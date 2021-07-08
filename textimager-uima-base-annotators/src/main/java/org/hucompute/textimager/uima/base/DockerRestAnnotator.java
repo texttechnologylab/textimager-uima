@@ -13,7 +13,6 @@ import javax.json.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -49,21 +48,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	protected String dockerImageTag;
 
 	/**
-	 * The Docker network mode
-	 */
-	public static final String PARAM_DOCKER_NETWORK = "dockerNetwork";
-	@ConfigurationParameter(name = PARAM_DOCKER_NETWORK, mandatory = false)
-	protected String dockerNetwork;
-
-	/**
-	 * The Docker network mode
-	 */
-	public static final String PARAM_DOCKER_SERVICE_IP = "dockerServiceIp";
-	@ConfigurationParameter(name = PARAM_DOCKER_SERVICE_IP, mandatory = false, defaultValue = "127.0.0.1")
-	protected String dockerServiceIp;
-
-	/**
-	 * Port inside the container to map to host
+	 * Port inside the container to use
 	 * If left empty uses the default of the annotation class
 	 */
 	public static final String PARAM_DOCKER_PORT = "dockerPort";
@@ -71,26 +56,26 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	protected int dockerPort;
 
 	/**
-	 * The docker volumes options, separated by comma
-	 * TODO currently not implemented
+	 * Optional port on the host to use
 	 */
-	public static final String PARAM_DOCKER_VOLUMES = "dockerVolumes";
-	@ConfigurationParameter(name = PARAM_DOCKER_VOLUMES, mandatory = false)
-	protected String dockerVolumes;
-    
-    /**
-     * The min port to automatically find a free port for container
-     */
-    public static final String PARAM_PORT_MIN = "portMin";
-    @ConfigurationParameter(name = PARAM_PORT_MIN, mandatory = false, defaultValue = "50000")
-    protected int portMin;
-    
-    /**
-     * The max port to automatically find a free port for container
-     */
-    public static final String PARAM_PORT_MAX = "portMax";
-    @ConfigurationParameter(name = PARAM_PORT_MAX, mandatory = false, defaultValue = "59999")
-    protected int portMax;
+	public static final String PARAM_DOCKER_HOST_PORT = "dockerHostPort";
+	@ConfigurationParameter(name = PARAM_DOCKER_HOST_PORT, mandatory = false)
+	protected int dockerHostPort;
+
+	/**
+	 * Override Docker hostname to use locally
+	 */
+	public static final String PARAM_DOCKER_HOSTNAME = "dockerHostname";
+	@ConfigurationParameter(name = PARAM_DOCKER_HOSTNAME, mandatory = false)
+	protected String dockerHostname;
+
+	/**
+	 * The Docker network mode
+	 * Default is TextImager network, use "bridge" to deploy locally
+	 */
+	public static final String PARAM_DOCKER_NETWORK = "dockerNetwork";
+	@ConfigurationParameter(name = PARAM_DOCKER_NETWORK, mandatory = false, defaultValue = "textimager_ducc_net")
+	protected String dockerNetwork;
 
 	/**
 	 * Docker API socket path, currently only socket is supported
@@ -109,31 +94,11 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	abstract protected int getDefaultDockerPort();
 
 	// Docker/Container API
-	protected DockerAPI docker;
 	protected ContainerWrapper container;
 
 	// Endpoint to check for service readyness
 	protected String getRestEndpointTextImagerReady() {
 		return restEndpoint + "/textimager/ready";
-	}
-
-	// Check if port is in use
-	protected boolean isPortFree(String host, int port) {
-		Socket s = null;
-		try {
-			s = new Socket(host, port);
-			return false;
-		} catch (Exception e) {
-			return true;
-		} finally {
-			if (s != null) {
-				try {
-					s.close();
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-		}
 	}
 
 	// Check if service is ready
@@ -162,86 +127,62 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 		// use docker only if no rest endpoint is specified
 		if (restEndpoint == null) {
-			// Get Docker image from annotator class if not specified
-			if (dockerImage == null) {
-				dockerImage = getDefaultDockerImage();
-			}
-
-			// Get Docker image tag from annotator class if not specified
-			if (dockerImageTag == null) {
-				dockerImageTag = getDefaultDockerImageTag();
-			}
-
-			// Build full image name from image and repository
-			String fullDockerImageName = dockerImage;
-			if (dockerRegistry != null) {
-				fullDockerImageName = dockerRegistry + "/" + fullDockerImageName;
-			}
-
-			// Full Docker image name
-			String fullDockerImage = fullDockerImageName + ":" + dockerImageTag;
-			System.out.println("Using Docker image: " + fullDockerImage);
-
-			// Get Docker port from annotator class if not specified
-			if (dockerPort == 0) {
-				dockerPort = getDefaultDockerPort();
-			}
-			System.out.println("Using Docker port: " + dockerPort);
-
-			// Connect to Docker API
 			try {
-				docker = new DockerAPI(dockerSocket);
-				System.out.println("Connected to Docker API");
-			} catch (Exception e) {
-				throw new ResourceInitializationException(e);
-			}
-
-			// Pull the docker image to use
-			System.out.println("Pulling docker image...");
-			try {
-				docker.get_handle().images().pull(fullDockerImageName, dockerImageTag);
-			} catch (Exception e) {
-				throw new ResourceInitializationException(e);
-			}
-
-			// Find free port
-			int port = portMin;
-			while (!isPortFree(dockerServiceIp, port)) {
-				System.out.println("Port " + port + " not available, checking next...");
-				port++;
-				if (port > portMax) {
-					throw new ResourceInitializationException(new Exception("No free ports found"));
+				// Get Docker image from annotator class if not specified
+				if (dockerImage == null) {
+					dockerImage = getDefaultDockerImage();
 				}
-			}
-			System.out.println("Using host port " + port);
 
-			// Update endpoint of RestAnnotator
-			restEndpoint = "http://" + dockerServiceIp + ":" + port;
-			System.out.println("Container endpoint is " + restEndpoint);
+				// Get Docker image tag from annotator class if not specified
+				if (dockerImageTag == null) {
+					dockerImageTag = getDefaultDockerImageTag();
+				}
 
-			// Container name based on timestamp
-	        String name = getClass().getName() + "__textimager" + "." + Instant.now().getEpochSecond() + "." + UUID.randomUUID();
-			System.out.println("Starting container \"" + name + "\"");
+				// Build full image name from image and repository
+				String fullDockerImageName = dockerImage;
+				if (dockerRegistry != null) {
+					fullDockerImageName = dockerRegistry + "/" + fullDockerImageName;
+				}
 
-	        try {
+				// Full Docker image name
+				String fullDockerImage = fullDockerImageName + ":" + dockerImageTag;
+				System.out.println("Using Docker image: " + fullDockerImage);
+
+				// Get Docker port from annotator class if not specified
+				if (dockerPort == 0) {
+					dockerPort = getDefaultDockerPort();
+				}
+				System.out.println("Using Docker port: " + dockerPort);
+
+				// Connect to Docker API
+				DockerAPI docker = new DockerAPI(dockerSocket);
+				System.out.println("Connected to Docker API");
+
+				// Pull the docker image to use
+				System.out.println("Pulling docker image...");
+				docker.get_handle().images().pull(fullDockerImageName, dockerImageTag);
+
+				// Container name based on timestamp
+				String name = getClass().getName() + "__textimager" + "." + Instant.now().getEpochSecond() + "." + UUID.randomUUID();
+				System.out.println("Starting container \"" + name + "\"");
+
 				// Build container
 				ContainerParametersBuilder parametersBuilder = new ContainerParametersBuilder(fullDockerImage);
-				parametersBuilder.set_port_mapping(dockerPort, port);
 
-				if (dockerNetwork != null) {
-					System.out.println("Using Docker network " + dockerNetwork);
-					parametersBuilder.set_network_mode(dockerNetwork);
+				// Optionally add port mapping
+				int containerPort = dockerPort;
+				if (dockerHostPort != 0) {
+					System.out.println("Using Docker port mapping " + dockerPort + " -> " + dockerHostPort);
+					parametersBuilder.set_port_mapping(dockerPort, dockerHostPort);
+					containerPort = dockerHostPort;
 				}
 
-				// TODO add volumes
-				/*if (dockerVolumes != null) {
-					for (String m : dockerVolumes.split(",", -1)) {
-					}
-				}*/
+				// Set network
+				System.out.println("Using Docker network " + dockerNetwork);
+				parametersBuilder.set_network_mode(dockerNetwork);
 
+				// Create container
 				JsonObject config = parametersBuilder.get_config();
-
-				// Start container
 				container = new ContainerWrapper(
 						docker.get_handle()
 								.containers()
@@ -249,19 +190,36 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				);
 				System.out.println("Created container with id " + container.get_handle().containerId());
 
+				// Start container
 				container.get_handle().start();
 
 				// Wait until container is running
-				do {
-					System.out.println("Waiting for Docker container to start...");
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// ignore
-					}
-				} while (!container.fetch_is_running());
+				// TODO add timeout
+				try {
+					do {
+						System.out.println("Waiting for Docker container to start...");
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							// ignore
+						}
+					} while (!container.fetch_is_running());
+				} catch (InterruptedException e) {
+					// ignore
+				}
+
+				// Fetch inspect data
+				container.fetch();
+
+				// Update endpoint of RestAnnotator
+				if (dockerHostname == null) {
+					dockerHostname = container.get_hostname();
+				}
+				restEndpoint = "http://" + dockerHostname + ":" + containerPort;
+				System.out.println("Container endpoint is " + restEndpoint);
 
 				// Wait until server is ready
+				// TODO add timeout
 				do {
 					System.out.println("Waiting for service to be ready...");
 					try {
