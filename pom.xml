@@ -82,6 +82,7 @@
 
 
 	<modules>
+		<module>textimager-uima-docker</module>
 		<module>textimager-uima-base-annotators</module>
 		<module>textimager-uima-types</module>
 		<module>textimager-uima-io</module>
