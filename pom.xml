@@ -124,5 +124,6 @@
 		<module>textimager-uima-gnd-gazetteer</module>
 		<module>textimager-uima-biofid-general-gazetteer</module>
 		<module>textimager-uima-steps</module>
+		<module>textimager-uima-gervader</module>
     </modules>
 </project>
