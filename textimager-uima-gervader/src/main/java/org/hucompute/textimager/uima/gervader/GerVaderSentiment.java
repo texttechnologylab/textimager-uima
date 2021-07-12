@@ -62,27 +62,12 @@ public class GerVaderSentiment extends DockerRestAnnotator {
                 int begin = sentence.getJSONObject("sentence").getInt("begin");
                 int end = sentence.getJSONObject("sentence").getInt("end");
 
-                Sentiment sentiment = new Sentiment(aJCas, begin, end);
-                sentiment.setSentiment(sentence.getFloat("compound"));
+                org.hucompute.textimager.uima.type.GerVaderSentiment sentiment = new org.hucompute.textimager.uima.type.GerVaderSentiment(aJCas, begin, end);
+                sentiment.setSentiment(sentence.getDouble("compound"));
+                sentiment.setPos(sentence.getDouble("pos"));
+                sentiment.setNeu(sentence.getDouble("neu"));
+                sentiment.setNeg(sentence.getDouble("neg"));
                 sentiment.addToIndexes();
-
-                AnnotationComment commentPos = new AnnotationComment(aJCas);
-                commentPos.setReference(sentiment);
-                commentPos.setKey("GerVADER_pos");
-                commentPos.setValue(String.valueOf(sentence.getFloat("pos")));
-                commentPos.addToIndexes();
-
-                AnnotationComment commentNeu = new AnnotationComment(aJCas);
-                commentNeu.setReference(sentiment);
-                commentNeu.setKey("GerVADER_neu");
-                commentNeu.setValue(String.valueOf(sentence.getFloat("neu")));
-                commentNeu.addToIndexes();
-
-                AnnotationComment commentNeg = new AnnotationComment(aJCas);
-                commentNeg.setReference(sentiment);
-                commentNeg.setKey("GerVADER_neg");
-                commentNeg.setValue(String.valueOf(sentence.getFloat("neg")));
-                commentNeg.addToIndexes();
             });
         }
     }
