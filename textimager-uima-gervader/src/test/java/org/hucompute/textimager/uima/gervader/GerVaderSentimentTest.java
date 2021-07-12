@@ -32,7 +32,7 @@ public class GerVaderSentimentTest {
 		for (String s : sentences) {
 			Sentence anno = new Sentence(jCas, sentence.length(), sentence.length()+s.length());
 			anno.addToIndexes();
-			sentence.append(s);
+			sentence.append(s).append(" ");
 		};
 		jCas.setDocumentText(sentence.toString());
 
@@ -40,7 +40,8 @@ public class GerVaderSentimentTest {
 				GerVaderSentiment.PARAM_DOCKER_REGISTRY, "localhost:5000",
 				GerVaderSentiment.PARAM_DOCKER_NETWORK, "bridge",
 				GerVaderSentiment.PARAM_DOCKER_HOSTNAME, "localhost",
-				GerVaderSentiment.PARAM_DOCKER_HOST_PORT, 8000
+				GerVaderSentiment.PARAM_DOCKER_HOST_PORT, 8000,
+				GerVaderSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
 		);
 
 		SimplePipeline.runPipeline(jCas, gervader);

@@ -11,8 +11,13 @@ class TextImagerSentence(BaseModel):
     end: int
 
 
-class TextImagerRequest(BaseModel):
+class TextImagerSelection(BaseModel):
+    selection: str
     sentences: List[TextImagerSentence]
+
+
+class TextImagerRequest(BaseModel):
+    selections: List[TextImagerSelection]
 
 
 class SentenceSentiment(BaseModel):
@@ -34,11 +39,16 @@ class SentenceSentiment(BaseModel):
     neg: float
 
 
+class SentimentSelection(BaseModel):
+    selection: str
+    sentences: List[SentenceSentiment]
+
+
 class SentimentResponse(BaseModel):
     # Info from GerVADER:
     # VADER works best when analysis is done at the sentence level (but it can work on single words or entire novels).
     # You could use NLTK to break the paragraph into sentence tokens for VADER, then average the results for the paragraph.....
-    sentences: List[SentenceSentiment]
+    selections: List[SentimentSelection]
 
 
 analyzer = vaderSentimentGER.SentimentIntensityAnalyzer()
@@ -54,21 +64,59 @@ def get_textimager():
 
 
 @app.post("/process")
-def process(request: TextImagerRequest):
-    processed_sentences = []
+def process(request: TextImagerRequest) -> SentimentResponse:
+    processed_selections = []
 
-    for sentence in request.sentences:
-        vs = analyzer.polarity_scores(sentence.text)
+    for selection in request.selections:
+        processed_sentences = []
 
-        processed_sentences.append(SentenceSentiment(
-            sentence=sentence,
-            compound=vs["compound"],
-            pos=vs["pos"],
-            neu=vs["neu"],
-            neg=vs["neg"],
+        for sentence in selection.sentences:
+            vs = analyzer.polarity_scores(sentence.text)
+
+            processed_sentences.append(SentenceSentiment(
+                sentence=sentence,
+                compound=vs["compound"],
+                pos=vs["pos"],
+                neu=vs["neu"],
+                neg=vs["neg"],
+            ))
+
+        # compute avg for this selection, if >1
+        if len(processed_sentences) > 1:
+            begin = processed_sentences[0].sentence.begin
+            end = processed_sentences[-1].sentence.end
+
+            compounds = 0
+            poss = 0
+            neus = 0
+            negs = 0
+            for sentence in processed_sentences:
+                compounds += sentence.compound
+                poss += sentence.pos
+                neus += sentence.neu
+                negs += sentence.neg
+
+            compound = compounds / len(processed_sentences)
+            pos = poss / len(processed_sentences)
+            neu = neus / len(processed_sentences)
+            neg = negs / len(processed_sentences)
+
+            processed_sentences.append(SentenceSentiment(
+                sentence=TextImagerSentence(text="",
+                                            begin=begin,
+                                            end=end),
+                compound=compound,
+                pos=pos,
+                neu=neu,
+                neg=neg,
+            ))
+
+        processed_selections.append(SentimentSelection(
+            selection=selection.selection,
+            sentences=processed_sentences
         ))
 
-    response = SentimentResponse(sentences=processed_sentences)
+    response = SentimentResponse(selections=processed_selections)
     return response
 
 
