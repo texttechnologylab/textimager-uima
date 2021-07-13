@@ -22,5 +22,27 @@
         </featureDescription>
       </features>
     </typeDescription>
+      <typeDescription>
+          <name>org.hucompute.textimager.uima.type.GerVaderSentiment</name>
+          <description/>
+          <supertypeName>org.hucompute.textimager.uima.type.Sentiment</supertypeName>
+          <features>
+              <featureDescription>
+                  <name>pos</name>
+                  <description/>
+                  <rangeTypeName>uima.cas.Double</rangeTypeName>
+              </featureDescription>
+              <featureDescription>
+                  <name>neu</name>
+                  <description/>
+                  <rangeTypeName>uima.cas.Double</rangeTypeName>
+              </featureDescription>
+              <featureDescription>
+                  <name>neg</name>
+                  <description/>
+                  <rangeTypeName>uima.cas.Double</rangeTypeName>
+              </featureDescription>
+          </features>
+      </typeDescription>
   </types>
 </typeSystemDescription>

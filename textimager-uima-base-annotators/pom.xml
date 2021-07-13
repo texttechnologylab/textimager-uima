@@ -51,11 +51,10 @@
 			<artifactId>javax.json</artifactId>
 			<version>1.0.4</version>
 		</dependency>
-		<!-- TODO: integrate directly in this project -->
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-docker</artifactId>
-			<version>0.3.0</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>
