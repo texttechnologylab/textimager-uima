@@ -55,10 +55,16 @@
             <artifactId>dkpro-core-languagetool-asl</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>org.hucompute.textimager.uima</groupId>
             <artifactId>jcore-types</artifactId>
             <version>0.3.0</version>
+            <scope>test</scope>
+        </dependency>-->
+        <dependency>
+            <groupId>de.julielab</groupId>
+            <artifactId>jcore-types</artifactId>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 

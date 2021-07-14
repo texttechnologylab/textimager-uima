@@ -2,6 +2,7 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.hucompute.textimager.uima.base.RestAnnotator;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
@@ -22,7 +23,7 @@ import java.io.*;
  * Input: UIMA-JCas
  * Output: Textimager-UIMA-Sentiment*/
 
-public class Jbsd extends  RestAnnotator {
+public class Jbsd extends DockerRestAnnotator {
     /**
      * Tagger address.
      * @return endpoint
@@ -32,6 +33,21 @@ public class Jbsd extends  RestAnnotator {
         return "/jbsd";
     }
 
+
+    @Override
+    protected String getDefaultDockerImage() {
+        return "textimager-juli-api";
+    }
+
+    @Override
+    protected String getDefaultDockerImageTag() {
+        return "1.0";
+    }
+
+    @Override
+    protected int getDefaultDockerPort() {
+        return 8080;
+    }
 
     @Override
     public void initialize(UimaContext aContext) throws  ResourceInitializationException
