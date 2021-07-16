@@ -9,19 +9,35 @@ class JavaData(BaseModel):
     lang: str
 
 
-nlps = {
-    "de": spacy.load("de_core_news_sm"),
-    "en": spacy.load("en_core_web_sm")
+lang_nlps = {
+            "en": "en_core_web_sm",         # English
+            "de": "de_core_news_sm",        # German
+            "zh": "zh_core_web_sm",         # Chinese
+            "da": "da_core_news_sm",        # Danish
+            "nl": "nl_core_news_sm",        # Dutch
+            "fr": "fr_core_news_sm",        # French
+            "el": "el_core_news_sm",        # Greek
+            "it": "it_core_news_sm",        # Italian
+            "ja": "ja_core_news_sm",        # Japanese
+            "lt": "lt_core_news_sm",        # Lithuanian
+            "xx": "xx_ent_wiki_sm",         # Multilingual
+            "nb": "nb_core_news_sm",        # Norwegian Bokmal
+            "pl": "pl_core_news_sm",        # Polish
+            "pt": "pt_core_news_sm",        # Portugese
+            "ro": "ro_core_news_sm",        # Romanian
+            # "ru": "ru_core_news_sm",        # Russian
+            "es": "es_core_news_sm"         # Spanish
+            }
 }
 
 
 def process_multi(data):
     text, lang = data.text, data.lang
 
-    if lang in nlps:
-        nlp = nlps[lang]
+    if lang in lang_nlps:
+        nlp = spacy.load(lang_nlps[lang])
     else:
-        nlp = nlps["en"]
+        nlp = spacy.load(lang_nlps["xx"])
 
     if nlp.max_length < len(text):
         nlp.max_length = len(text) + 100
