@@ -126,5 +126,7 @@
 		<module>textimager-uima-steps</module>
 		<module>textimager-uima-gervader</module>
 		<module>textimager-uima-bert-sentiment</module>
-    </modules>
+		<module>jcore-base/jcore-types</module>
+		<module>textimager-uima-julie</module>
+	</modules>
 </project>
