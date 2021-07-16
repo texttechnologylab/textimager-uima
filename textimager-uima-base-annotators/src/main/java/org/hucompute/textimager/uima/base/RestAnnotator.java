@@ -25,7 +25,7 @@ public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
 	}
 
 	// Build request JSON object
-	protected abstract JSONObject buildJSON(JCas aJCas);
+	protected abstract JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException;
 
 	// Update CAS with JSON results
 	protected abstract void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException;

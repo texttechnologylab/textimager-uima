@@ -173,6 +173,16 @@
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-gervader</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-bert-sentiment</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-gazetteer</artifactId>
 					<version>${project.version}</version>
 				</dependency>

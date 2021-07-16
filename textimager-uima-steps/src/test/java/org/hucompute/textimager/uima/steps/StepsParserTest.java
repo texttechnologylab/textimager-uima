@@ -24,6 +24,7 @@ public class StepsParserTest {
                 StepsParser.PARAM_REST_ENDPOINT, "http://localhost:8000"
         );
 
+        StepsParser.set_batch_size(jCas,22);
         SimplePipeline.runPipeline(jCas, segmenter, stepsParser);
 
         JCasUtil.select(jCas, Dependency.class).stream().forEach(System.out::println);

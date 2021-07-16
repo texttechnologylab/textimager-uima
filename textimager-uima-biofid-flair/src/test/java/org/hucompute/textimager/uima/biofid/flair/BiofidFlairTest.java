@@ -23,6 +23,7 @@ public class BiofidFlairTest {
         String sentence_str = "Das ist ein Test am 08.12.2020, einem Dienstag in Frankfurt.";
 
         JCas jCas = JCasFactory.createText(sentence_str + " " + sentence_str, "de");
+        BiofidFlair.set_batch_size(jCas,10);
 
         Sentence sentence1 = new Sentence(jCas, 0, sentence_str.length());
         sentence1.addToIndexes();

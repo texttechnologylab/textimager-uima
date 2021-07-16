@@ -1,0 +1,13 @@
+asgiref==3.4.1
+certifi==2021.5.30
+chardet==4.0.0
+click==8.0.1
+fastapi==0.66.0
+h11==0.12.0
+idna==2.10
+pydantic==1.8.2
+requests==2.25.1
+starlette==0.14.2
+typing-extensions==3.10.0.0
+urllib3==1.26.6
+uvicorn==0.14.0

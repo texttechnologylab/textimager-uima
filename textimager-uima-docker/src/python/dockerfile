@@ -1,0 +1,15 @@
+FROM ubuntu:21.04
+ARG DOCKER_GROUP_ID
+
+USER root
+RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y curl
+RUN apt-get install unzip
+RUN apt-get -y install python3
+RUN apt-get -y install python3-pip
+RUN pip3 install --upgrade pip
+RUN pip3 install docker
+RUN pip3 install six
+RUN groupadd -g $DOCKER_GROUP_ID docker
+ADD ./main.py $HOME/main.py
+
+CMD python3 main.py
