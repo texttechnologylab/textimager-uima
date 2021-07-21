@@ -39,7 +39,7 @@ stanza_pipelines = {}
 
 def stanza_get_pipeline(lang, tool):
     if lang in stanza_pipelines and tool in stanza_pipelines[lang]:
-        return stanza_pipelines[tool][lang]
+        return stanza_pipelines[lang][tool]
 
     nlp = None
 
