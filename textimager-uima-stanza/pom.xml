@@ -18,5 +18,11 @@
 			<artifactId>textimager-uima-util</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-languagetool-asl</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
