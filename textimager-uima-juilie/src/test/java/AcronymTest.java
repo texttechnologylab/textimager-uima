@@ -1,24 +1,17 @@
 import de.julielab.jcore.types.Abbreviation;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.cas.impl.AnnotationImpl;
-import org.apache.uima.fit.factory.AnnotationFactory;
-import org.apache.uima.fit.factory.JCasBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.TOP;
-import org.dkpro.core.languagetool.LanguageToolSegmenter;
-import org.hucompute.textimager.uima.type.Sentiment;
+
 import org.junit.Test;
 
 
 import java.io.IOException;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.apache.uima.fit.util.JCasUtil.selectAll;
 import static org.junit.Assert.assertArrayEquals;
 
 public class AcronymTest {
@@ -29,10 +22,10 @@ public class AcronymTest {
         jCas.setDocumentLanguage("de");
 
         //test zwecke
-        AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
-        SimplePipeline.runPipeline(jCas, segmenter);
+        //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
+        //SimplePipeline.runPipeline(jCas, segmenter);
 
-        AnalysisEngineDescription engine = createEngineDescription(Acronym.class, Jbsd.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(Acronym.class, Acronym.PARAM_REST_ENDPOINT, "http://localhost:8080");
 
         SimplePipeline.runPipeline(jCas, engine);
 

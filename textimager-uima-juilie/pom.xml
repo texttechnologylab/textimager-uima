@@ -65,7 +65,6 @@
             <groupId>de.julielab</groupId>
             <artifactId>jcore-types</artifactId>
             <version>1</version>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>

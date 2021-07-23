@@ -1,9 +1,11 @@
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.hucompute.textimager.uima.base.RestAnnotator;
+import de.julielab.jcore.types.Sentence;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
 import Reader.JsonReader;
@@ -74,6 +76,12 @@ public class Jbsd extends DockerRestAnnotator {
 
         JsonReader reader = new JsonReader();
         reader.UpdateJsonToCas(jsonResult, aJCas);
+
+        for (Sentence sentence: JCasUtil.select(aJCas, Sentence.class))
+        {
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence dsentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(aJCas, sentence.getBegin(), sentence.getEnd());
+            dsentence.addToIndexes();
+        }
 
     }
 
