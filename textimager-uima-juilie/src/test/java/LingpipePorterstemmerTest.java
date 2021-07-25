@@ -30,10 +30,14 @@ public class LingpipePorterstemmerTest {
 
         String[] casStemmer = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getStemmedForm().getValue()).toArray(String[]::new);
 
+        String[] casStemmerDkpro = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class).stream().map(a -> a.getStemValue()).toArray(String[]::new);
+
+
         String[] testStemmer= new String[] {
                 "Three","hors","were","go","contempl","around","bushi","bush","."
         };
 
+        assertArrayEquals(casStemmerDkpro, casStemmer);
         assertArrayEquals(testStemmer, casStemmer);
 
     }

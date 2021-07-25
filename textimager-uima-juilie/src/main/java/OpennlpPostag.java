@@ -1,6 +1,6 @@
 import Reader.JsonReader;
 import de.julielab.jcore.types.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.util.JCasUtil;
@@ -12,14 +12,14 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-public class LingpipePorterstemmer extends RestAnnotator {
+public class OpennlpPostag extends RestAnnotator {
     /**
      * Tagger address.
      * @return endpoint
      */
     @Override
     protected String getRestRoute() {
-        return "/lingpipeporterstemmer";
+        return "/opennlpPostag";
     }
 
     @Override
@@ -51,9 +51,9 @@ public class LingpipePorterstemmer extends RestAnnotator {
         for (Token token: JCasUtil.select(aJCas, Token.class))
         {
             de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token dtoken = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(aJCas, token.getBegin(), token.getEnd());
-            Stem stem = new Stem(aJCas, token.getStemmedForm().getBegin(), token.getStemmedForm().getEnd());
-            dtoken.setStem(stem);
-            dtoken.getStem().setValue(token.getStemmedForm().getValue());
+            POS postag = new POS(aJCas, token.getPosTag(0).getBegin(), token.getPosTag(0).getEnd());
+            postag.setPosValue(token.getPosTag(0).getValue());
+            dtoken.setPos(postag);
             dtoken.addToIndexes();
         }
 
