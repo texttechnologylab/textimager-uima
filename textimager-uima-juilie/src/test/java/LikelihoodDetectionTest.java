@@ -29,10 +29,15 @@ public class LikelihoodDetectionTest {
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casLikelihoodIndicator = (String[]) JCasUtil.select(jCas, LikelihoodIndicator.class).stream().map(a -> a.getCoveredText()).toArray(String[]::new);
+        String[] casLikelihoodCategory = (String[]) JCasUtil.select(jCas, LikelihoodIndicator.class).stream().map(a -> a.getLikelihood()).toArray(String[]::new);
 
 
         String[] testcasLikelihoodIndicator= new String[] {
-                "appears","moderate","raises the possibility","moderate"
+                "appears","raises the possibility"
+        };
+
+        String[] testcasLikelihoodCategory= new String[] {
+                "moderate","moderate"
         };
 
         assertArrayEquals(casLikelihoodIndicator, testcasLikelihoodIndicator);
