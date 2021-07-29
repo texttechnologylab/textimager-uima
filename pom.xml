@@ -92,18 +92,18 @@
 <!--		<module>textimager-uima-talismane</module>-->
 <!--		<module>textimager-uima-IXA</module>-->
 <!--		<module>textimager-uima-uaic</module>-->
-		<module>textimager-uima-spacy</module>
+		<!--<module>textimager-uima-spacy</module>-->
 <!--		<module>textimager-uima-NeuralnetworkNER</module>-->
 <!--		<module>textimager-uima-cltk</module>-->
-		<module>textimager-uima-fasttext</module>
+		<!--<module>textimager-uima-fasttext</module>
 		<module>textimager-uima-tagme</module>
 		<module>textimager-uima-HUComputeNER</module>
 		<module>textimager-uima-disambiguation</module>
-		<module>textimager-uima-io-abbyy</module>
+		<module>textimager-uima-io-abbyy</module>-->
 <!--		<module>textimager-uima-deploy</module>-->
-		<module>textimager-uima-heideltime</module>
+		<!--<module>textimager-uima-heideltime</module>-->
 <!--		<module>textimager-uima-agreement</module>-->
-		<module>textimager-uima-biofid-gazetteer</module>
+		<!--<module>textimager-uima-biofid-gazetteer</module>-->
 <!--		<module>textimager-uima-deep-eos</module>-->
 		<module>textimager-uima-similarity</module>
 		<module>textimager-uima-database</module>
@@ -113,17 +113,17 @@
 		<module>textimager-uima-io-embeddings</module>
 <!--		<module>textimager-uima-allennlp</module>-->
 <!--		<module>textimager-uima-flair-ner</module>-->
-		<module>textimager-uima-text2scene</module>
-		<module>textimager-uima-textblob</module>
+	<!--	<module>textimager-uima-text2scene</module>
+		<module>textimager-uima-textblob</module>-->
 <!-- 		<module>textimager-uima-transformers</module>-->
 <!--		<module>textimager-uima-w2v</module>-->
-		<module>textimager-uima-textscorer</module>
+		<!--<module>textimager-uima-textscorer</module>
 		<module>textimager-uima-biofid-flair</module>
 		<module>textimager-uima-gazetteer</module>
 		<module>textimager-uima-geonames-gazetteer</module>
 		<module>textimager-uima-gnd-gazetteer</module>
 		<module>textimager-uima-biofid-general-gazetteer</module>
-		<module>textimager-uima-steps</module>
+		<module>textimager-uima-steps</module>-->
 		<module>textimager-uima-juilie</module>
 		<module>jcore-base/jcore-types</module>
 	</modules>
