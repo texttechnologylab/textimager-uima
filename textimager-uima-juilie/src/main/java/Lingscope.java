@@ -9,14 +9,14 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-public class Banner extends RestAnnotator {
+public class Lingscope extends RestAnnotator {
     /**
      * Tagger address.
      * @return endpoint
      */
     @Override
     protected String getRestRoute() {
-        return "/banner";
+        return "/lingscope";
     }
 
     @Override
@@ -45,5 +45,15 @@ public class Banner extends RestAnnotator {
         JsonReader reader = new JsonReader();
         reader.UpdateJsonToCas(jsonResult, aJCas);
 
+        /*for (Token token: JCasUtil.select(aJCas, Token.class))
+        {
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token dtoken = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(aJCas, token.getBegin(), token.getEnd());
+            POS postag = new POS(aJCas, token.getPosTag(0).getBegin(), token.getPosTag(0).getEnd());
+            postag.setPosValue(token.getPosTag(0).getValue());
+            dtoken.setPos(postag);
+            dtoken.addToIndexes();
+        }*/
+
     }
+
 }
