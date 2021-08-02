@@ -93,7 +93,7 @@ public class StanzaSentiment extends DockerRestAnnotator {
         }
 
         // Add document sentiment
-        if (sentenceCount > 0) {
+        if (sentenceCount > 1) {
             fullDocSentiment = fullDocSentiment / sentenceCount;
 
             Sentiment sentiment = new Sentiment(aJCas, 0, aJCas.getDocumentText().length());
