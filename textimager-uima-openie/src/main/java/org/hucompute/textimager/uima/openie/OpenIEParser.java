@@ -51,7 +51,6 @@ public class OpenIEParser extends JCasAnnotator_ImplBase {
 	@Override
 	public void initialize(UimaContext aContext)
 			throws ResourceInitializationException {
-		// TODO Auto-generated method stub
 		super.initialize(aContext);
 
 		this.openie = new OpenIE(new ClearParser(new ClearPostagger(new ClearTokenizer())), new ClearSrl(), false, false);
@@ -68,12 +67,13 @@ public class OpenIEParser extends JCasAnnotator_ImplBase {
 		for (Instance instance : list_extractions) {
 			List<Argument> list_arg2s = JavaConversions.seqAsJavaList(instance.extr().arg2s());
 			for (Argument argument : list_arg2s) {
-				if (instance.confidence() > 0.7) {
-					System.out.print(instance.extr().arg1().displayText() + "\t");
-					System.out.print(instance.extr().rel().text() + "\t");
-					System.out.print(argument.text() + "\t");
-					System.out.println(instance.confidence() + "\t");
-				}
+				System.out.print(instance.extr().arg1().displayText() + "\t");
+				System.out.print(instance.extr().arg1().offsets() + "\t");
+				System.out.print(instance.extr().rel().text() + "\t");
+				System.out.print(instance.extr().rel().offsets() + "\t");
+				System.out.print(argument.text() + "\t");
+				System.out.print(argument.offsets() + "\t");
+				System.out.println(instance.confidence() + "\t");
 			}
 		}
 
