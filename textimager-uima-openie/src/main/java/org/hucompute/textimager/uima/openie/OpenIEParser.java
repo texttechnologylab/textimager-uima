@@ -1,29 +1,14 @@
 package org.hucompute.textimager.uima.openie;
 
-import static org.apache.uima.fit.util.JCasUtil.select;
-
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.dkpro.core.api.parameter.ComponentParameters;
-import org.dkpro.core.api.resources.CasConfigurableProviderBase;
-import org.dkpro.core.api.resources.ModelProviderBase;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-
+import edu.knowitall.collection.immutable.Interval;
 import edu.knowitall.openie.Instance;
 import edu.knowitall.openie.OpenIE;
 import edu.knowitall.tool.parse.ClearParser;
@@ -34,19 +19,11 @@ import edu.knowitall.openie.Argument;
 import scala.collection.Seq;
 import scala.collection.JavaConversions;
 
+import org.hucompute.textimager.uima.type.OpenIERelation;
 
 public class OpenIEParser extends JCasAnnotator_ImplBase {
 
-	/**
-	 * Location from which the model is read.
-	 */
-	public static final String PARAM_MODEL_LOCATION = ComponentParameters.PARAM_MODEL_LOCATION;
-
-	@ConfigurationParameter(name = PARAM_MODEL_LOCATION, mandatory = false)
-	protected String modelLocation;
-
 	protected OpenIE openie;
-
 
 	@Override
 	public void initialize(UimaContext aContext)
@@ -56,37 +33,37 @@ public class OpenIEParser extends JCasAnnotator_ImplBase {
 		this.openie = new OpenIE(new ClearParser(new ClearPostagger(new ClearTokenizer())), new ClearSrl(), false, false);
 	}
 
-
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		System.out.println(aJCas.getDocumentText());
-
 		Seq<Instance> extractions = this.openie.extract(aJCas.getDocumentText());
 		List<Instance> list_extractions = JavaConversions.seqAsJavaList(extractions);
 
 		for (Instance instance : list_extractions) {
 			List<Argument> list_arg2s = JavaConversions.seqAsJavaList(instance.extr().arg2s());
-			for (Argument argument : list_arg2s) {
-				System.out.print(instance.extr().arg1().displayText() + "\t");
-				System.out.print(instance.extr().arg1().offsets() + "\t");
-				System.out.print(instance.extr().rel().text() + "\t");
-				System.out.print(instance.extr().rel().offsets() + "\t");
-				System.out.print(argument.text() + "\t");
-				System.out.print(argument.offsets() + "\t");
-				System.out.println(instance.confidence() + "\t");
+			for (Argument arg2 : list_arg2s) {
+				OpenIERelation relation = new OpenIERelation(aJCas);
+				relation.setConfidence(instance.confidence());
+
+				List<Interval> arg1Offsets = JavaConversions.seqAsJavaList(instance.extr().arg1().offsets());
+				relation.setBeginArg1(arg1Offsets.get(0).start());
+				relation.setEndArg1(arg1Offsets.get(0).end());
+				relation.setValueArg1(instance.extr().arg1().displayText());
+
+				List<Interval> relOffsets = JavaConversions.seqAsJavaList(instance.extr().rel().offsets());
+				relation.setBeginRel(relOffsets.get(0).start());
+				relation.setEndRel(relOffsets.get(0).end());
+				relation.setValueRel(instance.extr().rel().displayText());
+
+				List<Interval> arg2Offsets = JavaConversions.seqAsJavaList(arg2.offsets());
+				relation.setBeginArg2(arg2Offsets.get(0).start());
+				relation.setEndArg2(arg2Offsets.get(0).end());
+				relation.setValueArg2(arg2.displayText());
+
+				relation.setBegin(arg1Offsets.get(0).start());
+				relation.setEnd(arg2Offsets.get(0).end());
+
+				aJCas.addFsToIndexes(relation);
 			}
 		}
-
-		/*
-		for (Sentence sentence : select(aJCas, Sentence.class)) {
-			System.out.println(sentence.getCoveredText());
-		}
-		*/
-	}
-
-	@Override
-	public void destroy() {
-		super.destroy();
-		// destroy openie
 	}
 }
