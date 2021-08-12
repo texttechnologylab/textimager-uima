@@ -82,6 +82,7 @@
 
 
 	<modules>
+		<module>textimager-uima-docker</module>
 		<module>textimager-uima-base-annotators</module>
 		<module>textimager-uima-types</module>
 		<module>textimager-uima-io</module>
@@ -123,5 +124,9 @@
 		<module>textimager-uima-gnd-gazetteer</module>
 		<module>textimager-uima-biofid-general-gazetteer</module>
 		<module>textimager-uima-steps</module>
-    </modules>
+		<module>textimager-uima-gervader</module>
+		<module>textimager-uima-bert-sentiment</module>
+		<module>jcore-base/jcore-types</module>
+		<module>textimager-uima-julie</module>
+	</modules>
 </project>

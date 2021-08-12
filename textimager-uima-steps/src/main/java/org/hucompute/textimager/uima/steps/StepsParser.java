@@ -1,5 +1,6 @@
 package org.hucompute.textimager.uima.steps;
 
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.MetaDataStringField;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
@@ -16,6 +17,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.lang.Integer.parseInt;
 
 public class StepsParser extends RestAnnotator {
 	private static class ConllLine {
@@ -44,6 +47,24 @@ public class StepsParser extends RestAnnotator {
 		super.initialize(aContext);
 	}
 
+	/**
+	 * The unique key to identify the annotation of the dynamic batch size inside of the jCas Object
+	 */
+	static public String DYNAMIC_CONFIGURATION_BATCH_SIZE_KEY = "steps_parser.dynamic_configuration.batch_size";
+
+	/**
+	 * Sets the batch size as annotation inside of the jCAS
+	 * @param aJCAS The jCAS Object to annotate
+	 * @param batch_size The batch size to write into the jCas Object
+	 */
+	public static void set_batch_size(JCas aJCAS, int batch_size) {
+		MetaDataStringField field = new MetaDataStringField(aJCAS);
+		field.setValue(Integer.toString(batch_size));
+		//Set the key to something constant
+		field.setKey(StepsParser.DYNAMIC_CONFIGURATION_BATCH_SIZE_KEY);
+		field.addToIndexes();
+	}
+
 	@Override
 	protected JSONObject buildJSON(JCas aJCas) {
 		// Format:
@@ -53,6 +74,19 @@ public class StepsParser extends RestAnnotator {
 		// List of CONLL Lines
 		// CONLL Corpus:
 		// List of CONLL Sentences
+
+		//Default batch size is 16
+		int batch_size = 16;
+
+		// Extract the batch size from the jCas if there is any
+		for (MetaDataStringField i : JCasUtil.select(aJCas, MetaDataStringField.class)) {
+			if (i.getKey().trim().equals(StepsParser.DYNAMIC_CONFIGURATION_BATCH_SIZE_KEY.trim())) {
+				batch_size = parseInt(i.getValue().trim());
+				if(batch_size > 128) {
+					batch_size = 128;
+				}
+			}
+		}
 
 		JSONArray jsonSentences = new JSONArray();
 		for (Sentence sentence : JCasUtil.select(aJCas, Sentence.class)) {
@@ -94,6 +128,8 @@ public class StepsParser extends RestAnnotator {
 
 		JSONObject payload = new JSONObject();
 		payload.put("sentences", jsonSentences);
+		//Put the batch size in as well
+		payload.put("batch_size",batch_size);
 		return payload;
 	}
 
