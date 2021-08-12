@@ -1,0 +1,6 @@
+spacy==2.3.0
+textblob==0.15.3
+textblob-de==0.4.3
+fastapi==0.65.2
+urllib3==1.26.5
+uvicorn==0.14.0
