@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.textblob;
 
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.hucompute.textimager.uima.base.JepAnnotator;
 
 public abstract class TextBlobBase extends JepAnnotator {

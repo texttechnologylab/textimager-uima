@@ -6,11 +6,12 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.hucompute.textimager.uima.type.Sentiment;
 
 import java.util.HashMap;
 
-public class TextBlobSentiment extends TextBlobBase {
+public class TextBlobSentiment extends DockerRestAnnotator {
 	/**
 	 * Comma separated list of selection to process in order: "text",
 	 * or "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph", ...
