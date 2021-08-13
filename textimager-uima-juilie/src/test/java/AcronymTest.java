@@ -13,8 +13,20 @@ import java.io.IOException;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
-
+/**
+ * Acronym
+ *
+ * @date 13.08.2021
+ *
+ * @author Grzegorz Siwiecki, Chieh Kang
+ * @version 1.1
+ *
+ * This class provide acronym test case */
 public class AcronymTest {
+    /**
+     * Test for simple text.
+     * @throws UIMAException
+     */
     @Test
     public void testProcess() throws IOException, UIMAException {
 
@@ -25,7 +37,11 @@ public class AcronymTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        AnalysisEngineDescription engine = createEngineDescription(Acronym.class, Acronym.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        //AnalysisEngineDescription engine = createEngineDescription(Acronym.class, Acronym.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(Acronym.class, Acronym.PARAM_DOCKER_REGISTRY, "localhost:5000",
+                Acronym.PARAM_DOCKER_NETWORK, "bridge",
+                Acronym.PARAM_DOCKER_HOSTNAME, "localhost",
+                Acronym.PARAM_DOCKER_HOST_PORT, 8000);
 
         SimplePipeline.runPipeline(jCas, engine);
 

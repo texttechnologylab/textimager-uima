@@ -12,7 +12,15 @@ import java.io.IOException;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
-
+/**
+ * CoordinatinoBaseline
+ *
+ * @date 13.08.2021
+ *
+ * @author Grzegorz Siwiecki, Chieh Kang
+ * @version 1.1
+ *
+ * This class provide CoordinationBaseline test case */
 public class CoordinationBaselineTest {
     String Text = "Almost all of these mutations occur in X , Y , and Z cells ; simple upstream and downstream sequence elements are indicated by negative elements .";
     String PosTags = "RB DT IN DT NNS VBP IN NN , NN , CC NN NNS ; JJ JJ CC JJ NN NNS VBP VBD IN JJ NNS .";
@@ -59,13 +67,20 @@ public class CoordinationBaselineTest {
             ent.addToIndexes();
         }
     }
+    /**
+     * Test for simple text.
+     * @throws UIMAException
+     */
     @Test
     public void testProcess() throws IOException, UIMAException {
         JCas jCas = JCasFactory.createText(Text);
         init_jcas(jCas, Text, PosTags, Entity, Entity_Begin, Entity_End);
 
-        AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class, CoordinationBaseline.PARAM_REST_ENDPOINT, "http://localhost:8080");
-
+        //AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class, CoordinationBaseline.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class, CoordinationBaseline.PARAM_DOCKER_REGISTRY, "localhost:5000",
+                CoordinationBaseline.PARAM_DOCKER_NETWORK, "bridge",
+                CoordinationBaseline.PARAM_DOCKER_HOSTNAME, "localhost",
+                CoordinationBaseline.PARAM_DOCKER_HOST_PORT, 8000);
         SimplePipeline.runPipeline(jCas, engine);
 
         //String[] casCordination = (String[]) JCasUtil.select(jCas, Coordination.class).stream().map(a -> a.getConfidence() + " ; " + a.getCoveredText()).toArray(String[]::new);

@@ -12,8 +12,20 @@ import java.io.IOException;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
-
+/**
+ * LingpipePorterstemmer
+ *
+ * @date 13.08.2021
+ *
+ * @author Grzegorz Siwiecki, Chieh Kang
+ * @version 1.1
+ *
+ * This class provide LingpipePorterstemmer test case */
 public class LingpipePorterstemmerTest {
+    /**
+     * Test for simple text.
+     * @throws UIMAException
+     */
     @Test
     public void lingpigeTest() throws IOException, UIMAException {
 
@@ -24,8 +36,11 @@ public class LingpipePorterstemmerTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        AnalysisEngineDescription engine = createEngineDescription(LingpipePorterstemmer.class, LingpipePorterstemmer.PARAM_REST_ENDPOINT, "http://localhost:8080");
-
+        //AnalysisEngineDescription engine = createEngineDescription(LingpipePorterstemmer.class, LingpipePorterstemmer.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(LingpipePorterstemmer.class, LingpipePorterstemmer.PARAM_DOCKER_REGISTRY, "localhost:5000",
+                LingpipePorterstemmer.PARAM_DOCKER_NETWORK, "bridge",
+                LingpipePorterstemmer.PARAM_DOCKER_HOSTNAME, "localhost",
+                LingpipePorterstemmer.PARAM_DOCKER_HOST_PORT, 8000);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casStemmer = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getStemmedForm().getValue()).toArray(String[]::new);

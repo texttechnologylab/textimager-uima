@@ -12,8 +12,20 @@ import java.io.IOException;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
-
+/**
+ * Lingscope
+ *
+ * @date 13.08.2021
+ *
+ * @author Grzegorz Siwiecki, Chieh Kang
+ * @version 1.1
+ *
+ * This class provide Lingscope test case */
 public class LingscopeTest {
+    /**
+     * Test for simple text.
+     * @throws UIMAException
+     */
     @Test
     public void lingscopeTest() throws IOException, UIMAException {
 
@@ -24,8 +36,11 @@ public class LingscopeTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        AnalysisEngineDescription engine = createEngineDescription(Lingscope.class, Lingscope.PARAM_REST_ENDPOINT, "http://localhost:8080");
-
+        //AnalysisEngineDescription engine = createEngineDescription(Lingscope.class, Lingscope.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(Lingscope.class, Lingscope.PARAM_DOCKER_REGISTRY, "localhost:5000",
+                Lingscope.PARAM_DOCKER_NETWORK, "bridge",
+                Lingscope.PARAM_DOCKER_HOSTNAME, "localhost",
+                Lingscope.PARAM_DOCKER_HOST_PORT, 8000);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casLikelihoodIndicator = (String[]) JCasUtil.select(jCas, LikelihoodIndicator.class).stream().map(a -> a.getLikelihood() + " ; "

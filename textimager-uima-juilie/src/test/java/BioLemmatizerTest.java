@@ -12,7 +12,15 @@ import java.io.IOException;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
-
+/**
+ * BieLemmatizer
+ *
+ * @date 13.08.2021
+ *
+ * @author Grzegorz Siwiecki, Chieh Kang
+ * @version 1.1
+ *
+ * This class provide BioLemmatizer test case */
 public class BioLemmatizerTest {
     public void init_jcas(JCas jcas, String[] POSTAG) {
         //initialize index
@@ -32,13 +40,20 @@ public class BioLemmatizerTest {
             index_start = index_end + 1;
         }
     }
+    /**
+     * Test for simple english text.
+     * @throws UIMAException
+     */
     @Test
     public void testProcess() throws IOException, UIMAException {
         String Text = "Three horses were going contemplatively around bushy bushes .";
         JCas jCas = JCasFactory.createText(Text);
         // get postag
-        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_REST_ENDPOINT, "http://localhost:8080");
-
+        //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_DOCKER_REGISTRY, "localhost:5000",
+                OpennlpPostag.PARAM_DOCKER_NETWORK, "bridge",
+                OpennlpPostag.PARAM_DOCKER_HOSTNAME, "localhost",
+                OpennlpPostag.PARAM_DOCKER_HOST_PORT, 8000);
         SimplePipeline.runPipeline(jCas, engine_postag);
 
         String[] casPostag = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getPosTag(0).getValue()).toArray(String[]::new);
@@ -46,7 +61,11 @@ public class BioLemmatizerTest {
         jCas.setDocumentText(Text);
 
         init_jcas(jCas, casPostag);
-        AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class, BioLemmatizer.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        //AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class, BioLemmatizer.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class, BioLemmatizer.PARAM_DOCKER_REGISTRY, "localhost:5000",
+                BioLemmatizer.PARAM_DOCKER_NETWORK, "bridge",
+                BioLemmatizer.PARAM_DOCKER_HOSTNAME, "localhost",
+                BioLemmatizer.PARAM_DOCKER_HOST_PORT, 8000);
 
         SimplePipeline.runPipeline(jCas, engine);
 

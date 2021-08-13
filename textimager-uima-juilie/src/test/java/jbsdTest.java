@@ -27,6 +27,11 @@ import static org.junit.Assert.assertArrayEquals;
  * This class provide several sentece test cases for different languages and inputs types*/
 
 public class jbsdTest {
+
+    /**
+     * Test for english language.
+     * @throws UIMAException
+     */
     @Test
     public void basicTestEn() throws UIMAException {
 
@@ -65,7 +70,10 @@ public class jbsdTest {
         assertArrayEquals(sentence, casSentence);
         assertArrayEquals(senText, casSenTex);
     }
-
+    /**
+     * Test for german language.
+     * @throws UIMAException
+     */
     @Test
     public void basicTestDe() throws UIMAException {
 

@@ -34,16 +34,21 @@ public class Jbsd extends DockerRestAnnotator {
     protected String getRestRoute() {
         return "/jbsd";
     }
-
-
+    /**
+     * Docker image name.
+     * @return name
+     */
     @Override
     protected String getDefaultDockerImage() {
         return "textimager-juli-api";
     }
-
+    /**
+     * Docker image tag.
+     * @return tag
+     */
     @Override
     protected String getDefaultDockerImageTag() {
-        return "1.0";
+        return "1.3";
     }
 
     @Override

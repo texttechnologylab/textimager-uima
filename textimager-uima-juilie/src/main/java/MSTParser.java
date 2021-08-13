@@ -1,9 +1,6 @@
 import Reader.JsonReader;
-import de.julielab.jcore.types.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
@@ -13,14 +10,14 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-public class OpennlpChunk extends DockerRestAnnotator {
+public class MSTParser extends DockerRestAnnotator {
     /**
      * Tagger address.
      * @return endpoint
      */
     @Override
     protected String getRestRoute() {
-        return "/opennlpChunk";
+        return "/mstparser";
     }
     /**
      * Docker image name.
@@ -71,4 +68,3 @@ public class OpennlpChunk extends DockerRestAnnotator {
 
     }
 }
-

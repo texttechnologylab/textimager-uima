@@ -1,9 +1,6 @@
 import Reader.JsonReader;
-import de.julielab.jcore.types.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
@@ -13,14 +10,14 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-public class OpennlpChunk extends DockerRestAnnotator {
+public class LinnaeusSpecies extends DockerRestAnnotator {
     /**
      * Tagger address.
      * @return endpoint
      */
     @Override
     protected String getRestRoute() {
-        return "/opennlpChunk";
+        return "/linnaeusSpecies";
     }
     /**
      * Docker image name.
@@ -69,6 +66,14 @@ public class OpennlpChunk extends DockerRestAnnotator {
         JsonReader reader = new JsonReader();
         reader.UpdateJsonToCas(jsonResult, aJCas);
 
+        /*for (Token token: JCasUtil.select(aJCas, Token.class))
+        {
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token dtoken = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(aJCas, token.getBegin(), token.getEnd());
+            POS postag = new POS(aJCas, token.getPosTag(0).getBegin(), token.getPosTag(0).getEnd());
+            postag.setPosValue(token.getPosTag(0).getValue());
+            dtoken.setPos(postag);
+            dtoken.addToIndexes();
+        }*/
+
     }
 }
-

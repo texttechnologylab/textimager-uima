@@ -11,8 +11,20 @@ import java.io.IOException;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
-
+/**
+ * jtbd
+ *
+ * @date 13.08.2021
+ *
+ * @author Grzegorz Siwiecki, Chieh Kang
+ * @version 1.1
+ *
+ * This class provide jtbd test case */
 public class jtbdTest {
+    /**
+     * Test for simple english text.
+     * @throws UIMAException
+     */
     @Test
     public void tokenizerTestEn() throws IOException, UIMAException {
 
@@ -23,8 +35,11 @@ public class jtbdTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        /*AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_REST_ENDPOINT, "http://localhost:8080");
-
+        //AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_DOCKER_REGISTRY, "localhost:5000",
+                Jtbd.PARAM_DOCKER_NETWORK, "bridge",
+                Jtbd.PARAM_DOCKER_HOSTNAME, "localhost",
+                Jtbd.PARAM_DOCKER_HOST_PORT, 8000);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casOffset = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
@@ -33,10 +48,13 @@ public class jtbdTest {
                 "0-14","14-15","16-23","24-27","28-32","33-36","37-40","40-41","42-46","46-47","47-54","55-60","61-63","63-64","64-65","65-66","66-69","69-70","70-71"
         };
 
-        assertArrayEquals(testOffset, casOffset);*/
+        assertArrayEquals(testOffset, casOffset);
 
     }
-
+    /**
+     * Test for simple german text.
+     * @throws UIMAException
+     */
     @Test
     public void tokenizerTestDe() throws IOException, UIMAException {
 
@@ -47,8 +65,11 @@ public class jtbdTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        /*AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_REST_ENDPOINT, "http://localhost:8080");
-
+        //AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_DOCKER_REGISTRY, "localhost:5000",
+                Jtbd.PARAM_DOCKER_NETWORK, "bridge",
+                Jtbd.PARAM_DOCKER_HOSTNAME, "localhost",
+                Jtbd.PARAM_DOCKER_HOST_PORT, 8000);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casOffset = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
@@ -57,7 +78,7 @@ public class jtbdTest {
                 "0-3","4-7","8-12","13-21","22-31","31-32"
         };
 
-        assertArrayEquals(testOffset, casOffset);*/
+        assertArrayEquals(testOffset, casOffset);
 
     }
 }

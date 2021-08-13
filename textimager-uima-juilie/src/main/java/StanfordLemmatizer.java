@@ -3,13 +3,14 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.hucompute.textimager.uima.base.RestAnnotator;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-public class StanfordLemmatizer extends RestAnnotator {
+public class StanfordLemmatizer extends DockerRestAnnotator {
     /**
      * Tagger address.
      * @return endpoint
@@ -18,7 +19,27 @@ public class StanfordLemmatizer extends RestAnnotator {
     protected String getRestRoute() {
         return "/stanfordlemmatizer";
     }
+    /**
+     * Docker image name.
+     * @return name
+     */
+    @Override
+    protected String getDefaultDockerImage() {
+        return "textimager-juli-api";
+    }
+    /**
+     * Docker image tag.
+     * @return tag
+     */
+    @Override
+    protected String getDefaultDockerImageTag() {
+        return "1.3";
+    }
 
+    @Override
+    protected int getDefaultDockerPort() {
+        return 8080;
+    }
     @Override
     public void initialize(UimaContext aContext) throws ResourceInitializationException
     {
