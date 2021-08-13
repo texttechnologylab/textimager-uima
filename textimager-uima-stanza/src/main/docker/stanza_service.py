@@ -7,21 +7,20 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 
-class TextImagerToken(BaseModel):
-    text: str
-    begin: int
-    end: int
-
-
 class TextImagerSentence(BaseModel):
-    tokens: List[TextImagerToken]
+    tokens: List[str]
     begin: int
     end: int
+
+
+class TextImagerSelection(BaseModel):
+    selection: str
+    sentences: List[TextImagerSentence]
 
 
 class TextImagerRequest(BaseModel):
+    selections: List[TextImagerSelection]
     lang: str
-    sentences: List[TextImagerSentence]
 
 
 class StanzaSentimentSentence(BaseModel):
@@ -29,8 +28,13 @@ class StanzaSentimentSentence(BaseModel):
     sentiment: float
 
 
-class StanzaSentimentResponse(BaseModel):
+class StanzaSentimentSelection(BaseModel):
+    selection: str
     sentences: List[StanzaSentimentSentence]
+
+
+class StanzaSentimentResponse(BaseModel):
+    selections: List[StanzaSentimentSelection]
 
 
 # pipeline per lang and per tool
@@ -87,35 +91,60 @@ def map_sentiment_results(result):
 
 @app.post("/sentiment")
 def process(request: TextImagerRequest) -> StanzaSentimentResponse:
-    sentences = []
+    processed_selections = []
 
     nlp = stanza_get_pipeline(request.lang, "sentiment")
     if nlp is not None:
-        # build stanza doc from pretokenized data
-        doc_data = [
-            [
-                token.text
-                for token in sent.tokens
+        for selection in request.selections:
+            # build stanza doc from pretokenized data
+            doc_data = [
+                [
+                    token
+                    for token in sent.tokens
+                ]
+                for sent in selection.sentences
             ]
-            for sent in request.sentences
-        ]
-        doc = nlp(doc_data)
+            doc = nlp(doc_data)
 
-        if len(doc.sentences) == len(request.sentences):
-            for stanza_sentence, ti_sentence in zip(doc.sentences, request.sentences):
-                sentence = StanzaSentimentSentence(
-                    sentence=ti_sentence,
-                    sentiment=map_sentiment_results(stanza_sentence.sentiment)
-                )
-                sentences.append(sentence)
-        else:
-            # TODO return error message if not equal length
-            print("error: stanza processed doc and textimager provided doc do not contain equal number of sentences!")
+            processed_sentences = []
+            if len(doc.sentences) == len(selection.sentences):
+                for stanza_sentence, ti_sentence in zip(doc.sentences, selection.sentences):
+                    sentence = StanzaSentimentSentence(
+                        sentence=ti_sentence,
+                        sentiment=map_sentiment_results(stanza_sentence.sentiment)
+                    )
+                    processed_sentences.append(sentence)
+            else:
+                # TODO return error message if not equal length
+                print("error: stanza processed doc and textimager provided doc do not contain equal number of sentences!")
+
+            # compute avg for this selection, if >1
+            if len(processed_sentences) > 1:
+                begin = processed_sentences[0].sentence.begin
+                end = processed_sentences[-1].sentence.end
+
+                sentiments = 0
+                for sentence in processed_sentences:
+                    sentiments += sentence.sentiment
+
+                sentiment = sentiments / len(processed_sentences)
+
+                processed_sentences.append(StanzaSentimentSentence(
+                    sentence=TextImagerSentence(tokens=[],
+                                                begin=begin,
+                                                end=end),
+                    sentiment=sentiment
+                ))
+
+            processed_selections.append(StanzaSentimentSelection(
+                selection=selection.selection,
+                sentences=processed_sentences
+            ))
     else:
         # TODO return error message
         print("not pipeline found for sentiment lang", request)
 
-    response = StanzaSentimentResponse(sentences=sentences)
+    response = StanzaSentimentResponse(selections=processed_selections)
     return response
 
 

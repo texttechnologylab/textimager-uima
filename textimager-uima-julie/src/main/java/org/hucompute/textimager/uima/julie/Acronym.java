@@ -13,6 +13,11 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 
 public class Acronym extends RestAnnotator {
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.1";
+    }
+
     /**
      * Tagger address.
      * @return endpoint

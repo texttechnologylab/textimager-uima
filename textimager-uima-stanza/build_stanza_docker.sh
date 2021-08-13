@@ -1,2 +1,1 @@
-docker build -t localhost:5000/textimager-uima-service-stanza:0.2 src/main/docker
-docker push localhost:5000/textimager-uima-service-stanza:0.2
+docker build -t textimager-uima-service-stanza:0.3 src/main/docker

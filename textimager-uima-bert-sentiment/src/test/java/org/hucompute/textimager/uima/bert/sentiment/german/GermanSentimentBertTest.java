@@ -37,10 +37,6 @@ public class GermanSentimentBertTest {
 		jCas.setDocumentText(sentence.toString());
 
 		AnalysisEngineDescription bertSentiment = createEngineDescription(GermanSentimentBert.class,
-				GermanSentimentBert.PARAM_DOCKER_REGISTRY, "localhost:5000",
-				GermanSentimentBert.PARAM_DOCKER_NETWORK, "bridge",
-				GermanSentimentBert.PARAM_DOCKER_HOSTNAME, "localhost",
-				GermanSentimentBert.PARAM_DOCKER_HOST_PORT, 8000,
 				GermanSentimentBert.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
 		);
 
