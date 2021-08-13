@@ -128,5 +128,6 @@
 		<module>textimager-uima-bert-sentiment</module>
 		<module>jcore-base/jcore-types</module>
 		<module>textimager-uima-julie</module>
+		<module>textimager-uima-sentiment-base</module>
 	</modules>
 </project>

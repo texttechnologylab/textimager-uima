@@ -3,8 +3,10 @@ package org.hucompute.textimager.uima.docker;
 import com.amihaiemil.docker.*;
 
 import javax.json.JsonObject;
+import javax.json.JsonString;
 import java.io.*;
 import java.net.URI;
+import java.util.List;
 import java.util.Vector;
 
 
@@ -78,6 +80,30 @@ public class DockerAPI {
             ret.add(new ImageWrapper(cont));
         }
         return ret;
+    }
+
+    /**
+     * Check if an image is available
+     */
+    public boolean check_image_exists(String imageName) {
+        for (Image dockerImage : _docker_connection.images()) {
+            try {
+                if (dockerImage.containsKey("RepoTags")) {
+                    List<JsonString> tags = dockerImage.getJsonArray("RepoTags").getValuesAs(JsonString.class);
+                    for (JsonString tagJson : tags) {
+                        String tag = tagJson.getString();
+                        if (tag.equals(imageName)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) {
+                // ignore
+            }
+        }
+
+        return false;
     }
 
     /**

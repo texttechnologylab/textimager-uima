@@ -1,19 +1,20 @@
 package org.hucompute.textimager.uima.stanza;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.hucompute.textimager.uima.base.DockerRestAnnotator;
+import org.apache.uima.jcas.tcas.Annotation;
+import org.hucompute.textimager.uima.sentiment.base.SentimentBase;
 import org.hucompute.textimager.uima.type.Sentiment;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.texttechnologylab.annotation.AnnotationComment;
 
-public class StanzaSentiment extends DockerRestAnnotator {
-    private static final String SENTENCE_TYPE = "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence";
+import java.util.Collection;
 
+
+public class StanzaSentiment extends SentimentBase {
     @Override
     protected String getDefaultDockerImage() {
         return "textimager-uima-service-stanza";
@@ -21,7 +22,7 @@ public class StanzaSentiment extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.2";
+        return "0.3";
     }
 
     @Override
@@ -35,76 +36,60 @@ public class StanzaSentiment extends DockerRestAnnotator {
     }
 
     @Override
-    protected JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException {
-        JSONArray sentences = new JSONArray();
+    protected JSONObject buildJSONSelection(JCas aJCas, Annotation ref) {
+        // build list of tokens for stanza instead of only raw text
+        int begin;
+        int end;
 
-        for (Sentence sentenceCas : JCasUtil.select(aJCas, Sentence.class)) {
-            JSONObject sentence = new JSONObject();
-            sentence.put("begin", sentenceCas.getBegin());
-            sentence.put("end", sentenceCas.getEnd());
-
-            JSONArray tokens = new JSONArray();
-            for (Token tokenCas : JCasUtil.selectCovered(Token.class, sentenceCas)) {
-                JSONObject token = new JSONObject();
-                token.put("text", tokenCas.getCoveredText());
-                token.put("begin", tokenCas.getBegin());
-                token.put("end", tokenCas.getEnd());
-                tokens.put(token);
-            }
-            sentence.put("tokens", tokens);
-
-            sentences.put(sentence);
+        Collection<Token> tokens;
+        if (ref != null) {
+            tokens = JCasUtil.selectCovered(Token.class, ref);
+            begin = ref.getBegin();
+            end = ref.getEnd();
+        } else {
+            tokens = JCasUtil.select(aJCas, Token.class);
+            begin = 0;
+            end = aJCas.getDocumentText().length();
         }
 
-        JSONObject request = new JSONObject();
-        request.put("lang", aJCas.getDocumentLanguage());
-        request.put("sentences", sentences);
-        return request;
+        JSONArray tokensJson = new JSONArray();
+        for (Token token : tokens) {
+            tokensJson.put(token.getCoveredText());
+        }
+
+        JSONObject sentence = new JSONObject();
+        sentence.put("tokens", tokensJson);
+        sentence.put("begin", begin);
+        sentence.put("end", end);
+        return sentence;
     }
 
     @Override
     protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
-        // Always sentence based, calculate for full document here
-        double fullDocSentiment = 0;
-        int sentenceCount = 0;
+        if (jsonResult.has("selections")) {
+            for (Object sels : jsonResult.getJSONArray("selections")) {
+                JSONObject selection = (JSONObject) sels;
+                String selectionAnnotation = selection.getString("selection");
+                JSONArray sentences = selection.getJSONArray("sentences");
+                for (Object sen : sentences) {
+                    JSONObject sentence = (JSONObject) sen;
 
-        if (jsonResult.has("sentences")) {
-            for (Object sen : jsonResult.getJSONArray("sentences")) {
-                JSONObject sentence = (JSONObject) sen;
+                    int begin = sentence.getJSONObject("sentence").getInt("begin");
+                    int end = sentence.getJSONObject("sentence").getInt("end");
 
-                int begin = sentence.getJSONObject("sentence").getInt("begin");
-                int end = sentence.getJSONObject("sentence").getInt("end");
-                double sentimentValue = sentence.getDouble("sentiment");
+                    Sentiment sentiment = new Sentiment(aJCas, begin, end);
+                    sentiment.setSentiment(sentence.getDouble("sentiment"));
+                    sentiment.addToIndexes();
 
-                fullDocSentiment += sentimentValue;
-                sentenceCount += 1;
+                    AnnotationComment comment = new AnnotationComment(aJCas);
+                    comment.setReference(sentiment);
+                    comment.setKey("selection");
+                    comment.setValue(selectionAnnotation);
+                    comment.addToIndexes();
 
-                Sentiment sentiment = new Sentiment(aJCas, begin, end);
-                sentiment.setSentiment(sentimentValue);
-                sentiment.addToIndexes();
-
-                // Always sentence based
-                AnnotationComment comment = new AnnotationComment(aJCas);
-                comment.setReference(sentiment);
-                comment.setKey("selection");
-                comment.setValue(SENTENCE_TYPE);
-                comment.addToIndexes();
+                    addAnnotatorComment(aJCas, sentiment);
+                }
             }
-        }
-
-        // Add document sentiment
-        if (sentenceCount > 1) {
-            fullDocSentiment = fullDocSentiment / sentenceCount;
-
-            Sentiment sentiment = new Sentiment(aJCas, 0, aJCas.getDocumentText().length());
-            sentiment.setSentiment(fullDocSentiment);
-            sentiment.addToIndexes();
-
-            AnnotationComment comment = new AnnotationComment(aJCas);
-            comment.setReference(sentiment);
-            comment.setKey("selection");
-            comment.setValue(SENTENCE_TYPE);
-            comment.addToIndexes();
         }
     }
 }

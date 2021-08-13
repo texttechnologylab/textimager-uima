@@ -18,6 +18,7 @@ class TextImagerSelection(BaseModel):
 
 class TextImagerRequest(BaseModel):
     selections: List[TextImagerSelection]
+    lang: str
 
 
 class SentenceSentiment(BaseModel):

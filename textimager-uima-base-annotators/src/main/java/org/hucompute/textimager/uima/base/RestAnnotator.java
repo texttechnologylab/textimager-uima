@@ -7,12 +7,11 @@ import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.json.JSONObject;
 
-public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
+public abstract class RestAnnotator extends TextImagerBaseAnnotator {
 	/**
 	 * The endpoint of the rest server
 	 */

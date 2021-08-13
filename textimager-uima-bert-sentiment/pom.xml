@@ -12,7 +12,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-base-annotators</artifactId>
+			<artifactId>textimager-uima-sentiment-base</artifactId>
 			<version>${project.version}</version>
 		</dependency>
     </dependencies>
