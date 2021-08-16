@@ -1,8 +1,9 @@
-package org.hucompute.textimager.uima.julie;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.hucompute.textimager.uima.julie.reader.JsonReader;
+import Reader.JsonReader;
+import de.julielab.jcore.types.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
@@ -12,14 +13,14 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-public class Acronym extends DockerRestAnnotator {
+public class LingpipePorterstemmer extends DockerRestAnnotator {
     /**
      * Tagger address.
      * @return endpoint
      */
     @Override
     protected String getRestRoute() {
-        return "/acronym";
+        return "/lingpipeporterstemmer";
     }
     /**
      * Docker image name.
@@ -53,27 +54,29 @@ public class Acronym extends DockerRestAnnotator {
      * @return JSON
      */
     @Override
-    protected JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException {
-        try {
-            JsonReader reader = new JsonReader();
-            return reader.CasToJson(aJCas);
-        }
-        catch (IOException | SAXException ex) {
-            throw new AnalysisEngineProcessException(ex);
-        }
+    protected JSONObject buildJSON(JCas aJCas) throws IOException, SAXException {
+
+        JsonReader reader = new JsonReader();
+        return reader.CasToJson(aJCas);
     }
     /**
      * Read Json and update jCas.
      * @param aJCas
      */
     @Override
-    protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
-        try {
-            JsonReader reader = new JsonReader();
-            reader.UpdateJsonToCas(jsonResult, aJCas);
+    protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws UIMAException, IOException, SAXException {
+
+        JsonReader reader = new JsonReader();
+        reader.UpdateJsonToCas(jsonResult, aJCas);
+
+        for (Token token: JCasUtil.select(aJCas, Token.class))
+        {
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token dtoken = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(aJCas, token.getBegin(), token.getEnd());
+            Stem stem = new Stem(aJCas, token.getStemmedForm().getBegin(), token.getStemmedForm().getEnd());
+            dtoken.setStem(stem);
+            dtoken.getStem().setValue(token.getStemmedForm().getValue());
+            dtoken.addToIndexes();
         }
-        catch (UIMAException | IOException | SAXException ex) {
-            throw new AnalysisEngineProcessException(ex);
-        }
+
     }
 }
