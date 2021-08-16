@@ -123,7 +123,7 @@
 		<module>textimager-uima-geonames-gazetteer</module>
 		<module>textimager-uima-gnd-gazetteer</module>
 		<module>textimager-uima-biofid-general-gazetteer</module>
-		<module>textimager-uima-steps</module>-->
+		<module>textimager-uima-steps</module>
 		<module>jcore-base/jcore-types</module>
 		<module>textimager-uima-julie</module>
 		<module>textimager-uima-sentiment-base</module>
