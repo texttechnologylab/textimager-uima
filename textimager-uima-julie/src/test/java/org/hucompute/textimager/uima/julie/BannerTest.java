@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import org.apache.uima.UIMAException;
 import org.junit.Test;
 import java.io.IOException;
@@ -20,7 +22,7 @@ public class BannerTest {
     @Test
     public void testProcess() throws IOException, UIMAException {
         /*JCas jCas = JCasFactory.createText(Text);
-        AnalysisEngineDescription engine = createEngineDescription(Banner.class, Banner.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(Banner.class);
 
         SimplePipeline.runPipeline(jCas, engine);*/
 

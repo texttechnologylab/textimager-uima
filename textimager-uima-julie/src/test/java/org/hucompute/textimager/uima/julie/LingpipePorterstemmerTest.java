@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.EntityMention;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
@@ -36,11 +38,8 @@ public class LingpipePorterstemmerTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(LingpipePorterstemmer.class, LingpipePorterstemmer.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(LingpipePorterstemmer.class, LingpipePorterstemmer.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                LingpipePorterstemmer.PARAM_DOCKER_NETWORK, "bridge",
-                LingpipePorterstemmer.PARAM_DOCKER_HOSTNAME, "localhost",
-                LingpipePorterstemmer.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(LingpipePorterstemmer.class);
+        AnalysisEngineDescription engine = createEngineDescription(LingpipePorterstemmer.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casStemmer = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getStemmedForm().getValue()).toArray(String[]::new);

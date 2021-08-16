@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.*;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -76,11 +78,8 @@ public class CoordinationBaselineTest {
         JCas jCas = JCasFactory.createText(Text);
         init_jcas(jCas, Text, PosTags, Entity, Entity_Begin, Entity_End);
 
-        //AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class, CoordinationBaseline.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class, CoordinationBaseline.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                CoordinationBaseline.PARAM_DOCKER_NETWORK, "bridge",
-                CoordinationBaseline.PARAM_DOCKER_HOSTNAME, "localhost",
-                CoordinationBaseline.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class);
+        AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         //String[] casCordination = (String[]) JCasUtil.select(jCas, Coordination.class).stream().map(a -> a.getConfidence() + " ; " + a.getCoveredText()).toArray(String[]::new);

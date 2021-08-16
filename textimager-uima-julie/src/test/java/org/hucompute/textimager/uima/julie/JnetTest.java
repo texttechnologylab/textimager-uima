@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.EntityMention;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
@@ -36,11 +38,8 @@ public class JnetTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(Jnet.class, Jnet.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(Jnet.class, Jnet.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                Jnet.PARAM_DOCKER_NETWORK, "bridge",
-                Jnet.PARAM_DOCKER_HOSTNAME, "localhost",
-                Jnet.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(Jnet.class);
+        AnalysisEngineDescription engine = createEngineDescription(Jnet.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casEntityMention = (String[]) JCasUtil.select(jCas, EntityMention.class).stream().map(a -> a.getCoveredText()+ " - "+a.getSpecificType()).toArray(String[]::new);

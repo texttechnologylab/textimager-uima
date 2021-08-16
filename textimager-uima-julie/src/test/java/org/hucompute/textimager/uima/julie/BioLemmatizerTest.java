@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.POSTag;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
@@ -49,11 +51,8 @@ public class BioLemmatizerTest {
         String Text = "Three horses were going contemplatively around bushy bushes .";
         JCas jCas = JCasFactory.createText(Text);
         // get postag
-        //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                OpennlpPostag.PARAM_DOCKER_NETWORK, "bridge",
-                OpennlpPostag.PARAM_DOCKER_HOSTNAME, "localhost",
-                OpennlpPostag.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
+        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
         SimplePipeline.runPipeline(jCas, engine_postag);
 
         String[] casPostag = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getPosTag(0).getValue()).toArray(String[]::new);
@@ -61,11 +60,8 @@ public class BioLemmatizerTest {
         jCas.setDocumentText(Text);
 
         init_jcas(jCas, casPostag);
-        //AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class, BioLemmatizer.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class, BioLemmatizer.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                BioLemmatizer.PARAM_DOCKER_NETWORK, "bridge",
-                BioLemmatizer.PARAM_DOCKER_HOSTNAME, "localhost",
-                BioLemmatizer.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class);
+        AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class);
 
         SimplePipeline.runPipeline(jCas, engine);
 

@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
@@ -32,11 +34,8 @@ public class OpennlpTokenTest {
         JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("en");
 
-        //AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class, OpennlpToken.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class, OpennlpToken.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                OpennlpToken.PARAM_DOCKER_NETWORK, "bridge",
-                OpennlpToken.PARAM_DOCKER_HOSTNAME, "localhost",
-                OpennlpToken.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
+        AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casToken = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
@@ -55,11 +54,8 @@ public class OpennlpTokenTest {
         JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("de");
 
-        //AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class, OpennlpToken.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class, OpennlpToken.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                OpennlpToken.PARAM_DOCKER_NETWORK, "bridge",
-                OpennlpToken.PARAM_DOCKER_HOSTNAME, "localhost",
-                OpennlpToken.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
+        AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casToken = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);

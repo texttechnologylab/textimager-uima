@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.DependencyRelation;
 import de.julielab.jcore.types.LikelihoodIndicator;
 import de.julielab.jcore.types.Scope;
@@ -37,11 +39,8 @@ public class MSTParserTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(MSTParser.class, MSTParser.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(MSTParser.class, MSTParser.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                MSTParser.PARAM_DOCKER_NETWORK, "bridge",
-                MSTParser.PARAM_DOCKER_HOSTNAME, "localhost",
-                MSTParser.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(MSTParser.class);
+        AnalysisEngineDescription engine = createEngineDescription(MSTParser.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casLabel = (String[]) JCasUtil.select(jCas, DependencyRelation.class).stream().map(a -> a.getLabel()).toArray(String[]::new);
