@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.ConceptMention;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -35,11 +37,8 @@ public class LikelihoodAssignmentTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(LikelihoodAssignment.class, LikelihoodAssignment.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(LikelihoodAssignment.class, LikelihoodAssignment.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                LikelihoodAssignment.PARAM_DOCKER_NETWORK, "bridge",
-                LikelihoodAssignment.PARAM_DOCKER_HOSTNAME, "localhost",
-                LikelihoodAssignment.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(LikelihoodAssignment.class);
+        AnalysisEngineDescription engine = createEngineDescription(LikelihoodAssignment.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casConceptMention = (String[]) JCasUtil.select(jCas, ConceptMention.class).stream().map(a -> a.getCoveredText()+","+a.getLikelihood().getCoveredText()).toArray(String[]::new);

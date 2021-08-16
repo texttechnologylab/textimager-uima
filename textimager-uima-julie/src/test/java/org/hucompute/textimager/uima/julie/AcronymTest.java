@@ -40,10 +40,7 @@ public class AcronymTest {
         //SimplePipeline.runPipeline(jCas, segmenter);
 
         //AnalysisEngineDescription engine = createEngineDescription(Acronym.class, Acronym.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(Acronym.class, Acronym.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                Acronym.PARAM_DOCKER_NETWORK, "bridge",
-                Acronym.PARAM_DOCKER_HOSTNAME, "localhost",
-                Acronym.PARAM_DOCKER_HOST_PORT, 8000);
+        AnalysisEngineDescription engine = createEngineDescription(Acronym.class);
 
         SimplePipeline.runPipeline(jCas, engine);
 

@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.POSTag;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
@@ -6,6 +8,7 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -49,11 +52,8 @@ public class StanfordLemmatizerTest {
         String Text = "Plectranthus barbatus is a medicinal plant used to treat a wide range of disorders including seizure .";
         JCas jCas = JCasFactory.createText(Text);
         // get postag
-        //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                OpennlpPostag.PARAM_DOCKER_NETWORK, "bridge",
-                OpennlpPostag.PARAM_DOCKER_HOSTNAME, "localhost",
-                OpennlpPostag.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
+        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
 
         SimplePipeline.runPipeline(jCas, engine_postag);
 
@@ -62,11 +62,8 @@ public class StanfordLemmatizerTest {
         jCas.setDocumentText(Text);
 
         init_jcas(jCas, casPostag);
-        //AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class, BioLemmatizer.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(StanfordLemmatizer.class, StanfordLemmatizer.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                StanfordLemmatizer.PARAM_DOCKER_NETWORK, "bridge",
-                StanfordLemmatizer.PARAM_DOCKER_HOSTNAME, "localhost",
-                StanfordLemmatizer.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class);
+        AnalysisEngineDescription engine = createEngineDescription(StanfordLemmatizer.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casLemma = (String[]) JCasUtil.select(jCas, Token.class).stream().map(b -> b.getLemma().getValue()).toArray(String[]::new);
@@ -74,5 +71,7 @@ public class StanfordLemmatizerTest {
                 "medicinal", "plant", "use", "to", "treat", "a", "wide", "range", "of", "disorder", "include", "seizure", "."};
 
         assertArrayEquals(testLemma, casLemma);
+
+        System.out.println(XmlFormatter.getPrettyString(jCas));
     }
 }

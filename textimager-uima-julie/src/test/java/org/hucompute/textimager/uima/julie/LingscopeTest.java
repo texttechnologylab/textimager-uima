@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.LikelihoodIndicator;
 import de.julielab.jcore.types.Scope;
 import org.apache.uima.UIMAException;
@@ -36,11 +38,8 @@ public class LingscopeTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(Lingscope.class, Lingscope.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(Lingscope.class, Lingscope.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                Lingscope.PARAM_DOCKER_NETWORK, "bridge",
-                Lingscope.PARAM_DOCKER_HOSTNAME, "localhost",
-                Lingscope.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(Lingscope.class);
+        AnalysisEngineDescription engine = createEngineDescription(Lingscope.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casLikelihoodIndicator = (String[]) JCasUtil.select(jCas, LikelihoodIndicator.class).stream().map(a -> a.getLikelihood() + " ; "

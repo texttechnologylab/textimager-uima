@@ -27,6 +27,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<ttlab.typesystem.version>53973180e10f318b81ad3c66003d484fe456600d</ttlab.typesystem.version>
 		<ttlab.utilities.version>1.1.1-uima-2.10.4</ttlab.utilities.version>
+		<jcore.types.version>2.5.1-SNAPSHOT</jcore.types.version>
 	</properties>
 
 	<repositories>
@@ -126,7 +127,9 @@
 		<module>textimager-uima-steps</module>
 		<module>jcore-base/jcore-types</module>
 		<module>textimager-uima-julie</module>
+		<module>textimager-uima-bert-sentiment</module>
 		<module>textimager-uima-sentiment-base</module>
+		<module>textimager-uima-gervader</module>
 		<module>textimager-uima-german-emotion-detection</module>
 		<module>textimager-uima-polyglot</module>
 	</modules>

@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.Constituent;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
@@ -32,11 +34,8 @@ public class OpennlpParserTest {
         JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("en");
 
-        //AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class, OpennlpParser.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class, OpennlpParser.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                OpennlpParser.PARAM_DOCKER_NETWORK, "bridge",
-                OpennlpParser.PARAM_DOCKER_HOSTNAME, "localhost",
-                OpennlpParser.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class);
+        AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casParsing = (String[]) JCasUtil.select(jCas, Constituent.class).stream().map(a -> a.getCat()).toArray(String[]::new);

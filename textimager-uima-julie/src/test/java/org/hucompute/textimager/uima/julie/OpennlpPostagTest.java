@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -35,11 +37,8 @@ public class OpennlpPostagTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                Jbsd.PARAM_DOCKER_NETWORK, "bridge",
-                Jbsd.PARAM_DOCKER_HOSTNAME, "localhost",
-                Jbsd.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(OpennlpPostag.class);
+        AnalysisEngineDescription engine = createEngineDescription(OpennlpPostag.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casPostag = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getPosTag(0).getValue()).toArray(String[]::new);
@@ -69,11 +68,8 @@ public class OpennlpPostagTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                OpennlpPostag.PARAM_DOCKER_NETWORK, "bridge",
-                OpennlpPostag.PARAM_DOCKER_HOSTNAME, "localhost",
-                OpennlpPostag.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(OpennlpPostag.class);
+        AnalysisEngineDescription engine = createEngineDescription(OpennlpPostag.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casPostag = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getPosTag(0).getValue()).toArray(String[]::new);
