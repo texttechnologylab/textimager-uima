@@ -1,3 +1,4 @@
+package org.hucompute.textimager.uima.julie;
 import Reader.JsonReader;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;

@@ -1,3 +1,4 @@
+package org.hucompute.textimager.uima.julie;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.util.JCasUtil;

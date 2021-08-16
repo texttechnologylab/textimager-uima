@@ -1,4 +1,6 @@
-import Reader.JsonReader;
+package org.hucompute.textimager.uima.julie;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.hucompute.textimager.uima.julie.reader.JsonReader;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
