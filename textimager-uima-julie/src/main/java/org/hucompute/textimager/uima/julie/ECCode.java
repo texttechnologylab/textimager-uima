@@ -1,6 +1,5 @@
 package org.hucompute.textimager.uima.julie;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.hucompute.textimager.uima.julie.reader.JsonReader;
+import Reader.JsonReader;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.jcas.JCas;
@@ -12,14 +11,14 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-public class Acronym extends DockerRestAnnotator {
+public class ECCode extends DockerRestAnnotator {
     /**
      * Tagger address.
      * @return endpoint
      */
     @Override
     protected String getRestRoute() {
-        return "/acronym";
+        return "/eccode";
     }
     /**
      * Docker image name.
@@ -53,27 +52,20 @@ public class Acronym extends DockerRestAnnotator {
      * @return JSON
      */
     @Override
-    protected JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException {
-        try {
-            JsonReader reader = new JsonReader();
-            return reader.CasToJson(aJCas);
-        }
-        catch (IOException | SAXException ex) {
-            throw new AnalysisEngineProcessException(ex);
-        }
+    protected JSONObject buildJSON(JCas aJCas) throws IOException, SAXException {
+
+        JsonReader reader = new JsonReader();
+        return reader.CasToJson(aJCas);
     }
     /**
      * Read Json and update jCas.
      * @param aJCas
      */
     @Override
-    protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
-        try {
-            JsonReader reader = new JsonReader();
-            reader.UpdateJsonToCas(jsonResult, aJCas);
-        }
-        catch (UIMAException | IOException | SAXException ex) {
-            throw new AnalysisEngineProcessException(ex);
-        }
+    protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws UIMAException, IOException, SAXException {
+
+        JsonReader reader = new JsonReader();
+        reader.UpdateJsonToCas(jsonResult, aJCas);
+
     }
 }

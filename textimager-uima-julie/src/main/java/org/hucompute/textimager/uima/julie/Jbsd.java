@@ -1,15 +1,15 @@
 package org.hucompute.textimager.uima.julie;
-
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.hucompute.textimager.uima.base.RestAnnotator;
-import org.hucompute.textimager.uima.julie.reader.JsonReader;
+import de.julielab.jcore.types.Sentence;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
+import Reader.JsonReader;
 import java.io.*;
 
 
@@ -35,16 +35,21 @@ public class Jbsd extends DockerRestAnnotator {
     protected String getRestRoute() {
         return "/jbsd";
     }
-
-
+    /**
+     * Docker image name.
+     * @return name
+     */
     @Override
     protected String getDefaultDockerImage() {
         return "textimager-juli-api";
     }
-
+    /**
+     * Docker image tag.
+     * @return tag
+     */
     @Override
     protected String getDefaultDockerImageTag() {
-        return "1.0";
+        return "1.3";
     }
 
     @Override
@@ -77,14 +82,17 @@ public class Jbsd extends DockerRestAnnotator {
      * @param aJCas
      */
     @Override
-    protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
-        try {
-            JsonReader reader = new JsonReader();
-            reader.UpdateJsonToCas(jsonResult, aJCas);
+    protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws UIMAException, IOException, SAXException {
+
+        JsonReader reader = new JsonReader();
+        reader.UpdateJsonToCas(jsonResult, aJCas);
+
+        for (Sentence sentence: JCasUtil.select(aJCas, Sentence.class))
+        {
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence dsentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(aJCas, sentence.getBegin(), sentence.getEnd());
+            dsentence.addToIndexes();
         }
-        catch (UIMAException | IOException | SAXException ex) {
-            throw new AnalysisEngineProcessException(ex);
-        }
+
     }
 
 }
