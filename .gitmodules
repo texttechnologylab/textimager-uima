@@ -4,3 +4,9 @@
 [submodule "textimager-uima-deep-eos"]
 	path = textimager-uima-deep-eos
 	url = https://github.com/texttechnologylab/deep-eos-uima.git
+[submodule "textimager-uima-gervader/src/main/docker/gervader"]
+	path = textimager-uima-gervader/src/main/docker/gervader
+	url = https://github.com/Myyyvothrr/GerVADER
+[submodule "jcore-base"]
+	path = jcore-base
+	url = https://github.com/JULIELab/jcore-base
