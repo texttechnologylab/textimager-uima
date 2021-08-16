@@ -1,0 +1,1 @@
+docker build -t textimager-uima-service-bert-sentiment:0.4 src/main/docker

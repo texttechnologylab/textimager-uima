@@ -11,7 +11,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Fri Sep 18 10:19:08 CEST 2020
+ * Updated by JCasGen Mon Jul 12 10:10:18 CEST 2021
  * @generated */
 public class Sentiment_Type extends Annotation_Type {
   /** @generated */

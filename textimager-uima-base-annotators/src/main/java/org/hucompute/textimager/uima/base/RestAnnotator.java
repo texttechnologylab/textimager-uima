@@ -6,15 +6,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.json.JSONObject;
-import org.xml.sax.SAXException;
 
-public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
+public abstract class RestAnnotator extends TextImagerBaseAnnotator {
 	/**
 	 * The endpoint of the rest server
 	 */
@@ -27,10 +24,10 @@ public abstract class RestAnnotator extends JCasAnnotator_ImplBase {
 	}
 
 	// Build request JSON object
-	protected abstract JSONObject buildJSON(JCas aJCas) throws IOException, SAXException;
+	protected abstract JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException;
 
 	// Update CAS with JSON results
-	protected abstract void updateCAS(JCas aJCas, JSONObject jsonResult) throws UIMAException, IOException, SAXException;
+	protected abstract void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException;
 
 	protected String getRestEndpoint() {
 		return restEndpoint + getRestRoute();
