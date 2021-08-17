@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.LikelihoodIndicator;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
@@ -36,11 +38,8 @@ public class LikelihoodDetectionTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(LikelihoodDetection.class, LikelihoodDetection.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(LikelihoodDetection.class, LikelihoodDetection.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                LikelihoodDetection.PARAM_DOCKER_NETWORK, "bridge",
-                LikelihoodDetection.PARAM_DOCKER_HOSTNAME, "localhost",
-                LikelihoodDetection.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(LikelihoodDetection.class);
+        AnalysisEngineDescription engine = createEngineDescription(LikelihoodDetection.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casLikelihoodIndicator = (String[]) JCasUtil.select(jCas, LikelihoodIndicator.class).stream().map(a -> a.getCoveredText()).toArray(String[]::new);

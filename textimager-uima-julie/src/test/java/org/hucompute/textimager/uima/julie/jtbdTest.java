@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -35,11 +37,8 @@ public class jtbdTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                Jtbd.PARAM_DOCKER_NETWORK, "bridge",
-                Jtbd.PARAM_DOCKER_HOSTNAME, "localhost",
-                Jtbd.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(Jtbd.class);
+        AnalysisEngineDescription engine = createEngineDescription(Jtbd.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casOffset = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
@@ -65,11 +64,8 @@ public class jtbdTest {
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
         //SimplePipeline.runPipeline(jCas, segmenter);
 
-        //AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(Jtbd.class, Jtbd.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                Jtbd.PARAM_DOCKER_NETWORK, "bridge",
-                Jtbd.PARAM_DOCKER_HOSTNAME, "localhost",
-                Jtbd.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(Jtbd.class);
+        AnalysisEngineDescription engine = createEngineDescription(Jtbd.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casOffset = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);

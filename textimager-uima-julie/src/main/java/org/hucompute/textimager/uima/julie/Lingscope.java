@@ -1,16 +1,15 @@
-import Reader.JsonReader;
+package org.hucompute.textimager.uima.julie;
+
 import org.apache.uima.UIMAException;
-import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.hucompute.textimager.uima.base.DockerRestAnnotator;
-import org.hucompute.textimager.uima.base.RestAnnotator;
+import org.hucompute.textimager.uima.julie.reader.JsonReader;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-public class Lingscope extends DockerRestAnnotator {
+public class Lingscope extends JulieBase {
     /**
      * Tagger address.
      * @return endpoint
@@ -19,52 +18,16 @@ public class Lingscope extends DockerRestAnnotator {
     protected String getRestRoute() {
         return "/lingscope";
     }
-    /**
-     * Docker image name.
-     * @return name
-     */
-    @Override
-    protected String getDefaultDockerImage() {
-        return "textimager-juli-api";
-    }
-    /**
-     * Docker image tag.
-     * @return tag
-     */
-    @Override
-    protected String getDefaultDockerImageTag() {
-        return "1.3";
-    }
 
-    @Override
-    protected int getDefaultDockerPort() {
-        return 8080;
-    }
-    @Override
-    public void initialize(UimaContext aContext) throws ResourceInitializationException
-    {
-        super.initialize(aContext);
-    }
-
-    /**
-     * Convert jCas to Json.
-     * @return JSON
-     */
-    @Override
-    protected JSONObject buildJSON(JCas aJCas) throws IOException, SAXException {
-
-        JsonReader reader = new JsonReader();
-        return reader.CasToJson(aJCas);
-    }
     /**
      * Read Json and update jCas.
      * @param aJCas
      */
     @Override
-    protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws UIMAException, IOException, SAXException {
-
-        JsonReader reader = new JsonReader();
-        reader.UpdateJsonToCas(jsonResult, aJCas);
+    protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
+        try {
+            JsonReader reader = new JsonReader();
+            reader.UpdateJsonToCas(jsonResult, aJCas);
 
         /*for (Token token: JCasUtil.select(aJCas, Token.class))
         {
@@ -74,7 +37,9 @@ public class Lingscope extends DockerRestAnnotator {
             dtoken.setPos(postag);
             dtoken.addToIndexes();
         }*/
-
+        } catch (UIMAException | IOException | SAXException ex) {
+            throw new AnalysisEngineProcessException(ex);
+        }
     }
 
 }

@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.Chunk;
 import de.julielab.jcore.types.POSTag;
 import de.julielab.jcore.types.Token;
@@ -50,22 +52,16 @@ public class OpennlpChunkTest {
 
         JCas jCas = JCasFactory.createText(Text);
         // get postag
-        //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class, OpennlpPostag.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                OpennlpPostag.PARAM_DOCKER_NETWORK, "bridge",
-                OpennlpPostag.PARAM_DOCKER_HOSTNAME, "localhost",
-                OpennlpPostag.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
+        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
         SimplePipeline.runPipeline(jCas, engine_postag);
 
         String[] casPostag = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getPosTag(0).getValue()).toArray(String[]::new);
         // test chunk
 
         init_jcas(jCas, casPostag);
-        //AnalysisEngineDescription engine = createEngineDescription(OpennlpChunk.class, OpennlpChunk.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(OpennlpChunk.class, OpennlpPostag.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                OpennlpPostag.PARAM_DOCKER_NETWORK, "bridge",
-                OpennlpPostag.PARAM_DOCKER_HOSTNAME, "localhost",
-                OpennlpPostag.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(OpennlpChunk.class);
+        AnalysisEngineDescription engine = createEngineDescription(OpennlpChunk.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casChunks = (String[]) JCasUtil.select(jCas, Chunk.class).stream().map(b -> b.getType().getShortName()).toArray(String[]::new);

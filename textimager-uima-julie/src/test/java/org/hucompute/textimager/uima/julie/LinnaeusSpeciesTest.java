@@ -1,3 +1,5 @@
+package org.hucompute.textimager.uima.julie;
+
 import de.julielab.jcore.types.Enzyme;
 import de.julielab.jcore.types.Organism;
 import org.apache.uima.UIMAException;
@@ -32,11 +34,8 @@ public class LinnaeusSpeciesTest {
 
         JCas jCas = JCasFactory.createText(Text);
 
-        //AnalysisEngineDescription engine = createEngineDescription(LinnaeusSpecies.class, LinnaeusSpecies.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription engine = createEngineDescription(LinnaeusSpecies.class, LinnaeusSpecies.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                LinnaeusSpecies.PARAM_DOCKER_NETWORK, "bridge",
-                LinnaeusSpecies.PARAM_DOCKER_HOSTNAME, "localhost",
-                LinnaeusSpecies.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription engine = createEngineDescription(LinnaeusSpecies.class);
+        AnalysisEngineDescription engine = createEngineDescription(LinnaeusSpecies.class);
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casSpecies = (String[]) JCasUtil.select(jCas, Organism.class).stream().map(a -> a.getCoveredText()).toArray(String[]::new);
