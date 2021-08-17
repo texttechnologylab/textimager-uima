@@ -52,6 +52,10 @@ public class StanzaSentiment extends SentimentBase {
             end = aJCas.getDocumentText().length();
         }
 
+        if (tokens.isEmpty()) {
+            return null;
+        }
+
         JSONArray tokensJson = new JSONArray();
         for (Token token : tokens) {
             tokensJson.put(token.getCoveredText());
