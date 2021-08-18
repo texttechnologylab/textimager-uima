@@ -37,10 +37,7 @@ public class StanzaSentimentTest {
 		AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
 
 		AnalysisEngineDescription stanzaSentiment = createEngineDescription(StanzaSentiment.class,
-				StanzaSentiment.PARAM_DOCKER_REGISTRY, "localhost:5000",
-				StanzaSentiment.PARAM_DOCKER_NETWORK, "bridge",
-				StanzaSentiment.PARAM_DOCKER_HOSTNAME, "localhost",
-				StanzaSentiment.PARAM_DOCKER_HOST_PORT, 8000
+				StanzaSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
 		);
 
 		SimplePipeline.runPipeline(jCas, segmenter, stanzaSentiment);
@@ -72,10 +69,7 @@ public class StanzaSentimentTest {
 		AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
 
 		AnalysisEngineDescription stanzaSentiment = createEngineDescription(StanzaSentiment.class,
-				StanzaSentiment.PARAM_DOCKER_REGISTRY, "localhost:5000",
-				StanzaSentiment.PARAM_DOCKER_NETWORK, "bridge",
-				StanzaSentiment.PARAM_DOCKER_HOSTNAME, "localhost",
-				StanzaSentiment.PARAM_DOCKER_HOST_PORT, 8000
+				StanzaSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
 		);
 
 		SimplePipeline.runPipeline(jCas, segmenter, stanzaSentiment);

@@ -29,6 +29,11 @@ import static org.junit.Assert.assertArrayEquals;
  * This class provide several sentece test cases for different languages and inputs types*/
 
 public class jbsdTest {
+
+    /**
+     * Test for english language.
+     * @throws UIMAException
+     */
     @Test
     public void basicTestEn() throws UIMAException {
 
@@ -39,10 +44,7 @@ public class jbsdTest {
             e.printStackTrace();
         }
 
-        AnalysisEngineDescription jbsdEngine = createEngineDescription(Jbsd.class, Jbsd.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                Jbsd.PARAM_DOCKER_NETWORK, "bridge",
-                Jbsd.PARAM_DOCKER_HOSTNAME, "localhost",
-                Jbsd.PARAM_DOCKER_HOST_PORT, 8000); //http://localhost:8080
+        AnalysisEngineDescription jbsdEngine = createEngineDescription(Jbsd.class);
 
         SimplePipeline.runPipeline(jCas, jbsdEngine);
 
@@ -67,18 +69,18 @@ public class jbsdTest {
         assertArrayEquals(sentence, casSentence);
         assertArrayEquals(senText, casSenTex);
     }
-
+    /**
+     * Test for german language.
+     * @throws UIMAException
+     */
     @Test
     public void basicTestDe() throws UIMAException {
 
         JCas jCas = JCasFactory.createText("Das ist erste Satz. Das ist zweite Satz.",
                 "de");
 
-        //AnalysisEngineDescription jbsdEngine = createEngineDescription(Jbsd.class, Jbsd.PARAM_REST_ENDPOINT, "http://localhost:8080");
-        AnalysisEngineDescription jbsdEngine = createEngineDescription(Jbsd.class, Jbsd.PARAM_DOCKER_REGISTRY, "localhost:5000",
-                Jbsd.PARAM_DOCKER_NETWORK, "bridge",
-                Jbsd.PARAM_DOCKER_HOSTNAME, "localhost",
-                Jbsd.PARAM_DOCKER_HOST_PORT, 8000);
+        //AnalysisEngineDescription jbsdEngine = createEngineDescription(Jbsd.class);
+        AnalysisEngineDescription jbsdEngine = createEngineDescription(Jbsd.class);
 
         SimplePipeline.runPipeline(jCas, jbsdEngine);
 
