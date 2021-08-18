@@ -36,6 +36,11 @@ public class StanzaSentiment extends SentimentBase {
     }
 
     @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
+    @Override
     protected JSONObject buildJSONSelection(JCas aJCas, Annotation ref) {
         // build list of tokens for stanza instead of only raw text
         int begin;

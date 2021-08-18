@@ -9,4 +9,9 @@ public class CoordinationBaseline extends JulieBase {
     protected String getRestRoute() {
         return "/coordinationbaseline";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }

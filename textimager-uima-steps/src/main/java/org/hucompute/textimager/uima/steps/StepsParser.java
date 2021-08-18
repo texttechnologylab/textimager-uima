@@ -26,6 +26,16 @@ public class StepsParser extends RestAnnotator {
 		return "0.1";
 	}
 
+	@Override
+	protected String getModelName() {
+		return "";
+	}
+
+	@Override
+	protected String getModelVersion() {
+		return "";
+	}
+
 	private static class ConllLine {
 		int tokenIndex;
 		int begin;

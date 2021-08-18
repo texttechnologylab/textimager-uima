@@ -2,7 +2,9 @@ package org.hucompute.textimager.uima.base;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.docker.ContainerParametersBuilder;
 import org.hucompute.textimager.uima.docker.ContainerWrapper;
@@ -84,10 +86,14 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	@ConfigurationParameter(name = PARAM_DOCKER_SOCKET, mandatory = false, defaultValue = "/var/run/docker.sock")
 	protected File dockerSocket;
 
-	// Defaults annotator version to Docker image tag
 	@Override
-	protected String getAnnotatorVersion() {
-		return getDefaultDockerImageTag();
+	protected String getModelName() {
+		return fullDockerImageName;
+	}
+
+	@Override
+	protected String getModelVersion() {
+		return dockerImageTag;
 	}
 
 	// Provides default Docker Image, if none is configured
@@ -98,6 +104,9 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	// Provides default Docker Port, if none is configured
 	abstract protected int getDefaultDockerPort();
+
+	// Docker image name with registry info
+	protected String fullDockerImageName;
 
 	// Docker/Container API
 	protected ContainerWrapper container;
@@ -145,7 +154,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				}
 
 				// Build full image name from image and repository
-				String fullDockerImageName = dockerImage;
+				fullDockerImageName = dockerImage;
 				if (dockerRegistry != null) {
 					fullDockerImageName = dockerRegistry + "/" + fullDockerImageName;
 				}
@@ -255,13 +264,15 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				System.out.println("Docker container should be running now");
 
 			} catch (Exception e) {
+				// stop Docker before throwing
+				System.out.println("Stopping Docker container before throwing...");
+				dockerStop();
 				throw new ResourceInitializationException(e);
 			}
 		}
 	}
-	
-	@Override
-	public void destroy() {
+
+	private void dockerStop() {
 		if (container != null) {
 			try {
 				System.out.println("Stopping Docker container");
@@ -284,8 +295,27 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
 
+			container = null;
+		}
+	}
+
+	@Override
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
+		try {
+			super.process(aJCas);
+		}
+		catch (Exception ex) {
+			// stop Docker before throwing
+			System.out.println("Stopping Docker container before throwing...");
+			dockerStop();
+			throw ex;
+		}
+	}
+
+	@Override
+	public void destroy() {
+		dockerStop();
 		super.destroy();
 	}
 }

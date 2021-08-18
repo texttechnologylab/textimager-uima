@@ -9,4 +9,9 @@ public class ECCode extends JulieBase {
     protected String getRestRoute() {
         return "/eccode";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }
