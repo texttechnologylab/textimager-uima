@@ -43,7 +43,7 @@ public class GermanEmotionDetection extends TextImagerBaseAnnotator {
 
     @Override
     protected String getModelName() {
-        return "0.1";
+        return "GermanEmotionDetection";
     }
 
     @Override
