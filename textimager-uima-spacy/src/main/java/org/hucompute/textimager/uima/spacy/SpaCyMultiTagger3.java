@@ -63,6 +63,11 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
     }
 
     @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
+    @Override
     public void initialize(UimaContext aContext) throws ResourceInitializationException {
         super.initialize(aContext);
 

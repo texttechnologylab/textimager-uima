@@ -24,6 +24,16 @@ public class GermanEmotionDetection extends TextImagerBaseAnnotator {
     }
 
     @Override
+    protected String getModelName() {
+        return "";
+    }
+
+    @Override
+    protected String getModelVersion() {
+        return "";
+    }
+
+    @Override
     public void initialize(UimaContext context) throws ResourceInitializationException {
         super.initialize(context);
 

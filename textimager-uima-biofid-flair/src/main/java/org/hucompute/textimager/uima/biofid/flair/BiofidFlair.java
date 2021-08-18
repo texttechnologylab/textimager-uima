@@ -31,6 +31,16 @@ public class BiofidFlair extends RestAnnotatorParallel {
 	}
 
 	@Override
+	protected String getModelName() {
+		return "";
+	}
+
+	@Override
+	protected String getModelVersion() {
+		return "";
+	}
+
+	@Override
 	protected String getRestRoute() {
 		return "/tag";
 	}

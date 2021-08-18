@@ -9,5 +9,10 @@ public class OpennlpSentence extends JulieBase {
     protected String getRestRoute() {
         return "/opennlpSentence";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }
 

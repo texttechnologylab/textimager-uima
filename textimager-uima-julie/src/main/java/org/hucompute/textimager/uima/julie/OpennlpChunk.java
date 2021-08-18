@@ -9,5 +9,10 @@ public class OpennlpChunk extends JulieBase {
     protected String getRestRoute() {
         return "/opennlpChunk";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }
 

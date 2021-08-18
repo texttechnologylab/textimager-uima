@@ -9,4 +9,9 @@ public class Banner extends JulieBase {
     protected String getRestRoute() {
         return "/banner";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }

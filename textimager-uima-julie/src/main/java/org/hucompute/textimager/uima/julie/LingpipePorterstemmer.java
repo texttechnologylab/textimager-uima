@@ -22,6 +22,11 @@ public class LingpipePorterstemmer extends JulieBase {
         return "/lingpipeporterstemmer";
     }
 
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
     /**
      * Read Json and update jCas.
      * @param aJCas

@@ -9,4 +9,9 @@ public class Jnet extends JulieBase {
     protected String getRestRoute() {
         return "/jnet";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }

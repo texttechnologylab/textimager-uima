@@ -9,4 +9,9 @@ public class Acronym extends JulieBase {
     protected String getRestRoute() {
         return "/acronym";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }

@@ -9,4 +9,9 @@ public class StanfordLemmatizer extends JulieBase {
     protected String getRestRoute() {
         return "/stanfordlemmatizer";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }

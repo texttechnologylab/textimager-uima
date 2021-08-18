@@ -20,6 +20,11 @@ public class LikelihoodDetection extends JulieBase {
         return "/likelihoodDetection";
     }
 
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
     /**
      * Read Json and update jCas.
      * @param aJCas

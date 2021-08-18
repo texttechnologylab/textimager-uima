@@ -9,4 +9,9 @@ public class OpennlpParser extends JulieBase {
     protected String getRestRoute() {
         return "/opennlpParser";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }
