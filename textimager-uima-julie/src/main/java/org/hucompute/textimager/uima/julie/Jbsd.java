@@ -1,16 +1,15 @@
 package org.hucompute.textimager.uima.julie;
 
+import de.julielab.jcore.types.Sentence;
 import org.apache.uima.UIMAException;
-import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.hucompute.textimager.uima.base.DockerRestAnnotator;
-import org.hucompute.textimager.uima.base.RestAnnotator;
 import org.hucompute.textimager.uima.julie.reader.JsonReader;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
-import java.io.*;
+
+import java.io.IOException;
 
 
 /**
@@ -26,7 +25,7 @@ import java.io.*;
  * Input: UIMA-JCas
  * Output: Textimager-UIMA-Sentiment*/
 
-public class Jbsd extends DockerRestAnnotator {
+public class Jbsd extends JulieBase {
     /**
      * Tagger address.
      * @return endpoint
@@ -36,42 +35,11 @@ public class Jbsd extends DockerRestAnnotator {
         return "/jbsd";
     }
 
-
     @Override
-    protected String getDefaultDockerImage() {
-        return "textimager-juli-api";
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
     }
 
-    @Override
-    protected String getDefaultDockerImageTag() {
-        return "1.0";
-    }
-
-    @Override
-    protected int getDefaultDockerPort() {
-        return 8080;
-    }
-
-    @Override
-    public void initialize(UimaContext aContext) throws  ResourceInitializationException
-    {
-        super.initialize(aContext);
-    }
-
-    /**
-     * Convert jCas to Json.
-     * @return JSON
-     */
-    @Override
-    protected JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException {
-        try {
-            JsonReader reader = new JsonReader();
-            return reader.CasToJson(aJCas);
-        }
-        catch (IOException | SAXException ex) {
-            throw new AnalysisEngineProcessException(ex);
-        }
-    }
     /**
      * Read Json and update jCas.
      * @param aJCas
@@ -81,10 +49,16 @@ public class Jbsd extends DockerRestAnnotator {
         try {
             JsonReader reader = new JsonReader();
             reader.UpdateJsonToCas(jsonResult, aJCas);
+
+            for (Sentence sentence : JCasUtil.select(aJCas, Sentence.class)) {
+                de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence dsentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(aJCas, sentence.getBegin(), sentence.getEnd());
+                dsentence.addToIndexes();
+            }
         }
         catch (UIMAException | IOException | SAXException ex) {
             throw new AnalysisEngineProcessException(ex);
         }
+
     }
 
 }

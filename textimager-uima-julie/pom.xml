@@ -24,11 +24,6 @@
             <artifactId>textimager-uima-types</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>
-            <groupId>org.hucompute.textimager.uima</groupId>
-            <artifactId>jcore-types</artifactId>
-            <version>${project.version}</version>
-        </dependency>-->
         <dependency>
             <groupId>org.hucompute.textimager.uima</groupId>
             <artifactId>textimager-uima-base-annotators</artifactId>
@@ -39,30 +34,18 @@
             <artifactId>gson</artifactId>
             <version>2.8.5</version>
         </dependency>
-        <!--<dependency>
-            <groupId>de.julielab</groupId>
+        <dependency>
+            <groupId>com.github.myyyvothrr.jcore-base</groupId>
             <artifactId>jcore-types</artifactId>
-            <version>2.5.0</version>
-        </dependency>-->
+            <version>${jcore.types.version}</version>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.dkpro.core</groupId>
             <artifactId>dkpro-core-languagetool-asl</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>
-            <groupId>org.hucompute.textimager.uima</groupId>
-            <artifactId>jcore-types</artifactId>
-            <version>0.3.0</version>
-            <scope>test</scope>
-        </dependency>-->
-        <dependency>
-            <groupId>de.julielab</groupId>
-            <artifactId>jcore-types</artifactId>
-            <version>2.5.1-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
 </project>

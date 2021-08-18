@@ -21,6 +21,21 @@ import java.util.Map;
 import static java.lang.Integer.parseInt;
 
 public class StepsParser extends RestAnnotator {
+	@Override
+	protected String getAnnotatorVersion() {
+		return "0.1";
+	}
+
+	@Override
+	protected String getModelName() {
+		return "";
+	}
+
+	@Override
+	protected String getModelVersion() {
+		return "";
+	}
+
 	private static class ConllLine {
 		int tokenIndex;
 		int begin;
