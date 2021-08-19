@@ -36,6 +36,11 @@ public class StanzaSentiment extends SentimentBase {
     }
 
     @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
+    @Override
     protected JSONObject buildJSONSelection(JCas aJCas, Annotation ref) {
         // build list of tokens for stanza instead of only raw text
         int begin;
@@ -50,6 +55,10 @@ public class StanzaSentiment extends SentimentBase {
             tokens = JCasUtil.select(aJCas, Token.class);
             begin = 0;
             end = aJCas.getDocumentText().length();
+        }
+
+        if (tokens.isEmpty()) {
+            return null;
         }
 
         JSONArray tokensJson = new JSONArray();

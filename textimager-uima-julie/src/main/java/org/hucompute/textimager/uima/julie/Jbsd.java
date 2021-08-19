@@ -35,6 +35,11 @@ public class Jbsd extends JulieBase {
         return "/jbsd";
     }
 
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
     /**
      * Read Json and update jCas.
      * @param aJCas

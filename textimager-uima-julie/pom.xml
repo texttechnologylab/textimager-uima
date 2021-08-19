@@ -35,7 +35,7 @@
             <version>2.8.5</version>
         </dependency>
         <dependency>
-            <groupId>de.julielab</groupId>
+            <groupId>com.github.myyyvothrr.jcore-base</groupId>
             <artifactId>jcore-types</artifactId>
             <version>${jcore.types.version}</version>
         </dependency>

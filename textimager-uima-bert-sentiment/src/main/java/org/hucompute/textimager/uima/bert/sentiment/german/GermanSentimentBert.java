@@ -30,6 +30,11 @@ public class GermanSentimentBert extends SentimentBase {
     }
 
     @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
+    @Override
     protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
         if (jsonResult.has("selections")) {
             for (Object sels : jsonResult.getJSONArray("selections")) {

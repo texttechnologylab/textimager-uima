@@ -9,4 +9,9 @@ public class MSTParser extends JulieBase {
     protected String getRestRoute() {
         return "/mstparser";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }

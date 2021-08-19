@@ -25,9 +25,9 @@
 		<dkpro.core.version>1.12.0</dkpro.core.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<ttlab.typesystem.version>53973180e10f318b81ad3c66003d484fe456600d</ttlab.typesystem.version>
+		<ttlab.typesystem.version>c1123cc2240be4213bec594eb3de4b9408a3a2c7</ttlab.typesystem.version>
 		<ttlab.utilities.version>1.1.1-uima-2.10.4</ttlab.utilities.version>
-		<jcore.types.version>2.5.1-SNAPSHOT</jcore.types.version>
+		<jcore.types.version>9df8678666856d87b815e79fe100da26f777fb91</jcore.types.version>
 	</properties>
 
 	<repositories>
@@ -101,10 +101,10 @@
 		<module>textimager-uima-HUComputeNER</module>
 		<module>textimager-uima-disambiguation</module>
 		<module>textimager-uima-io-abbyy</module>
-<!--		<module>textimager-uima-deploy</module>-->
-		<!--<module>textimager-uima-heideltime</module>-->
+		<module>textimager-uima-deploy</module>
+		<module>textimager-uima-heideltime</module>
 <!--		<module>textimager-uima-agreement</module>-->
-		<!--<module>textimager-uima-biofid-gazetteer</module>-->
+		<module>textimager-uima-biofid-gazetteer</module>
 <!--		<module>textimager-uima-deep-eos</module>-->
 		<module>textimager-uima-similarity</module>
 		<module>textimager-uima-database</module>
@@ -125,7 +125,6 @@
 		<module>textimager-uima-gnd-gazetteer</module>
 		<module>textimager-uima-biofid-general-gazetteer</module>
 		<module>textimager-uima-steps</module>
-		<module>jcore-base/jcore-types</module>
 		<module>textimager-uima-julie</module>
 		<module>textimager-uima-bert-sentiment</module>
 		<module>textimager-uima-sentiment-base</module>

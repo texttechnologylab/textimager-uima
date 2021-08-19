@@ -9,4 +9,9 @@ public class OpennlpToken extends JulieBase {
     protected String getRestRoute() {
         return "/opennlpToken";
     }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
 }
