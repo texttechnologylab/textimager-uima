@@ -21,6 +21,7 @@ class TextImagerSelection(BaseModel):
 class TextImagerRequest(BaseModel):
     selections: List[TextImagerSelection]
     lang: str
+    doc_len: int
 
 
 class SentenceSentiment(BaseModel):
@@ -70,8 +71,8 @@ def process(request: TextImagerRequest) -> SentimentResponse:
 
         # compute avg for this selection, if >1
         if len(processed_sentences) > 1:
-            begin = processed_sentences[0].sentence.begin
-            end = processed_sentences[-1].sentence.end
+            begin = 0
+            end = request.doc_len
 
             sentiments = 0
             subjectivitys = 0

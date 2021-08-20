@@ -19,6 +19,7 @@ class TextImagerSelection(BaseModel):
 class TextImagerRequest(BaseModel):
     selections: List[TextImagerSelection]
     lang: str
+    doc_len: int
 
 
 class BertSentimentSentence(BaseModel):
@@ -72,8 +73,8 @@ def process(request: TextImagerRequest) -> BertSentimentResponse:
         ]
 
         if len(results) > 1:
-            begin = processed_sentences[0].sentence.begin
-            end = processed_sentences[-1].sentence.end
+            begin = 0
+            end = request.doc_len
 
             sentiments = 0
             for sentence in processed_sentences:

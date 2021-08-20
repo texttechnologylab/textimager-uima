@@ -1,7 +1,9 @@
 package org.hucompute.textimager.uima.stanza;
 
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
@@ -10,19 +12,45 @@ import org.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.hucompute.textimager.uima.type.Sentiment;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 public class StanzaSentimentTest {
+	/*@Test
+	public void test3() throws UIMAException {
+		JCas jCas = JCasFactory.createJCas();
+		try(InputStream inputStream = Files.newInputStream(Paths.get("1_1029574.xmi.xmi"))) {
+			XmiCasDeserializer.deserialize(inputStream, jCas.getCas(), true);
+		} catch (IOException | SAXException e) {
+			e.printStackTrace();
+		}
+
+		AnalysisEngineDescription stanzaSentiment = createEngineDescription(StanzaSentiment.class,
+				StanzaSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
+		);
+
+		SimplePipeline.runPipeline(jCas, stanzaSentiment);
+
+		System.out.println(XmlFormatter.getPrettyString(jCas));
+	}*/
+
 	@Test
 	public void sentimentDeTest() throws UIMAException {
 		String[] sentences = new String[] {
+				" . ",
 				"Das ist ja echt toll!",
 				"Das gefällt mir gar nicht.",
 				"Ich hasse dieses Auto.",
 				"Ich hasse dieses Auto nicht.",
 				"Mir egal...",
-				"Dieses Tool berechnet die Stimmung pro Satz."
+				"Dieses Tool berechnet die Stimmung pro Satz.  ",
+				"   "
 		};
 
 		JCas jCas = JCasFactory.createJCas();
@@ -47,7 +75,7 @@ public class StanzaSentimentTest {
 			System.out.println(sentiment.getCoveredText() + " -> " + sentiment.getSentiment());
 		}
 	}
-
+/*
 	@Test
 	public void sentimentEnTest() throws UIMAException {
 		String[] sentences = new String[] {
@@ -78,6 +106,6 @@ public class StanzaSentimentTest {
 		for (Sentiment sentiment : JCasUtil.select(jCas, Sentiment.class)) {
 			System.out.println(sentiment.getCoveredText() + " -> " + sentiment.getSentiment());
 		}
-	}
+	}*/
 }
 

@@ -57,6 +57,7 @@ public abstract class SentimentBase extends DockerRestAnnotator {
         JSONObject request = new JSONObject();
         request.put("selections", selections);
         request.put("lang", aJCas.getDocumentLanguage());
+        request.put("doc_len", aJCas.getDocumentText().length());
         return request;
     }
 
