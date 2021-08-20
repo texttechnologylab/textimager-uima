@@ -53,4 +53,3 @@ public class TextBlobSentimentTest {
 		System.out.println(XmlFormatter.getPrettyString(cas));
 	}
 }
-
