@@ -274,6 +274,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	private void dockerStop() {
 		if (container != null) {
+			// TODO container is not stopped on DUCC?
 			try {
 				System.out.println("Stopping Docker container");
 				container.get_handle().stop();
@@ -297,19 +298,6 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 			}
 
 			container = null;
-		}
-	}
-
-	@Override
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		try {
-			super.process(aJCas);
-		}
-		catch (Exception ex) {
-			// stop Docker before throwing
-			System.out.println("Stopping Docker container before throwing...");
-			dockerStop();
-			throw ex;
 		}
 	}
 
