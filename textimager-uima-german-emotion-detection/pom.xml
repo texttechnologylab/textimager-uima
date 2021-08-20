@@ -24,16 +24,16 @@
 		<dependency>
 			<groupId>com.github.texttechnologylab</groupId>
 			<artifactId>UIMATypeSystem</artifactId>
-			<version>c1123cc224</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.texttechnologylab</groupId>
-			<artifactId>textimager-uima</artifactId>
-			<version>9fde5da9ea</version>
+			<version>${ttlab.typesystem.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-types</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-base-annotators</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
