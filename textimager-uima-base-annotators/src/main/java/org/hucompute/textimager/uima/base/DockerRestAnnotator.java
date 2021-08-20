@@ -2,7 +2,9 @@ package org.hucompute.textimager.uima.base;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.docker.ContainerParametersBuilder;
 import org.hucompute.textimager.uima.docker.ContainerWrapper;
@@ -74,7 +76,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	 * Default is TextImager network, use "bridge" to deploy locally
 	 */
 	public static final String PARAM_DOCKER_NETWORK = "dockerNetwork";
-	@ConfigurationParameter(name = PARAM_DOCKER_NETWORK, mandatory = false, defaultValue = "textimager_ducc_net")
+	@ConfigurationParameter(name = PARAM_DOCKER_NETWORK, mandatory = false, defaultValue = "bridge")
 	protected String dockerNetwork;
 
 	/**
@@ -84,6 +86,16 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	@ConfigurationParameter(name = PARAM_DOCKER_SOCKET, mandatory = false, defaultValue = "/var/run/docker.sock")
 	protected File dockerSocket;
 
+	@Override
+	protected String getModelName() {
+		return fullDockerImageName;
+	}
+
+	@Override
+	protected String getModelVersion() {
+		return dockerImageTag;
+	}
+
 	// Provides default Docker Image, if none is configured
 	abstract protected String getDefaultDockerImage();
 
@@ -92,6 +104,9 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	// Provides default Docker Port, if none is configured
 	abstract protected int getDefaultDockerPort();
+
+	// Docker image name with registry info
+	protected String fullDockerImageName;
 
 	// Docker/Container API
 	protected ContainerWrapper container;
@@ -139,7 +154,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				}
 
 				// Build full image name from image and repository
-				String fullDockerImageName = dockerImage;
+				fullDockerImageName = dockerImage;
 				if (dockerRegistry != null) {
 					fullDockerImageName = dockerRegistry + "/" + fullDockerImageName;
 				}
@@ -158,9 +173,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				DockerAPI docker = new DockerAPI(dockerSocket);
 				System.out.println("Connected to Docker API");
 
-				// Pull the docker image to use
-				System.out.println("Pulling docker image...");
-				docker.get_handle().images().pull(fullDockerImageName, dockerImageTag);
+				// check if image already exists
+				System.out.println("Checking for docker image...");
+				if (!docker.check_image_exists(fullDockerImage)) {
+					// Pull the docker image to use
+					System.out.println("Docker image not found, pulling...");
+					docker.get_handle().images().pull(fullDockerImageName, dockerImageTag);
+				}
 
 				// Container name based on timestamp
 				String name = getClass().getName() + "__textimager" + "." + Instant.now().getEpochSecond() + "." + UUID.randomUUID();
@@ -171,6 +190,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 				// Optionally add port mapping
 				int containerPort = dockerPort;
+
+				// if bridge network use default port from container
+				if (dockerHostPort == 0 && dockerNetwork.equals("bridge")) {
+					dockerHostPort = getDefaultDockerPort();
+				}
+
+				// Create port mapping
 				if (dockerHostPort != 0) {
 					System.out.println("Using Docker port mapping " + dockerPort + " -> " + dockerHostPort);
 					parametersBuilder.set_port_mapping(dockerPort, dockerHostPort);
@@ -213,7 +239,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 				// Update endpoint of RestAnnotator
 				if (dockerHostname == null) {
-					dockerHostname = container.get_hostname();
+					if (dockerNetwork.equals("bridge")) {
+						// use loaclhost if bridge network is being used
+						dockerHostname = "localhost";
+					}
+					else {
+						dockerHostname = container.get_hostname();
+					}
 				}
 				restEndpoint = "http://" + dockerHostname + ":" + containerPort;
 				System.out.println("Container endpoint is " + restEndpoint);
@@ -232,13 +264,15 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				System.out.println("Docker container should be running now");
 
 			} catch (Exception e) {
+				// stop Docker before throwing
+				System.out.println("Stopping Docker container before throwing...");
+				dockerStop();
 				throw new ResourceInitializationException(e);
 			}
 		}
 	}
-	
-	@Override
-	public void destroy() {
+
+	private void dockerStop() {
 		if (container != null) {
 			try {
 				System.out.println("Stopping Docker container");
@@ -261,8 +295,27 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
 
+			container = null;
+		}
+	}
+
+	@Override
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
+		try {
+			super.process(aJCas);
+		}
+		catch (Exception ex) {
+			// stop Docker before throwing
+			System.out.println("Stopping Docker container before throwing...");
+			dockerStop();
+			throw ex;
+		}
+	}
+
+	@Override
+	public void destroy() {
+		dockerStop();
 		super.destroy();
 	}
 }
