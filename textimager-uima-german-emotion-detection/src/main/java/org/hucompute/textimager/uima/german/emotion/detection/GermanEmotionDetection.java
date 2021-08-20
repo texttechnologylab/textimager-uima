@@ -44,7 +44,6 @@ public class GermanEmotionDetection extends TextImagerBaseAnnotator {
     @Override
     protected String getModelName() {
         return "GermanEmotionDetection";
-    }
 
     @Override
     public void initialize(UimaContext context) throws ResourceInitializationException {

@@ -28,6 +28,11 @@ public class GerVaderSentiment extends SentimentBase {
     }
 
     @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
+    @Override
     protected void updateCAS(JCas aJCas, JSONObject jsonResult) {
         if (jsonResult.has("selections")) {
             for (Object sels : jsonResult.getJSONArray("selections")) {

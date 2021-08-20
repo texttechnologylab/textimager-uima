@@ -29,17 +29,25 @@ public abstract class SentimentBase extends DockerRestAnnotator {
                 JSONArray sentences = new JSONArray();
 
                 if (sel.equals("text")) {
-                    sentences.put(buildJSONSelection(aJCas, null));
+                    JSONObject s = buildJSONSelection(aJCas, null);
+                    if (s != null) {
+                        sentences.put(s);
+                    }
                 } else {
                     Class<Annotation> clazz = (Class<Annotation>) Class.forName(sel);
                     for (Annotation ref : JCasUtil.select(aJCas, clazz)) {
-                        sentences.put(buildJSONSelection(aJCas, ref));
+                        JSONObject s = buildJSONSelection(aJCas, ref);
+                        if (s != null) {
+                            sentences.put(s);
+                        }
                     }
                 }
 
-                selection.put("sentences", sentences);
-                selection.put("selection", sel);
-                selections.put(selection);
+                if (sentences.length() > 0) {
+                    selection.put("sentences", sentences);
+                    selection.put("selection", sel);
+                    selections.put(selection);
+                }
             }
         }
         catch (ClassNotFoundException e) {
