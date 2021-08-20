@@ -1,6 +1,7 @@
 package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.Abbreviation;
+import de.julielab.jcore.types.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -31,9 +32,16 @@ public class AcronymTest {
      */
     @Test
     public void testProcess() throws IOException, UIMAException {
+        // Parameters
+        String Text = "In der Bundesrepublik Deutschland(BRD). Viele Mänchen leben aber außer BRD. Christlich Demokratische Union Deutschlands(CDU) gehört zum grösten Parteien im Deutschland. Angela Merkel gehört zu CDU.";
 
-        JCas jCas = JCasFactory.createText("In der Bundesrepublik Deutschland(BRD). Viele Mänchen leben aber außer BRD. Christlich Demokratische Union Deutschlands(CDU) gehört zum grösten Parteien im Deutschland. Angela Merkel gehört zu CDU.");
+        JCas jCas = JCasFactory.createText(Text);
+        // Input: de.julielab.jcore.types.Sentence
+        Sentence sentence = new Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
+
         jCas.setDocumentLanguage("de");
+
 
         //test zwecke
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);

@@ -1,7 +1,6 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.LikelihoodIndicator;
-import de.julielab.jcore.types.Scope;
+import de.julielab.jcore.types.*;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -28,11 +27,43 @@ public class LingscopeTest {
      * Test for simple text.
      * @throws UIMAException
      */
+    public void init_input(JCas jcas, String text, String postags) {
+        //split sentence to tokens
+        String[] tok = text.split(" ");
+        String[] pos = postags.split(" ");
+
+        //initialize index
+        int index_start = 0;
+        int index_end = 0;
+        int len = tok.length;
+
+        //loop for all words
+        for (int i=0; i < len; i++) {
+            index_end = index_start + tok[i].length();
+            Token token = new Token(jcas, index_start, index_end);
+
+            PennBioIEPOSTag pennpostag = new PennBioIEPOSTag(jcas, index_start, index_end);
+            pennpostag.setValue(pos[i]);
+
+            token.setPosTag(JCoReTools.addToFSArray(null, pennpostag));
+            token.addToIndexes();
+            index_start = index_end + 1;
+        }
+
+    }
     @Test
     public void lingscopeTest() throws IOException, UIMAException {
+        // parameters
+        String Text = "The patient denied leg pain but complained about a headache .";
+        String PosTags = "DT NN VBD NN NN CC VBD IN DT NN .";
 
-        JCas jCas = JCasFactory.createText("The patient denied leg pain but complained about a headache.");
+        JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("en");
+
+        // input: de.julielab.jcore.types.Sentence
+        //        de.julielab.jcore.types.Token
+        //        de.julielab.jcore.types.PennBioIEPOSTag
+        init_input(jCas, Text, PosTags);
 
         //test zwecke
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);

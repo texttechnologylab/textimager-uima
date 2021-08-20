@@ -30,9 +30,15 @@ public class OpennlpTokenTest {
      */
     @Test
     public void testEN() throws IOException, UIMAException {
+        // parameters
         String Text = "CD44, at any stage, is a XYZ";
+
         JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("en");
+
+        // input: de.julielab.jcore.types.Sentence
+        Sentence sentence = new Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
 
         //AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
         AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
@@ -50,9 +56,15 @@ public class OpennlpTokenTest {
      */
     @Test
     public void testDE() throws IOException, UIMAException {
+        // parameters
         String Text = "CD44 ist in jedem Stadium ein XYZ";
+
         JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("de");
+
+        // input: de.julielab.jcore.types.Sentence
+        Sentence sentence = new Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
 
         //AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
         AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);

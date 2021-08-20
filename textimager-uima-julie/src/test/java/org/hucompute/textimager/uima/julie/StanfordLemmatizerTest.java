@@ -8,6 +8,7 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.FSArray;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
@@ -25,20 +26,32 @@ import static org.junit.Assert.assertArrayEquals;
  *
  * This class provide StanfordLemmatizer test case */
 public class StanfordLemmatizerTest {
-    public void init_jcas(JCas jcas, String[] POSTAG) {
+    public void init_input(JCas jcas, String text, String POSTAG) {
+        //split sentence to tokens
+        String[] words = text.split(" ");
+        String[] postags = POSTAG.split(" ");
+
         //initialize index
         int index_start = 0;
         int index_end = 0;
 
         //loop for all words
-        for (int i=0; i< POSTAG.length; i++) {
-            index_end = index_start + POSTAG[i].length();
-            POSTag pos = new POSTag(jcas);
+        for (int i=0; i< words.length; i++) {
+            index_end = index_start + words[i].length();
+            Token token = new Token(jcas);
 
-            pos.setBegin(index_start);
-            pos.setEnd(index_end);
-            pos.setValue(POSTAG[i]);
+            token.setBegin(index_start);
+            token.setEnd(index_end);
+            token.addToIndexes();
+
+            POSTag pos = new POSTag(jcas);
+            pos.setValue(postags[i]);
             pos.addToIndexes();
+
+            FSArray postagss = new FSArray(jcas, 5);
+            postagss.set(0, pos);
+            postagss.addToIndexes();
+            token.setPosTag(postagss);
 
             index_start = index_end + 1;
         }
@@ -49,19 +62,26 @@ public class StanfordLemmatizerTest {
      */
     @Test
     public void testProcess() throws IOException, UIMAException {
+        // parameters
         String Text = "Plectranthus barbatus is a medicinal plant used to treat a wide range of disorders including seizure .";
+        String Postag = "NN NN VBZ DT JJ NN VBN TO VB DT JJ NN IN NNS VBG NN .";
+
         JCas jCas = JCasFactory.createText(Text);
+
+        // input: de.julielab.jcore.types.Token
+        //        de.julielab.jcore.types.POSTag
+        init_input(jCas, Text, Postag);
         // get postag
         //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
-        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
-
-        SimplePipeline.runPipeline(jCas, engine_postag);
-
-        String[] casPostag = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getPosTag(0).getValue()).toArray(String[]::new);
-        jCas.reset();
-        jCas.setDocumentText(Text);
-
-        init_jcas(jCas, casPostag);
+//        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
+//
+//        SimplePipeline.runPipeline(jCas, engine_postag);
+//
+//        String[] casPostag = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getPosTag(0).getValue()).toArray(String[]::new);
+//        jCas.reset();
+//        jCas.setDocumentText(Text);
+//
+//        init_jcas(jCas, casPostag);
         //AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class);
         AnalysisEngineDescription engine = createEngineDescription(StanfordLemmatizer.class);
         SimplePipeline.runPipeline(jCas, engine);

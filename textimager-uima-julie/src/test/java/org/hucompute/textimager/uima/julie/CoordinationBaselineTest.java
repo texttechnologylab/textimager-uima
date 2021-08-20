@@ -24,14 +24,11 @@ import static org.junit.Assert.assertArrayEquals;
  *
  * This class provide CoordinationBaseline test case */
 public class CoordinationBaselineTest {
-    String Text = "Almost all of these mutations occur in X , Y , and Z cells ; simple upstream and downstream sequence elements are indicated by negative elements .";
-    String PosTags = "RB DT IN DT NNS VBP IN NN , NN , CC NN NNS ; JJ JJ CC JJ NN NNS VBP VBD IN JJ NNS .";
-    String Entity = "variation-event variation-location DNA";
-    String Entity_Begin = "20 39 61";
-    String Entity_End = "29 58 109";
-    public void init_jcas(JCas jcas, String sentences, String postags, String entities, String entities_begin, String entities_end) {
+    public void init_jcas(JCas jcas, String text, String postags, String entities, String entities_begin, String entities_end) {
+        Sentence sentence = new Sentence(jcas, 0, text.length());
+        sentence.addToIndexes();
         //split sentence to tokens
-        String[] tok = sentences.split(" ");
+        String[] tok = text.split(" ");
         String[] pos = postags.split(" ");
         String[] entity = entities.split(" ");
         String[] entity_begin = entities_begin.split(" ");
@@ -75,7 +72,18 @@ public class CoordinationBaselineTest {
      */
     @Test
     public void testProcess() throws IOException, UIMAException {
+        // Parameters
+        String Text = "Almost all of these mutations occur in X , Y , and Z cells ; simple upstream and downstream sequence elements are indicated by negative elements .";
+        String PosTags = "RB DT IN DT NNS VBP IN NN , NN , CC NN NNS ; JJ JJ CC JJ NN NNS VBP VBD IN JJ NNS .";
+        String Entity = "variation-event variation-location DNA";
+        String Entity_Begin = "20 39 61";
+        String Entity_End = "29 58 109";
+
         JCas jCas = JCasFactory.createText(Text);
+
+        // input: de.julielab.jcore.types.Sentence
+        //        de.julielab.jcore.types.Token
+        //        de.julielab.jcore.types.Entity
         init_jcas(jCas, Text, PosTags, Entity, Entity_Begin, Entity_End);
 
         //AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class);
