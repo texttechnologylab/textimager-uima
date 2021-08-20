@@ -7,8 +7,8 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.bitbucket.rkilinger.ged.Emotion;
+import org.dkpro.core.languagetool.LanguageToolLemmatizer;
 import org.dkpro.core.languagetool.LanguageToolSegmenter;
-import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
@@ -18,16 +18,15 @@ public class GermanEmotionDetectionTest {
     public void multiTaggerTest() throws UIMAException {
         JCas jCas = JCasFactory.createJCas();
         jCas.setDocumentLanguage("de");
-        jCas.setDocumentText("Aberration Abschluss Abgrund Abbrechen Achtung Aasgeier Aggression.");
+        jCas.setDocumentText("Der Abschluss der Verhandlung war überraschend anstrengend.");
 
-        AnalysisEngineDescription emotionDetection = createEngineDescription(GermanEmotionDetection.class,
-                GermanEmotionDetection.PARAM_MODEL_LOCATION, "/home/x/Desktop/Uni/textimager-uima/textimager-uima-german-emotion-detection/src/test/java/org/hucompute/textimager/uima/german/emotion/detection/dictionaries/");
+        AnalysisEngineDescription emotionDetection = createEngineDescription(GermanEmotionDetection.class);
 
         AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
+        AnalysisEngineDescription lemma = createEngineDescription(LanguageToolLemmatizer.class);
 
-        SimplePipeline.runPipeline(jCas, segmenter, emotionDetection);
+        SimplePipeline.runPipeline(jCas, segmenter, lemma, emotionDetection);
 
-        System.out.println(XmlFormatter.getPrettyString(jCas));
 
         for (Emotion emotion : JCasUtil.select(jCas, Emotion.class)) {
             if(emotion.getDisgust() == 1) {
