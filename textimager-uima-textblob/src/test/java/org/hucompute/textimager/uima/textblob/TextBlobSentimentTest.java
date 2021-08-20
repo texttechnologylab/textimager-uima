@@ -17,12 +17,14 @@ public class TextBlobSentimentTest {
 	@Test
 	public void multiTaggerTest() throws UIMAException {
 		String[] sentences = new String[] {
+				" , ..  ",
 				"Das ist ja echt toll!",
 				"Das gefällt mir gar nicht.",
 				"Ich hasse dieses Auto.",
 				"Ich hasse dieses Auto nicht.",
 				"Mir egal...",
-				"Dieses Tool berechnet die Stimmung pro Satz."
+				"Dieses Tool berechnet die Stimmung pro Satz.",
+				"       "
 		};
 
 		JCas cas = JCasFactory.createJCas();
