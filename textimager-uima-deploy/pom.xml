@@ -70,7 +70,11 @@
 					<artifactId>UIMATypeSystem</artifactId>
 					<version>${ttlab.typesystem.version}</version>
 				</dependency>
-
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-base-annotators</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-util</artifactId>
@@ -174,6 +178,11 @@
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-gervader</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-sentiment-base</artifactId>
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>
