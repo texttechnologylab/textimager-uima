@@ -1,12 +1,16 @@
 package org.hucompute.textimager.uima.base;
 
+import org.apache.uima.UimaContext;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.TOP;
 import org.texttechnologylab.annotation.AnnotatorMetaData;
 
 public abstract class TextImagerBaseAnnotator extends JCasAnnotator_ImplBase {
+	public static final String TEXTIMAGER_ANNOTATOR_BASE_VERSION = "0.1";
+
 	public static final String PARAM_ANNOTATOR_META_NAME = "annotatorMetaName";
 	@ConfigurationParameter(name = PARAM_ANNOTATOR_META_NAME, mandatory = false)
 	protected String annotatorMetaName;
@@ -70,5 +74,14 @@ public abstract class TextImagerBaseAnnotator extends JCasAnnotator_ImplBase {
 		}
 
 		metaData.addToIndexes();
+	}
+
+	@Override
+        public void initialize(UimaContext aContext) throws ResourceInitializationException {
+		System.out.println("TextImager Annotator Base v" + TEXTIMAGER_ANNOTATOR_BASE_VERSION);
+		System.out.println("- Annotator: " + getAnnotatorName() + " v" + getAnnotatorVersion());
+		System.out.println("- Model: " + getModelName() + " v" + getModelVersion());
+
+		super.initialize(aContext);
 	}
 }

@@ -265,7 +265,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 			} catch (Exception e) {
 				// stop Docker before throwing
-				System.out.println("Stopping Docker container before throwing...");
+				System.out.println("Trying to stop Docker container before throwing...");
 				dockerStop();
 				throw new ResourceInitializationException(e);
 			}
@@ -304,6 +304,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	@Override
 	public void destroy() {
 		dockerStop();
+		System.out.println("Docker annotator destroyed");
 		super.destroy();
 	}
 }
