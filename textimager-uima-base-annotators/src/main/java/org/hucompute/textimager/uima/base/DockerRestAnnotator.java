@@ -278,6 +278,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				container.get_handle().stop();
                 Thread.sleep(1000);
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -286,6 +287,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				System.out.println("Waiting for Docker to stop...");
 				container.get_handle().waitOn("not-running");
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -293,6 +295,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				System.out.println("Removing Docker container");
 				container.get_handle().remove();
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -309,6 +312,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
             }
         }
