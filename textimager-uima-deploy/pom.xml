@@ -90,6 +90,12 @@
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-types</artifactId>
 					<version>${project.version}</version>
+					<exclusions>
+						<exclusion>
+							<groupId>org.github.texttechnologylab</groupId>
+							<artifactId>UIMATypeSystem</artifactId>
+						</exclusion>
+					</exclusions>
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>

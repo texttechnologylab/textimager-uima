@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.base;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.docker.ContainerParametersBuilder;
@@ -307,16 +308,18 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	public void destroy() {
         System.out.println("Calling Destroy");
 		dockerStop();
-
-        while (container != null) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
 		super.destroy();
 	}
+
+    @Override
+    public void batchProcessComplete() throws AnalysisEngineProcessException {
+        super.batchProcessComplete();
+        dockerStop();
+    }
+
+    @Override
+    public void collectionProcessComplete() throws AnalysisEngineProcessException {
+        super.collectionProcessComplete();
+        dockerStop();
+    }
 }
