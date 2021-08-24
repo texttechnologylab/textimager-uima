@@ -314,12 +314,14 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
     @Override
     public void batchProcessComplete() throws AnalysisEngineProcessException {
         super.batchProcessComplete();
+        System.out.println("Calling Batch Complete");
         dockerStop();
     }
 
     @Override
     public void collectionProcessComplete() throws AnalysisEngineProcessException {
         super.collectionProcessComplete();
+        System.out.println("Calling Collection Complete");
         dockerStop();
     }
 }
