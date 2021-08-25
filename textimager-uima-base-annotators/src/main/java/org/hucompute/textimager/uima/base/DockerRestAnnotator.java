@@ -2,7 +2,6 @@ package org.hucompute.textimager.uima.base;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.docker.ContainerParametersBuilder;
@@ -277,13 +276,20 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 			try {
                 System.out.println("Stopping Docker container " + container.get_name());
 				container.get_handle().stop();
-                Thread.sleep(1000);
+                System.out.println("Status: " + container.get_status());
+                System.out.println("Log: " + container.get_log());
 			} catch (Exception e) {
                 System.out.println(e.getMessage());
 				e.printStackTrace();
+                try {
+                    container.get_handle().kill();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
 			}
 
-			// TODO container removed at stop already?
+
+            // TODO container removed at stop already?
 			try {
 				System.out.println("Waiting for Docker to stop...");
 				container.get_handle().waitOn("not-running");
@@ -311,17 +317,4 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 		super.destroy();
 	}
 
-    @Override
-    public void batchProcessComplete() throws AnalysisEngineProcessException {
-        super.batchProcessComplete();
-        System.out.println("Calling Batch Complete");
-        dockerStop();
-    }
-
-    @Override
-    public void collectionProcessComplete() throws AnalysisEngineProcessException {
-        super.collectionProcessComplete();
-        System.out.println("Calling Collection Complete");
-        dockerStop();
-    }
 }
