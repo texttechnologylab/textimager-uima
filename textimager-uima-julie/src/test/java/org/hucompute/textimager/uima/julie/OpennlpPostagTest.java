@@ -1,5 +1,6 @@
 package org.hucompute.textimager.uima.julie;
 
+import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -27,11 +28,36 @@ public class OpennlpPostagTest {
      * Test for simple english text.
      * @throws UIMAException
      */
+    public void init_input(JCas jcas, String text) {
+        Sentence sentence = new Sentence(jcas, 0, text.length());
+        sentence.addToIndexes();
+        //split sentence to tokens
+        String[] words = text.split(" ");
+
+        //initialize index
+        int index_start = 0;
+        int index_end = 0;
+
+        //loop for all words
+        for (String word : words) {
+            Token token = new Token(jcas);
+            index_end = index_start + word.length();
+            token.setBegin(index_start);
+            token.setEnd(index_end);
+            token.addToIndexes();
+            index_start = index_end + 1;
+        }
+    }
     @Test
     public void opennlpPOSTestEN() throws IOException, UIMAException {
-
-        JCas jCas = JCasFactory.createText("A study on the Prethcamide.");
+        // parameters
+        String Text = "A study on the Prethcamide.";
+        JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("en");
+
+        // input: de.julielab.jcore.types.Sentence
+        //        de.julielab.jcore.types.Token
+        init_input(jCas, Text);
 
         //test zwecke
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
@@ -47,7 +73,7 @@ public class OpennlpPostagTest {
 
 
         String[] testPos= new String[] {
-                "DT","NN","IN","DT","NN","."
+                "DT","NN","IN","DT","NNP"
         };
 
         assertArrayEquals(casPostag, casPostagDkpro);
@@ -60,9 +86,14 @@ public class OpennlpPostagTest {
      */
     @Test
     public void opennlpPOSTestDE() throws IOException, UIMAException {
-
-        JCas jCas = JCasFactory.createText("Kleinere hilusnahe Fistelungen werden mit Tacho-Comb-Vlies abgedeckt.");
+        // parameters
+        String Text = "Kleinere hilusnahe Fistelungen werden mit Tacho-Comb-Vlies abgedeckt.";
+        JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("de");
+
+        // input: de.julielab.jcore.types.Sentence
+        //        de.julielab.jcore.types.Token
+        init_input(jCas, Text);
 
         //test zwecke
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
@@ -78,7 +109,7 @@ public class OpennlpPostagTest {
 
 
         String[] testPos= new String[] {
-                "ADJA","ADJD","NN","VAFIN","APPR","NN", "VVPP", "$."
+                "ADJA","ADJD","NN","VAFIN","APPR","NN", "ADJA"
         };
 
         assertArrayEquals(casPostag, casPostagDkpro);

@@ -1,5 +1,6 @@
 package org.hucompute.textimager.uima.julie;
 
+import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -29,9 +30,15 @@ public class jtbdTest {
      */
     @Test
     public void tokenizerTestEn() throws IOException, UIMAException {
-
-        JCas jCas = JCasFactory.createText("X-inactivation, T-cells and CD44 are XYZ! CD44-related stuff is\\t(not).");
+        // parameters
+        String Text = "X-inactivation, T-cells and CD44 are XYZ! CD44-related stuff is\\t(not).";
+        JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("en");
+
+        // input: de.julielab.jcore.types.Sentence
+        Sentence sentence = new Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
+
 
         //test zwecke
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
@@ -56,9 +63,14 @@ public class jtbdTest {
      */
     @Test
     public void tokenizerTestDe() throws IOException, UIMAException {
-
+        // parameters
+        String Text = "Das ist eine einfache Sentiment.";
         JCas jCas = JCasFactory.createText("Das ist eine einfache Sentiment.");
         jCas.setDocumentLanguage("de");
+
+        // input: de.julielab.jcore.types.Sentence
+        Sentence sentence = new Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
 
         //test zwecke
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);

@@ -1,6 +1,7 @@
 package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.Constituent;
+import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -30,9 +31,14 @@ public class OpennlpParserTest {
      */
     @Test
     public void testProcess() throws IOException, UIMAException {
+        // parameters
         String Text = "A study on the Prethcamide hydroxylation system in rat hepatic microsomes .";
         JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("en");
+
+        // input: de.julielab.jcore.types.Sentence
+        Sentence sentence = new Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
 
         //AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class);
         AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class);
