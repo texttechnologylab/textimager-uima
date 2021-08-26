@@ -73,7 +73,7 @@ public class OpennlpPostagTest {
 
 
         String[] testPos= new String[] {
-                "DT","NN","IN","DT","NN","."
+                "DT","NN","IN","DT","NNP"
         };
 
         assertArrayEquals(casPostag, casPostagDkpro);
@@ -109,7 +109,7 @@ public class OpennlpPostagTest {
 
 
         String[] testPos= new String[] {
-                "ADJA","ADJD","NN","VAFIN","APPR","NN", "VVPP", "$."
+                "ADJA","ADJD","NN","VAFIN","APPR","NN", "ADJA"
         };
 
         assertArrayEquals(casPostag, casPostagDkpro);

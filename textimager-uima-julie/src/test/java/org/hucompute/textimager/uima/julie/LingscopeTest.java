@@ -7,6 +7,7 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.FSArray;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,10 +28,10 @@ public class LingscopeTest {
      * Test for simple text.
      * @throws UIMAException
      */
-    public void init_input(JCas jcas, String text, String postags) {
+    public void init_input(JCas jcas, String text, String POSTAG) {
         //split sentence to tokens
         String[] tok = text.split(" ");
-        String[] pos = postags.split(" ");
+        String[] postags = POSTAG.split(" ");
 
         //initialize index
         int index_start = 0;
@@ -42,11 +43,21 @@ public class LingscopeTest {
             index_end = index_start + tok[i].length();
             Token token = new Token(jcas, index_start, index_end);
 
-            PennBioIEPOSTag pennpostag = new PennBioIEPOSTag(jcas, index_start, index_end);
-            pennpostag.setValue(pos[i]);
+            //PennBioIEPOSTag pennpostag = new PennBioIEPOSTag(jcas, index_start, index_end);
+            //pennpostag.setValue(pos[i]);
 
-            token.setPosTag(JCoReTools.addToFSArray(null, pennpostag));
+            //token.setPosTag(JCoReTools.addToFSArray(null, pennpostag));
             token.addToIndexes();
+
+            POSTag pos = new POSTag(jcas);
+            pos.setValue(postags[i]);
+            pos.addToIndexes();
+
+            FSArray postagss = new FSArray(jcas, 5);
+            postagss.set(0, pos);
+            postagss.addToIndexes();
+            token.setPosTag(postagss);
+
             index_start = index_end + 1;
         }
 
