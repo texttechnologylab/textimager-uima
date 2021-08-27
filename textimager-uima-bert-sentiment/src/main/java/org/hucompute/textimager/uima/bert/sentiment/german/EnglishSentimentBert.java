@@ -100,6 +100,12 @@ public class EnglishSentimentBert extends SentimentBase {
                     comment.setValue(selectionAnnotation);
                     comment.addToIndexes();
 
+                    AnnotationComment bertModel = new AnnotationComment(aJCas);
+                    bertModel.setReference(sentiment);
+                    bertModel.setKey("bert_model");
+                    bertModel.setValue(modelName);
+                    bertModel.addToIndexes();
+
                     addAnnotatorComment(aJCas, sentiment);
                 }
             }
