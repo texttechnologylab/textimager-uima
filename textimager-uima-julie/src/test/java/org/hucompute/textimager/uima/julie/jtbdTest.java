@@ -1,7 +1,7 @@
 package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.Sentence;
-import de.julielab.jcore.types.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -36,9 +36,12 @@ public class jtbdTest {
         jCas.setDocumentLanguage("en");
 
         // input: de.julielab.jcore.types.Sentence
-        Sentence sentence = new Sentence(jCas, 0, Text.length());
-        sentence.addToIndexes();
+        //Sentence sentence = new Sentence(jCas, 0, Text.length());
+        //sentence.addToIndexes();
 
+        //input: dkpro.sentence
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
 
         //test zwecke
         //AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
@@ -48,7 +51,11 @@ public class jtbdTest {
         AnalysisEngineDescription engine = createEngineDescription(Jtbd.class);
         SimplePipeline.runPipeline(jCas, engine);
 
-        String[] casOffset = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
+        //token from julie
+        //String[] casOffset = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
+
+        //token from dkpro
+        String[] casOffset = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
 
         String[] testOffset = new String[] {
                 "0-14","14-15","16-23","24-27","28-32","33-36","37-40","40-41","42-46","46-47","47-54","55-60","61-63","63-64","64-65","65-66","66-69","69-70","70-71"
@@ -69,7 +76,11 @@ public class jtbdTest {
         jCas.setDocumentLanguage("de");
 
         // input: de.julielab.jcore.types.Sentence
-        Sentence sentence = new Sentence(jCas, 0, Text.length());
+        //Sentence sentence = new Sentence(jCas, 0, Text.length());
+        //sentence.addToIndexes();
+
+        //input: dkpro.sentence
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jCas, 0, Text.length());
         sentence.addToIndexes();
 
         //test zwecke

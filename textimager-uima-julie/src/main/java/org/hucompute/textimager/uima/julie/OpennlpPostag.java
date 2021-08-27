@@ -6,6 +6,7 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.hucompute.textimager.uima.julie.helper.Converter;
 import org.hucompute.textimager.uima.julie.reader.JsonReader;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
@@ -37,13 +38,14 @@ public class OpennlpPostag extends JulieBase {
             JsonReader reader = new JsonReader();
             reader.UpdateJsonToCas(jsonResult, aJCas);
 
-            for (Token token : JCasUtil.select(aJCas, Token.class)) {
-                de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token dtoken = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(aJCas, token.getBegin(), token.getEnd());
-                POS postag = new POS(aJCas, token.getPosTag(0).getBegin(), token.getPosTag(0).getEnd());
-                postag.setPosValue(token.getPosTag(0).getValue());
-                dtoken.setPos(postag);
-                dtoken.addToIndexes();
-            }
+            Converter conv = new Converter();
+            conv.ConvertPOSRemoveToken(aJCas);
+
+            //remove input: Sentence
+            conv.RemoveSentence(aJCas);
+            conv.RemovePOStag(aJCas);
+
+
         } catch (UIMAException | IOException | SAXException ex) {
             throw new AnalysisEngineProcessException(ex);
         }

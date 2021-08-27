@@ -42,6 +42,7 @@ public class MSTParser extends JulieBase {
             for (DependencyRelation jdependency : JCasUtil.select(aJCas, DependencyRelation.class)) {
                 Dependency ddependency = new Dependency(aJCas, jdependency.getBegin(), jdependency.getEnd());
                 ddependency.addToIndexes();
+
             }
         } catch (UIMAException | IOException | SAXException ex) {
             throw new AnalysisEngineProcessException(ex);
