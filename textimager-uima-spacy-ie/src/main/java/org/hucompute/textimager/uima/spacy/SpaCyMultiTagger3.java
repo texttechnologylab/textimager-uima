@@ -6,6 +6,9 @@ import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.SemArg;
+import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.SemArgLink;
+import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.SemPred;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
@@ -14,6 +17,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.TOP_Type;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
@@ -21,11 +25,11 @@ import org.dkpro.core.api.resources.MappingProviderFactory;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.texttechnologylab.annotation.semaf.isobase.Entity;
+import org.texttechnologylab.annotation.semaf.semafsr.SrLink;
+import org.texttechnologylab.annotation.semaf.semafsr.SrLink_Type;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SpaCyMultiTagger3 extends DockerRestAnnotator {
     public static final String PARAM_VARIANT = "variant";
@@ -92,6 +96,14 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
         JSONArray morphs = jsonResult.getJSONObject("multitag").getJSONArray("morphs");
         JSONArray lemmas = jsonResult.getJSONObject("multitag").getJSONArray("lemmas");
         JSONArray sents = jsonResult.getJSONObject("multitag").getJSONArray("sents");
+        JSONArray psrs = jsonResult.getJSONObject("multitag").getJSONArray("psrs");
+
+//        System.out.println(psrs);
+//        System.out.println(psrs.length());
+//        for (int i = 0; i< psrs.length(); i++){
+//            System.out.println(psrs.get(i));
+//            break;
+//        }
 
         try{
             // Sentences
@@ -114,6 +126,9 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
             // NER
             processNER(aJCas, ents);
+
+            // (pseudo) semantic roles
+            processPSR(aJCas, psrs);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -232,6 +247,70 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
         });
     }
 
+    private void processPSR(JCas aJCas, JSONArray psrs) {
+        psrs.forEach(s -> {
+            JSONObject sr = (JSONObject) s;
+            // PREDICATE
+            JSONObject pred = sr.getJSONObject("pred");
+            int begin_p = pred.getInt("start_char");
+            int end_p = pred.getInt("end_char");
+            Entity predAnno = new Entity(aJCas, begin_p, end_p);
+//            predAnno.addToIndexes();
+            System.out.println(pred);
+
+//            System.out.println(sr.length());
+            Iterator<String> keys = sr.keys();
+            while(keys.hasNext()){
+                String key = keys.next();
+                if (!key.equals("pred")){
+//                    System.out.println(key);
+                    if (sr.get(key) instanceof JSONObject) {
+                        JSONObject sr_arg = (JSONObject) sr.get(key);
+                        int begin = sr_arg.getInt("start_char");
+                        int end = sr_arg.getInt("end_char");
+                        Entity argAnno = new Entity(aJCas, begin, end);
+                        SrLink srlinkl = new SrLink(aJCas);
+                        srlinkl.setRel_type(key);
+                        srlinkl.setGround(predAnno);
+//                        srlinkl.setTrigger(predAnno);
+                        srlinkl.setFigure(argAnno);
+                        argAnno.addToIndexes();
+                        srlinkl.addToIndexes();
+                    }
+
+                }
+//                int begin = (Integer) sr.get(key);
+
+            }
+//            try {
+//                JSONObject arg0 = sr.getJSONObject("arg0");
+//            }
+//            catch
+//            JSONObject arg1 = sr.getJSONObject("arg1");
+//            JSONObject arg2 = sr.getJSONObject("arg2");
+//             start_char bezogen auf den ganzen Text
+//            SemArg semArg0 = new SemArg(aJCas);
+//            Entity predAnno = new Entity(aJCas, begin_p, end_p);
+//            Entity arg0E = new Entity(aJCas, 0, 1);
+//            Entity arg1E = new Entity(aJCas, 3, 4);
+//            Entity arg2E = new Entity(aJCas, 3, 4);
+//            Entity arg3E = new Entity(aJCas, 3, 4);
+//            SrLink srlinkl1 = new SrLink(aJCas);
+//            srlinkl1.setRel_type("ARG0");
+//            srlinkl1.setTrigger(predAnno);
+//            srlinkl1.setFigure(arg0);
+//            SrLink srlinkl2 = new SrLink(aJCas);
+//            srlinkl2.setRel_type("ARG1");
+//            srlinkl2.setTrigger(predAnno);
+//            srlinkl2.setFigure(arg1);
+//
+//            predAnno.addToIndexes();
+//            arg0.addToIndexes();
+//            arg1.addToIndexes();
+//            srlinkl1.addToIndexes();
+//            srlinkl2.addToIndexes();
+        });
+    }
     private void processSentences(JCas aJCas, JSONArray sents) {
         sents.forEach(s -> {
             JSONObject sentence = (JSONObject) s;
