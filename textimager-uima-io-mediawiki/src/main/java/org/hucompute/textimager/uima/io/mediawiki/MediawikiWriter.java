@@ -153,7 +153,6 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-				
 		File outputDir = new File(targetLocation);
 		outputDir.mkdirs();
 		// To write the file with name: output.wiki.xml
@@ -626,9 +625,11 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 			}
 			folderPages.get("").add(split[0]);
 		}
+		EmotionHelper eh = new EmotionHelper(jCas);
+		//String emotionbarplot = eh.buildStaticEmotionBarplotJS();
 
 		String comment = "Generated from file " + meta.getDocumentUri();
-
+		
 		StringBuilder pageBuilder = new StringBuilder();
 		HashSet<String> categories = new HashSet<String>();
 
@@ -855,7 +856,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
                 loc.add(text);
             }
         }
-return loc;
+	return loc;
     }
 
     public static String buildMapsString(HashSet<String> locs){
