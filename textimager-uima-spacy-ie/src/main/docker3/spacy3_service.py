@@ -186,7 +186,7 @@ def process(request: TextImagerRequest) -> SpacyResponse:
             for token in verbs:
                 rel = ['', '', '', '', '', '', '', '']
                 rels_dict = {}
-                rels_dict['pred'] = {
+                rels_dict['PRED'] = {
                    'start_char': token.idx,
                    'end_char': token.idx + len(token.text)}
                 for child in token.children:
@@ -195,17 +195,17 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                            ## switch places if passive
                            if token.tag_ == 'VVPP':
                                rel[2] = token.head.lemma_
-                               rels_dict['arg1'] = {
+                               rels_dict['ARG1'] = {
                                'start_char': child.idx,
                                'end_char': child.idx + len(child.text)}
                            else:
                                rel[1] = (child.lemma_, child.text, child.idx)
-                               rels_dict['arg0'] = {
+                               rels_dict['ARG0'] = {
                                'start_char': child.idx,
                                'end_char': child.idx + len(child.text)}
                        else:
                                rel[1] = (child.lemma_, child.text, child.idx)
-                               rels_dict['arg0'] = {
+                               rels_dict['ARG0'] = {
                                'start_char': child.idx,
                                'end_char': child.idx + len(child.text)}
                    elif child.dep_ in ['oa']:
@@ -213,22 +213,22 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                            ## switch places if passive
                            if token.tag_ == 'VVPP':
                                rel[2] = (child.lemma_, child.text, child.idx)
-                               rels_dict['arg0'] = {
+                               rels_dict['ARG0'] = {
                                    'start_char': child.idx,
                                    'end_char': child.idx + len(child.text)}
                            else:
                                rel[2] = (child.lemma_, child.text, child.idx)
-                               rels_dict['arg1'] = {
+                               rels_dict['ARG1'] = {
                                    'start_char': child.idx,
                                    'end_char': child.idx + len(child.text)}
                        else:
                            rel[2] = (child.lemma_, child.text, child.idx)
-                           rels_dict['arg1'] = {
+                           rels_dict['ARG1'] = {
                                'start_char': child.idx,
                                'end_char': child.idx + len(child.text)}
                    elif child.dep_ in ['da', 'og', 'op', 'pd', 'ph']:
                        rel[3] = (child.lemma_, child.text, child.idx)
-                       rels_dict['arg2'] = {
+                       rels_dict['ARG2'] = {
                            'start_char': child.idx,
                            'end_char': child.idx + len(child.text)}
                 if token.dep_ == 'oc' and token.head.pos_ == 'AUX':
@@ -236,19 +236,19 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                        if child.dep_ in ['sb', 'sbp'] and rel[1] == '':
                            if token.tag_ == 'VVPP':
                                rel[2] = (child.lemma_, child.text, child.idx)
-                               rels_dict['arg1'] = {
+                               rels_dict['ARG1'] = {
                                    'start_char': child.idx,
                                    'end_char': child.idx + len(child.text)}
                            else:
                                rel[1] = (child.lemma_, child.text, child.idx)
-                               rels_dict['arg0'] = {
+                               rels_dict['ARG0'] = {
                                    'start_char': child.idx,
                                    'end_char': child.idx + len(child.text)}
                 if token.dep_ == 'cj' and rel[1] == '':
                    for child in token.head.head.children:
                        if child.dep_ in ['sb']:
                            rel[1] = (child.lemma_, child.text, child.idx)
-                           rels_dict['arg0'] = {
+                           rels_dict['ARG0'] = {
                                'start_char': child.idx,
                                'end_char': child.idx + len(child.text)}
                    if token.head.head.dep_ == 'oc':
@@ -256,13 +256,12 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                            if child.dep_ in ['sb', 'sbp'] and rel[1] == '':
                                if token.tag_ == 'VVPP':
                                    rel[2] = (child.lemma_, child.text, child.idx)
-                                   rels_dict['arg1'] = {
+                                   rels_dict['ARG1'] = {
                                        'start_char': child.idx,
                                        'end_char': child.idx + len(child.text)}
-                #                                 rel[2] = child.lemma_
                                else:
                                    rel[1] = (child.lemma_, child.text, child.idx)
-                                   rels_dict['arg0'] = {
+                                   rels_dict['ARG0'] = {
                                        'start_char': child.idx,
                                        'end_char': child.idx + len(child.text)}
                 if len(rels_dict) > 0:

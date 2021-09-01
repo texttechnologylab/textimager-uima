@@ -31,7 +31,7 @@ import org.texttechnologylab.annotation.semaf.semafsr.SrLink_Type;
 
 import java.util.*;
 
-public class SpaCyMultiTagger3 extends DockerRestAnnotator {
+public class SpaCyInformationExtractor extends DockerRestAnnotator {
     public static final String PARAM_VARIANT = "variant";
     @ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
     protected String variant;
