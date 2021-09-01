@@ -1,7 +1,7 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -38,7 +38,7 @@ public class OpennlpSentenceTest {
         AnalysisEngineDescription engine = createEngineDescription(OpennlpSentence.class);
         SimplePipeline.runPipeline(jCas, engine);
 
-        String[] casSentence = (String[]) JCasUtil.select(jCas, Sentence.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
+        String[] casSentence = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
         String[] testSentence = new String[] {"0-15", "16-32"};
 
         assertArrayEquals(testSentence, casSentence);
