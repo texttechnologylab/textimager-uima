@@ -10,9 +10,9 @@ import org.apache.uima.cas.impl.FeatureImpl;
 import org.apache.uima.cas.Feature;
 
 /** 
- * Updated by JCasGen Mon Jul 12 10:10:18 CEST 2021
+ * Updated by JCasGen Wed Sep 01 09:32:12 CEST 2021
  * @generated */
-public class GerVaderSentiment_Type extends Sentiment_Type {
+public class GerVaderSentiment_Type extends VaderSentiment_Type {
   /** @generated */
   @SuppressWarnings ("hiding")
   public final static int typeIndexID = GerVaderSentiment.typeIndexID;
@@ -21,80 +21,6 @@ public class GerVaderSentiment_Type extends Sentiment_Type {
   @SuppressWarnings ("hiding")
   public final static boolean featOkTst = JCasRegistry.getFeatOkTst("org.hucompute.textimager.uima.type.GerVaderSentiment");
  
-  /** @generated */
-  final Feature casFeat_pos;
-  /** @generated */
-  final int     casFeatCode_pos;
-  /** @generated
-   * @param addr low level Feature Structure reference
-   * @return the feature value 
-   */ 
-  public double getPos(int addr) {
-        if (featOkTst && casFeat_pos == null)
-      jcas.throwFeatMissing("pos", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    return ll_cas.ll_getDoubleValue(addr, casFeatCode_pos);
-  }
-  /** @generated
-   * @param addr low level Feature Structure reference
-   * @param v value to set 
-   */    
-  public void setPos(int addr, double v) {
-        if (featOkTst && casFeat_pos == null)
-      jcas.throwFeatMissing("pos", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    ll_cas.ll_setDoubleValue(addr, casFeatCode_pos, v);}
-    
-  
- 
-  /** @generated */
-  final Feature casFeat_neu;
-  /** @generated */
-  final int     casFeatCode_neu;
-  /** @generated
-   * @param addr low level Feature Structure reference
-   * @return the feature value 
-   */ 
-  public double getNeu(int addr) {
-        if (featOkTst && casFeat_neu == null)
-      jcas.throwFeatMissing("neu", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    return ll_cas.ll_getDoubleValue(addr, casFeatCode_neu);
-  }
-  /** @generated
-   * @param addr low level Feature Structure reference
-   * @param v value to set 
-   */    
-  public void setNeu(int addr, double v) {
-        if (featOkTst && casFeat_neu == null)
-      jcas.throwFeatMissing("neu", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    ll_cas.ll_setDoubleValue(addr, casFeatCode_neu, v);}
-    
-  
- 
-  /** @generated */
-  final Feature casFeat_neg;
-  /** @generated */
-  final int     casFeatCode_neg;
-  /** @generated
-   * @param addr low level Feature Structure reference
-   * @return the feature value 
-   */ 
-  public double getNeg(int addr) {
-        if (featOkTst && casFeat_neg == null)
-      jcas.throwFeatMissing("neg", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    return ll_cas.ll_getDoubleValue(addr, casFeatCode_neg);
-  }
-  /** @generated
-   * @param addr low level Feature Structure reference
-   * @param v value to set 
-   */    
-  public void setNeg(int addr, double v) {
-        if (featOkTst && casFeat_neg == null)
-      jcas.throwFeatMissing("neg", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    ll_cas.ll_setDoubleValue(addr, casFeatCode_neg, v);}
-    
-  
-
-
-
   /** initialize variables to correspond with Cas Type and Features
 	 * @generated
 	 * @param jcas JCas
@@ -103,18 +29,6 @@ public class GerVaderSentiment_Type extends Sentiment_Type {
   public GerVaderSentiment_Type(JCas jcas, Type casType) {
     super(jcas, casType);
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
-
- 
-    casFeat_pos = jcas.getRequiredFeatureDE(casType, "pos", "uima.cas.Double", featOkTst);
-    casFeatCode_pos  = (null == casFeat_pos) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_pos).getCode();
-
- 
-    casFeat_neu = jcas.getRequiredFeatureDE(casType, "neu", "uima.cas.Double", featOkTst);
-    casFeatCode_neu  = (null == casFeat_neu) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_neu).getCode();
-
- 
-    casFeat_neg = jcas.getRequiredFeatureDE(casType, "neg", "uima.cas.Double", featOkTst);
-    casFeatCode_neg  = (null == casFeat_neg) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_neg).getCode();
 
   }
 }

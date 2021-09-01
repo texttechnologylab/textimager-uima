@@ -134,6 +134,7 @@
 		<module>textimager-uima-bert-sentiment</module>
 		<module>textimager-uima-sentiment-base</module>
 		<module>textimager-uima-gervader</module>
+		<module>textimager-uima-vader</module>
 		<module>textimager-uima-german-emotion-detection</module>
 		<module>textimager-uima-polyglot</module>
   		<module>textimager-uima-openie</module>
