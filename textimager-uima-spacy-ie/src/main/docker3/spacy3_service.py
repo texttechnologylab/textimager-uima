@@ -265,39 +265,6 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                                    rels_dict['arg0'] = {
                                        'start_char': child.idx,
                                        'end_char': child.idx + len(child.text)}
-#            for token in verbs:
-##                 rel = ['', '', '', '', '', '', '', '']
-#                rels_dict = {}
-#                if token.pos_ == 'VERB':
-##                     rel[0] = (token.lemma_, token.text, token.idx)
-#                    rels_dict['pred'] = {
-#                        'start_char': token.idx,
-#                        'end_char': token.idx + len(token.text)}
-#                    for child in token.children:
-#                        if child.dep_ in ['sb', 'sbp', 'ep']:#, 'svp']:
-##                             rel[1] = (child.lemma_, child.text, child.idx)
-#                            rels_dict['arg0'] = {
-#                            'start_char': child.idx,
-#                            'end_char': child.idx + len(child.text)}
-#                        elif child.dep_ in ['oa']:
-##                             rel[2] = (child.lemma_, child.text, child.idx)
-#                            rels_dict['arg1'] = {
-#                                'start_char': child.idx,
-#                                'end_char': child.idx + len(child.text)}
-#                        elif child.dep_ in ['da', 'og', 'op', 'pd', 'ph']:
-##                             rel[3] = (child.lemma_, child.text, child.idx)
-#                            rels_dict['arg2'] = {
-#                                'start_char': child.idx,
-#                                'end_char': child.idx + len(child.text)}
-#                    if token.dep_ == 'oc' and token.head.pos_ == 'AUX':
-#                        for child in token.head.children:
-#                            if child.dep_ in ['sb', 'sbp'] and rel[1] == '':
-##                                 rel[1] = (child.lemma_, child.text, child.idx)
-#                                rels_dict['arg0'] = {
-#                                    'start_char': child.idx,
-#                                    'end_char': child.idx + len(child.text)}
-
-#                 if rel[0] != '' and (rel[1] != '' or rel[2] != ''):
                 if len(rels_dict) > 0:
                     psrs.append(rels_dict)
 

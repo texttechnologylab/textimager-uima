@@ -98,13 +98,6 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
         JSONArray sents = jsonResult.getJSONObject("multitag").getJSONArray("sents");
         JSONArray psrs = jsonResult.getJSONObject("multitag").getJSONArray("psrs");
 
-//        System.out.println(psrs);
-//        System.out.println(psrs.length());
-//        for (int i = 0; i< psrs.length(); i++){
-//            System.out.println(psrs.get(i));
-//            break;
-//        }
-
         try{
             // Sentences
             processSentences(aJCas, sents);
@@ -255,15 +248,13 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
             int begin_p = pred.getInt("start_char");
             int end_p = pred.getInt("end_char");
             Entity predAnno = new Entity(aJCas, begin_p, end_p);
-//            predAnno.addToIndexes();
+            predAnno.addToIndexes();
             System.out.println(pred);
 
-//            System.out.println(sr.length());
             Iterator<String> keys = sr.keys();
             while(keys.hasNext()){
                 String key = keys.next();
                 if (!key.equals("pred")){
-//                    System.out.println(key);
                     if (sr.get(key) instanceof JSONObject) {
                         JSONObject sr_arg = (JSONObject) sr.get(key);
                         int begin = sr_arg.getInt("start_char");
@@ -271,44 +262,14 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
                         Entity argAnno = new Entity(aJCas, begin, end);
                         SrLink srlinkl = new SrLink(aJCas);
                         srlinkl.setRel_type(key);
-                        srlinkl.setGround(predAnno);
-//                        srlinkl.setTrigger(predAnno);
-                        srlinkl.setFigure(argAnno);
+                        srlinkl.setGround(argAnno);
+                        srlinkl.setFigure(predAnno);
                         argAnno.addToIndexes();
                         srlinkl.addToIndexes();
                     }
 
                 }
-//                int begin = (Integer) sr.get(key);
-
             }
-//            try {
-//                JSONObject arg0 = sr.getJSONObject("arg0");
-//            }
-//            catch
-//            JSONObject arg1 = sr.getJSONObject("arg1");
-//            JSONObject arg2 = sr.getJSONObject("arg2");
-//             start_char bezogen auf den ganzen Text
-//            SemArg semArg0 = new SemArg(aJCas);
-//            Entity predAnno = new Entity(aJCas, begin_p, end_p);
-//            Entity arg0E = new Entity(aJCas, 0, 1);
-//            Entity arg1E = new Entity(aJCas, 3, 4);
-//            Entity arg2E = new Entity(aJCas, 3, 4);
-//            Entity arg3E = new Entity(aJCas, 3, 4);
-//            SrLink srlinkl1 = new SrLink(aJCas);
-//            srlinkl1.setRel_type("ARG0");
-//            srlinkl1.setTrigger(predAnno);
-//            srlinkl1.setFigure(arg0);
-//            SrLink srlinkl2 = new SrLink(aJCas);
-//            srlinkl2.setRel_type("ARG1");
-//            srlinkl2.setTrigger(predAnno);
-//            srlinkl2.setFigure(arg1);
-//
-//            predAnno.addToIndexes();
-//            arg0.addToIndexes();
-//            arg1.addToIndexes();
-//            srlinkl1.addToIndexes();
-//            srlinkl2.addToIndexes();
         });
     }
     private void processSentences(JCas aJCas, JSONArray sents) {
