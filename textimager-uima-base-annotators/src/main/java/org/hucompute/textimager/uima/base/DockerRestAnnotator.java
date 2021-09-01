@@ -2,9 +2,7 @@ package org.hucompute.textimager.uima.base;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.docker.ContainerParametersBuilder;
 import org.hucompute.textimager.uima.docker.ContainerWrapper;
@@ -261,6 +259,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 					}
 				} while (!isReady());
 
+                if (container != null) {
+                    System.out.println("Status: " + container.get_status());
+                    System.out.println("Log: " + container.get_log());
+                    container.get_handle().stop();
+
+                }
+
 				System.out.println("Docker container should be running now");
 
 			} catch (Exception e) {
@@ -273,20 +278,36 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	}
 
 	private void dockerStop() {
+        System.out.println("A");
+
 		if (container != null) {
+            System.out.println("B");
 			// TODO container is not stopped on DUCC?
 			try {
-				System.out.println("Stopping Docker container");
-				container.get_handle().stop();
+                System.out.println("Status: " + container.get_status());
+                System.out.println("Log: " + container.get_log());
+                System.out.println("Stopping Docker container " + container.get_name());
+                container.get_handle().stop();
+                System.out.println("C");
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
-			}
+			} finally {
+                try {
+                    container.get_handle().kill();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
 
-			// TODO container removed at stop already?
+            }
+
+
+            // TODO container removed at stop already?
 			try {
 				System.out.println("Waiting for Docker to stop...");
 				container.get_handle().waitOn("not-running");
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -294,6 +315,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				System.out.println("Removing Docker container");
 				container.get_handle().remove();
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -303,8 +325,10 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	@Override
 	public void destroy() {
+        System.out.println("Calling Destroy");
 		dockerStop();
 		System.out.println("Docker annotator destroyed");
 		super.destroy();
 	}
+
 }
