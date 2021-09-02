@@ -262,8 +262,6 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
                 if (container != null) {
                     System.out.println("Status: " + container.get_status());
                     System.out.println("Log: " + container.get_log());
-                    container.get_handle().stop();
-
                 }
 
 				System.out.println("Docker container should be running now");
@@ -278,17 +276,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	}
 
 	private void dockerStop() {
-        System.out.println("A");
-
 		if (container != null) {
-            System.out.println("B");
 			// TODO container is not stopped on DUCC?
 			try {
                 System.out.println("Status: " + container.get_status());
                 System.out.println("Log: " + container.get_log());
                 System.out.println("Stopping Docker container " + container.get_name());
                 container.get_handle().stop();
-                System.out.println("C");
 			} catch (Exception e) {
                 System.out.println(e.getMessage());
 				e.printStackTrace();
