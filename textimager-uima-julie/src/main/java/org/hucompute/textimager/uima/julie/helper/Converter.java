@@ -1,5 +1,6 @@
 package org.hucompute.textimager.uima.julie.helper;
 
+import de.julielab.jcore.types.Lemma;
 import de.julielab.jcore.types.POSTag;
 import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
@@ -74,6 +75,15 @@ public class Converter {
         }
     }
     /**
+     * Remove julie Lemma.
+     * @param aJCas
+     */
+    public void RemoveLemma(JCas aJCas){
+        for (Lemma lemma : JCasUtil.select(aJCas, Lemma.class)) {
+            lemma.removeFromIndexes(aJCas);
+        }
+    }
+    /**
      * Convert POS to dkpro and remove julie token
      * @param aJCas
      */
@@ -83,6 +93,19 @@ public class Converter {
             postag.setPosValue(token.getPosTag(0).getValue());
             JCasUtil.selectAt(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, token.getBegin(), token.getEnd()).get(0).setPos(postag);
             postag.addToIndexes();
+            token.removeFromIndexes();
+        }
+    }
+    /**
+     * Convert Lemma to dkpro and remove julie token
+     * @param aJCas
+     */
+    public void ConvertLemmaSRemoveToken(JCas aJCas){
+        for (Token token : JCasUtil.select(aJCas, Token.class)) {
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma lemma = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma(aJCas, token.getLemma().getBegin(),  token.getLemma().getEnd());
+            lemma.setValue(token.getLemma().getValue());
+            JCasUtil.selectAt(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, token.getBegin(), token.getEnd()).get(0).setLemma(lemma);
+            lemma.addToIndexes();
             token.removeFromIndexes();
         }
     }
