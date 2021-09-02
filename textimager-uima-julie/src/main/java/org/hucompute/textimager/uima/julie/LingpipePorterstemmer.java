@@ -6,6 +6,7 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.hucompute.textimager.uima.julie.helper.Converter;
 import org.hucompute.textimager.uima.julie.reader.JsonReader;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
@@ -37,13 +38,19 @@ public class LingpipePorterstemmer extends JulieBase {
             JsonReader reader = new JsonReader();
             reader.UpdateJsonToCas(jsonResult, aJCas);
 
-            for (Token token : JCasUtil.select(aJCas, Token.class)) {
+            Converter conv = new Converter();
+            conv.ConvertStemRemoveToken(aJCas);
+
+            //remove output: Lemma
+            conv.RemoveStem(aJCas);
+
+            /*for (Token token : JCasUtil.select(aJCas, Token.class)) {
                 de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token dtoken = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(aJCas, token.getBegin(), token.getEnd());
                 Stem stem = new Stem(aJCas, token.getStemmedForm().getBegin(), token.getStemmedForm().getEnd());
                 dtoken.setStem(stem);
                 dtoken.getStem().setValue(token.getStemmedForm().getValue());
                 dtoken.addToIndexes();
-            }
+            }*/
         }
         catch (UIMAException | IOException | SAXException ex) {
             throw new AnalysisEngineProcessException(ex);

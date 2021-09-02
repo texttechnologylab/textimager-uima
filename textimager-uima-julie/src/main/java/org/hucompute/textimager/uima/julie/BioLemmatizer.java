@@ -40,7 +40,7 @@ public class BioLemmatizer extends JulieBase {
             reader.UpdateJsonToCas(jsonResult, aJCas);
 
             Converter conv = new Converter();
-            conv.ConvertLemmaSRemoveToken(aJCas);
+            conv.ConvertLemmaRemoveToken(aJCas);
 
             //remove input: PoStag
             conv.RemovePOStag(aJCas);

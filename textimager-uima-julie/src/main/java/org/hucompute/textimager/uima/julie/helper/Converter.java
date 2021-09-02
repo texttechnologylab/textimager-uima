@@ -1,10 +1,8 @@
 package org.hucompute.textimager.uima.julie.helper;
 
-import de.julielab.jcore.types.Lemma;
-import de.julielab.jcore.types.POSTag;
-import de.julielab.jcore.types.Sentence;
-import de.julielab.jcore.types.Token;
+import de.julielab.jcore.types.*;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.impl.XCASDeserializer;
 import org.apache.uima.fit.util.JCasUtil;
@@ -84,6 +82,15 @@ public class Converter {
         }
     }
     /**
+     * Remove julie StemForm.
+     * @param aJCas
+     */
+    public void RemoveStem(JCas aJCas){
+        for (StemmedForm stem : JCasUtil.select(aJCas, StemmedForm.class)) {
+            stem.removeFromIndexes(aJCas);
+        }
+    }
+    /**
      * Convert POS to dkpro and remove julie token
      * @param aJCas
      */
@@ -100,12 +107,25 @@ public class Converter {
      * Convert Lemma to dkpro and remove julie token
      * @param aJCas
      */
-    public void ConvertLemmaSRemoveToken(JCas aJCas){
+    public void ConvertLemmaRemoveToken(JCas aJCas){
         for (Token token : JCasUtil.select(aJCas, Token.class)) {
             de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma lemma = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma(aJCas, token.getLemma().getBegin(),  token.getLemma().getEnd());
             lemma.setValue(token.getLemma().getValue());
             JCasUtil.selectAt(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, token.getBegin(), token.getEnd()).get(0).setLemma(lemma);
             lemma.addToIndexes();
+            token.removeFromIndexes();
+        }
+    }
+    /**
+     * Convert Stem to dkpro and remove julie token
+     * @param aJCas
+     */
+    public void ConvertStemRemoveToken(JCas aJCas){
+        for (Token token : JCasUtil.select(aJCas, Token.class)) {
+            Stem stem = new Stem(aJCas, token.getStemmedForm().getBegin(),  token.getStemmedForm().getEnd());
+            stem.setValue(token.getStemmedForm().getValue());
+            JCasUtil.selectAt(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, token.getBegin(), token.getEnd()).get(0).setStem(stem);
+            stem.addToIndexes();
             token.removeFromIndexes();
         }
     }
