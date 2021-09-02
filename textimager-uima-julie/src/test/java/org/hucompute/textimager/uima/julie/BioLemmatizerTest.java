@@ -107,7 +107,7 @@ public class BioLemmatizerTest {
 
         String[] casLemma = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class).stream().map(b -> b.getLemma().getValue()).toArray(String[]::new);
         String[] testLemma = new String[] {"three", "horse", "be", "go", "contemplative",
-                                            "around", "Bushy", "bush", "."};
+                                            "around", "bushy", "bush", "."};
 
         assertArrayEquals(testLemma, casLemma);
     }

@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.POSTag;
 import de.julielab.jcore.types.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -56,6 +57,31 @@ public class StanfordLemmatizerTest {
             index_start = index_end + 1;
         }
     }
+    public void init_input_dkpro(JCas jcas, String text, String POSTAG) {
+        String[] words = text.split(" ");
+        String[] postags = POSTAG.split(" ");
+        //initialize index
+        int index_start = 0;
+        int index_end = 0;
+
+        //loop for all words
+        for (int i=0; i< postags.length; i++) {
+            index_end = index_start + words[i].length();
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(jcas);
+            POS pos = new POS(jcas);
+
+            token.setBegin(index_start);
+            token.setEnd(index_end);
+            token.addToIndexes();
+
+            pos.setBegin(index_start);
+            pos.setEnd(index_end);
+            pos.setPosValue(postags[i]);
+            pos.addToIndexes();
+
+            index_start = index_end + 1;
+        }
+    }
     /**
      * Test for simple text.
      * @throws UIMAException
@@ -70,7 +96,7 @@ public class StanfordLemmatizerTest {
 
         // input: de.julielab.jcore.types.Token
         //        de.julielab.jcore.types.POSTag
-        init_input(jCas, Text, Postag);
+        init_input_dkpro(jCas, Text, Postag);
         // get postag
         //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
 //        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
@@ -86,7 +112,7 @@ public class StanfordLemmatizerTest {
         AnalysisEngineDescription engine = createEngineDescription(StanfordLemmatizer.class);
         SimplePipeline.runPipeline(jCas, engine);
 
-        String[] casLemma = (String[]) JCasUtil.select(jCas, Token.class).stream().map(b -> b.getLemma().getValue()).toArray(String[]::new);
+        String[] casLemma = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class).stream().map(b -> b.getLemma().getValue()).toArray(String[]::new);
         String[] testLemma = new String[] {"plectranthus", "barbatus", "be", "a",
                 "medicinal", "plant", "use", "to", "treat", "a", "wide", "range", "of", "disorder", "include", "seizure", "."};
 
