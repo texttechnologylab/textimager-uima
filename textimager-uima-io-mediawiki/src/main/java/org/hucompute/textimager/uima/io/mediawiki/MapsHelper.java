@@ -23,7 +23,7 @@ public class MapsHelper {
     
     public String buildMapsParserString(){
         StringBuilder str = new StringBuilder();
-        str.append("\n == Recognized Locations == \n");
+        str.append("\n== Recognized Locations ==\n");
         if(locations.isEmpty() == true){
             return "[No locations found in present text]";
 
