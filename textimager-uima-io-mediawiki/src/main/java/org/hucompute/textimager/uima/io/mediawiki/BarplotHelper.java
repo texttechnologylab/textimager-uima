@@ -1,13 +1,15 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 public class BarplotHelper {
     EmotionHelper eh;
-    int textlen;
+    int totalLen;
     public BarplotHelper(JCas cas) {
         eh = new EmotionHelper(cas);
-        textlen = cas.getDocumentText().length();
+        totalLen = eh.disgustSet.size() + eh.contemptSet.size() + eh.surpriseSet.size() + eh.fearSet.size() + eh.mourningSet.size() + eh.angerSet.size() + eh.joySet.size();
     }
     public String buildStaticEmotionBarplotJS(){
 		StringBuilder res = new StringBuilder();
@@ -32,74 +34,58 @@ public class BarplotHelper {
         res.append("<script src=\"https://d3js.org/d3.v5.min.js\"></script>\n");
         res.append("<script>\n");
 	
-		//TODO: Add length of the full text
-		res.append("const textlen = 300;\n"); //TODO: REMOVE
-        //res.append("const textlen = " + textlen + ";\n");
+        res.append("const textlen = " + totalLen + ";\n");
 		
 		//Add the data
 		res.append("const word_distribution = [");
 		
 		res.append("{emotion: 'Ekel',");
 		res.append("value:");
-        res.append("10" + ","); //TODO: REMOVE
-		//res.append(eh.disgustSet.size() + ",");
+		res.append(eh.disgustSet.size() + ",");
 		res.append("words: ");
-        //res.append(eh.getEmotionStringListJS(eh.disgustSet));
-		res.append(eh.getEmotionStringListJS_dummy()); //TODO: REMOVE
+        res.append(eh.getEmotionStringListJS(eh.disgustSet));
 		res.append("},\n");
 	
 		res.append("{emotion: 'Verachtung',");
 		res.append("value:");
-        res.append("10" + ","); //TODO: REMOVE
-		//res.append(eh.contemptSet.size() + ",");
+		res.append(eh.contemptSet.size() + ",");
 		res.append("words: ");
-        //res.append(eh.getEmotionStringListJS(eh.contemptSet));
-		res.append(eh.getEmotionStringListJS_dummy()); //TODO: REMOVE
+        res.append(eh.getEmotionStringListJS(eh.contemptSet));
 		res.append("},\n");
 	
 		res.append("{emotion: 'Ueberraschung',");
 		res.append("value:");
-		res.append("10" + ","); //TODO: REMOVE
-        //res.append(eh.surpriseSet.size() + ",");
+        res.append(eh.surpriseSet.size() + ",");
 		res.append("words: ");
-        //res.append(eh.getEmotionStringListJS(eh.surpriseSet));
-		res.append(eh.getEmotionStringListJS_dummy()); //TODO: REMOVE
+        res.append(eh.getEmotionStringListJS(eh.surpriseSet));
 		res.append("},\n");
 	
 		res.append("{emotion: 'Furcht',");
 		res.append("value:");
-		res.append("10" + ","); //TODO: REMOVE
-        //res.append(eh.fearSet.size() + ",");
+        res.append(eh.fearSet.size() + ",");
 		res.append("words: ");
-        //res.append(eh.getEmotionStringListJS(eh.fearSet));
-		res.append(eh.getEmotionStringListJS_dummy()); //TODO: REMOVE
+        res.append(eh.getEmotionStringListJS(eh.fearSet));
 		res.append("},\n");
 	
 		res.append("{emotion: 'Trauer',");
 		res.append("value:");
-		res.append("10" + ","); //TODO: REMOVE
-        //res.append(eh.mourningSet.size() + ",");
+        res.append(eh.mourningSet.size() + ",");
 		res.append("words: ");
-        //res.append(eh.getEmotionStringListJS(eh.mourningSet));
-		res.append(eh.getEmotionStringListJS_dummy()); //TODO: REMOVE
+        res.append(eh.getEmotionStringListJS(eh.mourningSet));
 		res.append("},\n");
 	
 		res.append("{emotion: 'Wut',");
 		res.append("value:");
-		res.append("10" + ","); //TODO: REMOVE
-        //res.append(eh.angerSet.size() + ",");
+        res.append(eh.angerSet.size() + ",");
 		res.append("words: ");
-        //res.append(eh.getEmotionStringListJS(eh.angerSet));
-		res.append(eh.getEmotionStringListJS_dummy()); //TODO: REMOVE
+        res.append(eh.getEmotionStringListJS(eh.angerSet));
 		res.append("},\n");
 	
 		res.append("{emotion: 'Freude',");
 		res.append("value:");
-		res.append("10" + ","); //TODO: REMOVE
-        //res.append(eh.joySet.size() + ",");
+        res.append(eh.joySet.size() + ",");
 		res.append("words: ");
-        //res.append(eh.getEmotionStringListJS(eh.joySet));
-		res.append(eh.getEmotionStringListJS_dummy()); //TODO: REMOVE
+        res.append(eh.getEmotionStringListJS(eh.joySet));
 		res.append("}");
 	
 		res.append("];\n");
@@ -120,7 +106,7 @@ public class BarplotHelper {
 		
 		//Action if a bar gets clicked (Zugriff auf zugehoeriges Objekt mit actual):
 		res.append("const words = actual.words;\n");
-        res.append("const emotion = actual.emotion;alert(emotion);});\n");
+        res.append("const emotion = actual.emotion;alert(words);});\n");
 	
 		//Labels for Barchart
 		res.append("svg.append('text').attr('class', 'label').attr('x', -(height / 2) - margin).attr('y', margin / 2).attr('transform', 'rotate(-90)').attr('text-anchor', 'middle').text('Vorkommen von Wörtern je Basisemotion');\n");
