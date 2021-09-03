@@ -259,10 +259,10 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 					}
 				} while (!isReady());
 
-                if (container != null) {
-                    System.out.println("Status: " + container.get_status());
-                    System.out.println("Log: " + container.get_log());
-                }
+                //if (container != null) {
+                //    System.out.println("Status: " + container.get_status());
+                //    System.out.println("Log: " + container.get_log());
+                //}
 
 				System.out.println("Docker container should be running now");
 
