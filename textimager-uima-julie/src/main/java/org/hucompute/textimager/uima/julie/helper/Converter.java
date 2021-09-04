@@ -3,6 +3,9 @@ package org.hucompute.textimager.uima.julie.helper;
 import de.julielab.jcore.types.*;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.chunk.Chunk;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ABBREV;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ABBREV_Type;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.impl.XCASDeserializer;
 import org.apache.uima.fit.util.JCasUtil;
@@ -53,7 +56,15 @@ public class Converter {
             token.removeFromIndexes(aJCas);
         }
     }
-
+    /**
+     * Remove julie tokens.
+     * @param aJCas
+     */
+    public void RemoveToken(JCas aJCas){
+        for (de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token : JCasUtil.select(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class)) {
+            token.removeFromIndexes(aJCas);
+        }
+    }
     /**
      * Remove julie sentences.
      * @param aJCas
@@ -88,6 +99,33 @@ public class Converter {
     public void RemoveStem(JCas aJCas){
         for (StemmedForm stem : JCasUtil.select(aJCas, StemmedForm.class)) {
             stem.removeFromIndexes(aJCas);
+        }
+    }
+    /**
+     * Remove julie Chunk.
+     * @param aJCas
+     */
+    public void RemoveChunk(JCas aJCas){
+        for (de.julielab.jcore.types.Chunk chunk : JCasUtil.select(aJCas, de.julielab.jcore.types.Chunk.class)) {
+            chunk.removeFromIndexes(aJCas);
+        }
+    }
+    /**
+     * Remove julie Abbreviation.
+     * @param aJCas
+     */
+    public void RemoveAbbreviation(JCas aJCas){
+        for (Abbreviation abbreviation : JCasUtil.select(aJCas, Abbreviation.class)) {
+            abbreviation.removeFromIndexes(aJCas);
+        }
+    }
+    /**
+     * Remove julie Constituent.
+     * @param aJCas
+     */
+    public void RemoveConstituent(JCas aJCas){
+        for (Constituent constituent : JCasUtil.select(aJCas, Constituent.class)) {
+            constituent.removeFromIndexes(aJCas);
         }
     }
     /**
@@ -127,6 +165,39 @@ public class Converter {
             JCasUtil.selectAt(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, token.getBegin(), token.getEnd()).get(0).setStem(stem);
             stem.addToIndexes();
             token.removeFromIndexes();
+        }
+    }
+    /**
+     * Convert Chunk to dkpro
+     * @param aJCas
+     */
+    public void ConvertChunk(JCas aJCas){
+        for (de.julielab.jcore.types.Chunk chunk : JCasUtil.select(aJCas, de.julielab.jcore.types.Chunk.class)) {
+            Chunk chunk_dkpro = new Chunk(aJCas, chunk.getBegin(),  chunk.getEnd());
+            chunk_dkpro.setChunkValue(chunk.getType().getShortName());
+            chunk_dkpro.addToIndexes();
+        }
+    }
+    /**
+     * Convert ABBREV to dkpro
+     * @param aJCas
+     */
+    public void ConvertABBREV(JCas aJCas){
+        for (Abbreviation abbreviation : JCasUtil.select(aJCas, Abbreviation.class)) {
+            ABBREV abbrev = new ABBREV(aJCas, abbreviation.getBegin(), abbreviation.getEnd());
+            abbrev.setDependencyType(abbreviation.getCoveredText());
+            abbrev.addToIndexes();
+        }
+    }
+    /**
+     * Convert Constituent to dkpro
+     * @param aJCas
+     */
+    public void ConvertConstituent(JCas aJCas){
+        for (Constituent constituent : JCasUtil.select(aJCas, Constituent.class)) {
+            de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent constituent_dkpro = new de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent(aJCas, constituent.getBegin(), constituent.getEnd());
+            constituent_dkpro.setConstituentType(constituent.getCat());
+            constituent.addToIndexes();
         }
     }
 }

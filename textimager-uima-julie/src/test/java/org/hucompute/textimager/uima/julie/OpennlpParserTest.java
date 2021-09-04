@@ -1,8 +1,8 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Constituent;
-import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -37,14 +37,15 @@ public class OpennlpParserTest {
         jCas.setDocumentLanguage("en");
 
         // input: de.julielab.jcore.types.Sentence
-        Sentence sentence = new Sentence(jCas, 0, Text.length());
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new Sentence(jCas, 0, Text.length());
         sentence.addToIndexes();
 
         //AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class);
         AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class);
         SimplePipeline.runPipeline(jCas, engine);
 
-        String[] casParsing = (String[]) JCasUtil.select(jCas, Constituent.class).stream().map(a -> a.getCat()).toArray(String[]::new);
+//        String[] casParsing = (String[]) JCasUtil.select(jCas, Constituent.class).stream().map(a -> a.getCat()).toArray(String[]::new);
+        String[] casParsing = (String[]) JCasUtil.select(jCas, Constituent.class).stream().map(a -> a.getConstituentType()).toArray(String[]::new);
         String[] testParsing = {"NP", "NP", "PP", "NP", "NP", "PP", "NP"};
         assertArrayEquals(testParsing, casParsing);
 

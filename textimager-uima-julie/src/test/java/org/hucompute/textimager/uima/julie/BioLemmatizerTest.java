@@ -86,6 +86,7 @@ public class BioLemmatizerTest {
         String Postag = "DT NNS VBD VBG RB IN JJ NNS .";
 
         JCas jCas = JCasFactory.createText(Text);
+
         // input: de.julielab.jcore.types.POSTag
         //        de.julielab.jcore.types.Token
         init_input_dkpro(jCas, Text, Postag);
