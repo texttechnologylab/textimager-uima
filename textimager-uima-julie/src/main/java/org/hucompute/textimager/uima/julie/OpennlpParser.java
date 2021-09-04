@@ -39,6 +39,7 @@ public class OpennlpParser extends JulieBase {
 
             //remove input: Sentence
             conv.RemoveSentence(aJCas);
+            conv.RemoveToken(aJCas);
             //remove output: Constituent
             conv.RemoveConstituent(aJCas);
 

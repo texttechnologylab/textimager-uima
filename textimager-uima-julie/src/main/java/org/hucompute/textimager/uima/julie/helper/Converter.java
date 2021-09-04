@@ -197,7 +197,7 @@ public class Converter {
         for (Constituent constituent : JCasUtil.select(aJCas, Constituent.class)) {
             de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent constituent_dkpro = new de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent(aJCas, constituent.getBegin(), constituent.getEnd());
             constituent_dkpro.setConstituentType(constituent.getCat());
-            constituent.addToIndexes();
+            constituent_dkpro.addToIndexes();
         }
     }
 }
