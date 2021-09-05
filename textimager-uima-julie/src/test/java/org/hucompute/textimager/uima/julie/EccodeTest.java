@@ -1,7 +1,7 @@
 package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.Enzyme;
-import de.julielab.jcore.types.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -35,7 +35,7 @@ public class EccodeTest {
 
         JCas jCas = JCasFactory.createText(Text);
         // input: de.julielab.jcore.types.Sentence
-        Sentence sentence = new Sentence(jCas, 0, Text.length());
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new Sentence(jCas, 0, Text.length());
         sentence.addToIndexes();
 
         //AnalysisEngineDescription engine = createEngineDescription(ECCode.class);

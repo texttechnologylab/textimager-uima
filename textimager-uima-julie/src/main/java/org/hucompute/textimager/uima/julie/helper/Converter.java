@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.julie.helper;
 
 import de.julielab.jcore.types.*;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.chunk.Chunk;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ABBREV;
@@ -102,6 +103,15 @@ public class Converter {
         }
     }
     /**
+     * Remove julie Entity.
+     * @param aJCas
+     */
+    public void RemoveEntity(JCas aJCas){
+        for (Entity entity : JCasUtil.select(aJCas, Entity.class)) {
+            entity.removeFromIndexes(aJCas);
+        }
+    }
+    /**
      * Remove julie Chunk.
      * @param aJCas
      */
@@ -165,6 +175,17 @@ public class Converter {
             JCasUtil.selectAt(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, token.getBegin(), token.getEnd()).get(0).setStem(stem);
             stem.addToIndexes();
             token.removeFromIndexes();
+        }
+    }
+    /**
+     * Convert Stem to dkpro and remove julie token
+     * @param aJCas
+     */
+    public void ConvertEntityMention(JCas aJCas){
+        for (EntityMention entity : JCasUtil.select(aJCas, EntityMention.class)) {
+            NamedEntity ner = new NamedEntity(aJCas, entity.getBegin(),  entity.getEnd());
+            ner.setValue(entity.getSpecificType());
+            ner.addToIndexes();
         }
     }
     /**

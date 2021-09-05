@@ -81,7 +81,6 @@ public class LikelihoodDetectionTest {
         String[] casLikelihoodIndicator = (String[]) JCasUtil.select(jCas, LikelihoodIndicator.class).stream().map(a -> a.getCoveredText()).toArray(String[]::new);
         String[] casLikelihoodCategory = (String[]) JCasUtil.select(jCas, LikelihoodIndicator.class).stream().map(a -> a.getLikelihood()).toArray(String[]::new);
 
-
         String[] testcasLikelihoodIndicator= new String[] {
                 "appears","raises the possibility"
         };
