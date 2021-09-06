@@ -20,6 +20,13 @@ public class EnglishSentimentBert extends SentimentBase {
     protected String modelName;
 
     /**
+     * Model max length
+     */
+    public static final String PARAM_MODEL_MAX_LENGTH = "modelMaxLength";
+    @ConfigurationParameter(name = PARAM_MODEL_MAX_LENGTH)
+    protected int modelMaxLength;
+
+    /**
      * Sentiment mappings
      */
     public static final String PARAM_SENTIMENT_MAPPINGS = "sentimentMappings";
@@ -51,7 +58,7 @@ public class EnglishSentimentBert extends SentimentBase {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.2";
+        return "0.3";
     }
 
     @Override
@@ -73,6 +80,7 @@ public class EnglishSentimentBert extends SentimentBase {
     protected JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException {
         JSONObject jsonObject = super.buildJSON(aJCas);
         jsonObject.put("model_name", modelName);
+        jsonObject.put("model_max_length", modelMaxLength);
         jsonObject.put("sentiment_mapping", sentimentMappingsJson);
         return jsonObject;
     }

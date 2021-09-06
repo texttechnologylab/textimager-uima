@@ -1,1 +1,1 @@
-docker build -t textimager-uima-service-bert-sentiment-en:0.2 src/main/docker_en
+docker build -t textimager-uima-service-bert-sentiment-en:0.3 src/main/docker_en
