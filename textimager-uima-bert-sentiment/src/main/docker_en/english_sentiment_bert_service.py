@@ -68,7 +68,9 @@ def process(request: TextImagerRequest) -> BertSentimentResponse:
 
     for selection in request.selections:
         texts = [s.text for s in selection.sentences]
-        results = sentiment_analysis(texts)
+
+        # truncate input, same as german lib
+        results = sentiment_analysis(texts, truncation=True)
 
         processed_sentences = [
             BertSentimentSentence(
