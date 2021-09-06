@@ -259,11 +259,6 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 					}
 				} while (!isReady());
 
-                //if (container != null) {
-                //    System.out.println("Status: " + container.get_status());
-                //    System.out.println("Log: " + container.get_log());
-                //}
-
 				System.out.println("Docker container should be running now");
 
 			} catch (Exception e) {
@@ -279,22 +274,12 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 		if (container != null) {
 			// TODO container is not stopped on DUCC?
 			try {
-                System.out.println("Status: " + container.get_status());
-                System.out.println("Log: " + container.get_log());
                 System.out.println("Stopping Docker container " + container.get_name());
                 container.get_handle().stop();
 			} catch (Exception e) {
                 System.out.println(e.getMessage());
 				e.printStackTrace();
-			} finally {
-                try {
-                    container.get_handle().kill();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-
+			}
 
             // TODO container removed at stop already?
 			try {
@@ -319,9 +304,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	@Override
 	public void destroy() {
-        System.out.println("Calling Destroy");
 		dockerStop();
-		System.out.println("Docker annotator destroyed");
 		super.destroy();
 	}
 
