@@ -23,6 +23,11 @@ public class OpenIEParser extends DockerRestAnnotator {
 	}
 
 	@Override
+	protected String getRestRoute() {
+		return "/openie/process";
+	}
+
+	@Override
 	protected String getAnnotatorVersion() {
 		return "0.1";
 	}
