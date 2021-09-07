@@ -61,7 +61,7 @@ public class JnetTest {
         for (int i=0; i< words.length; i++) {
             index_end = index_start + words[i].length();
             de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(jcas, index_start, index_end);
-
+            token.addToIndexes();
             index_start = index_end + 1;
         }
     }

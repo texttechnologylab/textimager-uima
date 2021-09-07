@@ -35,7 +35,7 @@ public class EccodeTest {
 
         JCas jCas = JCasFactory.createText(Text);
         // input: de.julielab.jcore.types.Sentence
-        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new Sentence(jCas, 0, Text.length());
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jCas, 0, Text.length());
         sentence.addToIndexes();
 
         //AnalysisEngineDescription engine = createEngineDescription(ECCode.class);

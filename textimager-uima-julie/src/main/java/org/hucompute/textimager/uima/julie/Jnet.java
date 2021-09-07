@@ -36,11 +36,14 @@ public class Jnet extends JulieBase {
             reader.UpdateJsonToCas(jsonResult, aJCas);
 
             Converter conv = new Converter();
+            conv.ConvertNamedEntity(aJCas);
 
-            //remove input: Sentence, Token, Entity
+            //remove input: Sentence, Token
             conv.RemoveSentence(aJCas);
             conv.RemoveToken(aJCas);
-            conv.ConvertEntityMention(aJCas);
+            //remove output: EntityMention
+            conv.RemoveEntityMention(aJCas);
+
 
 
         } catch (UIMAException | IOException | SAXException ex) {

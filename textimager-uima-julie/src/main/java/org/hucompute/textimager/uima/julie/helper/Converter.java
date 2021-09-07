@@ -139,6 +139,15 @@ public class Converter {
         }
     }
     /**
+     * Remove julie Constituent.
+     * @param aJCas
+     */
+    public void RemoveEntityMention(JCas aJCas){
+        for (EntityMention entity : JCasUtil.select(aJCas, EntityMention.class)) {
+            entity.removeFromIndexes(aJCas);
+        }
+    }
+    /**
      * Convert POS to dkpro and remove julie token
      * @param aJCas
      */
@@ -181,7 +190,7 @@ public class Converter {
      * Convert Stem to dkpro and remove julie token
      * @param aJCas
      */
-    public void ConvertEntityMention(JCas aJCas){
+    public void ConvertNamedEntity(JCas aJCas){
         for (EntityMention entity : JCasUtil.select(aJCas, EntityMention.class)) {
             NamedEntity ner = new NamedEntity(aJCas, entity.getBegin(),  entity.getEnd());
             ner.setValue(entity.getSpecificType());
