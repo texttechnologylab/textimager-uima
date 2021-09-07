@@ -1,68 +1,67 @@
 package org.hucompute.textimager.uima.openie;
 
-import java.util.List;
-
-import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-
-import edu.knowitall.collection.immutable.Interval;
-import edu.knowitall.openie.Instance;
-import edu.knowitall.openie.OpenIE;
-import edu.knowitall.tool.parse.ClearParser;
-import edu.knowitall.tool.postag.ClearPostagger;
-import edu.knowitall.tool.srl.ClearSrl;
-import edu.knowitall.tool.tokenize.ClearTokenizer;
-import edu.knowitall.openie.Argument;
-import scala.collection.Seq;
-import scala.collection.JavaConversions;
-
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.hucompute.textimager.uima.type.OpenIERelation;
+import org.json.JSONObject;
 
-public class OpenIEParser extends JCasAnnotator_ImplBase {
-
-	protected OpenIE openie;
-
+public class OpenIEParser extends DockerRestAnnotator {
 	@Override
-	public void initialize(UimaContext aContext)
-			throws ResourceInitializationException {
-		super.initialize(aContext);
-
-		this.openie = new OpenIE(new ClearParser(new ClearPostagger(new ClearTokenizer())), new ClearSrl(), false, false);
+	protected String getDefaultDockerImage() {
+		return "textimager-uima-service-openie";
 	}
 
 	@Override
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {
-		Seq<Instance> extractions = this.openie.extract(aJCas.getDocumentText());
-		List<Instance> list_extractions = JavaConversions.seqAsJavaList(extractions);
+	protected String getDefaultDockerImageTag() {
+		return "0.1";
+	}
 
-		for (Instance instance : list_extractions) {
-			List<Argument> list_arg2s = JavaConversions.seqAsJavaList(instance.extr().arg2s());
-			for (Argument arg2 : list_arg2s) {
+	@Override
+	protected int getDefaultDockerPort() {
+		return 8080;
+	}
+
+	@Override
+	protected String getAnnotatorVersion() {
+		return "0.1";
+	}
+
+	@Override
+	protected JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException {
+		JSONObject result = new JSONObject();
+		result.put("text", aJCas.getDocumentText());
+		result.put("language", aJCas.getDocumentLanguage());
+		return result;
+	}
+
+	@Override
+	protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
+		if (jsonResult.has("extractions")) {
+			for (Object extractionJson : jsonResult.getJSONArray("extractions")) {
+				JSONObject extraction = (JSONObject) extractionJson;
+
 				OpenIERelation relation = new OpenIERelation(aJCas);
-				relation.setConfidence(instance.confidence());
 
-				List<Interval> arg1Offsets = JavaConversions.seqAsJavaList(instance.extr().arg1().offsets());
-				relation.setBeginArg1(arg1Offsets.get(0).start());
-				relation.setEndArg1(arg1Offsets.get(0).end());
-				relation.setValueArg1(instance.extr().arg1().displayText());
+				relation.setBegin(extraction.getInt("begin"));
+				relation.setEnd(extraction.getInt("end"));
+				relation.setConfidence(extraction.getDouble("confidence"));
 
-				List<Interval> relOffsets = JavaConversions.seqAsJavaList(instance.extr().rel().offsets());
-				relation.setBeginRel(relOffsets.get(0).start());
-				relation.setEndRel(relOffsets.get(0).end());
-				relation.setValueRel(instance.extr().rel().displayText());
+				relation.setBeginArg1(extraction.getInt("beginArg1"));
+				relation.setEndArg1(extraction.getInt("endArg1"));
+				relation.setValueArg1(extraction.getString("valueArg1"));
 
-				List<Interval> arg2Offsets = JavaConversions.seqAsJavaList(arg2.offsets());
-				relation.setBeginArg2(arg2Offsets.get(0).start());
-				relation.setEndArg2(arg2Offsets.get(0).end());
-				relation.setValueArg2(arg2.displayText());
+				relation.setBeginRel(extraction.getInt("beginRel"));
+				relation.setEndRel(extraction.getInt("endRel"));
+				relation.setValueRel(extraction.getString("valueRel"));
 
-				relation.setBegin(arg1Offsets.get(0).start());
-				relation.setEnd(arg2Offsets.get(0).end());
+				relation.setBeginArg2(extraction.getInt("beginArg2"));
+				relation.setEndArg2(extraction.getInt("endArg2"));
+				relation.setValueArg2(extraction.getString("valueArg2"));
 
 				aJCas.addFsToIndexes(relation);
+
+				addAnnotatorComment(aJCas, relation);
 			}
 		}
 	}
