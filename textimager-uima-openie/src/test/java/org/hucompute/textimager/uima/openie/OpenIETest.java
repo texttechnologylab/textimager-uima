@@ -1,23 +1,20 @@
 package org.hucompute.textimager.uima.openie;
 
-import java.util.ArrayList;
-
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-
-import org.hucompute.textimager.uima.util.XmlFormatter;
-import org.hucompute.textimager.uima.openie.OpenIEParser;
 import org.hucompute.textimager.uima.type.OpenIERelation;
+import org.hucompute.textimager.uima.util.XmlFormatter;
+import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import java.util.ArrayList;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.junit.Assert.assertEquals;
 
 public class OpenIETest {
 
