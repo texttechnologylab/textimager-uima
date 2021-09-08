@@ -62,7 +62,7 @@ public class Converter {
      * @param aJCas
      */
     public void RemoveToken(JCas aJCas){
-        for (de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token : JCasUtil.select(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class)) {
+        for (Token token : JCasUtil.select(aJCas, Token.class)) {
             token.removeFromIndexes(aJCas);
         }
     }
@@ -228,6 +228,17 @@ public class Converter {
             de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent constituent_dkpro = new de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent(aJCas, constituent.getBegin(), constituent.getEnd());
             constituent_dkpro.setConstituentType(constituent.getCat());
             constituent_dkpro.addToIndexes();
+        }
+    }
+    /**
+     * Convert Postag to dkpro
+     * @param aJCas
+     */
+    public void ConvertPOS(JCas aJCas){
+        for (POSTag postag : JCasUtil.select(aJCas, POSTag.class)) {
+            POS pos = new POS(aJCas, postag.getBegin(), postag.getEnd());
+            pos.setPosValue(postag.getValue());
+            pos.addToIndexes();
         }
     }
 }
