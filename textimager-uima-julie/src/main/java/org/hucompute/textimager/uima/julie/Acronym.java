@@ -38,9 +38,8 @@ public class Acronym extends JulieBase {
             Converter conv = new Converter();
             conv.ConvertABBREV(aJCas);
 
-            //remove input: Sentence
+            //remove input
             conv.RemoveSentence(aJCas);
-            //remove input: Sentence
             conv.RemoveAbbreviation(aJCas);
 
 //            for (Token token : JCasUtil.select(aJCas, Token.class)) {

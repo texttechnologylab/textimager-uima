@@ -41,7 +41,7 @@ public class LingpipePorterstemmer extends JulieBase {
             Converter conv = new Converter();
             conv.ConvertStemRemoveToken(aJCas);
 
-            //remove output: Lemma
+            //remove output: Stem
             conv.RemoveStem(aJCas);
 
             /*for (Token token : JCasUtil.select(aJCas, Token.class)) {

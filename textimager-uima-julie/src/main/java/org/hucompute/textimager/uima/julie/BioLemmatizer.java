@@ -46,6 +46,7 @@ public class BioLemmatizer extends JulieBase {
             conv.RemovePOStag(aJCas);
             //remove output: Lemma
             conv.RemoveLemma(aJCas);
+            conv.RemoveSentence(aJCas);
             String strop = "";
 
 //            for (Token token : JCasUtil.select(aJCas, Token.class)) {

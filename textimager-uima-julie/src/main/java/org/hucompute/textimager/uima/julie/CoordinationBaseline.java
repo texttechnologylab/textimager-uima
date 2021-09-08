@@ -41,6 +41,7 @@ public class CoordinationBaseline extends JulieBase {
             conv.RemoveSentence(aJCas);
             conv.RemoveToken(aJCas);
             conv.RemoveEntity(aJCas);
+            conv.RemovePOStag(aJCas);
 
 
         } catch (UIMAException | IOException | SAXException ex) {

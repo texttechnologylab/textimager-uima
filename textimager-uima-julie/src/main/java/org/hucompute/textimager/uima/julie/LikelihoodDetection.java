@@ -39,6 +39,7 @@ public class LikelihoodDetection extends JulieBase {
             Converter conv = new Converter();
 
             //remove input: Token, Lemma
+            conv.RemoveSentence(aJCas);
             conv.RemoveToken(aJCas);
             conv.RemoveLemma(aJCas);
 
