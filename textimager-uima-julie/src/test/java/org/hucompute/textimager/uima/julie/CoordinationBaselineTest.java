@@ -92,13 +92,14 @@ public class CoordinationBaselineTest {
             de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(jcas, index_start, index_end);
             token.addToIndexes();
 
-            //POS postag = new POS(jcas, index_start, index_end);
+             POS postag = new POS(jcas, index_start, index_end);
 
 //            FSArray postag_array = new FSArray(jcas, 10);
 //            postag_array.set(0, postag);
 //            postag_array.addToIndexes();
-            //postag.setPosValue(pos[i]);
-            //postag.addToIndexes();
+            postag.setPosValue(pos[i]);
+            postag.addToIndexes();
+            token.setPos(postag);
             index_start = index_end + 1;
         }
 

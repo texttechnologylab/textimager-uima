@@ -85,11 +85,13 @@ public class OpennlpChunkTest {
             pos.setPosValue(postags[i]);
             pos.addToIndexes();
 
+            token.setPos(pos);
+
             index_start = index_end + 1;
 //            FSArray postagss = new FSArray(jcas, 5);
 //            postagss.set(0, pos);
 //            postagss.addToIndexes();
-//            token.setPosTag(postagss);
+//            token.setPos(postagss);
         }
     }
     /**
@@ -116,12 +118,12 @@ public class OpennlpChunkTest {
 //        // test chunk
 //
 //        init_jcas(jCas, casPostag);
-        //AnalysisEngineDescription engine = createEngineDescription(OpennlpChunk.class);
         AnalysisEngineDescription engine = createEngineDescription(OpennlpChunk.class);
+        //AnalysisEngineDescription engine = createEngineDescription(OpennlpChunkRest.class, OpennlpChunkRest.PARAM_REST_ENDPOINT, "http://localhost:8080");
         SimplePipeline.runPipeline(jCas, engine);
 
 //        String[] casChunks = (String[]) JCasUtil.select(jCas, Chunk.class).stream().map(b -> b.getType().getShortName()).toArray(String[]::new);
-        String[] casChunks = (String[]) JCasUtil.select(jCas, Chunk.class).stream().map(b -> b.getType().getShortName()).toArray(String[]::new);
+        String[] casChunks = (String[]) JCasUtil.select(jCas, Chunk.class).stream().map(b -> b.getChunkValue()).toArray(String[]::new);
         String[] testChunks = new String[]{"ChunkNP","ChunkPP","ChunkNP","ChunkPP","ChunkNP"};
 
         assertArrayEquals(testChunks, casChunks);
