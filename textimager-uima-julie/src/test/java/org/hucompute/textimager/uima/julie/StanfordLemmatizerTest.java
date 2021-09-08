@@ -110,8 +110,8 @@ public class StanfordLemmatizerTest {
 //
 //        init_jcas(jCas, casPostag);
         //AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class);
-        //AnalysisEngineDescription engine = createEngineDescription(StanfordLemmatizer.class);
-        AnalysisEngineDescription engine = createEngineDescription(StanfordLemmatizerRest.class, StanfordLemmatizerRest.PARAM_REST_ENDPOINT, "http://localhost:8080");
+        AnalysisEngineDescription engine = createEngineDescription(StanfordLemmatizer.class);
+        //AnalysisEngineDescription engine = createEngineDescription(StanfordLemmatizerRest.class, StanfordLemmatizerRest.PARAM_REST_ENDPOINT, "http://localhost:8080");
         SimplePipeline.runPipeline(jCas, engine);
 
         String[] casLemma = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class).stream().map(b -> b.getLemma().getValue()).toArray(String[]::new);

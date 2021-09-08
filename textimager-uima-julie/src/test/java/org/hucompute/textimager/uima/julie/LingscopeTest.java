@@ -90,6 +90,7 @@ public class LingscopeTest {
             pos.setPosValue(postags[i]);
             pos.addToIndexes();
 
+            token.setPos(pos);
             index_start = index_end + 1;
         }
 
