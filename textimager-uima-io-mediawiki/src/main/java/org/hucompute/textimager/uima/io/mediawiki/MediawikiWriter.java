@@ -3,6 +3,7 @@ package org.hucompute.textimager.uima.io.mediawiki;
 import java.io.File;   
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.Math;
@@ -834,7 +835,15 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 		String barplotstring = bh.buildStaticEmotionBarplotJS();
 		
 		SemiographHelper sh = new SemiographHelper(jCas);
-		String semiographstring = sh.mergeStaticSemiographString(embedding_id);
+
+		String semiographstring;
+		try {
+			semiographstring = sh.mergeStaticSemiographString(embedding_id);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			semiographstring = "";
+		}
 		
 		MapsHelper mh = new MapsHelper(jCas);
 		String mapstring = mh.buildMapsParserString();
