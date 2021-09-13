@@ -3,6 +3,7 @@ package org.hucompute.textimager.uima.io.mediawiki;
 import java.io.File;   
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.Math;
@@ -28,11 +29,13 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.bitbucket.rkilinger.ged.Emotion;
 import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.MetaDataStringField;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
@@ -153,7 +156,6 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-				
 		File outputDir = new File(targetLocation);
 		outputDir.mkdirs();
 		// To write the file with name: output.wiki.xml
@@ -596,13 +598,18 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 
-		System.out.println("VERSUCH1");
 		DocumentMetaData meta = DocumentMetaData.get(jCas);		 
 		String lang = meta.getLanguage();
 
 		String pageTitle = meta.getDocumentId().replaceAll(" ", "_").replaceAll("%20", "_");
 		pageTitle = pageTitle.replace(".txt", "");
 
+		String embedding_id = "zeit_komninos.CBOW_DE_100_NN_NE_V_ADJ"; //Default embedding
+		for (MetaDataStringField field : JCasUtil.select(jCas, MetaDataStringField.class)) {
+			if (field.getKey().equals("embedding_id")) {
+				embedding_id = field.getValue();
+			}
+		}
 		// To separate and remember sub-pages to create the overview pages later
 		String[] split = pageTitle.split("/", -1);
 		// If it is greater than 1, than there are sub-pages 
@@ -626,12 +633,13 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 			}
 			folderPages.get("").add(split[0]);
 		}
-
+		
+		
 		String comment = "Generated from file " + meta.getDocumentUri();
-
+		
 		StringBuilder pageBuilder = new StringBuilder();
 		HashSet<String> categories = new HashSet<String>();
-
+	
 		// Get all wikipedia links from TagMeLocalAnnotator
 		ArrayList<WikipediaLink> wikipediaLinks = new ArrayList<WikipediaLink>();
 		wikipediaLinks.addAll(JCasUtil.select(jCas, WikipediaLink.class));
@@ -822,10 +830,30 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 			pageBuilder.append(category).append("\n");
 		}
 		pageBuilder.append("\n\n\n");
- 		String mapsString = buildMapsString(extractLocations(jCas));
-		System.out.println("-----------------------------------------------------------------------");
-		System.out.println(mapsString);
-		pageBuilder.append(mapsString);
+ 		
+		BarplotHelper bh = new BarplotHelper(jCas);
+		String barplotstring = bh.buildStaticEmotionBarplotJS();
+		
+		SemiographHelper sh = new SemiographHelper(jCas);
+
+		String semiographstring;
+		try {
+			semiographstring = sh.mergeStaticSemiographString(embedding_id);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			semiographstring = "";
+		}
+		
+		MapsHelper mh = new MapsHelper(jCas);
+		String mapstring = mh.buildMapsParserString();
+
+		System.out.println(barplotstring);
+		System.out.println(semiographstring);
+		System.out.println(mapstring);
+		pageBuilder.append(barplotstring);
+		pageBuilder.append(semiographstring);
+		pageBuilder.append(mapstring);
 
 		pageBuilder.append("\n\n\n");
 		writePage(pageTitle, comment, pageBuilder.toString(), nsPage);
@@ -846,32 +874,5 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 		mappedList.get(key).add(value);
 	}
 
-	public static HashSet<String> extractLocations(JCas jCas){
-        HashSet<String> loc = new HashSet<String>();
-        
-        for (NamedEntity ne : JCasUtil.select(jCas, NamedEntity.class)) {
-            if (ne.getValue().equals("LOC")) {
-                String text = ne.getCoveredText();
-                loc.add(text);
-            }
-        }
-return loc;
-    }
-
-    public static String buildMapsString(HashSet<String> locs){
-        StringBuilder str = new StringBuilder();
-        if(locs.isEmpty() == true){
-            return "[No locations found in present text]";
-        }else{
-            str.append("{{#display_map:");
-            Iterator<String> it = locs.iterator();
-            while(it.hasNext()) {
-                str.append(it.next());
-                str.append(";");
-            }
-            str.append("}}");
-            return str.toString();
-        }
-}
 
 }
