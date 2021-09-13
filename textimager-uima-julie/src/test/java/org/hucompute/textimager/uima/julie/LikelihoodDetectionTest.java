@@ -57,6 +57,33 @@ public class LikelihoodDetectionTest {
         }
 
     }
+    public void init_input_dkpro(JCas jcas, String text, String[] lemmas) {
+        //split sentence to tokens
+        String[] words = text.split(" ");
+
+        //initialize index
+        int index_start = 0;
+        int index_end = 0;
+        int len = words.length;
+
+        //loop for all words
+        for (int i=0; i < len; i++) {
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(jcas);
+            index_end = index_start + words[i].length();
+            token.setBegin(index_start);
+            token.setEnd(index_end);
+
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma lemma = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma(jcas);
+            lemma.setBegin(index_start);
+            lemma.setEnd(index_end);
+            lemma.setValue(lemmas[i]);
+
+            token.setLemma(lemma);
+            token.addToIndexes();
+            index_start = index_end + 1;
+        }
+
+    }
     @Test
     public void likelihoodDetectionTest() throws IOException, UIMAException {
         // parameters
@@ -67,7 +94,7 @@ public class LikelihoodDetectionTest {
         JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("en");
 
-        init_input(jCas, Text, Lemmas);
+        init_input_dkpro(jCas, Text, Lemmas);
 
 
         //test zwecke
@@ -80,7 +107,6 @@ public class LikelihoodDetectionTest {
 
         String[] casLikelihoodIndicator = (String[]) JCasUtil.select(jCas, LikelihoodIndicator.class).stream().map(a -> a.getCoveredText()).toArray(String[]::new);
         String[] casLikelihoodCategory = (String[]) JCasUtil.select(jCas, LikelihoodIndicator.class).stream().map(a -> a.getLikelihood()).toArray(String[]::new);
-
 
         String[] testcasLikelihoodIndicator= new String[] {
                 "appears","raises the possibility"

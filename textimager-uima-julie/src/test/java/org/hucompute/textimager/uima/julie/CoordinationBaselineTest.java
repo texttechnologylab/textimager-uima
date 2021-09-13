@@ -1,6 +1,8 @@
 package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.*;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -66,6 +68,49 @@ public class CoordinationBaselineTest {
             ent.addToIndexes();
         }
     }
+    public void init_jcas_dkpro(JCas jcas, String text, String postags, String entities, String entities_begin, String entities_end) {
+        
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jcas, 0, text.length());
+        sentence.addToIndexes();
+        //split sentence to tokens
+        String[] tok = text.split(" ");
+        String[] pos = postags.split(" ");
+        String[] entity = entities.split(" ");
+        String[] entity_begin = entities_begin.split(" ");
+        String[] entity_end = entities_end.split(" ");
+
+        //initialize index
+        int index_start = 0;
+        int index_end = 0;
+        int len = tok.length;
+        int len_entity = entity.length;
+
+        //loop for all words
+        for (int i=0; i < len; i++) {
+            index_end = index_start + tok[i].length();
+
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(jcas, index_start, index_end);
+            token.addToIndexes();
+
+             POS postag = new POS(jcas, index_start, index_end);
+
+//            FSArray postag_array = new FSArray(jcas, 10);
+//            postag_array.set(0, postag);
+//            postag_array.addToIndexes();
+            postag.setPosValue(pos[i]);
+            postag.addToIndexes();
+            token.setPos(postag);
+            index_start = index_end + 1;
+        }
+
+        for (int i=0; i < len_entity; i++) {
+            Entity ent = new Entity(jcas);
+            ent.setBegin(Integer.parseInt(entity_begin[i]));
+            ent.setEnd(Integer.parseInt(entity_end[i]));
+            ent.setSpecificType(entity[i]);
+            ent.addToIndexes();
+        }
+    }
     /**
      * Test for simple text.
      * @throws UIMAException
@@ -84,7 +129,7 @@ public class CoordinationBaselineTest {
         // input: de.julielab.jcore.types.Sentence
         //        de.julielab.jcore.types.Token
         //        de.julielab.jcore.types.Entity
-        init_jcas(jCas, Text, PosTags, Entity, Entity_Begin, Entity_End);
+        init_jcas_dkpro(jCas, Text, PosTags, Entity, Entity_Begin, Entity_End);
 
         //AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class);
         AnalysisEngineDescription engine = createEngineDescription(CoordinationBaseline.class);
