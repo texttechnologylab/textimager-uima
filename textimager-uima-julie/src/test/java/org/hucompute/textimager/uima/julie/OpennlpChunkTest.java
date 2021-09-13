@@ -1,9 +1,10 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Chunk;
 import de.julielab.jcore.types.POSTag;
 import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.chunk.Chunk;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -58,6 +59,41 @@ public class OpennlpChunkTest {
             System.out.println(token.getPosTag(0));
         }
     }
+    public void init_input_dkpro(JCas jcas, String text, String postag) {
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jcas, 0, text.length());
+        sentence.addToIndexes();
+        //split sentence to tokens
+        String[] words = text.split(" ");
+        String[] postags = postag.split(" ");
+
+        //initialize token index
+        int index_start = 0;
+        int index_end = 0;
+
+        //loop for all words
+        for (int i=0; i< words.length; i++) {
+            index_end = index_start + words[i].length();
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(jcas);
+            POS pos = new POS(jcas);
+
+            token.setBegin(index_start);
+            token.setEnd(index_end);
+            token.addToIndexes();
+
+            pos.setBegin(index_start);
+            pos.setEnd(index_end);
+            pos.setPosValue(postags[i]);
+            pos.addToIndexes();
+
+            token.setPos(pos);
+
+            index_start = index_end + 1;
+//            FSArray postagss = new FSArray(jcas, 5);
+//            postagss.set(0, pos);
+//            postagss.addToIndexes();
+//            token.setPos(postagss);
+        }
+    }
     /**
      * Test for simple text.
      * @throws UIMAException
@@ -72,7 +108,7 @@ public class OpennlpChunkTest {
         // input: de.julielab.jcore.types.Sentence
         //        de.julielab.jcore.types.Token
         //        de.julielab.jcore.types.POSTag
-        init_input(jCas, Text, Postags);
+        init_input_dkpro(jCas, Text, Postags);
         // get postag
         //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
 //        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
@@ -82,11 +118,12 @@ public class OpennlpChunkTest {
 //        // test chunk
 //
 //        init_jcas(jCas, casPostag);
-        //AnalysisEngineDescription engine = createEngineDescription(OpennlpChunk.class);
         AnalysisEngineDescription engine = createEngineDescription(OpennlpChunk.class);
+        //AnalysisEngineDescription engine = createEngineDescription(OpennlpChunkRest.class, OpennlpChunkRest.PARAM_REST_ENDPOINT, "http://localhost:8080");
         SimplePipeline.runPipeline(jCas, engine);
 
-        String[] casChunks = (String[]) JCasUtil.select(jCas, Chunk.class).stream().map(b -> b.getType().getShortName()).toArray(String[]::new);
+//        String[] casChunks = (String[]) JCasUtil.select(jCas, Chunk.class).stream().map(b -> b.getType().getShortName()).toArray(String[]::new);
+        String[] casChunks = (String[]) JCasUtil.select(jCas, Chunk.class).stream().map(b -> b.getChunkValue()).toArray(String[]::new);
         String[] testChunks = new String[]{"ChunkNP","ChunkPP","ChunkNP","ChunkPP","ChunkNP"};
 
         assertArrayEquals(testChunks, casChunks);

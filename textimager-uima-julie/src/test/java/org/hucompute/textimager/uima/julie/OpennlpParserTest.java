@@ -1,8 +1,9 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Constituent;
-import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -25,6 +26,28 @@ import static org.junit.Assert.assertArrayEquals;
  *
  * This class provide OpennlpParser test case */
 public class OpennlpParserTest {
+    public void init_input_dkpro(JCas jcas, String text) {
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jcas, 0, text.length());
+        sentence.addToIndexes();
+        //split sentence to tokens
+        String[] words = text.split(" ");
+
+        //initialize token index
+        int index_start = 0;
+        int index_end = 0;
+
+        //loop for all words
+        for (int i=0; i< words.length; i++) {
+            index_end = index_start + words[i].length();
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(jcas);
+
+            token.setBegin(index_start);
+            token.setEnd(index_end);
+            token.addToIndexes();
+
+            index_start = index_end + 1;
+        }
+    }
     /**
      * Test for simple text.
      * @throws UIMAException
@@ -37,14 +60,14 @@ public class OpennlpParserTest {
         jCas.setDocumentLanguage("en");
 
         // input: de.julielab.jcore.types.Sentence
-        Sentence sentence = new Sentence(jCas, 0, Text.length());
-        sentence.addToIndexes();
+        init_input_dkpro(jCas, Text);
 
         //AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class);
         AnalysisEngineDescription engine = createEngineDescription(OpennlpParser.class);
         SimplePipeline.runPipeline(jCas, engine);
 
-        String[] casParsing = (String[]) JCasUtil.select(jCas, Constituent.class).stream().map(a -> a.getCat()).toArray(String[]::new);
+//        String[] casParsing = (String[]) JCasUtil.select(jCas, Constituent.class).stream().map(a -> a.getCat()).toArray(String[]::new);
+        String[] casParsing = (String[]) JCasUtil.select(jCas, Constituent.class).stream().map(a -> a.getConstituentType()).toArray(String[]::new);
         String[] testParsing = {"NP", "NP", "PP", "NP", "NP", "PP", "NP"};
         assertArrayEquals(testParsing, casParsing);
 
