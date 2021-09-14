@@ -247,6 +247,11 @@
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>
+					<groupId>com.github.myyyvothrr.jcore-base</groupId>
+					<artifactId>jcore-types</artifactId>
+					<version>${jcore.types.version}</version>
+				</dependency>
+				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-julie</artifactId>
 					<version>${project.version}</version>
