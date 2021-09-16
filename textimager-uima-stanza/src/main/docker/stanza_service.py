@@ -1,67 +1,50 @@
 import os
-
+import sys
 import stanza
 import uvicorn
-from typing import List
 from fastapi import FastAPI
 from pydantic import BaseModel
 
 
-class TextImagerSentence(BaseModel):
-    tokens: List[str]
-    begin: int
-    end: int
-
-
-class TextImagerSelection(BaseModel):
-    selection: str
-    sentences: List[TextImagerSentence]
+# TODO extra libs:
+# ru
+# ukr
+# ...
 
 
 class TextImagerRequest(BaseModel):
-    selections: List[TextImagerSelection]
     lang: str
-    doc_len: int
+    text: str
 
 
-class StanzaSentimentSentence(BaseModel):
-    sentence: TextImagerSentence
-    sentiment: float
-
-
-class StanzaSentimentSelection(BaseModel):
-    selection: str
-    sentences: List[StanzaSentimentSentence]
-
-
-class StanzaSentimentResponse(BaseModel):
-    selections: List[StanzaSentimentSelection]
+class StanzaResponse(BaseModel):
+    multitag: dict
 
 
 # pipeline per lang and per tool
 stanza_pipelines = {}
+set_language = {'en', 'de' 'lz'}
 
 
-def stanza_get_pipeline(lang, tool):
+def stanza_get_pipeline(tool: str, lang: str = "de") -> stanza:
     if lang in stanza_pipelines and tool in stanza_pipelines[lang]:
         return stanza_pipelines[lang][tool]
 
     nlp = None
 
     # build pipeline
-    if tool == "sentiment":
-        if lang == "de" or lang == "en":
-            nlp = stanza.Pipeline(lang,
-                                  processors='tokenize,sentiment',
-                                  tokenize_pretokenized=True,
-                                  use_gpu=stanza_use_gpu
-                                  )
+    try:
+        stanza.download(lang)
+        nlp = stanza.Pipeline(lang, use_gpu=stanza_use_gpu)
 
-    # cache and return
-    if lang not in stanza_pipelines:
-        stanza_pipelines[lang] = {}
-    if tool not in stanza_pipelines[lang]:
-        stanza_pipelines[lang][tool] = nlp
+        # cache and return
+        if lang not in stanza_pipelines:
+            stanza_pipelines[lang] = {}
+        if tool not in stanza_pipelines[lang]:
+            stanza_pipelines[lang][tool] = nlp
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+
     return nlp
 
 
@@ -78,74 +61,95 @@ def get_textimager():
     }
 
 
-def map_sentiment_results(result):
-    if result == 0:
-        # negative
-        return -1
-    elif result == 2:
-        # positive
-        return 1
+@app.post("/multi")
+def process(request: TextImagerRequest) -> StanzaResponse:
+    nlp = stanza_get_pipeline("Multitagger", lang=request.lang)
 
-    # neutral
-    return 0
-# add /multitagger
-
-@app.post("/sentiment")
-def process(request: TextImagerRequest) -> StanzaSentimentResponse:
-    processed_selections = []
-
-    nlp = stanza_get_pipeline(request.lang, "sentiment")
+    res_dict = {}
     if nlp is not None:
-        for selection in request.selections:
-            # build stanza doc from pretokenized data
-            doc_data = [
-                [
-                    token
-                    for token in sent.tokens
-                ]
-                for sent in selection.sentences
-            ]
-            doc = nlp(doc_data)
+        doc = nlp(request.text)
+        tokens = []
+        sents = []
+        pos = []
+        deps = []
+        ents = []
+        morphs = []
+        lemmas = []
 
-            processed_sentences = []
-            if len(doc.sentences) == len(selection.sentences):
-                for stanza_sentence, ti_sentence in zip(doc.sentences, selection.sentences):
-                    sentence = StanzaSentimentSentence(
-                        sentence=ti_sentence,
-                        sentiment=map_sentiment_results(stanza_sentence.sentiment)
-                    )
-                    processed_sentences.append(sentence)
-            else:
-                # TODO return error message if not equal length
-                print("error: stanza processed doc and textimager provided doc do not contain equal number of sentences!")
+        for count, sentence in enumerate(doc.sentences):
+            for token in sentence.tokens:
+                for word in token.words:
+                    tokens_dict = {
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                        'token_text': word.text,
+                    }
+                    tokens.append(tokens_dict)
+                    morph_list = []
+                    if word.feats is not None:
+                        morph_list = word.feats.split("|")
+                    morph_dict = {
+                        'morph': list(morph_list),
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                    }
+                    morphs.append(morph_dict)
 
-            # compute avg for this selection, if >1
-            if len(processed_sentences) > 1:
-                begin = 0
-                end = request.doc_len
+                    lemma_dict = {
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                        'lemma': word.lemma,
+                    }
+                    lemmas.append(lemma_dict)
 
-                sentiments = 0
-                for sentence in processed_sentences:
-                    sentiments += sentence.sentiment
+                    pos_dict = {
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                        'upos': word.upos,
+                        'xpos': word.xpos,
+                    }
+                    pos.append(pos_dict)
 
-                sentiment = sentiments / len(processed_sentences)
+                    deps_dict = {
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                        'dep': word.deprel,
+                    }
+                    deps.append(deps_dict)
+            """
+            sents_dict = {
+                'begin': tokens.start_char,
+                'end': tokens.end_char
+            }
+            sents.append(sents_dict)
+            """
+            ents_dict = {
+                    'start_char': token.start_char,
+                    'end_char': token.end_char,
+                    'label': token.ner
+            }
+            ents.append(ents_dict)
 
-                processed_sentences.append(StanzaSentimentSentence(
-                    sentence=TextImagerSentence(tokens=[],
-                                                begin=begin,
-                                                end=end),
-                    sentiment=sentiment
-                ))
+        res_dict = {
+                    'tokens': tokens,
+                    'sents': sents,
+                    'pos': pos,
+                    'deps': deps,
+                    'ents': ents,
+                    'morphs': morphs,
+                    'lemmas': lemmas
+        }
 
-            processed_selections.append(StanzaSentimentSelection(
-                selection=selection.selection,
-                sentences=processed_sentences
-            ))
     else:
         # TODO return error message
-        print("not pipeline found for sentiment lang", request)
+        print("not pipeline found for stanza lang", request)
 
-    response = StanzaSentimentResponse(selections=processed_selections)
+    response = StanzaResponse(multitag=res_dict)
     return response
 
 

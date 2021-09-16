@@ -8,8 +8,8 @@ RUN pip install -r requirements.txt
 EXPOSE 8000
 
 # preload models
-RUN python -c "import stanza; stanza.download('en')"
-RUN python -c "import stanza; stanza.download('de')"
+#RUN python -c "import stanza; stanza.download('en')"
+#RUN python -c "import stanza; stanza.download('de')"
 
 ENV TEXTIMAGER_STANZA_USE_GPU=False
 
