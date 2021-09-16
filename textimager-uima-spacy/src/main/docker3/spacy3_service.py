@@ -26,25 +26,25 @@ spacy_pipelines = {}
 switch = {
     "ef":
         {
-            "de": "de_core_news_sm",
-            "en": "en_core_web_sm",
-            "fr": "fr_core_news_sm",
-            "da": "da_core_news_sm",
-            "nl": "nl_core_news_sm",
-            "el": "el_core_news_sm",
-            "it": "it_core_news_sm",
-            "zh": "zh_core_web_sm",
-            "ja": "ja_core_news_sm",
-            "lt": "lt_core_news_sm",
-            "nb": "np_core_news_sm",
-            "pl": "pl_core_news_sm",
-            "pt": "pt_core_news_sm",
-            "ro": "ro_core_news_sm",
-            "ru": "ru_core_news_sm",
-            "es": "es_core_news_sm",
-            "ca": "ca_core_news_sm",
-            "mk": "mk_core_news_sm",
-            "multi": "xx_ent_wiki_sm",
+            "de": "de_core_news_sm",    # German
+            "en": "en_core_web_sm",     # English
+            "fr": "fr_core_news_sm",    # French
+            "da": "da_core_news_sm",    # Danish
+            "nl": "nl_core_news_sm",    # Dutch
+            "el": "el_core_news_sm",    # Greek
+            "it": "it_core_news_sm",    # Italian
+            "zh": "zh_core_web_sm",     # Chinese
+            "ja": "ja_core_news_sm",    # Japanese
+            "lt": "lt_core_news_sm",    # Lithuanian
+            "nb": "nb_core_news_sm",    # Norwegian Bokmal
+            "pl": "pl_core_news_sm",    # Polish
+            "pt": "pt_core_news_sm",    # Portugese
+            "ro": "ro_core_news_sm",    # Romanian
+            "ru": "ru_core_news_sm",    # Russian
+            "es": "es_core_news_sm",    # Spanish
+            "ca": "ca_core_news_sm",    # Catalan
+            "mk": "mk_core_news_sm",    # Macedonian
+            "multi": "xx_ent_wiki_sm",  # Multi-Language / Unknown Language
             "default": "xx_ent_wiki_sm",
         },
     "ac":
