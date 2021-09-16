@@ -88,7 +88,7 @@ def map_sentiment_results(result):
 
     # neutral
     return 0
-
+# add /multitagger
 
 @app.post("/sentiment")
 def process(request: TextImagerRequest) -> StanzaSentimentResponse:

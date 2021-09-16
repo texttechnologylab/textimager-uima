@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.spacy;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import org.apache.uima.UIMAException;
@@ -19,13 +20,10 @@ import static org.junit.Assert.assertArrayEquals;
 public class SpaCyMultiTagger3Test {
 	@Test
 	public void multiTaggerTest() throws UIMAException {
-		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple.  Und das ist ein iMac.", "de");
+		JCas cas = JCasFactory.createText("Das ist ein IPhone von Apple. Und das ist ein iMac.", "de");
 		//JCas cas = JCasFactory.createText("This is a test sentence.", "en");
 
 		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger3.class,
-				SpaCyMultiTagger3.PARAM_DOCKER_REGISTRY, "localhost:5000",
-				SpaCyMultiTagger3.PARAM_DOCKER_NETWORK, "bridge",
-				SpaCyMultiTagger3.PARAM_DOCKER_HOSTNAME, "localhost",
 				SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, 8000
 		);
 		SimplePipeline.runPipeline(cas, spacyMulti);
@@ -36,33 +34,49 @@ public class SpaCyMultiTagger3Test {
 		}
 
 		int[][] tokens = new int[][] {
-			new int[] { 0, 3 },
-			new int[] { 4, 7 },
-			new int[] { 8, 11 },
-			new int[] { 12, 18 },
-			new int[] { 19, 22 },
-			new int[] { 23, 28 },
-			new int[] { 28, 29 },
+			new int[] { 0, 3 }, //Das
+			new int[] { 4, 7 }, //ist
+			new int[] { 8, 11 }, //ein
+			new int[] { 12, 18 }, //IPhone
+			new int[] { 19, 22 }, //von
+			new int[] { 23, 28 }, //Apple
+			new int[] { 28, 29 }, //.
+			new int[] { 30, 33 }, //Und
+			new int[] { 34, 37 }, //das
+			new int[] { 38, 41 }, //ist
+			new int[] { 42, 45 }, //ein
+			new int[] { 46, 50 }, //iMac
+			new int[] { 50, 51 } //.
 		};
 		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
 
+		int[][] sents = new int[][] {
+			new int[] { 0, 29 },
+			new int[] { 30, 51 }
+		};
+
+		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+
 		String[] pos = new String[] {
-				"PDS", "VAFIN", "ART", "NN", "APPR", "NE", "$.",
+				"PDS", "VAFIN", "ART", "NN", "APPR", "NE", "$.", "KON", "PDS", "VAFIN", "ART", "NN", "$."
 		};
 		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
-				"SB","--", "NK", "PD", "PG","NK", "PUNCT",
+				"SB","--", "NK", "PD", "PG","NK", "PUNCT", "JU", "SB", "--", "NK", "PD", "PUNCT"
 		};
 		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
-		String[] ents = new String[] { "MISC","ORG"};
+		String[] ents = new String[] { "MISC","ORG", "MISC"};
 		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+
 		System.out.println(XmlFormatter.getPrettyString(cas));
+
 		assertArrayEquals(tokens, casTokens);
 		assertArrayEquals(pos, casPos);
 		assertArrayEquals(deps, casDeps);
 		assertArrayEquals(ents, casEnts);
+		assertArrayEquals(sents, casSents);
 	}
 }
 
