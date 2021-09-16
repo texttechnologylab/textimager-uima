@@ -359,7 +359,7 @@ public class SpaCyMultiTagger3Test {
 	public void multiTaggerTest_el() throws UIMAException {
 
 
-// Greek Tests =======================================================================================================
+// Greek Tests ========================================================================================================
 
 		JCas cas = JCasFactory.createText("πως σε λένε? Δεν καταλαβαίνω. Αγαπώ την Ελλάδα!", "el");
 
