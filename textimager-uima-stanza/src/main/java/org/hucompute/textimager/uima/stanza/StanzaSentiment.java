@@ -32,7 +32,7 @@ public class StanzaSentiment extends SentimentBase {
 
     @Override
     protected String getRestRoute() {
-        return "/multi";
+        return "/sentiment";
     }
 
     @Override
