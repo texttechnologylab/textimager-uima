@@ -119,27 +119,26 @@ def process(request: TextImagerRequest) -> SentimentResponse:
         ))
 
     response = SentimentResponse(selections=processed_selections)
+    print(response)
     return response
 
 
 if __name__ == '__main__':
+
+    print("service running")
+    text_1 = "This is bad."
+    sen_1 = TextImagerSentence(text=text_1, begin=0, end=len(text_1) - 1)
+
+    text_2 = "I am very happy."
+    sen_2 = TextImagerSentence(text=text_2, begin=0, end=len(text_2) - 1)
+
+    sel = TextImagerSelection(selection="", sentences=[sen_1, sen_2])
+
+    test = TextImagerRequest(selections=[sel], lang="en", doc_len=0)
+
+    print("we are processing")
+    process(test)
+
     uvicorn.run('vader_service:app',
                 host='0.0.0.0',
                 port=8000)
-    sen_1 = TextImagerSentence
-    sen_1.text = "This is bad."
-    sen_1.begin = 0
-    sen_1.end = len(sen_1.text) - 1
-
-    sen_2 = TextImagerSentence
-    sen_2.text = "I am very happy."
-    sen_2.begin = 0
-    sen_2.end = len(sen_2.text) - 1
-
-    selection = TextImagerSelection
-    selection.selection = ""
-    selection.sentences = [sen_1, sen_2]
-
-    test = TextImagerRequest(selections=[selection], lang="en", doc_len=0)
-
-    process(test)
