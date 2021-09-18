@@ -124,7 +124,7 @@ def process(request: TextImagerRequest) -> SentimentResponse:
 
 
 if __name__ == '__main__':
-
+    """
     print("service running")
     text_1 = "This is bad."
     sen_1 = TextImagerSentence(text=text_1, begin=0, end=len(text_1) - 1)
@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
     print("we are processing")
     process(test)
-
+    """
     uvicorn.run('vader_service:app',
                 host='0.0.0.0',
                 port=8000)

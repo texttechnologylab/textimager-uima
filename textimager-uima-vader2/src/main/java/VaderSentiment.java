@@ -55,7 +55,6 @@ public class VaderSentiment extends SentimentBase {
                     comment.setKey("selection");
                     comment.setValue(selectionAnnotation);
                     comment.addToIndexes();
-
                     addAnnotatorComment(aJCas, sentiment);
                 }
             }

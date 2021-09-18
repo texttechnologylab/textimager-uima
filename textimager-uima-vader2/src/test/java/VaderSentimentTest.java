@@ -15,16 +15,16 @@ public class VaderSentimentTest {
 	@Test
 	public void multiTaggerTest() throws UIMAException {
 		String[] sentences = new String[] {
-				"Das ist ja echt toll!",
-				"Das gefällt mir gar nicht.",
-				"Ich hasse dieses Auto.",
-				"Ich hasse dieses Auto nicht.",
-				"Mir egal...",
-				"Dieses Tool berechnet die Stimmung pro Satz."
+				"This is very great!",
+				"I really dislike this.",
+				"I hate this car.",
+				"Ich don't dislike the car.",
+				"I don't care...",
+				"This tool computes the sentiment per sentence."
 		};
 
 		JCas jCas = JCasFactory.createJCas();
-		jCas.setDocumentLanguage("de");
+		jCas.setDocumentLanguage("en");
 
 		StringBuilder sentence = new StringBuilder();
 		for (String s : sentences) {
