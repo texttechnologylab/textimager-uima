@@ -129,7 +129,7 @@
 		<module>textimager-uima-gnd-gazetteer</module>
 		<module>textimager-uima-biofid-general-gazetteer</module>
 		<module>textimager-uima-steps</module>
-		<module>textimager-uima-julie</module>
+<!--		<module>textimager-uima-julie</module>-->
 		<module>textimager-uima-bert-sentiment</module>
 		<module>textimager-uima-sentiment-base</module>
 		<module>textimager-uima-gervader</module>
