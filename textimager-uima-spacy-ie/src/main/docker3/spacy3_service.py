@@ -115,6 +115,16 @@ def get_textimager():
 def process(request: TextImagerRequest) -> SpacyResponse:
     nlp = spacy_get_pipeline("Multitagger", lang=request.lang)
 
+    def traverse_subtree(node):
+        if not node.children:
+            return
+
+        result = [[node.text, node.idx, node.idx + len(node.text)]]
+        for child in node.children:
+            result.extend(traverse_subtree(child))
+
+        return result
+
     res_dict = {}
     if nlp is not None:
         doc = nlp(request.text)
@@ -182,14 +192,27 @@ def process(request: TextImagerRequest) -> SpacyResponse:
             }
             sents.append(sents_dict)
 
-            verbs = [t for t in sent if t.pos_=='VERB']
+            verbs = [t for t in sent if t.pos_=='VERB' or t.tag_ == 'VAFIN']
             for token in verbs:
                 rel = ['', '', '', '', '', '', '', '']
+#                 mo = []
                 rels_dict = {}
+                mos = []
                 rels_dict['PRED'] = {
                    'start_char': token.idx,
-                   'end_char': token.idx + len(token.text)}
+                   'end_char': token.idx + len(token.text),
+                   'sentence_begin': sent.start_char,
+                   'sentence_end': sent.end_char
+                   }
+#                 rels_dict['mos'] = [['test', 0, 1], ['check', 51, 69]]
                 for child in token.children:
+                   if child.dep_ == 'mo':
+                       mos.extend(traverse_subtree(child))
+#                        pass
+#                        mo.append((child.idx, child.idx + len(child.text))
+#                        mo.append((child.idx, child.idx + len(child.text), child.text))
+                   if child.dep_ == 'ng':
+                       rels_dict['PRED']['comment'] = 'negation'
                    if child.dep_ in ['sb', 'sbp', 'ep']:#, 'svp']:
                        if token.dep_ == 'rc' and child.tag_ == 'PRELS':
                            ## switch places if passive
@@ -227,12 +250,24 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                                'start_char': child.idx,
                                'end_char': child.idx + len(child.text)}
                    elif child.dep_ in ['da', 'og', 'op', 'pd', 'ph']:
+                       if child.dep_ == 'pd' and token.pos_ == 'AUX' and token.tag_ == 'VAFIN':
+                           try:
+                               arg0 = rels_dict['ARG0']
+                               rels_dict['ARG1'] = arg0
+                               del rels_dict['ARG0']
+                           except KeyError:
+                               pass
                        rel[3] = (child.lemma_, child.text, child.idx)
                        rels_dict['ARG2'] = {
                            'start_char': child.idx,
                            'end_char': child.idx + len(child.text)}
+                ##MOs
+                rels_dict['mos'] = mos
+
                 if token.dep_ == 'oc' and token.head.pos_ == 'AUX':
                    for child in token.head.children:
+                       if child.dep_ == 'ng':
+                           rels_dict['PRED']['comment'] = 'negation'
                        if child.dep_ in ['sb', 'sbp'] and rel[1] == '':
                            if token.tag_ == 'VVPP':
                                rel[2] = (child.lemma_, child.text, child.idx)
@@ -244,6 +279,28 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                                rels_dict['ARG0'] = {
                                    'start_char': child.idx,
                                    'end_char': child.idx + len(child.text)}
+                       #########################
+                       if child.dep_ == 'oc' and child.pos_ == 'VERB' and rel[2] == '':
+                           for c in child.children:
+                               if c.dep_ == 'oc' and c.pos_ == 'VERB' and rel[2] == '':
+                                   pass
+                               elif c.dep_ == 'oc' and c.pos_ == 'AUX' and rel[2] == '':
+                                   for c2 in c.children:
+                                       if c2.dep_ == 'oc' and c2.pos_ == 'VERB' and rel[2] == '':
+                                           rel[2] = (c2.lemma_, c2.text, c2.idx)
+                                           rels_dict['ARG1'] = {
+                                               'start_char': c2.idx,
+                                               'end_char': c2.idx + len(c2.text),
+                                               'comment': 'recursive'}
+                if rel[2] == '':
+                    for child in token.children:
+                        if child.dep_ == 'oc' and child.pos_ == 'VERB':
+                            rel[2] = (child.lemma_, child.text, child.idx)
+                            rels_dict['ARG1'] = {
+                                'start_char': child.idx,
+                                'end_char': child.idx + len(child.text),
+                                'comment': 'recursive'}
+                       #########################
                 if token.dep_ == 'cj' and rel[1] == '':
                    for child in token.head.head.children:
                        if child.dep_ in ['sb']:
@@ -264,7 +321,8 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                                    rels_dict['ARG0'] = {
                                        'start_char': child.idx,
                                        'end_char': child.idx + len(child.text)}
-                if len(rels_dict) > 0:
+                if len(rels_dict) > 1:
+#                     rels_dict['mos'] = mo
                     psrs.append(rels_dict)
 
 
@@ -291,6 +349,7 @@ def process(request: TextImagerRequest) -> SpacyResponse:
         # TODO return error message
         print("not pipeline found for spacy lang", request)
         res_dict = {'status': 'nlp not found'}
+
 
     response = SpacyResponse(multitag=res_dict)
     return response
