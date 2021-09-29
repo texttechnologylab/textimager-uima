@@ -40,7 +40,8 @@ public class SpaCyInformationExtractorTest {
 //				" Blumen besitzen, auch für die Kultur in unserem rauheren und ungünstigem Vaterlande möglich " +
 //						"zu machen.", "de");
 //		Path inputXmlDir = Paths.get("/mnt/ssd/SRL/bio");
-		File folder = new File("/mnt/ssd/SRL/data/biofid/");
+//	File folder = new File("/mnt/ssd/SRL/data/biofid/");
+	File folder = new File("/mnt/ssd/SRL/data/biofid_new/clean/");
 		for (File file : folder.listFiles()) {
 			if (file.isFile() && file.getName().endsWith(".xmi")) {
 				String content = FileUtils.readFileToString(file);
@@ -50,31 +51,31 @@ public class SpaCyInformationExtractorTest {
 
 				JCas cas = JCasFactory.createJCas();
 				CasIOUtil.readXmi(cas.getCas(),  file);
-				AnalysisEngineDescription heidelTime = createEngineDescription(HeidelTime.class);
-				AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
-//				AnalysisEngineDescription geoNames = createEngineDescription(
-//						GeonamesGazetteer.class,
-//						GeonamesGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
-//						GeonamesGazetteer.PARAM_TAGGING_TYPE_NAME, GeoNamesEntity.class.getName(),
-//						GeonamesGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/uima/geonames/gazetteer/lib/ner-default.map",
-//						GeonamesGazetteer.PARAM_USE_LOWERCASE, false,
-//						GeonamesGazetteer.PARAM_USE_STRING_TREE, true,
-//						GeonamesGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, true,
-//						GeonamesGazetteer.PARAM_USE_LEMMATA, true,
-//						GeonamesGazetteer.PARAM_NO_SKIPGRAMS, true,
-//						GeonamesGazetteer.PARAM_ADD_ABBREVIATED_TAXA, false,
-//						GeonamesGazetteer.PARAM_GET_ALL_SKIPS, false,
-//						GeonamesGazetteer.PARAM_MIN_LENGTH, 1,
-//						GeonamesGazetteer.PARAM_SPLIT_HYPEN, false
-//				);
+//				AnalysisEngineDescription heidelTime = createEngineDescription(HeidelTime.class);
+//				AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
+				AnalysisEngineDescription geoNames = createEngineDescription(
+						GeonamesGazetteer.class,
+						GeonamesGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
+						GeonamesGazetteer.PARAM_TAGGING_TYPE_NAME, GeoNamesEntity.class.getName(),
+						GeonamesGazetteer.PARAM_MAPPING_PROVIDER_LOCATION, "classpath:/org/hucompute/textimager/uima/geonames/gazetteer/lib/ner-default.map",
+						GeonamesGazetteer.PARAM_USE_LOWERCASE, false,
+						GeonamesGazetteer.PARAM_USE_STRING_TREE, true,
+						GeonamesGazetteer.PARAM_USE_SENTECE_LEVEL_TAGGING, true,
+						GeonamesGazetteer.PARAM_USE_LEMMATA, true,
+						GeonamesGazetteer.PARAM_NO_SKIPGRAMS, true,
+						GeonamesGazetteer.PARAM_ADD_ABBREVIATED_TAXA, false,
+						GeonamesGazetteer.PARAM_GET_ALL_SKIPS, false,
+						GeonamesGazetteer.PARAM_MIN_LENGTH, 1,
+						GeonamesGazetteer.PARAM_SPLIT_HYPEN, false
+				);
 				AnalysisEngineDescription spacyIE = createEngineDescription(SpaCyInformationExtractor.class,
 						SpaCyInformationExtractor.PARAM_DOCKER_HOST_PORT, 8000
 				);
 				System.out.println("**********************************");
-				SimplePipeline.runPipeline(cas, spacyIE, segmenter, heidelTime);
+//				SimplePipeline.runPipeline(cas, spacyIE, segmenter, heidelTime);
 //				SimplePipeline.runPipeline(cas, heidelTime);
 //				SimplePipeline.runPipeline(cas, spacyIE, heidelTime, segmenter, geoNames);
-//				SimplePipeline.runPipeline(cas, geoNames);
+				SimplePipeline.runPipeline(cas, geoNames);
 //				SimplePipeline.runPipeline(cas, spacyIE);
 
 				//		for (Token t : JCasUtil.select(cas, Token.class)) {
@@ -90,7 +91,7 @@ public class SpaCyInformationExtractorTest {
 				//		System.out.println(XmlFormatter.getPrettyString(cas));
 				//		assertArrayEquals(tokens, casTokens);
 //		Path inputXmlDir = Paths.get("/mnt/ssd/SRL/bio");
-				Path outputXmi = Paths.get("/mnt/ssd/SRL/bio/out/time/" + file.getName());
+				Path outputXmi = Paths.get("/mnt/ssd/SRL/data/biofid_new/clean/out/" + file.getName());
 //						; + "_out.xmi");
 				try (OutputStream outputStream = Files.newOutputStream(outputXmi)) {
 					XMLSerializer xmlSerializer = new XMLSerializer(outputStream, true);
@@ -102,13 +103,13 @@ public class SpaCyInformationExtractorTest {
 					e.printStackTrace();
 				}
 
-				Path outputXml = Paths.get("/mnt/ssd/SRL/bio/out/" + file.getName() + "_out.xml");
+//				Path outputXml = Paths.get("/mnt/ssd/SRL/biofid_new/clean/out/" + file.getName());
 //				Path outputXml = Paths.get("test.xml");
-				try (OutputStream outputStreamTS = Files.newOutputStream(outputXml)) {
-					TypeSystemUtil.typeSystem2TypeSystemDescription(cas.getTypeSystem()).toXML(outputStreamTS);
-				} catch (SAXException e) {
-					e.printStackTrace();
-				}
+//				try (OutputStream outputStreamTS = Files.newOutputStream(outputXml)) {
+//					TypeSystemUtil.typeSystem2TypeSystemDescription(cas.getTypeSystem()).toXML(outputStreamTS);
+//				} catch (SAXException e) {
+//					e.printStackTrace();
+//				}
 			}
 		}
 	}

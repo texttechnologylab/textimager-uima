@@ -21,6 +21,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.TOP_Type;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
@@ -274,6 +275,51 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
 
             predAnno.addToIndexes();
 
+            Iterator<String> keys = sr.keys();
+
+            while(keys.hasNext()){
+                String key = keys.next();
+                if (!key.equals("PRED")){
+                    if (sr.get(key) instanceof JSONObject) {
+                        JSONObject sr_arg = (JSONObject) sr.get(key);
+                        int begin = sr_arg.getInt("start_char");
+                        int end = sr_arg.getInt("end_char");
+                        Entity argAnno = new Entity(aJCas, begin, end);
+                        try {
+                            comment = sr_arg.getString("comment");
+                            argAnno.setComment(comment);
+                        }
+                        catch (org.json.JSONException exception){
+//                            System.out.println("No comments");
+                        }
+                        SrLink srlinkl = new SrLink(aJCas);
+                        srlinkl.setRel_type(key);
+                        srlinkl.setGround(argAnno);
+                        srlinkl.setFigure(predAnno);
+                        argAnno.addToIndexes();
+                        srlinkl.addToIndexes();
+                        JCasUtil.selectCovered(aJCas, GeoNamesEntity.class, begin, end).forEach(a -> {
+                            System.out.println("covered GeoNamesEntity" + a.getCoveredText() + " " +
+                            a.getBegin() + " " + a.getEnd());
+                            SrLink srlinklGeo = new SrLink(aJCas);
+                            srlinklGeo.setRel_type("LOC");
+                            srlinklGeo.setGround(argAnno);
+                            srlinklGeo.setFigure(predAnno);
+                            srlinklGeo.addToIndexes();
+                        });
+                        JCasUtil.selectCovered(aJCas, Timex3.class, begin, end).forEach(a -> {
+                            System.out.println("covered GeoNamesEntity" + a.getCoveredText() + " " +
+                                    a.getBegin() + " " + a.getEnd());
+                            SrLink srlinklTime = new SrLink(aJCas);
+                            srlinklTime.setRel_type("TIME");
+                            srlinklTime.setGround(argAnno);
+                            srlinklTime.setFigure(predAnno);
+                            srlinklTime.addToIndexes();
+                        });
+                    }
+
+                }
+            }
             JSONArray mos = sr.getJSONArray("mos");
             System.out.println(mos);
 //            Sentence s1 = getRequiredCasInterface().getAnnotationsByType(Sentence.class);
@@ -329,36 +375,11 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                         argAnno.addToIndexes();
                         srlinkl.addToIndexes();
                     }
+
                 });
             });
             System.out.println("**************HeidelTime/GeoNames END***********************");
 
-            Iterator<String> keys = sr.keys();
-            while(keys.hasNext()){
-                String key = keys.next();
-                if (!key.equals("PRED")){
-                    if (sr.get(key) instanceof JSONObject) {
-                        JSONObject sr_arg = (JSONObject) sr.get(key);
-                        int begin = sr_arg.getInt("start_char");
-                        int end = sr_arg.getInt("end_char");
-                        Entity argAnno = new Entity(aJCas, begin, end);
-                        try {
-                            comment = sr_arg.getString("comment");
-                            argAnno.setComment(comment);
-                        }
-                        catch (org.json.JSONException exception){
-//                            System.out.println("No comments");
-                        }
-                        SrLink srlinkl = new SrLink(aJCas);
-                        srlinkl.setRel_type(key);
-                        srlinkl.setGround(argAnno);
-                        srlinkl.setFigure(predAnno);
-                        argAnno.addToIndexes();
-                        srlinkl.addToIndexes();
-                    }
-
-                }
-            }
         });
     }
     private void processSentences(JCas aJCas, JSONArray sents) {
@@ -372,6 +393,13 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
     }
 
     private Map<Integer, Map<Integer, Token>> processToken(JCas aJCas, JSONArray tokens) {
+        JCasUtil.select(aJCas, Annotation.class).stream().forEach(a->{
+//                if (a.getType().getName().equals("de.unihd.dbs.uima.types.heideltime.Timex3")){
+            if (a.getType().getName().equals("de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token")){
+                System.out.println("    " + a.getType().getName() + " " + a.getBegin() + " " + a.getEnd());
+                aJCas.removeFsFromIndexes(a);
+            }
+        });
         Map<Integer, Map<Integer, Token>> tokensMap = new HashMap<>();
         for (Object t : tokens) {
             JSONObject token = (JSONObject) t;

@@ -16,6 +16,8 @@ import org.texttechnologylab.annotation.GeoNamesEntity;
 import org.xml.sax.SAXException;
 
 import javax.xml.transform.OutputKeys;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -24,34 +26,30 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
-public class SpaCyInformationExtractorTestSmallMulti {
+public class SpaCyInformationExtractorTestSmallMultiFromFile {
 	private final String sourceLocation = "/mnt/ssd/data/geonames.txt";
 	@Test
 	public void multiIETest() throws UIMAException, IOException {
-		ArrayList<String> texts = new ArrayList<String>(Arrays.asList(
-				"Andorra liegt zwischen Spanien und Frankreich.",
-
-				"Der Atlantik ist ein großer Ozean.",
-
-				"Die Straße 'Unter den Linden' führt zum Brandenburger Tor.",
-
-				"Den Bayerischen Wald, so sagt Berlin, wird man nicht in die Liste von Naturschutzgebieten aufnehmen.",
-
-				"'Leuphana' ist der Name einer Universität.",
-
-				"Das Pferderennen gestern gewann Robert Schumann auf 'Prinz von Hamburg'.",
-
-				"Der Name der kleinen Kirche lautet 'Kleine Kirche'.",
-
-				"Im Bergedorfer Gehölz ist eine Lichtung mit Weihnachtsbäumen bepflanzt worden.",
-
-				"Eine der beliebtesten Touristenattraktionen Deutschlands, wenn nicht weltweit, ist Schloss Neuschwanstein."
-		));
+		String path = "/mnt/ssd/SRL/example_s.txt";
+		List<String> texts = Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
+//		ArrayList<String> texts = new ArrayList<String>();
+//		try (BufferedReader br = new BufferedReader(new FileReader("/mnt/ssd/SRL/example_s.txt"))) {
+//			String line = br.readLine();
+//
+//			while (line != null) {
+//				texts.add(line);
+//				line = br.readLine();
+//			}
+//		}
+        System.out.print(texts);
 		int i = 0;
 		for (String text : texts) {
+		    if (i > 6) {break;}
+		    System.out.println(text);
 			JCas cas = JCasFactory.createText(text, "de");
 			AnalysisEngineDescription spacyIE = createEngineDescription(SpaCyInformationExtractor.class,
 						SpaCyInformationExtractor.PARAM_DOCKER_HOST_PORT, 8000
@@ -77,7 +75,7 @@ public class SpaCyInformationExtractorTestSmallMulti {
 			SimplePipeline.runPipeline(cas, segmenter, geoNames, heidelTime, spacyIE);
 
 			i++;
-			Path outputXmi = Paths.get("/mnt/ssd/SRL/bio_test/ie/test_" + i + ".xmi");
+			Path outputXmi = Paths.get("/mnt/ssd/SRL/bio_test/example_s/" + i + ".xmi");
 			try (OutputStream outputStream = Files.newOutputStream(outputXmi)) {
 				XMLSerializer xmlSerializer = new XMLSerializer(outputStream, true);
 				xmlSerializer.setOutputProperty(OutputKeys.VERSION, "1.0");
@@ -88,12 +86,12 @@ public class SpaCyInformationExtractorTestSmallMulti {
 				e.printStackTrace();
 			}
 
-			Path outputXml = Paths.get("/mnt/ssd/SRL/bio_test/ie/test_" + i + ".xml");
-			try (OutputStream outputStreamTS = Files.newOutputStream(outputXml)) {
-				TypeSystemUtil.typeSystem2TypeSystemDescription(cas.getTypeSystem()).toXML(outputStreamTS);
-			} catch (SAXException e) {
-				e.printStackTrace();
-					}
+//			Path outputXml = Paths.get("/mnt/ssd/SRL/bio_test/ie/test_" + i + ".xml");
+//			try (OutputStream outputStreamTS = Files.newOutputStream(outputXml)) {
+//				TypeSystemUtil.typeSystem2TypeSystemDescription(cas.getTypeSystem()).toXML(outputStreamTS);
+//			} catch (SAXException e) {
+//				e.printStackTrace();
+//					}
 			}
 	}
 }

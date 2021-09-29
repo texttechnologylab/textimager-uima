@@ -48,9 +48,9 @@ public class SpaCyInformationExtractorTestSmall {
 				"zierlichen Wassergewächse nicht beherbergt, " +
 				"umsomehr, da auch heute aus den benachbarten Gebieten verhältnismafsig viele Species bekannt geworden sind .";
 //        String text = "Im Jahr 2020 schuldete er mir 2020 Euro.";
+		text = "Andorra ist ein kleines Land.";
+		text = "Heute ist Mittwoch.";
 		JCas cas = JCasFactory.createText(text, "de");
-		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger3.class);
-//				SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, 8000);
 		AnalysisEngineDescription spacyIE = createEngineDescription(SpaCyInformationExtractor.class,
 					SpaCyInformationExtractor.PARAM_DOCKER_HOST_PORT, 8000
 		);
