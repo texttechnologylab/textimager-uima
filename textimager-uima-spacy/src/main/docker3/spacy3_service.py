@@ -94,6 +94,7 @@ def spacy_get_pipeline(tool: str, format_spacy: str = "ef", lang: str = "de", ma
     except:
         print("Unexpected error:", sys.exc_info()[0])
 
+
     return nlp
 
 
