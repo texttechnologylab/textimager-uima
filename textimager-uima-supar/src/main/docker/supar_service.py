@@ -98,6 +98,11 @@ def process(request: TextImagerRequest) -> SuparDepResponse:
 
 
 if __name__ == '__main__':
+    """
     uvicorn.run('supar_service:app',
                 host='0.0.0.0',
                 port=8000)
+    """
+    uvicorn.run('supar_service:app',
+                    host='0.0.0.0',
+                    port=8000)
