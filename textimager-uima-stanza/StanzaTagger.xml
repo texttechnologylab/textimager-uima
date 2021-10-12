@@ -169,6 +169,26 @@ Usually in [0,1].</description>
                     </features>
                 </typeDescription>
                 <typeDescription>
+                    <name>de.tudarmstadt.ukp.dkpro.core.api.frequency.tfidf.type.Tfidf</name>
+                    <description>Annotates the tf.idf score of a token, stem, or lemma.</description>
+                    <supertypeName>uima.tcas.Annotation</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>tfidfValue</name>
+                            <description>The tf.idf score.</description>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>term</name>
+                            <description>The string that was used to compute this tf.idf score.
+If a stem or lemma was used, the covered text of this annotation does not need to be equal to this string.
+
+This string can be used to construct a vector space with the right terms without having to access the indexes again.</description>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
                     <name>de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.Morpheme</name>
                     <description/>
                     <supertypeName>uima.tcas.Annotation</supertypeName>
@@ -1912,6 +1932,28 @@ relational adjectives, such as "proud" (with arguments who and of what).
                     <supertypeName>de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency</supertypeName>
                 </typeDescription>
                 <typeDescription>
+                    <name>de.tudarmstadt.ukp.dkpro.core.api.transform.type.SofaChangeAnnotation</name>
+                    <description>Encodes an edit operation that can be interpreted by the ApplyChangesAnnotator.</description>
+                    <supertypeName>uima.tcas.Annotation</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>value</name>
+                            <description>In case of an "insert" or "replace" operation, this feature indicates the value to be inserted or replaced.</description>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>operation</name>
+                            <description>Operation to perform: "insert", "replace", "delete"</description>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>reason</name>
+                            <description>The reason for the change.</description>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
                     <name>de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink</name>
                     <description>Wikipedia link</description>
                     <supertypeName>uima.tcas.Annotation</supertypeName>
@@ -2198,6 +2240,70 @@ relational adjectives, such as "proud" (with arguments who and of what).
                     </features>
                 </typeDescription>
                 <typeDescription>
+                    <name>org.bitbucket.rkilinger.ged.Emotion</name>
+                    <description/>
+                    <supertypeName>uima.tcas.Annotation</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>joy</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>anger</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>mourning</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>fear</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>surprise</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>contempt</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>disgust</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.hucompute.textimager.uima.type.GerVaderSentiment</name>
+                    <description/>
+                    <supertypeName>org.hucompute.textimager.uima.type.Sentiment</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>pos</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>neu</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>neg</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
                     <name>org.hucompute.textimager.uima.type.ImageVector</name>
                     <description/>
                     <supertypeName>uima.tcas.Annotation</supertypeName>
@@ -2222,6 +2328,63 @@ relational adjectives, such as "proud" (with arguments who and of what).
                     <features>
                         <featureDescription>
                             <name>language</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.hucompute.textimager.uima.type.OpenIERelation</name>
+                    <description/>
+                    <supertypeName>uima.tcas.Annotation</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>confidence</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>beginArg1</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>endArg1</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>valueArg1</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>beginRel</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>endRel</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>valueRel</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>beginArg2</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>endArg2</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>valueArg2</name>
                             <description/>
                             <rangeTypeName>uima.cas.String</rangeTypeName>
                         </featureDescription>
@@ -2575,6 +2738,65 @@ relational adjectives, such as "proud" (with arguments who and of what).
                     </features>
                 </typeDescription>
                 <typeDescription>
+                    <name>org.texttechnologylab.annotation.AnnotationBracket</name>
+                    <description/>
+                    <supertypeName>uima.tcas.Annotation</supertypeName>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.texttechnologylab.annotation.AnnotationComment</name>
+                    <description/>
+                    <supertypeName>uima.cas.AnnotationBase</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>reference</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.TOP</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>value</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>key</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.texttechnologylab.annotation.AnnotatorMetaData</name>
+                    <description/>
+                    <supertypeName>uima.cas.AnnotationBase</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>reference</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.TOP</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>name</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>version</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>modelName</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>modelVersion</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
                     <name>org.texttechnologylab.annotation.Attribution</name>
                     <description/>
                     <supertypeName>org.texttechnologylab.annotation.type.AnnotationNode</supertypeName>
@@ -2883,6 +3105,40 @@ relational adjectives, such as "proud" (with arguments who and of what).
                             <name>source</name>
                             <description/>
                             <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>searchResult</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>comment</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.texttechnologylab.annotation.SubcatMatch</name>
+                    <description/>
+                    <supertypeName>uima.cas.AnnotationBase</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>status</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>context</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>elements</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+                            <elementType>org.texttechnologylab.annotation.SemanticSource</elementType>
+                            <multipleReferencesAllowed>false</multipleReferencesAllowed>
                         </featureDescription>
                     </features>
                 </typeDescription>
@@ -3654,6 +3910,73 @@ relational adjectives, such as "proud" (with arguments who and of what).
                     <name>org.texttechnologylab.annotation.orientation.type.Right</name>
                     <description/>
                     <supertypeName>org.texttechnologylab.annotation.OrientationEdge</supertypeName>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.texttechnologylab.annotation.score.ScoreAnnotation</name>
+                    <description/>
+                    <supertypeName>uima.cas.AnnotationBase</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>reference</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.TOP</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>value</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>origin</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.texttechnologylab.annotation.score.TextScore</name>
+                    <description/>
+                    <supertypeName>uima.cas.AnnotationBase</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>elements</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+                            <elementType>org.texttechnologylab.annotation.score.TextScoreEntry</elementType>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>documentURI</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>documentName</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.texttechnologylab.annotation.score.TextScoreEntry</name>
+                    <description/>
+                    <supertypeName>uima.cas.AnnotationBase</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>value</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>key</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>label</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
                 </typeDescription>
                 <typeDescription>
                     <name>org.texttechnologylab.annotation.semaf.IsoSpatial.ObjectAttribute</name>
@@ -4507,12 +4830,24 @@ relational adjectives, such as "proud" (with arguments who and of what).
                     <supertypeName>org.texttechnologylab.annotation.Temporal</supertypeName>
                 </typeDescription>
                 <typeDescription>
+                    <name>org.texttechnologylab.annotation.token.Correction</name>
+                    <description/>
+                    <supertypeName>uima.tcas.Annotation</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>value</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
                     <name>org.texttechnologylab.annotation.twitter.Tweet</name>
                     <description/>
                     <supertypeName>uima.tcas.Annotation</supertypeName>
                     <features>
                         <featureDescription>
-                            <name>user</name>
+                            <name>userName</name>
                             <description/>
                             <rangeTypeName>uima.cas.String</rangeTypeName>
                         </featureDescription>
@@ -4529,7 +4864,7 @@ relational adjectives, such as "proud" (with arguments who and of what).
                         <featureDescription>
                             <name>retweet</name>
                             <description/>
-                            <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                            <rangeTypeName>uima.cas.Long</rangeTypeName>
                         </featureDescription>
                         <featureDescription>
                             <name>twitterID</name>
@@ -4544,13 +4879,34 @@ relational adjectives, such as "proud" (with arguments who and of what).
                         <featureDescription>
                             <name>hashTags</name>
                             <description/>
-                            <rangeTypeName>uima.cas.StringList</rangeTypeName>
-                            <multipleReferencesAllowed>true</multipleReferencesAllowed>
+                            <rangeTypeName>uima.cas.StringArray</rangeTypeName>
+                            <multipleReferencesAllowed>false</multipleReferencesAllowed>
                         </featureDescription>
                         <featureDescription>
                             <name>urls</name>
                             <description/>
-                            <rangeTypeName>uima.cas.StringList</rangeTypeName>
+                            <rangeTypeName>uima.cas.StringArray</rangeTypeName>
+                            <multipleReferencesAllowed>false</multipleReferencesAllowed>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>userId</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Long</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>repliedTo</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Long</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>quoted</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Long</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>originalText</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
                         </featureDescription>
                     </features>
                 </typeDescription>
@@ -4941,7 +5297,7 @@ relational adjectives, such as "proud" (with arguments who and of what).
                 <typeDescription>
                     <name>org.texttechnologylab.annotation.type.Habitat</name>
                     <description/>
-                    <supertypeName>de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity</supertypeName>
+                    <supertypeName>org.texttechnologylab.annotation.NamedEntity</supertypeName>
                 </typeDescription>
                 <typeDescription>
                     <name>org.texttechnologylab.annotation.type.Hyperedge</name>
@@ -5208,6 +5564,11 @@ relational adjectives, such as "proud" (with arguments who and of what).
                             <rangeTypeName>uima.tcas.Annotation</rangeTypeName>
                         </featureDescription>
                     </features>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.texttechnologylab.annotation.type.QuickTreeMultiSpanNode</name>
+                    <description/>
+                    <supertypeName>org.texttechnologylab.annotation.type.QuickTreeNode</supertypeName>
                 </typeDescription>
                 <typeDescription>
                     <name>org.texttechnologylab.annotation.type.QuickTreeNode</name>
@@ -5849,6 +6210,28 @@ relational adjectives, such as "proud" (with arguments who and of what).
                             <name>categorySpecificAgreementValues</name>
                             <description>@deprecated</description>
                             <rangeTypeName>uima.cas.StringArray</rangeTypeName>
+                        </featureDescription>
+                    </features>
+                </typeDescription>
+                <typeDescription>
+                    <name>org.texttechnologylab.iaa.AgreementValue</name>
+                    <description/>
+                    <supertypeName>uima.cas.AnnotationBase</supertypeName>
+                    <features>
+                        <featureDescription>
+                            <name>agreementValue</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Double</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>agreementLabel</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.String</rangeTypeName>
+                        </featureDescription>
+                        <featureDescription>
+                            <name>agreementUnits</name>
+                            <description/>
+                            <rangeTypeName>uima.cas.Integer</rangeTypeName>
                         </featureDescription>
                     </features>
                 </typeDescription>

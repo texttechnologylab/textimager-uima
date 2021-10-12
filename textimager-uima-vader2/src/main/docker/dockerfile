@@ -1,0 +1,14 @@
+FROM python:3.8
+
+WORKDIR /usr/src/app
+
+#COPY ./vader ./vader
+
+COPY ./requirements.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+EXPOSE 8000
+
+COPY ./vader_service.py ./vader_service.py
+
+CMD ["uvicorn", "vader_service:app", "--host", "0.0.0.0", "--port" ,"8000"]

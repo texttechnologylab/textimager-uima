@@ -5,6 +5,8 @@ from pydantic import BaseModel
 
 from textblob_de import TextBlobDE
 from textblob import TextBlob
+from textblob_fr import PatternTagger as PatternTagger_fr
+from textblob_fr import PatternAnalyzer as PatternAnalyzer_fr
 
 
 class TextImagerSentence(BaseModel):
@@ -60,6 +62,8 @@ def process(request: TextImagerRequest) -> SentimentResponse:
         for sentence in selection.sentences:
             if request.lang == "de":
                 doc = TextBlobDE(sentence.text)
+            elif request.lang == "fr":
+                doc = TextBlob(sentence.text, pos_tagger= PatternTagger_fr(), analyzer= PatternAnalyzer_fr())
             else:
                 doc = TextBlob(sentence.text)
 
