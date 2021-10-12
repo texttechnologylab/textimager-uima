@@ -15,7 +15,119 @@ import org.junit.Test;
 
 public class TextBlobSentimentTest {
 	@Test
-	public void multiTaggerTest() throws UIMAException {
+	public void multiTaggerTestEN() throws UIMAException {
+		String[] sentences = new String[] {
+				"This is a nice car.",
+				"I love this house !",
+				"  "
+		};
+
+		JCas cas = JCasFactory.createJCas();
+		cas.setDocumentLanguage("en");
+
+		StringBuilder sentence = new StringBuilder();
+		for (String s : sentences) {
+			sentence.append(s).append(" ");
+		};
+		cas.setDocumentText(sentence.toString());
+
+		AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
+
+		AnalysisEngineDescription textblobSentiment = createEngineDescription(TextBlobSentiment.class,
+				TextBlobSentiment.PARAM_DOCKER_HOST_PORT, 8001,
+				TextBlobSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
+		);
+
+		SimplePipeline.runPipeline(cas, segmenter, textblobSentiment);
+
+		for (Sentiment sent : JCasUtil.select(cas, Sentiment.class)) {
+			System.out.println("Sentiment:");
+			System.out.println(sent.getSentiment());
+			System.out.println(sent.getSubjectivity());
+			System.out.println(sent.getCoveredText());
+			System.out.println("----------------------");
+		}
+
+		System.out.println(XmlFormatter.getPrettyString(cas));
+	}
+
+	@Test
+	public void multiTaggerTestENNaiveBayesAnalyzer() throws UIMAException {
+		String[] sentences = new String[] {
+				"This is a nice car.",
+				"I love this house !",
+				"  "
+		};
+
+		JCas cas = JCasFactory.createJCas();
+		cas.setDocumentLanguage("en");
+
+		StringBuilder sentence = new StringBuilder();
+		for (String s : sentences) {
+			sentence.append(s).append(" ");
+		};
+		cas.setDocumentText(sentence.toString());
+
+		AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
+
+		AnalysisEngineDescription textblobSentiment = createEngineDescription(TextBlobSentiment.class,
+				TextBlobSentiment.PARAM_DOCKER_HOST_PORT, 8001,
+				TextBlobSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
+				TextBlobSentiment.PARAM_MODEL_NAME, "NaiveBayesAnalyzer"
+		);
+
+		SimplePipeline.runPipeline(cas, segmenter, textblobSentiment);
+
+		for (Sentiment sent : JCasUtil.select(cas, Sentiment.class)) {
+			System.out.println("Sentiment:");
+			System.out.println(sent.getSentiment());
+			System.out.println(sent.getSubjectivity());
+			System.out.println(sent.getCoveredText());
+			System.out.println("----------------------");
+		}
+
+		System.out.println(XmlFormatter.getPrettyString(cas));
+	}
+
+	@Test
+	public void multiTaggerTestFR() throws UIMAException {
+		String[] sentences = new String[] {
+				"C'est une super voiture.",
+				"J'aime cette maison !",
+				"  "
+		};
+
+		JCas cas = JCasFactory.createJCas();
+		cas.setDocumentLanguage("fr");
+
+		StringBuilder sentence = new StringBuilder();
+		for (String s : sentences) {
+			sentence.append(s).append(" ");
+		};
+		cas.setDocumentText(sentence.toString());
+
+		AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
+
+		AnalysisEngineDescription textblobSentiment = createEngineDescription(TextBlobSentiment.class,
+				TextBlobSentiment.PARAM_DOCKER_HOST_PORT, 8001,
+				TextBlobSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
+		);
+
+		SimplePipeline.runPipeline(cas, segmenter, textblobSentiment);
+
+		for (Sentiment sent : JCasUtil.select(cas, Sentiment.class)) {
+			System.out.println("Sentiment:");
+			System.out.println(sent.getSentiment());
+			System.out.println(sent.getSubjectivity());
+			System.out.println(sent.getCoveredText());
+			System.out.println("----------------------");
+		}
+
+		System.out.println(XmlFormatter.getPrettyString(cas));
+	}
+
+	@Test
+	public void multiTaggerTestDE() throws UIMAException {
 		String[] sentences = new String[] {
 				" , ..  ",
 				"Das ist ja echt toll!",
