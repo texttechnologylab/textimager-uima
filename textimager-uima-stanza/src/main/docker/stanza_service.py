@@ -23,6 +23,10 @@ class TextImagerRequest(BaseModel):
     lang: str
     doc_len: int
 
+class TextImagerRequestMulti(BaseModel):
+    text: str
+    lang: str
+
 
 class StanzaSentimentSentence(BaseModel):
     sentence: TextImagerSentence
@@ -36,6 +40,10 @@ class StanzaSentimentSelection(BaseModel):
 
 class StanzaSentimentResponse(BaseModel):
     selections: List[StanzaSentimentSelection]
+
+class StanzaResponseMulti(BaseModel):
+    multitag: dict
+
 
 
 # pipeline per lang and per tool
@@ -56,6 +64,10 @@ def stanza_get_pipeline(lang, tool):
                                   tokenize_pretokenized=True,
                                   use_gpu=stanza_use_gpu
                                   )
+
+    elif tool == "multitagger":
+        pass
+        #todo
 
     # cache and return
     if lang not in stanza_pipelines:
@@ -146,6 +158,105 @@ def process(request: TextImagerRequest) -> StanzaSentimentResponse:
         print("not pipeline found for sentiment lang", request)
 
     response = StanzaSentimentResponse(selections=processed_selections)
+    return response
+
+@app.post("/multi")
+def process(request: TextImagerRequestMulti) -> StanzaResponseMulti:
+    nlp = stanza.Pipeline(lang=request.lang)
+    text = request.text
+
+    res_dict = {}
+    if nlp is not None:
+        doc = nlp(text)
+        tokens = []
+        sents = []
+        pos = []
+        deps = []
+        ents = []
+        morphs = []
+        lemmas = []
+
+        for count, sentence in enumerate(doc.sentences):
+            for token in sentence.tokens:
+                for word in token.words:
+                    tokens_dict = {
+                        'senctence_id': count,
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                        'word_text': word.text,
+                        'token_text': token.text,
+                    }
+                    tokens.append(tokens_dict)
+                    morph_list = []
+                    if word.feats is not None:
+                        morph_list = word.feats.split("|")
+                    morph_dict = {
+                        'senctence_id': count,
+                        'morph': list(morph_list),
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                    }
+                    morphs.append(morph_dict)
+
+                    lemma_dict = {
+                        'senctence_id': count,
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                        'lemma': word.lemma,
+                    }
+                    lemmas.append(lemma_dict)
+
+                    pos_dict = {
+                        'senctence_id': count,
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                        'upos': word.upos,
+                        # The treebank-specific part-of-speech of this word. Example: ‘NNP'
+                        'xpos': word.xpos,
+                    }
+                    pos.append(pos_dict)
+
+                    deps_dict = {
+                        'senctence_id': count,
+                        'start_char': token.start_char,
+                        'end_char': token.end_char,
+                        'length': len(word.text),
+                        'dep': word.deprel,
+                    }
+                    deps.append(deps_dict)
+                ents_dict = {
+                    'senctence_id': count,
+                    'start_char': token.start_char,
+                    'end_char': token.end_char,
+                    'label': token.ner
+                }
+                ents.append(ents_dict)
+            end = len(sentence.tokens) - 1
+            sents_dict = {
+                'begin': sentence.tokens[0].start_char,
+                'end': sentence.tokens[end].end_char
+            }
+            sents.append(sents_dict)
+
+        res_dict = {
+            'tokens': tokens,
+            'sents': sents,
+            'pos': pos,
+            'deps': deps,
+            'ents': ents,
+            'morphs': morphs,
+            'lemmas': lemmas
+        }
+
+    else:
+        # TODO return error message
+        print("not pipeline found for stanza lang", request)
+
+    response = StanzaResponseMulti(multitag=res_dict)
     return response
 
 
