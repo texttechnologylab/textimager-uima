@@ -17,9 +17,12 @@ public class VaderSentimentTest {
 	@Test
 	public void multiTaggerTest() throws UIMAException {
 		String[] sentences = new String[] {
-				"I love this!",
-				"i hate this!",
-				"it is ok"
+				"This is very great!",
+				"I really dislike this.",
+				"I hate this car.",
+				"Ich don't dislike the car.",
+				"I don't care...",
+				"This tool computes the sentiment per sentence."
 		};
 
 		JCas jCas = JCasFactory.createJCas();
@@ -30,14 +33,14 @@ public class VaderSentimentTest {
 			Sentence anno = new Sentence(jCas, sentence.length(), sentence.length()+s.length());
 			anno.addToIndexes();
 			sentence.append(s).append(" ");
-		};
+		}
 		jCas.setDocumentText(sentence.toString());
 
-		AnalysisEngineDescription gervader = createEngineDescription(VaderSentiment.class,
+		AnalysisEngineDescription vader = createEngineDescription(VaderSentiment.class,
 				VaderSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
 		);
 
-		SimplePipeline.runPipeline(jCas, gervader);
+		SimplePipeline.runPipeline(jCas, vader);
 
 		System.out.println(XmlFormatter.getPrettyString(jCas));
 		for (Sentiment sentiment : JCasUtil.select(jCas, Sentiment.class)) {
