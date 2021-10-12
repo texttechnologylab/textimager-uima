@@ -1,1 +1,1 @@
-docker build -t textimager-uima-spacy3-tagger:0.1 src/main/docker3
+docker build -t textimager-uima-spacy3-tagger:0.3 src/main/docker3
