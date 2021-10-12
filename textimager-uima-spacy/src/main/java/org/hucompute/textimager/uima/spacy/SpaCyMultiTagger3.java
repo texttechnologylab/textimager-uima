@@ -49,7 +49,7 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.1";
+        return "0.3";
     }
 
     @Override
@@ -64,7 +64,7 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
     @Override
     protected String getAnnotatorVersion() {
-        return "0.0.1";
+        return "0.0.2";
     }
 
     @Override
@@ -134,6 +134,8 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
                 Token tokenAnno = tokensMap.get(begin).get(end);
                 tokenAnno.setLemma(lemmaAnno);
                 lemmaAnno.addToIndexes();
+
+                addAnnotatorComment(aJCas, lemmaAnno);
             }
         });
     }
@@ -227,6 +229,8 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
                     Token tokenAnno = tokensMap.get(begin).get(end);
                     tokenAnno.setMorph(morphAnno);
                     morphAnno.addToIndexes();
+
+                    addAnnotatorComment(aJCas, morphAnno);
                 }
             }
         });
@@ -235,10 +239,14 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
     private void processSentences(JCas aJCas, JSONArray sents) {
         sents.forEach(s -> {
             JSONObject sentence = (JSONObject) s;
+
             int begin = sentence.getInt("begin");
             int end = sentence.getInt("end");
+
             Sentence sentAnno = new Sentence(aJCas, begin, end);
             sentAnno.addToIndexes();
+
+            addAnnotatorComment(aJCas, sentAnno);
         });
     }
 
@@ -249,8 +257,12 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
             if (!token.getBoolean("is_space")) {
                 int begin = token.getInt("idx");
                 int end = begin + token.getInt("length");
+
                 Token casToken = new Token(aJCas, begin, end);
                 casToken.addToIndexes();
+
+                addAnnotatorComment(aJCas, casToken);
+
                 if (!tokensMap.containsKey(begin)) {
                     tokensMap.put(begin, new HashMap<>());
                 }
@@ -281,6 +293,8 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
                 Token tokenAnno = tokensMap.get(begin).get(end);
                 tokenAnno.setPos(posAnno);
                 posAnno.addToIndexes();
+
+                addAnnotatorComment(aJCas, posAnno);
             }
         });
     }
@@ -294,26 +308,35 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
                 int begin = dep.getInt("idx");
                 int end = begin + dep.getInt("length");
 
-                // TODO
                 JSONObject headToken = dep.getJSONObject("head");
-                int beginHead = headToken.getInt("idx");
-                int endHead = beginHead + headToken.getInt("length");
+                if (!headToken.getBoolean("is_space")) {
+                    int beginHead = headToken.getInt("idx");
+                    int endHead = beginHead + headToken.getInt("length");
 
-                Token dependent = tokensMap.get(begin).get(end);
-                Token governor = tokensMap.get(beginHead).get(endHead);
+                    // Note: if no token is found this may be due to empty lines
+                    try {
+                        Token dependent = tokensMap.get(begin).get(end);
+                        Token governor = tokensMap.get(beginHead).get(endHead);
 
-                Dependency depAnno;
-                if (depStr.equals("ROOT")) {
-                    depAnno = new ROOT(aJCas, begin, end);
-                    depAnno.setDependencyType("--");
-                } else {
-                    depAnno = new Dependency(aJCas, begin, end);
-                    depAnno.setDependencyType(depStr);
+                        Dependency depAnno;
+                        if (depStr.equals("ROOT")) {
+                            depAnno = new ROOT(aJCas, begin, end);
+                            depAnno.setDependencyType("--");
+                        } else {
+                            depAnno = new Dependency(aJCas, begin, end);
+                            depAnno.setDependencyType(depStr);
+                        }
+                        depAnno.setDependent(dependent);
+                        depAnno.setGovernor(governor);
+                        depAnno.setFlavor(DependencyFlavor.BASIC);
+                        depAnno.addToIndexes();
+
+                        addAnnotatorComment(aJCas, depAnno);
+                    }
+                    catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
-                depAnno.setDependent(dependent);
-                depAnno.setGovernor(governor);
-                depAnno.setFlavor(DependencyFlavor.BASIC);
-                depAnno.addToIndexes();
             }
         });
     }
@@ -321,12 +344,16 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
     private void processNER(JCas aJCas, JSONArray ents) {
         ents.forEach(e -> {
             JSONObject ent = (JSONObject) e;
+
             int begin = ent.getInt("start_char");
             int end = ent.getInt("end_char");
             String labelStr = ent.getString("label");
+
             NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
             neAnno.setValue(labelStr);
             neAnno.addToIndexes();
+
+            addAnnotatorComment(aJCas, neAnno);
         });
     }
 

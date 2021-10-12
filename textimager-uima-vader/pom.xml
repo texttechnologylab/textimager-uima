@@ -12,6 +12,13 @@
     <dependencies>
         <dependency>
             <groupId>org.hucompute.textimager.uima</groupId>
+            <artifactId>textimager-uima-sentiment-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Vader Java Port, produces version conflicts... -->
+        <!--<dependency>
+            <groupId>org.hucompute.textimager.uima</groupId>
             <artifactId>textimager-uima-types</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -34,6 +41,6 @@
             <groupId>com.github.apanimesh061</groupId>
             <artifactId>vader-sentiment-analyzer</artifactId>
             <version>1.0</version>
-        </dependency>
+        </dependency>-->
     </dependencies>
 </project>
