@@ -1,4 +1,5 @@
 import de.tudarmstadt.ukp.dkpro.core.api.io.JCasFileWriter_ImplBase;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.languagetool.LanguageToolLemmatizer;
 import de.tudarmstadt.ukp.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.apache.uima.UIMAException;
@@ -42,59 +43,56 @@ public class BIOfidTest {
 
 	@Test
 	public void testReader() throws IOException {
-		String sBase = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/bhl/";
-		String sPath = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/bhl/abbyy";
+		String sBase = "/home/staff_homes/abrami/Downloads/newRun/";
+		String sOutPath= "/home/staff_homes/abrami/Downloads/newRunOut/";
 
-		Set<String> outSet = FileUtils.getFiles(sBase+"out", ".gz").stream().map(f->f.getName()).collect(Collectors.toSet());
+		Set<String> outSet = FileUtils.getFiles(sBase, ".xml").stream().map(f->f.getName()).collect(Collectors.toSet());
 
-		FileUtils.getFiles(sPath, ".gz").stream()
+		FileUtils.getFiles(sBase, ".xml").stream()
 //				.filter(f->!outSet.contains(f.getName()))
-				.filter(f->f.getName().equals("90532.gz"))
 			.forEach(f->{
 			try {
 				System.out.println("Processing: "+f.getName());
 
 //				File tFile = TempFileHandler.getTempFile(f.getName().replace(".gz", ""),".xml");
 
-				String sTemp = "/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/bhl/tmp/";
-				File tFile = new File(sTemp+f.getName().replace(".gz", "")+".xml");
-				File nFile = new File(sTemp+"n"+f.getName().replace(".gz", "")+".xml");
-
-				File targetFile = new File ("/media/gabrami/85ff0921-743b-48ce-8962-07a08a9db03e/bhl/out/"+tFile.getName()+".gz");
+				File targetFile = new File (sOutPath+f.getName());
 				if(!targetFile.exists()) {
 
-					decompressGZ(Paths.get(f.getAbsolutePath()), Paths.get(tFile.getAbsolutePath()));
+//					decompressGZ(Paths.get(f.getAbsolutePath()), Paths.get(tFile.getAbsolutePath()));
 
 					CollectionReader reader = CollectionReaderFactory.createReader(DocumentReader.class,
-							DocumentReader.PARAM_SOURCE_LOCATION, tFile.getPath());
+							DocumentReader.PARAM_SOURCE_LOCATION, f.getPath());
 
 					AnalysisEngineDescription languageTool = createEngineDescription(LanguageToolSegmenter.class);
 
 					AnalysisEngineDescription writer = createEngineDescription(XMIWriter.class,
 							XMIWriter.PARAM_PRETTY_PRINT, true,
 							XMIWriter.PARAM_SINGULAR_TARGET, true,
-							XMIWriter.PARAM_TARGET_LOCATION, nFile.getPath());
+							XMIWriter.PARAM_TARGET_LOCATION, targetFile.getPath());
 
 					SimplePipeline.runPipeline(reader, writer);
 
-					String sContent = StringUtils.getContent(nFile);
+					String sContent = StringUtils.getContent(targetFile);
 
 					int iPlace = sContent.indexOf("</xmi:XMI>");
 					System.out.println(iPlace);
 					sContent = sContent.substring(0, iPlace+10);
 
-					StringUtils.writeContent(sContent, nFile);
+					StringUtils.writeContent(sContent, targetFile);
 
 					JCas test = JCasFactory.createJCas();
-					CasIOUtil.readXmi(test, nFile);
+					CasIOUtil.readXmi(test, targetFile);
 
 					SimplePipeline.runPipeline(test, languageTool);
+                    DocumentMetaData dmd = DocumentMetaData.get(test);
+                    dmd.setDocumentId(f.getName());
 
-					CasIOUtil.writeXmi(test, nFile);
+					CasIOUtil.writeXmi(test, targetFile);
 
-					compressGZ(Paths.get(nFile.getAbsolutePath()), Paths.get(targetFile.getAbsolutePath()));
+//					compressGZ(Paths.get(targetFile.getAbsolutePath()), Paths.get(targetFile.getAbsolutePath()));
 
-					tFile.delete();
+//					tFile.delete();
 				}
 			} catch (UIMAException | IOException e) {
 				e.printStackTrace();
