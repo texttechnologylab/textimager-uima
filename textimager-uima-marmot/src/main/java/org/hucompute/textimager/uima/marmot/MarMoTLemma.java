@@ -2,8 +2,11 @@ package org.hucompute.textimager.uima.marmot;
 
 import static org.apache.uima.fit.util.JCasUtil.select;
 
-import java.io.InputStream;
-import java.io.ObjectInputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.zip.GZIPInputStream;
 import marmot.morph.MorphTagger;
 import marmot.morph.Word;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
@@ -27,7 +31,9 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 
-
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MarMoTLemma extends JCasAnnotator_ImplBase {
 
@@ -56,7 +62,7 @@ public class MarMoTLemma extends JCasAnnotator_ImplBase {
 	@ConfigurationParameter(name = PARAM_MAX_SENTENCE_LENGTH, mandatory = false, defaultValue="-1")
 	protected int maximumSentenceLength;
 
-	private CasConfigurableProviderBase<MorphTagger> modelProvider;
+	private ModelProviderBase<MorphTagger> modelProvider;
 
 	@Override
 	public void initialize(UimaContext aContext)
@@ -77,14 +83,30 @@ public class MarMoTLemma extends JCasAnnotator_ImplBase {
 				return (MorphTagger) object;
 			}
 		};
-	}
 
+
+	}
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		long start = System.currentTimeMillis();
+		//this.modelLocation="C:\\Users\\sodia\\.m2\\repository\\marmot_models\\all-tiger\\1.0all-tiger-1.0.marmot";
+		//modelProvider.getResourceMetaData().get("location");
+		//modelProvider.getResourceMetaData().setProperty("location","C:\\marmot\\x.marmot");
+		//createPropertiesFile(aJCas);
+		String language=aJCas.getDocumentLanguage();
+		String aShortName ="marmot";
+		String aType ="lemma";
+
+		//String version ="default";
+		/*
+		String repoPath = aType+"\\"+language+"\\"+version+"\\" ;
+		String fileName = language+"-"+version+"."+aShortName;
+		String location = System.getProperty("user.home")+"\\"+".m2"+"\\"+"repository"+"\\"+repoPath+fileName;
+		modelProvider.setDefault("location",location);*/
 		modelProvider.configure(aJCas.getCas());
 
+		//modelProvider.getResourceMetaData().setProperty("location","C:\\marmot\\x.marmot");
 		for (Sentence sentence : select(aJCas, Sentence.class)) {
 			List<Word> words = new ArrayList<>();
 			List<Token>tokens =  JCasUtil.selectCovered(Token.class, sentence);
@@ -112,6 +134,7 @@ public class MarMoTLemma extends JCasAnnotator_ImplBase {
 				tokens.get(i).setLemma(lemma);
 			}
 		}
+
 		System.out.println("processing time: " + (System.currentTimeMillis()-start));
 	}
 
@@ -124,4 +147,57 @@ public class MarMoTLemma extends JCasAnnotator_ImplBase {
 		}
 		return lemma;
 	}
+
+	public void createPropertiesFile(JCas aJCas){
+		String language=aJCas.getDocumentLanguage();
+		String aShortName ="marmot";
+		String aType ="lemma";
+		String path = System.getProperty("user.dir")+"\\"+"src"+"\\"+"main"+"\\"+"resources"+"\\"+"org"+"\\"+"hucompute"+"\\"+"textimager"+"\\"+"uima"+"\\"+"marmot"+"\\"+"lib";
+		String filename = aType + "-" + language + "-" + "default" + ".properties";
+		try {
+			File myObj = new File(path+"\\"+filename);
+			if (myObj.createNewFile()) {
+				System.out.println("File created: " + myObj.getName());
+				writeProperties(path+"\\"+filename,aJCas);
+			} else {
+				System.out.println("File already exists.");
+			}
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+	}
+
+	public void  writeProperties(String propFile, JCas aJCas){
+		String language=aJCas.getDocumentLanguage();
+		String aShortName ="marmot";
+		String aType ="lemma";
+		String version ="default";
+		String timeStamp = new Date().toString();
+		//String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH\\:mm").toString();
+
+		String repoPath = aType+"\\"+language+"\\"+version+"\\" ;
+		String fileName = language+"-"+version+"."+aShortName;
+		String location = System.getProperty("user.home")+"\\"+".m2"+"\\"+"repository"+"\\"+repoPath+fileName;
+		location = location.replace("\\", "\\\\");
+
+		String properties="generated="+timeStamp+"\n" +
+				"version=20170716.1 \n"+
+				"language="+language+"\n"+
+				"variant=default"+"\n" +
+				"tool="+aType+"\n"  +
+				"location="+location;
+
+		try {
+			FileWriter myWriter = new FileWriter(propFile);
+			myWriter.write(properties);
+			myWriter.close();
+			System.out.println("Successfully wrote to the file.");
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+	}
 }
+
+

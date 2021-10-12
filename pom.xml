@@ -98,7 +98,7 @@
 		<module>textimager-uima-tagme</module>
 		<module>textimager-uima-HUComputeNER</module>
 		<module>textimager-uima-disambiguation</module>
-		<module>textimager-uima-io-abbyy</module>
+<!--		<module>textimager-uima-io-abbyy</module> -->
 <!--		<module>textimager-uima-deploy</module>-->
 		<module>textimager-uima-heideltime</module>
 <!--		<module>textimager-uima-agreement</module>-->
@@ -123,5 +123,6 @@
 		<module>textimager-uima-gnd-gazetteer</module>
 		<module>textimager-uima-biofid-general-gazetteer</module>
 		<module>textimager-uima-steps</module>
+		<module>textimager-uima-deploy</module>
     </modules>
 </project>

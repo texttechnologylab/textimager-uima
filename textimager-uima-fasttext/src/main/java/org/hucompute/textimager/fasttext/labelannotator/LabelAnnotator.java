@@ -17,10 +17,14 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.resources.CasConfigurableProviderBase;
+import org.dkpro.core.api.resources.ModelProviderBase;
 import org.hucompute.textimager.fasttext.BaseAnnotator;
 import org.hucompute.textimager.fasttext.FastTextResult;
 import org.hucompute.textimager.fasttext.ProbabilityLabel;
+import org.hucompute.textimager.uima.marmot.ModelProviderTwo;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
+
 
 public class LabelAnnotator extends BaseAnnotator {
     /**
@@ -29,7 +33,7 @@ public class LabelAnnotator extends BaseAnnotator {
     public static final String PARAM_DISAMBIG_TAG = "disambigTag";
     @ConfigurationParameter(name = PARAM_DISAMBIG_TAG, mandatory = false, defaultValue = "")
     protected String disambigTag;
-
+    private CasConfigurableProviderBase<String> modelProvider;
     /**
      * Disambig Label Replace: Ersetzt erstes Vorkommen
      * BSP:
@@ -69,6 +73,8 @@ public class LabelAnnotator extends BaseAnnotator {
     @Override
     public void initialize(UimaContext aContext) throws ResourceInitializationException {
         super.initialize(aContext);
+
+        //modelProvider=new ModelProviderTwo<String>(this, "languageidentification", "lemma");
 
         ddcNames = new HashMap<>();
         if (!appendDDC.isEmpty()) {

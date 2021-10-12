@@ -7,11 +7,13 @@
 		<version>0.3.0</version>
 	</parent>
 	<artifactId>textimager-uima-marmot</artifactId>
-	
+
 	<repositories>
+
 		<repository>
-			<id>lemma-tagger</id>
-			<url>http://localhost:8082/artifactory/lemma-tagger/</url>
+			<id>Model_Repo</id>
+			<name>JFrog-Artifactory</name>
+			<url>http://artifactory.texttechnologylab.org/artifactory/Model_Repo/</url>
 		</repository>
 
 		<repository>
@@ -22,10 +24,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>marmot_modell</groupId>
-			<artifactId>all-tiger</artifactId>
-			<version>1.0</version>
-			<type>marmot</type>
+			<groupId>de.praktikum</groupId>
+			<artifactId>de.praktikum.marmot-upstream-lemma-de-hucompute</artifactId>
+			<version>20170716.1</version>
 		</dependency>
 
 		<dependency>
@@ -39,6 +40,20 @@
 			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.dkpro.core</groupId>
+			<artifactId>dkpro-core-languagetool-asl</artifactId>
+			<version>1.12.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>15.0</version>
+			<scope>compile</scope>
+		</dependency>
+
 	</dependencies>
 
 	<!--<build>
