@@ -79,6 +79,13 @@
 					<groupId>com.github.texttechnologylab</groupId>
 					<artifactId>UIMATypeSystem</artifactId>
 					<version>${ttlab.typesystem.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.github.texttechnologylab.textimager-uima</groupId>
+                            <artifactId>textimager-uima-types</artifactId>
+                        </exclusion>
+
+                    </exclusions>
 				</dependency>
 
 				<dependency>
@@ -152,11 +159,11 @@
 					<artifactId>textimager-uima-textblob</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-textscorer</artifactId>
-					<version>${project.version}</version>
-				</dependency>
+<!--				<dependency>-->
+<!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+<!--					<artifactId>textimager-uima-textscorer</artifactId>-->
+<!--					<version>${project.version}</version>-->
+<!--				</dependency>-->
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-biofid-gazetteer</artifactId>
@@ -177,11 +184,11 @@
 					<artifactId>textimager-uima-database</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-text2scene</artifactId>
-					<version>${project.version}</version>
-				</dependency>
+<!--				<dependency>-->
+<!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+<!--					<artifactId>textimager-uima-text2scene</artifactId>-->
+<!--					<version>${project.version}</version>-->
+<!--				</dependency>-->
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-steps</artifactId>
