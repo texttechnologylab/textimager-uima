@@ -10,10 +10,10 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 /** 
- * Updated by JCasGen Mon Jul 12 10:10:18 CEST 2021
+ * Updated by JCasGen Wed Sep 01 09:32:11 CEST 2021
  * XML source: /home/daniel/data/hiwi/git/myyyvothrr/textimager-uima/textimager-uima-types/src/main/resources/desc/type/Sentiment.xml
  * @generated */
-public class GerVaderSentiment extends Sentiment {
+public class GerVaderSentiment extends VaderSentiment {
   /** @generated
    * @ordered 
    */
@@ -75,70 +75,6 @@ public class GerVaderSentiment extends Sentiment {
      
  
     
-  //*--------------*
-  //* Feature: pos
-
-  /** getter for pos - gets 
-   * @generated
-   * @return value of the feature 
-   */
-  public double getPos() {
-    if (GerVaderSentiment_Type.featOkTst && ((GerVaderSentiment_Type)jcasType).casFeat_pos == null)
-      jcasType.jcas.throwFeatMissing("pos", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    return jcasType.ll_cas.ll_getDoubleValue(addr, ((GerVaderSentiment_Type)jcasType).casFeatCode_pos);}
-    
-  /** setter for pos - sets  
-   * @generated
-   * @param v value to set into the feature 
-   */
-  public void setPos(double v) {
-    if (GerVaderSentiment_Type.featOkTst && ((GerVaderSentiment_Type)jcasType).casFeat_pos == null)
-      jcasType.jcas.throwFeatMissing("pos", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    jcasType.ll_cas.ll_setDoubleValue(addr, ((GerVaderSentiment_Type)jcasType).casFeatCode_pos, v);}    
-   
-    
-  //*--------------*
-  //* Feature: neu
-
-  /** getter for neu - gets 
-   * @generated
-   * @return value of the feature 
-   */
-  public double getNeu() {
-    if (GerVaderSentiment_Type.featOkTst && ((GerVaderSentiment_Type)jcasType).casFeat_neu == null)
-      jcasType.jcas.throwFeatMissing("neu", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    return jcasType.ll_cas.ll_getDoubleValue(addr, ((GerVaderSentiment_Type)jcasType).casFeatCode_neu);}
-    
-  /** setter for neu - sets  
-   * @generated
-   * @param v value to set into the feature 
-   */
-  public void setNeu(double v) {
-    if (GerVaderSentiment_Type.featOkTst && ((GerVaderSentiment_Type)jcasType).casFeat_neu == null)
-      jcasType.jcas.throwFeatMissing("neu", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    jcasType.ll_cas.ll_setDoubleValue(addr, ((GerVaderSentiment_Type)jcasType).casFeatCode_neu, v);}    
-   
-    
-  //*--------------*
-  //* Feature: neg
-
-  /** getter for neg - gets 
-   * @generated
-   * @return value of the feature 
-   */
-  public double getNeg() {
-    if (GerVaderSentiment_Type.featOkTst && ((GerVaderSentiment_Type)jcasType).casFeat_neg == null)
-      jcasType.jcas.throwFeatMissing("neg", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    return jcasType.ll_cas.ll_getDoubleValue(addr, ((GerVaderSentiment_Type)jcasType).casFeatCode_neg);}
-    
-  /** setter for neg - sets  
-   * @generated
-   * @param v value to set into the feature 
-   */
-  public void setNeg(double v) {
-    if (GerVaderSentiment_Type.featOkTst && ((GerVaderSentiment_Type)jcasType).casFeat_neg == null)
-      jcasType.jcas.throwFeatMissing("neg", "org.hucompute.textimager.uima.type.GerVaderSentiment");
-    jcasType.ll_cas.ll_setDoubleValue(addr, ((GerVaderSentiment_Type)jcasType).casFeatCode_neg, v);}    
-  }
+}
 
     

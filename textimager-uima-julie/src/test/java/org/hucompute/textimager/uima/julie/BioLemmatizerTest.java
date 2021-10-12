@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.POSTag;
 import de.julielab.jcore.types.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -24,19 +25,51 @@ import static org.junit.Assert.assertArrayEquals;
  *
  * This class provide BioLemmatizer test case */
 public class BioLemmatizerTest {
-    public void init_jcas(JCas jcas, String[] POSTAG) {
+    public void init_input(JCas jcas, String text, String POSTAG) {
+        String[] words = text.split(" ");
+        String[] postags = POSTAG.split(" ");
         //initialize index
         int index_start = 0;
         int index_end = 0;
 
         //loop for all words
-        for (int i=0; i< POSTAG.length; i++) {
-            index_end = index_start + POSTAG[i].length();
+        for (int i=0; i< postags.length; i++) {
+            index_end = index_start + words[i].length();
+            Token token = new Token(jcas);
             POSTag pos = new POSTag(jcas);
+
+            token.setBegin(index_start);
+            token.setEnd(index_end);
+            token.addToIndexes();
 
             pos.setBegin(index_start);
             pos.setEnd(index_end);
-            pos.setValue(POSTAG[i]);
+            pos.setValue(postags[i]);
+            pos.addToIndexes();
+
+            index_start = index_end + 1;
+        }
+    }
+    public void init_input_dkpro(JCas jcas, String text, String POSTAG) {
+        String[] words = text.split(" ");
+        String[] postags = POSTAG.split(" ");
+        //initialize index
+        int index_start = 0;
+        int index_end = 0;
+
+        //loop for all words
+        for (int i=0; i< postags.length; i++) {
+            index_end = index_start + words[i].length();
+            de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token token = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token(jcas);
+            POS pos = new POS(jcas);
+
+            token.setBegin(index_start);
+            token.setEnd(index_end);
+            token.addToIndexes();
+
+            pos.setBegin(index_start);
+            pos.setEnd(index_end);
+            pos.setPosValue(postags[i]);
             pos.addToIndexes();
 
             index_start = index_end + 1;
@@ -48,26 +81,34 @@ public class BioLemmatizerTest {
      */
     @Test
     public void testProcess() throws IOException, UIMAException {
+        // Parameters
         String Text = "Three horses were going contemplatively around bushy bushes .";
+        String Postag = "DT NNS VBD VBG RB IN JJ NNS .";
+
         JCas jCas = JCasFactory.createText(Text);
+
+        // input: de.julielab.jcore.types.POSTag
+        //        de.julielab.jcore.types.Token
+        init_input_dkpro(jCas, Text, Postag);
+
         // get postag
         //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
-        AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
-        SimplePipeline.runPipeline(jCas, engine_postag);
+        //AnalysisEngineDescription engine_postag = createEngineDescription(OpennlpPostag.class);
+        //SimplePipeline.runPipeline(jCas, engine_postag);
 
-        String[] casPostag = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getPosTag(0).getValue()).toArray(String[]::new);
-        jCas.reset();
-        jCas.setDocumentText(Text);
+//        String[] casPostag = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getPosTag(0).getValue()).toArray(String[]::new);
+//        jCas.reset();
+//        jCas.setDocumentText(Text);
 
-        init_jcas(jCas, casPostag);
+
         //AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class);
         AnalysisEngineDescription engine = createEngineDescription(BioLemmatizer.class);
 
         SimplePipeline.runPipeline(jCas, engine);
 
-        String[] casLemma = (String[]) JCasUtil.select(jCas, Token.class).stream().map(b -> b.getLemma().getValue()).toArray(String[]::new);
+        String[] casLemma = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class).stream().map(b -> b.getLemma().getValue()).toArray(String[]::new);
         String[] testLemma = new String[] {"three", "horse", "be", "go", "contemplative",
-                                            "around", "Bushy", "bush", "."};
+                                            "around", "bushy", "bush", "."};
 
         assertArrayEquals(testLemma, casLemma);
     }

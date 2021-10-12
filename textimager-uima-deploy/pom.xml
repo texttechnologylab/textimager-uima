@@ -47,12 +47,22 @@
 		</plugins>
 	</build>
 
+
 	<repositories>
 		<repository>
 		    <id>jitpack.io</id>
 		    <url>https://jitpack.io</url>
 		</repository>
 	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.3.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<profiles>
 		<profile>
@@ -84,6 +94,12 @@
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-types</artifactId>
 					<version>${project.version}</version>
+					<exclusions>
+						<exclusion>
+							<groupId>org.github.texttechnologylab</groupId>
+							<artifactId>UIMATypeSystem</artifactId>
+						</exclusion>
+					</exclusions>
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
@@ -127,6 +143,11 @@
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-spacy-ie</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-biofid-flair</artifactId>
 					<version>${project.version}</version>
 				</dependency>
@@ -143,6 +164,11 @@
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-textscorer</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-supar</artifactId>
 					<version>${project.version}</version>
 				</dependency>
 				<dependency>
@@ -182,6 +208,16 @@
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-openie</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-vader</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-sentiment-base</artifactId>
 					<version>${project.version}</version>
 				</dependency>
@@ -214,6 +250,11 @@
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-biofid-general-gazetteer</artifactId>
 					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>com.github.myyyvothrr.jcore-base</groupId>
+					<artifactId>jcore-types</artifactId>
+					<version>${jcore.types.version}</version>
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>

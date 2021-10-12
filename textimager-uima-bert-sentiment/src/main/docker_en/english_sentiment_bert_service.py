@@ -21,6 +21,7 @@ class TextImagerRequest(BaseModel):
     lang: str
     doc_len: int
     model_name: str
+    model_max_length: int
     sentiment_mapping: Dict[str, float]
 
 
@@ -62,13 +63,20 @@ def sentiment_to_number(sentiment_output: Dict[str, Union[str, float]], sentimen
 def process(request: TextImagerRequest) -> BertSentimentResponse:
     global sentiment_analysis
     if sentiment_analysis is None:
-        sentiment_analysis = pipeline("sentiment-analysis", model=request.model_name, tokenizer=request.model_name)
+        sentiment_analysis = pipeline("sentiment-analysis",
+                                      model=request.model_name,
+                                      tokenizer=request.model_name,
+                                      model_kwargs={
+                                          "model_max_length": request.model_max_length
+                                      })
 
     processed_selections = []
 
     for selection in request.selections:
         texts = [s.text for s in selection.sentences]
-        results = sentiment_analysis(texts)
+
+        # truncate input, same as german lib
+        results = sentiment_analysis(texts, truncation=True)
 
         processed_sentences = [
             BertSentimentSentence(

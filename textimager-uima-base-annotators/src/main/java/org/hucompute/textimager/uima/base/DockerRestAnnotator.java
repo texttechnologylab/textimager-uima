@@ -2,9 +2,7 @@ package org.hucompute.textimager.uima.base;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.docker.ContainerParametersBuilder;
 import org.hucompute.textimager.uima.docker.ContainerWrapper;
@@ -276,17 +274,19 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 		if (container != null) {
 			// TODO container is not stopped on DUCC?
 			try {
-				System.out.println("Stopping Docker container");
-				container.get_handle().stop();
+                System.out.println("Stopping Docker container " + container.get_name());
+                container.get_handle().stop();
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
-			// TODO container removed at stop already?
+            // TODO container removed at stop already?
 			try {
 				System.out.println("Waiting for Docker to stop...");
 				container.get_handle().waitOn("not-running");
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -294,6 +294,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				System.out.println("Removing Docker container");
 				container.get_handle().remove();
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -304,7 +305,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	@Override
 	public void destroy() {
 		dockerStop();
-		System.out.println("Docker annotator destroyed");
 		super.destroy();
 	}
+
 }

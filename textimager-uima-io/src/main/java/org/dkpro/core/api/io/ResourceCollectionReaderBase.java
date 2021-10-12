@@ -17,28 +17,10 @@
  */
 package org.dkpro.core.api.io;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import eu.openminted.share.annotations.api.Component;
+import eu.openminted.share.annotations.api.Parameters;
+import eu.openminted.share.annotations.api.constants.OperationType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.cas.CAS;
@@ -57,10 +39,19 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.AntPathMatcher;
 import org.texttechnologylab.annotation.DocumentModification;
 
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import eu.openminted.share.annotations.api.Component;
-import eu.openminted.share.annotations.api.Parameters;
-import eu.openminted.share.annotations.api.constants.OperationType;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Base class for collection readers that plan to access resources on the file system or in the
@@ -69,7 +60,7 @@ import eu.openminted.share.annotations.api.constants.OperationType;
  * <p>
  * Example of a hypothetic <code>FooReader</code> that should read only files ending in
  * <code>.foo</code> from in the directory <code>foodata</code> or any subdirectory thereof:
- * 
+ *
  * <pre>
  * CollectionReader reader = createReader(FooReader.class,
  *         FooReader.PARAM_LANGUAGE, &quot;en&quot;,
@@ -79,15 +70,15 @@ import eu.openminted.share.annotations.api.constants.OperationType;
  * <p>
  * The list of resources returned is sorted, so for the same set of resources, they are always
  * returned in the same order.
- * 
+ *
  * @see <a href="http://ant.apache.org/manual/dirtasks.html#patterns">Documentation of <b>ant</b>
  *      patterns</a>
- * 
+ *
  * @since 1.0.6
  */
 @Component(value = OperationType.READER)
 @Parameters(
-		exclude = { 
+		exclude = {
 				ResourceCollectionReaderBase.PARAM_SOURCE_LOCATION,
 				ResourceCollectionReaderBase.PARAM_INCLUDE_HIDDEN,
 				ResourceCollectionReaderBase.PARAM_USE_DEFAULT_EXCLUDES,
@@ -102,7 +93,7 @@ extends CasCollectionReader_ImplBase
 
 	/**
 	 * Location from which the input is read.
-	 * 
+	 *
 	 * @deprecated use {@link #PARAM_SOURCE_LOCATION}
 	 */
 	@Deprecated
@@ -178,14 +169,14 @@ extends CasCollectionReader_ImplBase
 	public static final String PARAM_SORT_BY_SIZE= "sortBySize";
 	@ConfigurationParameter(name = PARAM_SORT_BY_SIZE, mandatory = false, defaultValue = "false")
 	private boolean sortBySize;
-	
+
 	/**
 	 * Modification Metadata: User that commited this modification
 	 */
 	public static final String PARAM_DOC_MODIFICATION_USER = "docModificationUser";
 	@ConfigurationParameter(name = PARAM_DOC_MODIFICATION_USER, mandatory = false)
 	private String docModificationUser;
-	
+
 	/**
 	 * Modification Metadata: comment that describes this modification
 	 */
@@ -200,7 +191,7 @@ extends CasCollectionReader_ImplBase
 	private Iterator<Resource> resourceIterator;
 
 	private ProgressMeter progress;
-	
+
 
 	protected static final Set<String> KNOWN_FILE_EXTENSIONS = new HashSet<>();
 
@@ -303,7 +294,7 @@ extends CasCollectionReader_ImplBase
 				Path outputDir = Paths.get(targetLocation);
 				if(outputDir.toFile().exists()){
 					System.out.println("Checking for already existing files in: " + outputDir.toString());
-					
+
 					// Get existing files, map to filename, remove extensions
 					try (Stream<Path> stream = Files.walk(outputDir)) {
 						Set<String> existingFiles = stream
@@ -339,7 +330,7 @@ extends CasCollectionReader_ImplBase
 						}
 					}
 				});
-			}			
+			}
 
 			progress = new ProgressMeter(resources.size());
 
@@ -352,7 +343,7 @@ extends CasCollectionReader_ImplBase
 			throw new ResourceInitializationException(e);
 		}
 	}
-	
+
 	protected String removeFileExtensions(String filename) {
 		boolean isDone = false;
 		 while (!isDone) {
@@ -407,7 +398,7 @@ extends CasCollectionReader_ImplBase
 
 	/**
 	 * Make sure the given location is an URL. E.g. adds "file:" if necessary.
-	 * 
+	 *
 	 * @param aLocation
 	 *            the location.
 	 * @return an URL.
@@ -432,7 +423,7 @@ extends CasCollectionReader_ImplBase
 
 	/**
 	 * Checks if a location refers to a local file but does not start with "file:"
-	 * 
+	 *
 	 * @param aLocation
 	 *            the location.
 	 * @return if "file:" needs to be added to make the location explicit.
@@ -485,7 +476,7 @@ extends CasCollectionReader_ImplBase
 	/**
 	 * Get the base location used by the reader. This location always ends in a / if it is set at
 	 * all. If there is no base, an empty string is returned.
-	 * 
+	 *
 	 * @return the base location used by the reader.
 	 */
 	protected String getBase()
@@ -670,7 +661,7 @@ extends CasCollectionReader_ImplBase
 
 	/**
 	 * Get the URI of the given resource.
-	 * 
+	 *
 	 * @param aResource
 	 *            a resource
 	 * @param aFileOrDir
@@ -710,7 +701,7 @@ extends CasCollectionReader_ImplBase
 	/**
 	 * Initialize the {@link DocumentMetaData}. This must be called before setting the document
 	 * text, otherwise the end feature of this annotation will not be set correctly.
-	 * 
+	 *
 	 * @param aCas
 	 *            the CAS.
 	 * @param aResource
@@ -724,7 +715,7 @@ extends CasCollectionReader_ImplBase
 	/**
 	 * Initialize the {@link DocumentMetaData}. This must be called before setting the document
 	 * text, otherwise the end feature of this annotation will not be set correctly.
-	 * 
+	 *
 	 * @param aCas
 	 *            the CAS.
 	 * @param aResource

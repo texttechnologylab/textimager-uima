@@ -9,8 +9,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.bitbucket.rkilinger.ged.Emotion;
 import org.hucompute.textimager.uima.base.TextImagerBaseAnnotator;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -26,7 +25,7 @@ public class GermanEmotionDetection extends TextImagerBaseAnnotator {
 
     @Override
     protected String getAnnotatorVersion() {
-        return "0.1";
+        return "0.2";
     }
 
     @Override
@@ -43,14 +42,13 @@ public class GermanEmotionDetection extends TextImagerBaseAnnotator {
     public void initialize(UimaContext context) throws ResourceInitializationException {
         super.initialize(context);
         // load lists
-        String path = getClass().getClassLoader().getResource("dictionaries").getPath();
-        disgustSet = readDictFromFile(path + "/Ekel.txt");
-        contemptSet = readDictFromFile(new String(path + "/Verachtung.txt"));
-        surpriseSet = readDictFromFile(new String(path + "/Ueberraschung.txt"));
-        fearSet = readDictFromFile(new String(path + "/Furcht.txt"));
-        mourningSet = readDictFromFile(new String(path + "/Trauer.txt"));
-        angerSet = readDictFromFile(new String(path + "/Wut.txt"));
-        joySet = readDictFromFile(new String(path + "/Freude.txt"));
+        disgustSet = readDictFromStream(GermanEmotionDetection.class.getResourceAsStream("/org/hucompute/textimager/uima/german/emotion/dictionaries/Ekel.txt"));
+        contemptSet = readDictFromStream(GermanEmotionDetection.class.getResourceAsStream("/org/hucompute/textimager/uima/german/emotion/dictionaries/Verachtung.txt"));
+        surpriseSet = readDictFromStream(GermanEmotionDetection.class.getResourceAsStream("/org/hucompute/textimager/uima/german/emotion/dictionaries/Ueberraschung.txt"));
+        fearSet = readDictFromStream(GermanEmotionDetection.class.getResourceAsStream("/org/hucompute/textimager/uima/german/emotion/dictionaries/Furcht.txt"));
+        mourningSet = readDictFromStream(GermanEmotionDetection.class.getResourceAsStream("/org/hucompute/textimager/uima/german/emotion/dictionaries/Trauer.txt"));
+        angerSet = readDictFromStream(GermanEmotionDetection.class.getResourceAsStream("/org/hucompute/textimager/uima/german/emotion/dictionaries/Wut.txt"));
+        joySet = readDictFromStream(GermanEmotionDetection.class.getResourceAsStream("/org/hucompute/textimager/uima/german/emotion/dictionaries/Freude.txt"));
     }
 
     @Override
@@ -97,18 +95,14 @@ public class GermanEmotionDetection extends TextImagerBaseAnnotator {
 
     }
 
-    private HashSet<String> readDictFromFile(String fileName) {
-        HashSet<String> returnDict = new HashSet<String>();
-        try {
-            Scanner textFile = new Scanner(new File(fileName));
-            while (textFile.hasNext()) {
-                returnDict.add(textFile.next().trim());
-            }
-            textFile.close();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    private HashSet<String> readDictFromStream(InputStream inputStream) {
+        HashSet<String> returnDict = new HashSet<>();
+        Scanner textFile = new Scanner(inputStream);
+        while (textFile.hasNext()) {
+            returnDict.add(textFile.next().trim());
         }
+        textFile.close();
+
         return returnDict;
     }
 }
