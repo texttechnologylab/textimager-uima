@@ -784,6 +784,108 @@ public class SuparDepTest {
 		assertArrayEquals(depGovPoss, casDepGovPoss);
 	}
 
+	@Test
+	public void suparDepCrf2oDeTest() throws UIMAException, CASRuntimeException {
+		// create document
+		JCas jCas = JCasFactory.createJCas();
+		jCas.setDocumentLanguage("de");
+		jCas.setDocumentText("Zuletzt war er Präsident des Reichshofrates. Der Aktienkurs wird hierdurch sicher sinken. Im Jahr 1941 starb seine Frau Kathleen.");
+
+		// add sentences
+		new Sentence(jCas, 0, 44).addToIndexes();
+		new Sentence(jCas, 45, 89).addToIndexes();
+		new Sentence(jCas, 90, 129).addToIndexes();
+
+		// add token
+		int[][] tokensPosition = new int[][] {
+				new int[] { 0, 7 },
+				new int[] { 8, 11 },
+				new int[] { 12, 14 },
+				new int[] { 15, 24 },
+				new int[] { 25, 28 },
+				new int[] { 29, 43 },
+				new int[] { 43, 44 },
+
+				new int[] { 45, 48 },
+				new int[] { 49, 59 },
+				new int[] { 60, 64 },
+				new int[] { 65, 74 },
+				new int[] { 75, 81 },
+				new int[] { 82, 88 },
+				new int[] { 88, 89 },
+
+				new int[] { 90, 92 },
+				new int[] { 93, 97 },
+				new int[] { 98, 102 },
+				new int[] { 103, 108 },
+				new int[] { 109, 114 },
+				new int[] { 115, 119 },
+				new int[] { 120, 128 },
+				new int[] { 128, 129 },
+		};
+		for (int[] pos : tokensPosition) {
+			new Token(jCas, pos[0], pos[1]).addToIndexes();
+		}
+
+		// run pipeline with supar
+
+		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
+		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
+		//);
+		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
+		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
+				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/crf2o_dep_de",
+				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+		);
+		SimplePipeline.runPipeline(jCas, depParser);
+		System.out.println(XmlFormatter.getPrettyString(jCas));
+
+		// test dep positions
+		int[][] casDepPoss = (int[][]) JCasUtil.select(jCas, Token.class).stream().map(p -> new int[] { p.getBegin(), p.getEnd() }).toArray(int[][]::new);
+		assertArrayEquals(tokensPosition, casDepPoss);
+
+		// test types
+		String[] deps = new String[] {
+				"advmod", "cop", "nsubj", "--", "det", "nmod", "punct",
+
+				"det", "nsubj", "aux", "advmod", "advmod", "--", "punct",
+
+				"case", "obl", "nmod", "--", "det", "nsubj", "flat:name", "punct",
+		};
+		String[] casDeps = (String[]) JCasUtil.select(jCas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+		assertArrayEquals(deps, casDeps);
+
+		// test governors
+		int[][] depGovPoss = new int[][] {
+				tokensPosition[3],
+				tokensPosition[3],
+				tokensPosition[3],
+				tokensPosition[3],
+				tokensPosition[5],
+				tokensPosition[3],
+				tokensPosition[3],
+
+				tokensPosition[1 + 7],
+				tokensPosition[5 + 7],
+				tokensPosition[5 + 7],
+				tokensPosition[5 + 7],
+				tokensPosition[5 + 7],
+				tokensPosition[5 + 7],
+				tokensPosition[5 + 7],
+
+				tokensPosition[1 + 7 + 7],
+				tokensPosition[3 + 7 + 7],
+				tokensPosition[1 + 7 + 7],
+				tokensPosition[3 + 7 + 7],
+				tokensPosition[5 + 7 + 7],
+				tokensPosition[3 + 7 + 7],
+				tokensPosition[5 + 7 + 7],
+				tokensPosition[3 + 7 + 7],
+		};
+		int[][] casDepGovPoss = (int[][]) JCasUtil.select(jCas, Dependency.class).stream().map(p -> new int[] { p.getGovernor().getBegin(), p.getGovernor().getEnd() }).toArray(int[][]::new);
+		assertArrayEquals(depGovPoss, casDepGovPoss);
+	}
+
 
 
 }
