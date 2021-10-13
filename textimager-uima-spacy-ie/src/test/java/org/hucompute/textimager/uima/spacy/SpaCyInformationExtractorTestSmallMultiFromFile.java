@@ -16,10 +16,7 @@ import org.texttechnologylab.annotation.GeoNamesEntity;
 import org.xml.sax.SAXException;
 
 import javax.xml.transform.OutputKeys;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,22 +31,31 @@ public class SpaCyInformationExtractorTestSmallMultiFromFile {
 	private final String sourceLocation = "/mnt/ssd/data/geonames.txt";
 	@Test
 	public void multiIETest() throws UIMAException, IOException {
-		String path = "/mnt/ssd/SRL/example_s.txt";
-		List<String> texts = Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
-//		ArrayList<String> texts = new ArrayList<String>();
+//		String path = "/mnt/ssd/SRL/example_s.txt";
+//		List<String> texts = Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
+		ArrayList<String> texts = new ArrayList<String>();
+        String t = "";
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(
+//				new FileInputStream("/mnt/ssd/SRL/example_s.txt"), StandardCharsets.ISO_8859_1))){
+				new FileInputStream("/mnt/ssd/SRL/bio_test/conll/conll.txt"), StandardCharsets.UTF_8))){
 //		try (BufferedReader br = new BufferedReader(new FileReader("/mnt/ssd/SRL/example_s.txt"))) {
-//			String line = br.readLine();
-//
-//			while (line != null) {
-//				texts.add(line);
-//				line = br.readLine();
-//			}
-//		}
-        System.out.print(texts);
+			String line = br.readLine();
+			texts.add(line);
+			while (line != null) {
+				t = t + " " + line;
+				line = br.readLine();
+				texts.add(line);
+			}
+		}
+//        System.out.print(t.substring(0, 66));
+//		ArrayList<String> texts = new ArrayList<String>();
+//		texts.add(t);
+//		if (true) {return;}
 		int i = 0;
 		for (String text : texts) {
-		    if (i > 6) {break;}
+//		    if (i > 6) {break;}
 		    System.out.println(text);
+//			if (true) {continue;}
 			JCas cas = JCasFactory.createText(text, "de");
 			AnalysisEngineDescription spacyIE = createEngineDescription(SpaCyInformationExtractor.class,
 						SpaCyInformationExtractor.PARAM_DOCKER_HOST_PORT, 8000
@@ -72,11 +78,13 @@ public class SpaCyInformationExtractorTestSmallMultiFromFile {
 					GeonamesGazetteer.PARAM_SPLIT_HYPEN, false
 			);
 //			SimplePipeline.runPipeline(cas, spacyIE, heidelTime, segmenter, geoNames);
-			SimplePipeline.runPipeline(cas, segmenter, geoNames, heidelTime, spacyIE);
+			SimplePipeline.runPipeline(cas, spacyIE);
+//			SimplePipeline.runPipeline(cas, segmenter, geoNames, heidelTime, spacyIE);
 
 			i++;
-			Path outputXmi = Paths.get("/mnt/ssd/SRL/bio_test/example_s/" + i + ".xmi");
+			Path outputXmi = Paths.get("/mnt/ssd/SRL/bio_test/example_s/conll_test/" + i + ".xmi");
 			try (OutputStream outputStream = Files.newOutputStream(outputXmi)) {
+			    System.out.println("Saving " + i + ".xmi");
 				XMLSerializer xmlSerializer = new XMLSerializer(outputStream, true);
 				xmlSerializer.setOutputProperty(OutputKeys.VERSION, "1.0");
 				xmlSerializer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.toString());

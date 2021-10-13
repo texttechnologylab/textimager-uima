@@ -29,7 +29,8 @@ import java.nio.file.Paths;
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 public class SpaCyInformationExtractorTestSmall {
-	private final String sourceLocation = "/mnt/ssd/data/geonames_sample.txt";
+//	private final String sourceLocation = "/mnt/ssd/data/geonames_sample.txt";
+	private final String sourceLocation = "/mnt/ssd/data/geonames.txt";
 	@Test
 	public void multiTaggerTest() throws UIMAException, IOException {
 //		JCas cas = JCasFactory.createText("Man sollte meinen, dafs ein solches Gebiet eine artenreiche Flora " +
@@ -50,6 +51,12 @@ public class SpaCyInformationExtractorTestSmall {
 //        String text = "Im Jahr 2020 schuldete er mir 2020 Euro.";
 		text = "Andorra ist ein kleines Land.";
 		text = "Heute ist Mittwoch.";
+//		text = "Am Montag ist Carl für drei Wochen nach Spanien abgereist und kehrt erst am 23.02.2022 zurück.";
+//		text = "Am Montag ist Carl für drei Wochen nach Spanien abgereist und ist bald wieder da.";
+//		text = "Am Montag ist Carl für drei Wochen nach Spanien abgereist und kehrt erst am Freitag zurück.";
+//		text = "Die Straße 'Unter den Linden' führt zum Brandenburger Tor.";
+        text = "Was du heute kannst besorgen, das verschiebe nicht auf die Birne.";
+//        text = "Den Bayerischen Wald, so sagt Berlin, wird man nicht in die Liste von Naturschutzgebieten aufnehmen.";
 		JCas cas = JCasFactory.createText(text, "de");
 		AnalysisEngineDescription spacyIE = createEngineDescription(SpaCyInformationExtractor.class,
 					SpaCyInformationExtractor.PARAM_DOCKER_HOST_PORT, 8000
@@ -73,9 +80,9 @@ public class SpaCyInformationExtractorTestSmall {
 //				GeonamesGazetteer.PARAM_ANNOTATION_COMMENTS, new String[]{ "ttlab_model", "ttlab_geonames_v_1.0.1" }
 		);
 //		SimplePipeline.runPipeline(cas, heidelTime, segmenter, geoNames);
-		SimplePipeline.runPipeline(cas, segmenter, heidelTime, geoNames, spacyIE);
-//		SimplePipeline.runPipeline(cas, heidelTime);
-//		SimplePipeline.runPipeline();
+//		SimplePipeline.runPipeline(cas, segmenter, heidelTime, geoNames, spacyIE);
+//		SimplePipeline.runPipeline(cas, segmenter, heidelTime, spacyIE);
+		SimplePipeline.runPipeline(cas, spacyIE);
 
 				//		for (Token t : JCasUtil.select(cas, Token.class)) {
 				//			System.out.println("!~" + t.getCoveredText() + "!~");

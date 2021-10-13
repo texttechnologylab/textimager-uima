@@ -5,11 +5,13 @@ import de.unihd.dbs.uima.annotator.heideltime2.HeidelTime;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.CasIOUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.util.CasIOUtils;
 import org.apache.uima.util.TypeSystemUtil;
 import org.apache.uima.util.XMLSerializer;
 import org.hucompute.textimager.uima.geonames.gazetteer.GeonamesGazetteer;
@@ -18,13 +20,13 @@ import org.texttechnologylab.annotation.GeoNamesEntity;
 import org.xml.sax.SAXException;
 
 import javax.xml.transform.OutputKeys;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
@@ -41,18 +43,20 @@ public class SpaCyInformationExtractorTest {
 //						"zu machen.", "de");
 //		Path inputXmlDir = Paths.get("/mnt/ssd/SRL/bio");
 //	File folder = new File("/mnt/ssd/SRL/data/biofid/");
-	File folder = new File("/mnt/ssd/SRL/data/biofid_new/clean/");
+	File folder = new File("/mnt/ssd/SRL/data/biofid_new/in");
 		for (File file : folder.listFiles()) {
-			if (file.isFile() && file.getName().endsWith(".xmi")) {
+			if (file.isFile() && file.getName().endsWith(".xmi.gz")) {
+				InputStream in = new GZIPInputStream(new FileInputStream(file));
 				String content = FileUtils.readFileToString(file);
 				System.out.println("**********************************");
 				System.out.println(file.getName());
 //				JCas cas = JCasFactory.createText(content, "de");
 
 				JCas cas = JCasFactory.createJCas();
-				CasIOUtil.readXmi(cas.getCas(),  file);
-//				AnalysisEngineDescription heidelTime = createEngineDescription(HeidelTime.class);
-//				AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
+				CasIOUtils.load(in, cas.getCas());
+//				CasIOUtil.readXmi (cas.getCas(),  file);
+				AnalysisEngineDescription heidelTime = createEngineDescription(HeidelTime.class);
+				AnalysisEngineDescription segmenter = createEngineDescription(LanguageToolSegmenter.class);
 				AnalysisEngineDescription geoNames = createEngineDescription(
 						GeonamesGazetteer.class,
 						GeonamesGazetteer.PARAM_SOURCE_LOCATION, sourceLocation,
@@ -75,8 +79,9 @@ public class SpaCyInformationExtractorTest {
 //				SimplePipeline.runPipeline(cas, spacyIE, segmenter, heidelTime);
 //				SimplePipeline.runPipeline(cas, heidelTime);
 //				SimplePipeline.runPipeline(cas, spacyIE, heidelTime, segmenter, geoNames);
-				SimplePipeline.runPipeline(cas, geoNames);
-//				SimplePipeline.runPipeline(cas, spacyIE);
+//				SimplePipeline.runPipeline(cas, geoNames);
+				SimplePipeline.runPipeline(cas, spacyIE);
+//				SimplePipeline.runPipeline(cas, segmenter, heidelTime, geoNames, spacyIE);
 
 				//		for (Token t : JCasUtil.select(cas, Token.class)) {
 				//			System.out.println("!~" + t.getCoveredText() + "!~");
@@ -91,9 +96,9 @@ public class SpaCyInformationExtractorTest {
 				//		System.out.println(XmlFormatter.getPrettyString(cas));
 				//		assertArrayEquals(tokens, casTokens);
 //		Path inputXmlDir = Paths.get("/mnt/ssd/SRL/bio");
-				Path outputXmi = Paths.get("/mnt/ssd/SRL/data/biofid_new/clean/out/" + file.getName());
+				Path outputXmi = Paths.get("/mnt/ssd/SRL/data/biofid_new/out/" + file.getName());
 //						; + "_out.xmi");
-				try (OutputStream outputStream = Files.newOutputStream(outputXmi)) {
+				try (OutputStream outputStream = (new GZIPOutputStream(Files.newOutputStream(outputXmi)))) {
 					XMLSerializer xmlSerializer = new XMLSerializer(outputStream, true);
 					xmlSerializer.setOutputProperty(OutputKeys.VERSION, "1.0");
 					xmlSerializer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.toString());

@@ -74,7 +74,7 @@ public class SpaCyInformationExtractorTestSmallMulti {
 					GeonamesGazetteer.PARAM_SPLIT_HYPEN, false
 			);
 //			SimplePipeline.runPipeline(cas, spacyIE, heidelTime, segmenter, geoNames);
-			SimplePipeline.runPipeline(cas, segmenter, geoNames, heidelTime, spacyIE);
+			SimplePipeline.runPipeline(cas, segmenter, heidelTime, geoNames, spacyIE);
 
 			i++;
 			Path outputXmi = Paths.get("/mnt/ssd/SRL/bio_test/ie/test_" + i + ".xmi");
@@ -88,12 +88,12 @@ public class SpaCyInformationExtractorTestSmallMulti {
 				e.printStackTrace();
 			}
 
-			Path outputXml = Paths.get("/mnt/ssd/SRL/bio_test/ie/test_" + i + ".xml");
-			try (OutputStream outputStreamTS = Files.newOutputStream(outputXml)) {
-				TypeSystemUtil.typeSystem2TypeSystemDescription(cas.getTypeSystem()).toXML(outputStreamTS);
-			} catch (SAXException e) {
-				e.printStackTrace();
-					}
+//			Path outputXml = Paths.get("/mnt/ssd/SRL/bio_test/ie/test_" + i + ".xml");
+//			try (OutputStream outputStreamTS = Files.newOutputStream(outputXml)) {
+//				TypeSystemUtil.typeSystem2TypeSystemDescription(cas.getTypeSystem()).toXML(outputStreamTS);
+//			} catch (SAXException e) {
+//				e.printStackTrace();
+//					}
 			}
 	}
 }
