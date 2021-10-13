@@ -58,7 +58,7 @@ public class EnglishSentimentBert extends SentimentBase {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.3";
+        return "0.4";
     }
 
     @Override
