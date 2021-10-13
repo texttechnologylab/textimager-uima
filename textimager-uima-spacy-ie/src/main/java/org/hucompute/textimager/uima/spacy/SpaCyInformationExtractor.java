@@ -118,19 +118,19 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
             Map<Integer, Map<Integer, Token>> tokensMap = processToken(aJCas, tokens);
 
             // Tagger
-            processPOS(aJCas, tokensMap, pos);
+//            processPOS(aJCas, tokensMap, pos);
 
             // Lemma
             processLemma(aJCas, tokensMap, lemmas);
 
             // Morph
-            processMorph(aJCas, tokensMap, morphs);
+//            processMorph(aJCas, tokensMap, morphs);
 
             // PARSER
             processDep(aJCas, tokensMap, deps);
 
             // NER
-            processNER(aJCas, ents);
+//            processNER(aJCas, ents);
 
             // (pseudo) semantic roles
             processPSR(aJCas, psrs);
@@ -141,6 +141,9 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
     }
 
     private void processLemma(JCas aJCas, Map<Integer, Map<Integer, Token>> tokensMap, JSONArray lemmas) {
+        JCasUtil.select(aJCas, Lemma.class).stream().forEach(a->{
+            aJCas.removeFsFromIndexes(a);
+        });
         lemmas.forEach(l -> {
             JSONObject lemma = (JSONObject) l;
             if (!lemma.getBoolean("is_space")) {
@@ -253,8 +256,8 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
     }
 
     private void processPSR(JCas aJCas, JSONArray psrs) {
-        System.out.println("PSRS");
-        System.out.println("*************************************");
+//        System.out.println("PSRS");
+        System.out.println("************processPSR*************************");
         psrs.forEach(s -> {
             JSONObject sr = (JSONObject) s;
             // PREDICATE
@@ -279,6 +282,7 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
 
             while(keys.hasNext()){
                 String key = keys.next();
+                System.out.println(key);
                 if (!key.equals("PRED")){
                     if (sr.get(key) instanceof JSONObject) {
                         JSONObject sr_arg = (JSONObject) sr.get(key);
@@ -298,17 +302,18 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                         srlinkl.setFigure(predAnno);
                         argAnno.addToIndexes();
                         srlinkl.addToIndexes();
-                        JCasUtil.selectCovered(aJCas, GeoNamesEntity.class, begin, end).forEach(a -> {
-                            System.out.println("covered GeoNamesEntity" + a.getCoveredText() + " " +
-                            a.getBegin() + " " + a.getEnd());
-                            SrLink srlinklGeo = new SrLink(aJCas);
-                            srlinklGeo.setRel_type("LOC");
-                            srlinklGeo.setGround(argAnno);
-                            srlinklGeo.setFigure(predAnno);
-                            srlinklGeo.addToIndexes();
-                        });
+//                        JCasUtil.selectCovered(aJCas, GeoNamesEntity.class, begin, end).forEach(a -> {
+//                            System.out.println("covered GeoNamesEntity" + a.getCoveredText() + " " +
+//                            a.getBegin() + " " + a.getEnd());
+//                            JCasUtil.selectCovered(aJCas, Token.class, begin, end).forEach(a -> {
+//                            SrLink srlinklGeo = new SrLink(aJCas);
+//                            srlinklGeo.setRel_type("LOC");
+//                            srlinklGeo.setGround(argAnno);
+//                            srlinklGeo.setFigure(predAnno);
+//                            srlinklGeo.addToIndexes();
+//                        });
                         JCasUtil.selectCovered(aJCas, Timex3.class, begin, end).forEach(a -> {
-                            System.out.println("covered GeoNamesEntity" + a.getCoveredText() + " " +
+                            System.out.println("covered Timex3Entity" + a.getCoveredText() + " " +
                                     a.getBegin() + " " + a.getEnd());
                             SrLink srlinklTime = new SrLink(aJCas);
                             srlinklTime.setRel_type("TIME");
@@ -321,7 +326,12 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                 }
             }
             JSONArray mos = sr.getJSONArray("mos");
+            System.out.println("mos");
             System.out.println(mos);
+            JSONArray geos = sr.getJSONArray("geos");
+            System.out.println("geos");
+            System.out.println(geos);
+
 //            Sentence s1 = getRequiredCasInterface().getAnnotationsByType(Sentence.class);
 //            List<Sentence> s1 = JCasUtil.selectAt(aJCas, Sentence.class, 0, 249);
 //            List<Sentence> s1 = JCasUtil.selectAt(aJCas, Sentence.class, 0, 249);
@@ -332,41 +342,64 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
             System.out.println(heidelTimes);
 
             JCasUtil.selectCovered(aJCas, Timex3.class, begin_s, end_s).forEach(a ->{
-                System.out.println(a.getCoveredText());
-                System.out.println(a.getBegin() + " " + a.getEnd());
+                System.out.println("Timex3: " + a.getCoveredText() + " " + a.getBegin() + " " + a.getEnd());
                 Integer beginA = (Integer) a.getBegin();
                 Integer endA = (Integer)  a.getEnd();
-                mos.forEach(m -> {
-                    JSONArray mA = (JSONArray) m;
-                    Integer beginM = (Integer) mA.get(1);
-                    Integer endM = (Integer)  mA.get(2);
-                    if ((beginA == beginM) && (endA == endM)) {
-                        System.out.println("    " + beginA + " " + endA);
-                        Entity argAnno = new Entity(aJCas, beginA, endA);
-                        SrLink srlinkl = new SrLink(aJCas);
-                        srlinkl.setRel_type("TIME");
-                        srlinkl.setGround(argAnno);
-                        srlinkl.setFigure(predAnno);
-                        argAnno.addToIndexes();
-                        srlinkl.addToIndexes();
-                    }
+                JCasUtil.selectCovered(aJCas, Token.class, beginA, endA).forEach(token -> {
+                        Integer beginT = (Integer) token.getBegin();
+                        Integer endT = (Integer)  token.getEnd();
+                        System.out.println("    Token: " + token.getCoveredText() + " " + token.getBegin() +
+                                " " + token.getEnd());
+                        mos.forEach(m -> {
+                            JSONArray mA = (JSONArray) m;
+                            Integer beginM = (Integer) mA.get(1);
+                            Integer endM = (Integer)  mA.get(2);
+                            if ((beginT == beginM) && (endT == endM)) {
+                                Entity argAnno = new Entity(aJCas, beginT, endT);
+                                SrLink srlinkl = new SrLink(aJCas);
+                                srlinkl.setRel_type("TIME");
+                                srlinkl.setGround(argAnno);
+                                srlinkl.setFigure(predAnno);
+                                argAnno.addToIndexes();
+                                srlinkl.addToIndexes();
+                            }
+                        });
                 });
             });
-            System.out.println("**************GeoNames***********************");
+            System.out.println("**************GeoNamesNew***********************");
 //            List<GeoNamesEntity> geoNames = JCasUtil.selectAt(aJCas, GeoNamesEntity.class, 34, 41);
+//            geos.forEach(g -> {
+//                JSONArray gA = (JSONArray) g;
+//                Integer beginG = (Integer) gA.get(1);
+//                Integer endG = (Integer)  gA.get(2);
+//                Entity argAnno = new Entity(aJCas, beginG, endG);
+//                SrLink srlinkl = new SrLink(aJCas);
+//                srlinkl.setRel_type("LOC");
+//                srlinkl.setGround(argAnno);
+//                srlinkl.setFigure(predAnno);
+//                argAnno.addToIndexes();
+//                srlinkl.addToIndexes();
+//            });
+//            System.out.println("**************GeoNames***********************");
             List<GeoNamesEntity> geoNames = JCasUtil.selectCovered(aJCas, GeoNamesEntity.class, begin_s, end_s);
-            System.out.println(geoNames);
+//            System.out.println("geoNames");
+//            System.out.println(geoNames);
             JCasUtil.selectCovered(aJCas, GeoNamesEntity.class, begin_s, end_s).forEach(a ->{
-                System.out.println(a.getCoveredText());
-                System.out.println(a.getBegin() + " " + a.getEnd());
+//                System.out.println(a.getCoveredText());
+//                System.out.println(a.getBegin() + " " + a.getEnd());
                 Integer beginA = (Integer) a.getBegin();
                 Integer endA = (Integer)  a.getEnd();
-                mos.forEach(m -> {
+                JCasUtil.selectCovered(aJCas, Token.class, beginA, endA).forEach(token -> {
+                    Integer beginT = (Integer) token.getBegin();
+                    Integer endT = (Integer)  token.getEnd();
+                    System.out.println("    Token: " + token.getCoveredText() + " " + token.getBegin() +
+                            " " + token.getEnd());
+                    geos.forEach(m -> {
                     JSONArray mA = (JSONArray) m;
                     Integer beginM = (Integer) mA.get(1);
                     Integer endM = (Integer)  mA.get(2);
                     if ((beginA == beginM) && (endA == endM)) {
-                        System.out.println("    " + beginA + " " + endA);
+                        System.out.println("        annotating " + mA.getString(0));
                         Entity argAnno = new Entity(aJCas, beginA, endA);
                         SrLink srlinkl = new SrLink(aJCas);
                         srlinkl.setRel_type("LOC");
@@ -376,13 +409,26 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                         srlinkl.addToIndexes();
                     }
 
+                    });
                 });
             });
             System.out.println("**************HeidelTime/GeoNames END***********************");
+            System.out.println("");
 
         });
     }
+
     private void processSentences(JCas aJCas, JSONArray sents) {
+        System.out.println("processing Sentences");
+//        JCasUtil.select(aJCas, Annotation.class).stream().forEach(a->{
+//            if (a.getType().getName().equals("de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence")){
+//                System.out.println("    " + a.getType().getName() + " " + a.getBegin() + " " + a.getEnd());
+//                aJCas.removeFsFromIndexes(a);
+//            }
+//        });
+        JCasUtil.select(aJCas, Sentence.class).stream().forEach(a->{
+            aJCas.removeFsFromIndexes(a);
+        });
         sents.forEach(s -> {
             JSONObject sentence = (JSONObject) s;
             int begin = sentence.getInt("begin");
@@ -393,12 +439,14 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
     }
 
     private Map<Integer, Map<Integer, Token>> processToken(JCas aJCas, JSONArray tokens) {
-        JCasUtil.select(aJCas, Annotation.class).stream().forEach(a->{
-//                if (a.getType().getName().equals("de.unihd.dbs.uima.types.heideltime.Timex3")){
-            if (a.getType().getName().equals("de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token")){
-                System.out.println("    " + a.getType().getName() + " " + a.getBegin() + " " + a.getEnd());
-                aJCas.removeFsFromIndexes(a);
-            }
+//        JCasUtil.select(aJCas, Annotation.class).stream().forEach(a->{
+//            if (a.getType().getName().equals("de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token")){
+//                System.out.println("    " + a.getType().getName() + " " + a.getBegin() + " " + a.getEnd());
+//                aJCas.removeFsFromIndexes(a);
+//            }
+//        });
+        JCasUtil.select(aJCas, Token.class).stream().forEach(a->{
+            aJCas.removeFsFromIndexes(a);
         });
         Map<Integer, Map<Integer, Token>> tokensMap = new HashMap<>();
         for (Object t : tokens) {
@@ -443,6 +491,10 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
     }
 
     private void processDep(JCas aJCas, Map<Integer, Map<Integer, Token>> tokensMap, JSONArray deps) {
+        System.out.println("processing Dependencies");
+        JCasUtil.select(aJCas, Dependency.class).stream().forEach(a->{
+                aJCas.removeFsFromIndexes(a);
+        });
         deps.forEach(d -> {
             JSONObject dep = (JSONObject) d;
             if (!dep.getBoolean("is_space")) {
@@ -476,6 +528,7 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
     }
 
     private void processNER(JCas aJCas, JSONArray ents) {
+        System.out.println("processing NERs");
         ents.forEach(e -> {
             JSONObject ent = (JSONObject) e;
             int begin = ent.getInt("start_char");
