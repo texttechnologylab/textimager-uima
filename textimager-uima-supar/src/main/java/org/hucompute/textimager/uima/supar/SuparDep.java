@@ -125,6 +125,7 @@ public class SuparDep extends DockerRestAnnotator {
     					// get governor from specified line
     					// count starts at 1
             			int arc = arcs.getInt(ind) - 1;
+
     					JSONObject governorToken = tokens.getJSONObject(arc);
             			int governorBegin = governorToken.getInt("begin");
             			int governorEnd = governorToken.getInt("end");
