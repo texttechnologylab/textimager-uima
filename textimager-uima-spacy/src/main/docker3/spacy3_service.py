@@ -73,7 +73,7 @@ switch = {
 }
 
 
-def spacy_get_pipeline(tool: str, format_spacy: str = "ef", lang: str = "de", max_spacy: int = 1000000) -> spacy:
+def spacy_get_pipeline(tool: str, format_spacy: str = "ef", lang: str = "de") -> spacy:
     if lang in spacy_pipelines and tool in spacy_pipelines[lang]:
         return spacy_pipelines[lang][tool]
 
@@ -84,7 +84,6 @@ def spacy_get_pipeline(tool: str, format_spacy: str = "ef", lang: str = "de", ma
         if spacy_use_gpu:
             spacy.prefer_gpu()
         nlp = spacy.load(switch[format_spacy][lang])
-        nlp.max_length = max_spacy
 
         # cache and return
         if lang not in spacy_pipelines:
@@ -117,7 +116,13 @@ def process(request: TextImagerRequest) -> SpacyResponse:
 
     res_dict = {}
     if nlp is not None:
+        # adjust max text length
+        text_len = len(request.text)
+        if nlp.max_length <= text_len:
+            nlp.max_length = text_len + 100
+
         doc = nlp(request.text)
+
         tokens = []
         sents = []
         pos = []

@@ -49,7 +49,7 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.4";
+        return "0.5";
     }
 
     @Override
