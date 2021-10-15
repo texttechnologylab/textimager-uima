@@ -1,1 +1,1 @@
-docker build -t textimager-uima-service-supar-dep:0.1 src/main/docker
+docker build -t textimager-uima-service-supar-dep:0.2 src/main/docker
