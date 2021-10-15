@@ -38,7 +38,6 @@ app = FastAPI()
 
 
 def get_parser(lang, model_name):
-    # TODO cache models on shared disk outside of container
     # Downloading:
     # https://github.com/yzhangcs/parser/releases/download/v1.1.0/ud.biaffine.dep.xlmr.zip
     # to
@@ -100,5 +99,5 @@ def process(request: TextImagerRequest) -> SuparDepResponse:
 if __name__ == '__main__':
 
     uvicorn.run('supar_service:app',
-                    host='0.0.0.0',
-                    port=8000)
+                host='0.0.0.0',
+                port=8000)

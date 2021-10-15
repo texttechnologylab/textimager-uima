@@ -15,6 +15,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
+import org.texttechnologylab.annotation.AnnotationComment;
 
 public class SuparDep extends DockerRestAnnotator {
     /**
@@ -31,7 +32,7 @@ public class SuparDep extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.1";
+        return "0.2";
     }
 
     @Override
@@ -48,12 +49,13 @@ public class SuparDep extends DockerRestAnnotator {
     protected String getAnnotatorVersion() {
         return "0.0.1";
     }
-    
+
     @Override
-    public void initialize(UimaContext aContext) throws ResourceInitializationException {
-    	super.initialize(aContext);
-    	
-    	// TODO integrate docker mount functionality to allow container access to shared space
+    protected String[] getDefaultDockerMounts() {
+        return new String[] {
+                // models path
+                "bind", getModelsCacheDir() + "/supar", "/root/.cache/supar/"
+        };
     }
 
     @Override
@@ -87,8 +89,6 @@ public class SuparDep extends DockerRestAnnotator {
 
     @Override
     protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
-        System.out.println("test");
-        
         if (jsonResult.has("sentences")) {
         	JSONArray sentences = jsonResult.getJSONArray("sentences");
         	for (Object s : sentences) {
@@ -135,6 +135,14 @@ public class SuparDep extends DockerRestAnnotator {
     				depAnno.setGovernor(governor);
     				depAnno.setFlavor(DependencyFlavor.BASIC);
     				depAnno.addToIndexes();
+
+                    AnnotationComment modelAnno = new AnnotationComment(aJCas);
+                    modelAnno.setReference(depAnno);
+                    modelAnno.setKey("model");
+                    modelAnno.setValue(modelName);
+                    modelAnno.addToIndexes();
+
+                    addAnnotatorComment(aJCas, depAnno);
         		}
         	}
         }

@@ -78,6 +78,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	protected String dockerNetwork;
 
 	/**
+	 * Override Docker mounts
+	 */
+	public static final String PARAM_DOCKER_MOUNTS = "dockerMounts";
+	@ConfigurationParameter(name = PARAM_DOCKER_MOUNTS, mandatory = false)
+	protected String[] dockerMounts;
+
+	/**
 	 * Docker API socket path, currently only socket is supported
 	 */
 	public static final String PARAM_DOCKER_SOCKET = "dockerSocket";
@@ -102,6 +109,11 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	// Provides default Docker Port, if none is configured
 	abstract protected int getDefaultDockerPort();
+
+	// Provides default Docker Mounts inf format [type, source, target, ...], if none is configured
+	protected String[] getDefaultDockerMounts() {
+		return null;
+	}
 
 	// Docker image name with registry info
 	protected String fullDockerImageName;
@@ -204,6 +216,27 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				// Set network
 				System.out.println("Using Docker network " + dockerNetwork);
 				parametersBuilder.set_network_mode(dockerNetwork);
+
+				// Get Docker mounts from annotator class if not specified
+				if (dockerMounts == null) {
+					dockerMounts = getDefaultDockerMounts();
+				}
+
+				// Set mounts
+				if (dockerMounts != null) {
+					System.out.println("Mounting paths:");
+					if (dockerMounts.length % 3 != 0) {
+						throw new ResourceInitializationException(new Exception("Wrong format: mount array needs to be [type, source, target, ...]"));
+					}
+
+					for (int ind = 0; ind < dockerMounts.length-2; ind+=3) {
+						String type = dockerMounts[ind];
+						String source = dockerMounts[ind+1];
+						String target = dockerMounts[ind+2];
+						System.out.println("- " + type + ": " + source + " -> " + target);
+						parametersBuilder.set_mount_mapping(type, source, target);
+					}
+				}
 
 				// Create container
 				JsonObject config = parametersBuilder.get_config();
