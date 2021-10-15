@@ -1,20 +1,17 @@
 package org.hucompute.textimager.uima.supar;
 
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.hucompute.textimager.uima.base.DockerRestAnnotator;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.texttechnologylab.annotation.AnnotationComment;
 
 public class SuparDep extends DockerRestAnnotator {
@@ -78,9 +75,11 @@ public class SuparDep extends DockerRestAnnotator {
                 tokenObj.put("text", token.getCoveredText());
                 tokens.put(tokenObj);
             }
-            sentenceObj.put("tokens", tokens);
 
-            sentences.put(sentenceObj);
+            if (tokens.length() > 0) {
+                sentenceObj.put("tokens", tokens);
+                sentences.put(sentenceObj);
+            }
         }
         payload.put("sentences", sentences);
 
