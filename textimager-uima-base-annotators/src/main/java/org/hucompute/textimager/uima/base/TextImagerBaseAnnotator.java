@@ -9,7 +9,8 @@ import org.apache.uima.jcas.cas.TOP;
 import org.texttechnologylab.annotation.AnnotatorMetaData;
 
 public abstract class TextImagerBaseAnnotator extends JCasAnnotator_ImplBase {
-	public static final String TEXTIMAGER_ANNOTATOR_BASE_VERSION = "0.1";
+	public static final String TEXTIMAGER_ANNOTATOR_BASE_VERSION = "0.2";
+	public static final String TEXTIMAGER_MODELS_CACHE_DIR_DEFAULT = "/tmp/textimager/models/cache";
 
 	public static final String PARAM_ANNOTATOR_META_NAME = "annotatorMetaName";
 	@ConfigurationParameter(name = PARAM_ANNOTATOR_META_NAME, mandatory = false)
@@ -26,6 +27,19 @@ public abstract class TextImagerBaseAnnotator extends JCasAnnotator_ImplBase {
 	public static final String PARAM_ANNOTATOR_META_MODEL_VERSION = "annotatorMetaModelVersion";
 	@ConfigurationParameter(name = PARAM_ANNOTATOR_META_MODEL_VERSION, mandatory = false)
 	protected String annotatorMetaModelVersion;
+
+	public static final String PARAM_MODELS_CACHE_DIR = "modelsCacheDir";
+	@ConfigurationParameter(name = PARAM_MODELS_CACHE_DIR, mandatory = false)
+	protected String modelsCacheDir;
+
+	// get models cache dir
+	protected String getModelsCacheDir() {
+		if (modelsCacheDir != null && !modelsCacheDir.isEmpty()) {
+			return modelsCacheDir;
+		}
+
+		return TEXTIMAGER_MODELS_CACHE_DIR_DEFAULT;
+	}
 
 	// provide the annotator name
 	// defaults to the class name

@@ -24,6 +24,11 @@ public class ContainerParametersBuilder {
     private final JsonObjectBuilder _hostPorts;
 
     /**
+     * Wraps the mounts which are mapped for the container to be created
+     */
+    private final JsonArrayBuilder _mounts;
+
+    /**
      * The requests for specific devices like GPU are tracked by this.
      */
     private final JsonArrayBuilder _deviceRequests;
@@ -50,6 +55,7 @@ public class ContainerParametersBuilder {
         _hostPorts = Json.createObjectBuilder();
         _deviceRequests = Json.createArrayBuilder();
         _network_mode = "bridge";
+        _mounts = Json.createArrayBuilder();
     }
 
     /**
@@ -66,6 +72,36 @@ public class ContainerParametersBuilder {
                 Json.createObjectBuilder().add("HostPort", "" + host).build()
         ).build());
         return this;
+    }
+
+    /**
+     * Sets a new mount mapping.
+     *
+     * @param type      The type of the mount
+     * @param source    The source path outside the container
+     * @param target    The path inside the container
+     * @return Returns a reference to the container to chain calls
+     */
+    public ContainerParametersBuilder set_mount_mapping(String type, String source, String target) {
+        _mounts.add(
+                Json.createObjectBuilder()
+                    .add("Target", target)
+                    .add("Source", source)
+                    .add("Type", type)
+                .build()
+        );
+        return this;
+    }
+
+    /**
+     * Sets a new bind mount mapping.
+     *
+     * @param source    The source path outside the container
+     * @param target    The path inside the container
+     * @return Returns a reference to the container to chain calls
+     */
+    public ContainerParametersBuilder set_bind_mount(String source, String target) {
+        return set_mount_mapping("bind", source, target);
     }
 
     /**
@@ -111,11 +147,15 @@ public class ContainerParametersBuilder {
         JsonObjectBuilder _params = Json.createObjectBuilder().add("Image", _image_name);
         _params.add("ExposedPorts", _ports.build())
                 .add("Env", _env.build())
-                .add("HostConfig", Json.createObjectBuilder()
-                        .add("DeviceRequests", _deviceRequests.build())
-                        .add("AutoRemove", true)
-                        .add("PortBindings", _hostPorts.build())
-                        .add("NetworkMode", _network_mode).build())
+                .add("HostConfig",
+                        Json.createObjectBuilder()
+                            .add("DeviceRequests", _deviceRequests.build())
+                            .add("AutoRemove", true)
+                            .add("PortBindings", _hostPorts.build())
+                            .add("NetworkMode", _network_mode)
+                            .add("Mounts", _mounts.build())
+                        .build()
+                )
                 .add("Cmd", Json.createArrayBuilder().build());
         return _params.build();
     }
