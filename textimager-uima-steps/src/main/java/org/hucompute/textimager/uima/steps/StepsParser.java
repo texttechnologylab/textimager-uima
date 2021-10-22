@@ -6,34 +6,54 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
-import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.hucompute.textimager.uima.base.RestAnnotator;
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.texttechnologylab.annotation.AnnotationComment;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
 
-public class StepsParser extends RestAnnotator {
+public class StepsParser extends DockerRestAnnotator {
+	/**
+	 * Model name
+	 */
+	public static final String PARAM_MODEL_NAME = "modelName";
+	@ConfigurationParameter(name = PARAM_MODEL_NAME)
+	protected String modelName;
+
 	@Override
 	protected String getAnnotatorVersion() {
 		return "0.1";
 	}
 
 	@Override
-	protected String getModelName() {
-		return "";
+	protected String getDefaultDockerImage() {
+		return "textimager-uima-service-steps-parser";
 	}
 
 	@Override
-	protected String getModelVersion() {
-		return "";
+	protected String getDefaultDockerImageTag() {
+		return "0.1";
+	}
+
+	@Override
+	protected int getDefaultDockerPort() {
+		return 8000;
+	}
+
+	@Override
+	protected String[] getDefaultDockerMounts() {
+		return new String[] {
+				// models path
+				"bind", getModelsCacheDir() + "/parser/steps", "/models/"
+		};
 	}
 
 	private static class ConllLine {
@@ -55,11 +75,6 @@ public class StepsParser extends RestAnnotator {
 	@Override
 	protected String getRestRoute() {
 		return "/parse";
-	}
-
-	@Override
-	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-		super.initialize(aContext);
 	}
 
 	/**
@@ -145,6 +160,8 @@ public class StepsParser extends RestAnnotator {
 		payload.put("sentences", jsonSentences);
 		//Put the batch size in as well
 		payload.put("batch_size",batch_size);
+		payload.put("model_name", modelName);
+		payload.put("lstm", false);
 		return payload;
 	}
 
@@ -225,6 +242,14 @@ public class StepsParser extends RestAnnotator {
 				depAnno.setGovernor(governor);
 				depAnno.setFlavor(DependencyFlavor.BASIC);
 				depAnno.addToIndexes();
+
+				AnnotationComment modelAnno = new AnnotationComment(aJCas);
+				modelAnno.setReference(depAnno);
+				modelAnno.setKey("model");
+				modelAnno.setValue(modelName);
+				modelAnno.addToIndexes();
+
+				addAnnotatorComment(aJCas, depAnno);
 			}
 		}
 	}
