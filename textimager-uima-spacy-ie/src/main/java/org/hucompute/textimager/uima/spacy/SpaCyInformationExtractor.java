@@ -112,22 +112,22 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
 
         try{
             // Sentences
-            processSentences(aJCas, sents);
+//            processSentences(aJCas, sents);
 
             // Tokenizer
-            Map<Integer, Map<Integer, Token>> tokensMap = processToken(aJCas, tokens);
+ //           Map<Integer, Map<Integer, Token>> tokensMap = processToken(aJCas, tokens);
 
             // Tagger
 //            processPOS(aJCas, tokensMap, pos);
 
             // Lemma
-            processLemma(aJCas, tokensMap, lemmas);
+//            processLemma(aJCas, tokensMap, lemmas);
 
             // Morph
 //            processMorph(aJCas, tokensMap, morphs);
 
             // PARSER
-            processDep(aJCas, tokensMap, deps);
+//            processDep(aJCas, tokensMap, deps);
 
             // NER
 //            processNER(aJCas, ents);
