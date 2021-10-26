@@ -138,5 +138,6 @@
 		<module>textimager-uima-polyglot</module>
   		<module>textimager-uima-openie</module>
 		<module>textimager-uima-supar</module>
+		<module>textimager-uima-splitter</module>
 	</modules>
 </project>
