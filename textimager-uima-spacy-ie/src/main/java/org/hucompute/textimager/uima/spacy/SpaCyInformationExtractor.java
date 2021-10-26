@@ -94,45 +94,9 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
 
     @Override
     protected void updateCAS(JCas aJCas, JSONObject jsonResult) {
-//        Iterator<String> keys = jsonResult.getJSONObject("multitag").keys();
-//        System.out.println("");
-//        while(keys.hasNext()) {
-//            String key = keys.next();
-//            System.out.println(key);
-//        }
-//        System.out.println("");
-        JSONArray tokens = jsonResult.getJSONObject("multitag").getJSONArray("tokens");
-        JSONArray pos = jsonResult.getJSONObject("multitag").getJSONArray("pos");
-        JSONArray deps = jsonResult.getJSONObject("multitag").getJSONArray("deps");
-        JSONArray ents = jsonResult.getJSONObject("multitag").getJSONArray("ents");
-        JSONArray morphs = jsonResult.getJSONObject("multitag").getJSONArray("morphs");
-        JSONArray lemmas = jsonResult.getJSONObject("multitag").getJSONArray("lemmas");
-        JSONArray sents = jsonResult.getJSONObject("multitag").getJSONArray("sents");
         JSONArray psrs = jsonResult.getJSONObject("multitag").getJSONArray("psrs");
 
         try{
-            // Sentences
-            processSentences(aJCas, sents);
-
-            // Tokenizer
-            Map<Integer, Map<Integer, Token>> tokensMap = processToken(aJCas, tokens);
-
-            // Tagger
-//            processPOS(aJCas, tokensMap, pos);
-
-            // Lemma
-            processLemma(aJCas, tokensMap, lemmas);
-
-            // Morph
-//            processMorph(aJCas, tokensMap, morphs);
-
-            // PARSER
-            processDep(aJCas, tokensMap, deps);
-
-            // NER
-//            processNER(aJCas, ents);
-
-            // (pseudo) semantic roles
             processPSR(aJCas, psrs);
         }
         catch (Exception e){
@@ -140,124 +104,7 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
         }
     }
 
-    private void processLemma(JCas aJCas, Map<Integer, Map<Integer, Token>> tokensMap, JSONArray lemmas) {
-        JCasUtil.select(aJCas, Lemma.class).stream().forEach(a->{
-            aJCas.removeFsFromIndexes(a);
-        });
-        lemmas.forEach(l -> {
-            JSONObject lemma = (JSONObject) l;
-            if (!lemma.getBoolean("is_space")) {
-                int begin = lemma.getInt("idx");
-                int end = begin + lemma.getInt("length");
-                String text = lemma.getString("lemma_text");
-
-                Lemma lemmaAnno = new Lemma(aJCas, begin, end);
-                lemmaAnno.setValue(text);
-
-                Token tokenAnno = tokensMap.get(begin).get(end);
-                tokenAnno.setLemma(lemmaAnno);
-                lemmaAnno.addToIndexes();
-            }
-        });
-    }
-
-    private void processMorph(JCas aJCas, Map<Integer, Map<Integer, Token>> tokensMap, JSONArray morphs) {
-        morphs.forEach(m -> {
-            JSONObject morph = (JSONObject) m;
-            if (!morph.getBoolean("is_space")) {
-                int begin = morph.getInt("idx");
-                int end = begin + morph.getInt("length");
-
-                JSONArray ms = morph.getJSONArray("morph");
-
-                // Clean string: remove first and last " char
-                List<String> msClean = new ArrayList<>();
-                ms.forEach(mm -> {
-                    String mVal = (String) mm;
-                    msClean.add(mVal);
-                });
-
-                MorphologicalFeatures morphAnno = new MorphologicalFeatures(aJCas, begin, end);
-                if (!msClean.isEmpty()) {
-                    morphAnno.setValue(String.join("|", msClean));
-
-                    for (String mVal : msClean) {
-                        String[] fields = mVal.split("=", 2);
-                        if (fields.length == 2) {
-                            String key = fields[0].trim();
-                            String value = fields[1].trim();
-
-                            // TODO: only checked for DE
-                            switch (key) {
-                                case "Gender":
-                                    morphAnno.setGender(value);
-                                    break;
-                                case "Number":
-                                    morphAnno.setNumber(value);
-                                    break;
-                                case "Case":
-                                    morphAnno.setCase(value);
-                                    break;
-                                case "Degree":
-                                    morphAnno.setDegree(value);
-                                    break;
-                                case "VerbForm":
-                                    morphAnno.setVerbForm(value);
-                                    break;
-                                case "Tense":
-                                    morphAnno.setTense(value);
-                                    break;
-                                case "Mood":
-                                    morphAnno.setMood(value);
-                                    break;
-                                case "Voice": // ?
-                                    morphAnno.setVoice(value);
-                                    break;
-                                case "Definite":
-                                    morphAnno.setDefiniteness(value);
-                                    break;
-                                case "Person":
-                                    morphAnno.setPerson(value);
-                                    break;
-                                case "Aspect": // ?
-                                    morphAnno.setAspect(value);
-                                    break;
-                                case "Animacy": // ?
-                                    morphAnno.setAnimacy(value);
-                                    break;
-                                case "Negative": // ?
-                                    morphAnno.setNegative(value);
-                                    break;
-                                case "NumType": // ?
-                                    morphAnno.setNumType(value);
-                                    break;
-                                case "Possessive": // ?
-                                    morphAnno.setPossessive(value);
-                                    break;
-                                case "PronType":
-                                    morphAnno.setPronType(value);
-                                    break;
-                                case "Reflex":
-                                    morphAnno.setReflex(value);
-                                    break;
-                                case "Transitivity": // ?
-                                    morphAnno.setTransitivity(value);
-                                    break;
-                            }
-                        }
-                    }
-
-                    Token tokenAnno = tokensMap.get(begin).get(end);
-                    tokenAnno.setMorph(morphAnno);
-                    morphAnno.addToIndexes();
-                }
-            }
-        });
-    }
-
     private void processPSR(JCas aJCas, JSONArray psrs) {
-//        System.out.println("PSRS");
-        System.out.println("************processPSR*************************");
         psrs.forEach(s -> {
             JSONObject sr = (JSONObject) s;
             // PREDICATE
@@ -273,7 +120,6 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                 predAnno.setComment(comment);
             }
             catch (org.json.JSONException exception){
-//                System.out.println("No comments");
             }
 
             predAnno.addToIndexes();
@@ -282,7 +128,6 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
 
             while(keys.hasNext()){
                 String key = keys.next();
-                System.out.println(key);
                 if (!key.equals("PRED")){
                     if (sr.get(key) instanceof JSONObject) {
                         JSONObject sr_arg = (JSONObject) sr.get(key);
@@ -294,7 +139,6 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                             argAnno.setComment(comment);
                         }
                         catch (org.json.JSONException exception){
-//                            System.out.println("No comments");
                         }
                         SrLink srlinkl = new SrLink(aJCas);
                         srlinkl.setRel_type(key);
@@ -302,16 +146,6 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                         srlinkl.setFigure(predAnno);
                         argAnno.addToIndexes();
                         srlinkl.addToIndexes();
-//                        JCasUtil.selectCovered(aJCas, GeoNamesEntity.class, begin, end).forEach(a -> {
-//                            System.out.println("covered GeoNamesEntity" + a.getCoveredText() + " " +
-//                            a.getBegin() + " " + a.getEnd());
-//                            JCasUtil.selectCovered(aJCas, Token.class, begin, end).forEach(a -> {
-//                            SrLink srlinklGeo = new SrLink(aJCas);
-//                            srlinklGeo.setRel_type("LOC");
-//                            srlinklGeo.setGround(argAnno);
-//                            srlinklGeo.setFigure(predAnno);
-//                            srlinklGeo.addToIndexes();
-//                        });
                         JCasUtil.selectCovered(aJCas, Timex3.class, begin, end).forEach(a -> {
                             System.out.println("covered Timex3Entity" + a.getCoveredText() + " " +
                                     a.getBegin() + " " + a.getEnd());
@@ -326,23 +160,9 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                 }
             }
             JSONArray mos = sr.getJSONArray("mos");
-            System.out.println("mos");
-            System.out.println(mos);
             JSONArray geos = sr.getJSONArray("geos");
-            System.out.println("geos");
-            System.out.println(geos);
-
-//            Sentence s1 = getRequiredCasInterface().getAnnotationsByType(Sentence.class);
-//            List<Sentence> s1 = JCasUtil.selectAt(aJCas, Sentence.class, 0, 249);
-//            List<Sentence> s1 = JCasUtil.selectAt(aJCas, Sentence.class, 0, 249);
-//            System.out.println(s1);
-            System.out.println("************HeidelTime*************************");
-
-            List<Timex3> heidelTimes = JCasUtil.selectCovered(aJCas, Timex3.class, begin_s, end_s);
-            System.out.println(heidelTimes);
 
             JCasUtil.selectCovered(aJCas, Timex3.class, begin_s, end_s).forEach(a ->{
-                System.out.println("Timex3: " + a.getCoveredText() + " " + a.getBegin() + " " + a.getEnd());
                 Integer beginA = (Integer) a.getBegin();
                 Integer endA = (Integer)  a.getEnd();
                 JCasUtil.selectCovered(aJCas, Token.class, beginA, endA).forEach(token -> {
@@ -366,27 +186,7 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                         });
                 });
             });
-            System.out.println("**************GeoNamesNew***********************");
-//            List<GeoNamesEntity> geoNames = JCasUtil.selectAt(aJCas, GeoNamesEntity.class, 34, 41);
-//            geos.forEach(g -> {
-//                JSONArray gA = (JSONArray) g;
-//                Integer beginG = (Integer) gA.get(1);
-//                Integer endG = (Integer)  gA.get(2);
-//                Entity argAnno = new Entity(aJCas, beginG, endG);
-//                SrLink srlinkl = new SrLink(aJCas);
-//                srlinkl.setRel_type("LOC");
-//                srlinkl.setGround(argAnno);
-//                srlinkl.setFigure(predAnno);
-//                argAnno.addToIndexes();
-//                srlinkl.addToIndexes();
-//            });
-//            System.out.println("**************GeoNames***********************");
-            List<GeoNamesEntity> geoNames = JCasUtil.selectCovered(aJCas, GeoNamesEntity.class, begin_s, end_s);
-//            System.out.println("geoNames");
-//            System.out.println(geoNames);
             JCasUtil.selectCovered(aJCas, GeoNamesEntity.class, begin_s, end_s).forEach(a ->{
-//                System.out.println(a.getCoveredText());
-//                System.out.println(a.getBegin() + " " + a.getEnd());
                 Integer beginA = (Integer) a.getBegin();
                 Integer endA = (Integer)  a.getEnd();
                 JCasUtil.selectCovered(aJCas, Token.class, beginA, endA).forEach(token -> {
@@ -412,131 +212,6 @@ public class SpaCyInformationExtractor extends DockerRestAnnotator {
                     });
                 });
             });
-            System.out.println("**************HeidelTime/GeoNames END***********************");
-            System.out.println("");
-
-        });
-    }
-
-    private void processSentences(JCas aJCas, JSONArray sents) {
-        System.out.println("processing Sentences");
-//        JCasUtil.select(aJCas, Annotation.class).stream().forEach(a->{
-//            if (a.getType().getName().equals("de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence")){
-//                System.out.println("    " + a.getType().getName() + " " + a.getBegin() + " " + a.getEnd());
-//                aJCas.removeFsFromIndexes(a);
-//            }
-//        });
-        JCasUtil.select(aJCas, Sentence.class).stream().forEach(a->{
-            aJCas.removeFsFromIndexes(a);
-        });
-        sents.forEach(s -> {
-            JSONObject sentence = (JSONObject) s;
-            int begin = sentence.getInt("begin");
-            int end = sentence.getInt("end");
-            Sentence sentAnno = new Sentence(aJCas, begin, end);
-            sentAnno.addToIndexes();
-        });
-    }
-
-    private Map<Integer, Map<Integer, Token>> processToken(JCas aJCas, JSONArray tokens) {
-//        JCasUtil.select(aJCas, Annotation.class).stream().forEach(a->{
-//            if (a.getType().getName().equals("de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token")){
-//                System.out.println("    " + a.getType().getName() + " " + a.getBegin() + " " + a.getEnd());
-//                aJCas.removeFsFromIndexes(a);
-//            }
-//        });
-        JCasUtil.select(aJCas, Token.class).stream().forEach(a->{
-            aJCas.removeFsFromIndexes(a);
-        });
-        Map<Integer, Map<Integer, Token>> tokensMap = new HashMap<>();
-        for (Object t : tokens) {
-            JSONObject token = (JSONObject) t;
-            if (!token.getBoolean("is_space")) {
-                int begin = token.getInt("idx");
-                int end = begin + token.getInt("length");
-                Token casToken = new Token(aJCas, begin, end);
-                casToken.addToIndexes();
-                if (!tokensMap.containsKey(begin)) {
-                    tokensMap.put(begin, new HashMap<>());
-                }
-                if (!tokensMap.get(begin).containsKey(end)) {
-                    tokensMap.get(begin).put(end, casToken);
-                }
-            }
-        }
-        return tokensMap;
-    }
-
-    private void processPOS(JCas aJCas, Map<Integer, Map<Integer, Token>> tokensMap, JSONArray poss) throws AnalysisEngineProcessException {
-        mappingProvider.configure(aJCas.getCas());
-
-        poss.forEach(p -> {
-            JSONObject pos = (JSONObject) p;
-            if (!pos.getBoolean("is_space")) {
-                int begin = pos.getInt("idx");
-                int end = begin + pos.getInt("length");
-                String tagStr = pos.getString("tag");
-
-                Type posTag = mappingProvider.getTagType(tagStr);
-
-                POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
-                posAnno.setPosValue(tagStr);
-                POSUtils.assignCoarseValue(posAnno);
-
-                Token tokenAnno = tokensMap.get(begin).get(end);
-                tokenAnno.setPos(posAnno);
-                posAnno.addToIndexes();
-            }
-        });
-    }
-
-    private void processDep(JCas aJCas, Map<Integer, Map<Integer, Token>> tokensMap, JSONArray deps) {
-        System.out.println("processing Dependencies");
-        JCasUtil.select(aJCas, Dependency.class).stream().forEach(a->{
-                aJCas.removeFsFromIndexes(a);
-        });
-        deps.forEach(d -> {
-            JSONObject dep = (JSONObject) d;
-            if (!dep.getBoolean("is_space")) {
-                String depStr = dep.getString("dep").toUpperCase();
-
-                int begin = dep.getInt("idx");
-                int end = begin + dep.getInt("length");
-
-                // TODO
-                JSONObject headToken = dep.getJSONObject("head");
-                int beginHead = headToken.getInt("idx");
-                int endHead = beginHead + headToken.getInt("length");
-
-                Token dependent = tokensMap.get(begin).get(end);
-                Token governor = tokensMap.get(beginHead).get(endHead);
-
-                Dependency depAnno;
-                if (depStr.equals("ROOT")) {
-                    depAnno = new ROOT(aJCas, begin, end);
-                    depAnno.setDependencyType("--");
-                } else {
-                    depAnno = new Dependency(aJCas, begin, end);
-                    depAnno.setDependencyType(depStr);
-                }
-                depAnno.setDependent(dependent);
-                depAnno.setGovernor(governor);
-                depAnno.setFlavor(DependencyFlavor.BASIC);
-                depAnno.addToIndexes();
-            }
-        });
-    }
-
-    private void processNER(JCas aJCas, JSONArray ents) {
-        System.out.println("processing NERs");
-        ents.forEach(e -> {
-            JSONObject ent = (JSONObject) e;
-            int begin = ent.getInt("start_char");
-            int end = ent.getInt("end_char");
-            String labelStr = ent.getString("label");
-            NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
-            neAnno.setValue(labelStr);
-            neAnno.addToIndexes();
         });
     }
 

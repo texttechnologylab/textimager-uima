@@ -116,10 +116,10 @@ def process(request: TextImagerRequest) -> SpacyResponse:
     nomen_art, nomen_att = set(), set()
     with open('./nomen_Artefakt.txt', 'r') as f:
         for line in f:
-            nomen_art.add(line.replace('\n', '').lower())
+            nomen_art.add(line.replace('\n', ''))
     with open('nomen_Attribut.txt', 'r') as f:
         for line in f:
-            nomen_att.add(line.replace('\n', '').lower())
+            nomen_att.add(line.replace('\n', ''))
 
     nlp = spacy_get_pipeline("Multitagger", lang=request.lang)
 
@@ -214,7 +214,6 @@ def process(request: TextImagerRequest) -> SpacyResponse:
             noun_chunks = set(doc.noun_chunks)
             for token in verbs:
                 rel = ['', '', '', '', '', '', '', '']
-            #                 mo = []
                 rels_dict = {}
                 mos = []
                 rels_dict['PRED'] = {
@@ -227,12 +226,6 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                 for child in token.children:
                     if child.dep_ == 'mo':
                         mos.extend(traverse_subtree(child))
-                        ##ARG2 heuristics
-                        for mo in mos:
-                            if mo[0].text.lower() in nomen_art or mo[0].text.lower() in nomen_att:
-                                rels_dict['ARG2'] = {
-                                   'start_char': mo[0].idx,
-                                   'end_char': mo[0].idx + len(mo[0].text)}
 
                     if child.dep_ == 'ng':
                         rels_dict['PRED']['comment'] = 'negation'
@@ -343,22 +336,17 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                                        'start_char': child.idx,
                                        'end_char': child.idx + len(child.text)}
                  ##ARG2 heuristics
-                for child in token.children:
-                    if child.dep_ == 'mo':
-                        mos.extend(traverse_subtree(child))
-   #                         print('----', child.text.lower())
-                        for mo in mos:
-   #                             mo_cand = mo[0].text.lower()
-                            if mo[0].text.lower() in nomen_art or mo[0].text.lower() in nomen_att:
-                                for arg in ['PRED', 'ARG0', 'ARG1']:
-                                    try:
-                                        start = rels_dict[arg]
-                                        if start != mo[0].idx:
-                                            rels_dict['ARG2'] = {
-                                               'start_char': mo[0].idx,
-                                               'end_char': mo[0].idx + len(mo[0].text)}
-                                    except KeyError:
-                                        pass
+                for mo in mos:
+                    if mo[0].text in nomen_art or mo[0].text in nomen_att:
+                        for arg in ['PRED', 'ARG0', 'ARG1']:
+                            try:
+                                start = rels_dict[arg]['start_char']
+                                if start != mo[0].idx:
+                                    rels_dict['ARG2'] = {
+                                       'start_char': mo[0].idx,
+                                       'end_char': mo[0].idx + len(mo[0].text)}
+                            except KeyError:
+                                pass
                 ##GEOs
                 geos = []
                 for verb_child in token.children:
@@ -370,12 +358,12 @@ def process(request: TextImagerRequest) -> SpacyResponse:
                         if not new_entry in geos:
                             geos.append(new_entry)
 
-#                 for k, v in rels_dict.items():
-#                     if k != 'PRED':
-#                         token_text = sent.text[v['start_char']:v['end_char']]
-#                         new_entry = [token_text, v['start_char'], v['end_char']]
-#                         if not new_entry in geos:
-#                             geos.append(new_entry)
+                for k, v in rels_dict.items():
+                    if k != 'PRED':
+                        token_text = sent.text[v['start_char']:v['end_char']]
+                        new_entry = [token_text, v['start_char'], v['end_char']]
+                        if not new_entry in geos:
+                            geos.append(new_entry)
                 rels_dict['geos'] = geos
                 mos = [[l[0].text, l[1], l[2]] for l in mos]
                 rels_dict['mos'] = mos
