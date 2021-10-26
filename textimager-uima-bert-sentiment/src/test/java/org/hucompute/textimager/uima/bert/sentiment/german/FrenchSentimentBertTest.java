@@ -1,4 +1,4 @@
-package org.hucompute.textimager.uima.vader;
+package org.hucompute.textimager.uima.bert.sentiment.german;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UIMAException;
@@ -13,50 +13,13 @@ import org.junit.Test;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
-public class VaderSentimentTest {
+public class FrenchSentimentBertTest {
 	@Test
-	public void vaderEnTest() throws UIMAException {
+	public void testNlpTown() throws UIMAException {
 		String[] sentences = new String[] {
-				"This is very great!",
-				"I really dislike this.",
-				"I hate this car.",
-				"I don't dislike the car.",
-				"I don't care...",
-				"This tool computes the sentiment per sentence."
-		};
-
-		JCas jCas = JCasFactory.createJCas();
-		jCas.setDocumentLanguage("en");
-
-		StringBuilder sentence = new StringBuilder();
-		for (String s : sentences) {
-			Sentence anno = new Sentence(jCas, sentence.length(), sentence.length()+s.length());
-			anno.addToIndexes();
-			sentence.append(s).append(" ");
-		}
-		jCas.setDocumentText(sentence.toString());
-
-		AnalysisEngineDescription vader = createEngineDescription(VaderSentiment.class,
-				VaderSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
-		);
-
-		SimplePipeline.runPipeline(jCas, vader);
-
-		System.out.println(XmlFormatter.getPrettyString(jCas));
-		for (Sentiment sentiment : JCasUtil.select(jCas, Sentiment.class)) {
-			System.out.println(sentiment.getCoveredText() + " -> " + sentiment.getSentiment());
-		}
-	}
-
-	@Test
-	public void vaderFrTest() throws UIMAException {
-		String[] sentences = new String[] {
-				"C'est très bien!",
-				"Je n'aime vraiment pas ça.",
-				"Je déteste cette voiture.",
-				"Je ne déteste pas la voiture.",
-				"Je m'en fiche...",
-				"Cet outil calcule le sentiment par phrase."
+				"J'adore ça!",
+				"Je déteste ça!",
+				"c'est ok"
 		};
 
 		JCas jCas = JCasFactory.createJCas();
@@ -67,14 +30,61 @@ public class VaderSentimentTest {
 			Sentence anno = new Sentence(jCas, sentence.length(), sentence.length()+s.length());
 			anno.addToIndexes();
 			sentence.append(s).append(" ");
-		}
+		};
 		jCas.setDocumentText(sentence.toString());
 
-		AnalysisEngineDescription vader = createEngineDescription(VaderSentiment.class,
-				VaderSentiment.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"
+		AnalysisEngineDescription bertSentiment = createEngineDescription(SentimentBert.class,
+				SentimentBert.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
+				SentimentBert.PARAM_MODEL_NAME, "nlptown/bert-base-multilingual-uncased-sentiment",
+				SentimentBert.PARAM_MODEL_MAX_LENGTH, 512,
+				SentimentBert.PARAM_SENTIMENT_MAPPINGS, new String[] {
+						"1 star;-1",
+						"2 stars;-0.5",
+						"3 stars;0",
+						"4 stars;0.5",
+						"5 stars;1",
+				}
 		);
 
-		SimplePipeline.runPipeline(jCas, vader);
+		SimplePipeline.runPipeline(jCas, bertSentiment);
+
+		System.out.println(XmlFormatter.getPrettyString(jCas));
+		for (Sentiment sentiment : JCasUtil.select(jCas, Sentiment.class)) {
+			System.out.println(sentiment.getCoveredText() + " -> " + sentiment.getSentiment());
+		}
+	}
+
+	@Test
+	public void testCardiffXlm() throws UIMAException {
+		String[] sentences = new String[] {
+				"J'adore ça!",
+				"Je déteste ça!",
+				"c'est ok"
+		};
+
+		JCas jCas = JCasFactory.createJCas();
+		jCas.setDocumentLanguage("fr");
+
+		StringBuilder sentence = new StringBuilder();
+		for (String s : sentences) {
+			Sentence anno = new Sentence(jCas, sentence.length(), sentence.length()+s.length());
+			anno.addToIndexes();
+			sentence.append(s).append(" ");
+		};
+		jCas.setDocumentText(sentence.toString());
+
+		AnalysisEngineDescription bertSentiment = createEngineDescription(SentimentBert.class,
+				SentimentBert.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
+				SentimentBert.PARAM_MODEL_NAME, "cardiffnlp/twitter-xlm-roberta-base-sentiment",
+				SentimentBert.PARAM_MODEL_MAX_LENGTH, 514,
+				SentimentBert.PARAM_SENTIMENT_MAPPINGS, new String[] {
+						"Negative;-1",
+						"Neutral;0",
+						"Positive;1"
+				}
+		);
+
+		SimplePipeline.runPipeline(jCas, bertSentiment);
 
 		System.out.println(XmlFormatter.getPrettyString(jCas));
 		for (Sentiment sentiment : JCasUtil.select(jCas, Sentiment.class)) {

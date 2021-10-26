@@ -2,7 +2,8 @@ import uvicorn
 from typing import List
 from fastapi import FastAPI
 from pydantic import BaseModel
-from vaderSentiment import vaderSentiment
+from vaderSentiment import vaderSentiment as vaderSentimentEn
+from vaderSentiment_fr import vaderSentiment as vaderSentimentFr
 
 
 class TextImagerSentence(BaseModel):
@@ -53,8 +54,23 @@ class SentimentResponse(BaseModel):
     selections: List[SentimentSelection]
 
 
-analyzer = vaderSentiment.SentimentIntensityAnalyzer()
+analyzer_cache = {}
 app = FastAPI()
+
+
+def load_analyzer(lang: str):
+    if lang in analyzer_cache:
+        return analyzer_cache[lang]
+
+    elif lang == "fr":
+        analyzer = vaderSentimentFr.SentimentIntensityAnalyzer()
+    else:
+        # use en as default
+        # TODO error instead?
+        analyzer = vaderSentimentEn.SentimentIntensityAnalyzer()
+
+    analyzer_cache[lang] = analyzer
+    return analyzer
 
 
 @app.get("/textimager/ready")
@@ -67,6 +83,8 @@ def get_textimager():
 
 @app.post("/process")
 def process(request: TextImagerRequest) -> SentimentResponse:
+    analyzer = load_analyzer(request.lang)
+
     processed_selections = []
 
     for selection in request.selections:

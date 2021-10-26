@@ -14,7 +14,7 @@ public class VaderSentiment extends SentimentBase {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.4";
+        return "0.5";
     }
 
     @Override
@@ -29,7 +29,7 @@ public class VaderSentiment extends SentimentBase {
 
     @Override
     protected String getAnnotatorVersion() {
-        return "0.0.1";
+        return "0.0.2";
     }
 
     @Override
