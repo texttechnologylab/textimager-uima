@@ -53,5 +53,7 @@ RUN python -m spacy download de_dep_news_trf
 ENV TEXTIMAGER_SPACY_USE_GPU=False
 
 COPY ./spacy3_service.py ./spacy3_service.py
+COPY ./nomen_Artefakt.txt ./nomen_Artefakt.txt
+COPY ./nomen_Attribut.txt ./nomen_Attribut.txt
 
 CMD ["uvicorn", "spacy3_service:app", "--host", "0.0.0.0", "--port" ,"8000"]

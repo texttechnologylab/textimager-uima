@@ -113,7 +113,35 @@ def get_textimager():
 
 @app.post("/multi")
 def process(request: TextImagerRequest) -> SpacyResponse:
+    nomen_art, nomen_att = set(), set()
+    with open('./nomen_Artefakt.txt', 'r') as f:
+        for line in f:
+            nomen_art.add(line.replace('\n', ''))
+    with open('nomen_Attribut.txt', 'r') as f:
+        for line in f:
+            nomen_att.add(line.replace('\n', ''))
+
     nlp = spacy_get_pipeline("Multitagger", lang=request.lang)
+
+    def traverse_subtree4G(node):
+        if not node.children or node.pos_ == 'VERB' or node.tag_ == 'VAFIN':
+            return
+        result = [[node.text, node.idx, node.idx + len(node.text)]] if node.pos_ in ['NOUN', 'PROPN'] else []
+        for child in node.children:
+            grandchildren = traverse_subtree4G(child)
+            if not grandchildren is None:
+                result.extend(grandchildren)
+        return result
+
+    def traverse_subtree(node):
+        if not node.children:
+            return
+
+        result = [[node, node.idx, node.idx + len(node.text)]]
+        for child in node.children:
+            result.extend(traverse_subtree(child))
+
+        return result
 
     res_dict = {}
     if nlp is not None:
@@ -182,89 +210,165 @@ def process(request: TextImagerRequest) -> SpacyResponse:
             }
             sents.append(sents_dict)
 
-            verbs = [t for t in sent if t.pos_=='VERB']
+            verbs = [t for t in sent if t.pos_=='VERB' or t.tag_ == 'VAFIN']
+            noun_chunks = set(doc.noun_chunks)
             for token in verbs:
                 rel = ['', '', '', '', '', '', '', '']
                 rels_dict = {}
+                mos = []
                 rels_dict['PRED'] = {
                    'start_char': token.idx,
-                   'end_char': token.idx + len(token.text)}
+                   'end_char': token.idx + len(token.text),
+                   'sentence_begin': sent.start_char,
+                   'sentence_end': sent.end_char
+                   }
+
                 for child in token.children:
-                   if child.dep_ in ['sb', 'sbp', 'ep']:#, 'svp']:
-                       if token.dep_ == 'rc' and child.tag_ == 'PRELS':
+                    if child.dep_ == 'mo':
+                        mos.extend(traverse_subtree(child))
+
+                    if child.dep_ == 'ng':
+                        rels_dict['PRED']['comment'] = 'negation'
+                    if child.dep_ in ['sb', 'sbp', 'ep']:#, 'svp']:
+                        if token.dep_ == 'rc' and child.tag_ == 'PRELS':
                            ## switch places if passive
-                           if token.tag_ == 'VVPP':
-                               rel[2] = token.head.lemma_
-                               rels_dict['ARG1'] = {
+                            if token.tag_ == 'VVPP':
+                                rel[2] = token.head.lemma_
+                                rels_dict['ARG1'] = {
                                'start_char': child.idx,
                                'end_char': child.idx + len(child.text)}
-                           else:
-                               rel[1] = (child.lemma_, child.text, child.idx)
-                               rels_dict['ARG0'] = {
-                               'start_char': child.idx,
-                               'end_char': child.idx + len(child.text)}
-                       else:
-                               rel[1] = (child.lemma_, child.text, child.idx)
-                               rels_dict['ARG0'] = {
-                               'start_char': child.idx,
-                               'end_char': child.idx + len(child.text)}
-                   elif child.dep_ in ['oa']:
-                       if token.dep_ == 'rc' and child.tag_ == 'PRELS':
+                            else:
+                                rel[1] = (child.lemma_, child.text, child.idx)
+                                rels_dict['ARG0'] = {
+                                'start_char': child.idx,
+                                'end_char': child.idx + len(child.text)}
+                        else:
+                                rel[1] = (child.lemma_, child.text, child.idx)
+                                rels_dict['ARG0'] = {
+                                'start_char': child.idx,
+                                'end_char': child.idx + len(child.text)}
+                    elif child.dep_ in ['oa']:
+                        if token.dep_ == 'rc' and child.tag_ == 'PRELS':
                            ## switch places if passive
-                           if token.tag_ == 'VVPP':
-                               rel[2] = (child.lemma_, child.text, child.idx)
-                               rels_dict['ARG0'] = {
+                            if token.tag_ == 'VVPP':
+                                rel[2] = (child.lemma_, child.text, child.idx)
+                                rels_dict['ARG0'] = {
                                    'start_char': child.idx,
                                    'end_char': child.idx + len(child.text)}
-                           else:
-                               rel[2] = (child.lemma_, child.text, child.idx)
-                               rels_dict['ARG1'] = {
+                            else:
+                                rel[2] = (child.lemma_, child.text, child.idx)
+                                rels_dict['ARG1'] = {
                                    'start_char': child.idx,
                                    'end_char': child.idx + len(child.text)}
-                       else:
-                           rel[2] = (child.lemma_, child.text, child.idx)
-                           rels_dict['ARG1'] = {
+                        else:
+                            rel[2] = (child.lemma_, child.text, child.idx)
+                            rels_dict['ARG1'] = {
                                'start_char': child.idx,
                                'end_char': child.idx + len(child.text)}
-                   elif child.dep_ in ['da', 'og', 'op', 'pd', 'ph']:
-                       rel[3] = (child.lemma_, child.text, child.idx)
-                       rels_dict['ARG2'] = {
+                    elif child.dep_ in ['da', 'og', 'op', 'pd', 'ph']:
+                        if child.dep_ == 'pd' and token.pos_ == 'AUX' and token.tag_ == 'VAFIN':
+                            try:
+                                arg0 = rels_dict['ARG0']
+                                rels_dict['ARG1'] = arg0
+                                del rels_dict['ARG0']
+                            except KeyError:
+                                pass
+                        rel[3] = (child.lemma_, child.text, child.idx)
+                        rels_dict['ARG2'] = {
                            'start_char': child.idx,
                            'end_char': child.idx + len(child.text)}
+
                 if token.dep_ == 'oc' and token.head.pos_ == 'AUX':
-                   for child in token.head.children:
-                       if child.dep_ in ['sb', 'sbp'] and rel[1] == '':
-                           if token.tag_ == 'VVPP':
-                               rel[2] = (child.lemma_, child.text, child.idx)
-                               rels_dict['ARG1'] = {
+                    for child in token.head.children:
+                        if child.dep_ == 'ng':
+                            rels_dict['PRED']['comment'] = 'negation'
+                        if child.dep_ in ['sb', 'sbp'] and rel[1] == '':
+                            if token.tag_ == 'VVPP':
+                                rel[2] = (child.lemma_, child.text, child.idx)
+                                rels_dict['ARG1'] = {
                                    'start_char': child.idx,
                                    'end_char': child.idx + len(child.text)}
-                           else:
-                               rel[1] = (child.lemma_, child.text, child.idx)
-                               rels_dict['ARG0'] = {
+                            else:
+                                rel[1] = (child.lemma_, child.text, child.idx)
+                                rels_dict['ARG0'] = {
                                    'start_char': child.idx,
                                    'end_char': child.idx + len(child.text)}
+                       #########################
+                        if child.dep_ == 'oc' and child.pos_ == 'VERB' and rel[2] == '':
+                            for c in child.children:
+                                if c.dep_ == 'oc' and c.pos_ == 'VERB' and rel[2] == '':
+                                    pass
+                                elif c.dep_ == 'oc' and c.pos_ == 'AUX' and rel[2] == '':
+                                    for c2 in c.children:
+                                        if c2.dep_ == 'oc' and c2.pos_ == 'VERB' and rel[2] == '':
+                                            rel[2] = (c2.lemma_, c2.text, c2.idx)
+                                            rels_dict['ARG1'] = {
+                                               'start_char': c2.idx,
+                                               'end_char': c2.idx + len(c2.text),
+                                               'comment': 'recursive'}
+                if rel[2] == '':
+                    for child in token.children:
+                        if child.dep_ == 'oc' and child.pos_ == 'VERB':
+                            rel[2] = (child.lemma_, child.text, child.idx)
+                            rels_dict['ARG1'] = {
+                                'start_char': child.idx,
+                                'end_char': child.idx + len(child.text),
+                                'comment': 'recursive'}
+                       #########################
                 if token.dep_ == 'cj' and rel[1] == '':
-                   for child in token.head.head.children:
-                       if child.dep_ in ['sb']:
-                           rel[1] = (child.lemma_, child.text, child.idx)
-                           rels_dict['ARG0'] = {
+                    for child in token.head.head.children:
+                        if child.dep_ in ['sb']:
+                            rel[1] = (child.lemma_, child.text, child.idx)
+                            rels_dict['ARG0'] = {
                                'start_char': child.idx,
                                'end_char': child.idx + len(child.text)}
-                   if token.head.head.dep_ == 'oc':
-                       for child in token.head.head.head.children:
-                           if child.dep_ in ['sb', 'sbp'] and rel[1] == '':
-                               if token.tag_ == 'VVPP':
-                                   rel[2] = (child.lemma_, child.text, child.idx)
-                                   rels_dict['ARG1'] = {
+                    if token.head.head.dep_ == 'oc':
+                        for child in token.head.head.head.children:
+                            if child.dep_ in ['sb', 'sbp'] and rel[1] == '':
+                                if token.tag_ == 'VVPP':
+                                    rel[2] = (child.lemma_, child.text, child.idx)
+                                    rels_dict['ARG1'] = {
                                        'start_char': child.idx,
                                        'end_char': child.idx + len(child.text)}
-                               else:
-                                   rel[1] = (child.lemma_, child.text, child.idx)
-                                   rels_dict['ARG0'] = {
+                                else:
+                                    rel[1] = (child.lemma_, child.text, child.idx)
+                                    rels_dict['ARG0'] = {
                                        'start_char': child.idx,
                                        'end_char': child.idx + len(child.text)}
-                if len(rels_dict) > 0:
+                 ##ARG2 heuristics
+                for mo in mos:
+                    if mo[0].text in nomen_art or mo[0].text in nomen_att:
+                        for arg in ['PRED', 'ARG0', 'ARG1']:
+                            try:
+                                start = rels_dict[arg]['start_char']
+                                if start != mo[0].idx:
+                                    rels_dict['ARG2'] = {
+                                       'start_char': mo[0].idx,
+                                       'end_char': mo[0].idx + len(mo[0].text)}
+                            except KeyError:
+                                pass
+                ##GEOs
+                geos = []
+                for verb_child in token.children:
+                    verb_children = traverse_subtree4G(verb_child)
+                    if not verb_children is None:
+                        geos.extend(verb_children)
+                    if verb_child.pos_ in ['NOUN', 'PROPN']:
+                        new_entry = [verb_child.text, verb_child.idx, verb_child.idx + len(verb_child.text)]
+                        if not new_entry in geos:
+                            geos.append(new_entry)
+
+                for k, v in rels_dict.items():
+                    if k != 'PRED':
+                        token_text = sent.text[v['start_char']:v['end_char']]
+                        new_entry = [token_text, v['start_char'], v['end_char']]
+                        if not new_entry in geos:
+                            geos.append(new_entry)
+                rels_dict['geos'] = geos
+                mos = [[l[0].text, l[1], l[2]] for l in mos]
+                rels_dict['mos'] = mos
+
+                if len(rels_dict) > 1:
                     psrs.append(rels_dict)
 
 
@@ -291,6 +395,7 @@ def process(request: TextImagerRequest) -> SpacyResponse:
         # TODO return error message
         print("not pipeline found for spacy lang", request)
         res_dict = {'status': 'nlp not found'}
+
 
     response = SpacyResponse(multitag=res_dict)
     return response
