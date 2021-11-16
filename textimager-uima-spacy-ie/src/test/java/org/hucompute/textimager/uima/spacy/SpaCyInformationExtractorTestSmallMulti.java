@@ -1,6 +1,5 @@
 package org.hucompute.textimager.uima.spacy;
 
-import de.tudarmstadt.ukp.dkpro.core.languagetool.LanguageToolSegmenter;
 import de.unihd.dbs.uima.annotator.heideltime2.HeidelTime;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -8,8 +7,8 @@ import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.util.TypeSystemUtil;
 import org.apache.uima.util.XMLSerializer;
+import org.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.hucompute.textimager.uima.geonames.gazetteer.GeonamesGazetteer;
 import org.junit.Test;
 import org.texttechnologylab.annotation.GeoNamesEntity;
