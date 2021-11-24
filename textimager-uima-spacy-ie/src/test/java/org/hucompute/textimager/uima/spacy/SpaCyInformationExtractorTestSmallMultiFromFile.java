@@ -82,7 +82,7 @@ public class SpaCyInformationExtractorTestSmallMultiFromFile {
 //			SimplePipeline.runPipeline(cas, segmenter, geoNames, heidelTime, spacyIE);
 
 			i++;
-			Path outputXmi = Paths.get("/mnt/ssd/SRL/bio_test/example_s/conll_test/" + i + ".xmi");
+			Path outputXmi = Paths.get("/mnt/ssd/SRL/bio_test/example_s/conll_test_new_geonames/" + i + ".xmi");
 			try (OutputStream outputStream = Files.newOutputStream(outputXmi)) {
 			    System.out.println("Saving " + i + ".xmi");
 				XMLSerializer xmlSerializer = new XMLSerializer(outputStream, true);
