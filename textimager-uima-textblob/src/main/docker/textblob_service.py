@@ -3,8 +3,11 @@ from typing import List
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from textblob_de import TextBlobDE
 from textblob import TextBlob
+from textblob.sentiments import NaiveBayesAnalyzer
+from textblob_de import TextBlobDE
+from textblob_fr import PatternTagger as PatternTagger_fr
+from textblob_fr import PatternAnalyzer as PatternAnalyzer_fr
 
 
 class TextImagerSentence(BaseModel):
@@ -22,6 +25,7 @@ class TextImagerRequest(BaseModel):
     selections: List[TextImagerSelection]
     lang: str
     doc_len: int
+    model: str
 
 
 class SentenceSentiment(BaseModel):
@@ -58,15 +62,31 @@ def process(request: TextImagerRequest) -> SentimentResponse:
         processed_sentences = []
 
         for sentence in selection.sentences:
+            sen = 0.0
+            sub = 0.0
+
             if request.lang == "de":
                 doc = TextBlobDE(sentence.text)
+                sen = doc.sentiment.polarity
+                sub = doc.sentiment.subjectivity
+            elif request.lang == "fr":
+                doc = TextBlob(sentence.text, pos_tagger=PatternTagger_fr(), analyzer=PatternAnalyzer_fr())
+                sen = doc.sentiment[0]
+                sub = doc.sentiment[1]
             else:
-                doc = TextBlob(sentence.text)
+                if request.model == "NaiveBayesAnalyzer":
+                    doc_temp = TextBlob(sentence.text, analyzer=NaiveBayesAnalyzer())
+                    sen = doc_temp.sentiment.p_pos if doc_temp.sentiment.classification == "pos" else doc_temp.sentiment.p_neg*-1
+                    sub = 0.0
+                else:
+                    doc = TextBlob(sentence.text)
+                    sen = doc.sentiment.polarity
+                    sub = doc.sentiment.subjectivity
 
             processed_sentences.append(SentenceSentiment(
                 sentence=sentence,
-                sentiment=doc.sentiment.polarity,
-                subjectivity=doc.sentiment.subjectivity,
+                sentiment=sen,
+                subjectivity=sub,
             ))
 
         # compute avg for this selection, if >1

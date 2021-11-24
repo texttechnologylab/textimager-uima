@@ -2,9 +2,7 @@ package org.hucompute.textimager.uima.base;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.docker.ContainerParametersBuilder;
 import org.hucompute.textimager.uima.docker.ContainerWrapper;
@@ -80,6 +78,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	protected String dockerNetwork;
 
 	/**
+	 * Override Docker mounts
+	 */
+	public static final String PARAM_DOCKER_MOUNTS = "dockerMounts";
+	@ConfigurationParameter(name = PARAM_DOCKER_MOUNTS, mandatory = false)
+	protected String[] dockerMounts;
+
+	/**
 	 * Docker API socket path, currently only socket is supported
 	 */
 	public static final String PARAM_DOCKER_SOCKET = "dockerSocket";
@@ -104,6 +109,11 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	// Provides default Docker Port, if none is configured
 	abstract protected int getDefaultDockerPort();
+
+	// Provides default Docker Mounts inf format [type, source, target, ...], if none is configured
+	protected String[] getDefaultDockerMounts() {
+		return null;
+	}
 
 	// Docker image name with registry info
 	protected String fullDockerImageName;
@@ -207,6 +217,27 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				System.out.println("Using Docker network " + dockerNetwork);
 				parametersBuilder.set_network_mode(dockerNetwork);
 
+				// Get Docker mounts from annotator class if not specified
+				if (dockerMounts == null) {
+					dockerMounts = getDefaultDockerMounts();
+				}
+
+				// Set mounts
+				if (dockerMounts != null) {
+					System.out.println("Mounting paths:");
+					if (dockerMounts.length % 3 != 0) {
+						throw new ResourceInitializationException(new Exception("Wrong format: mount array needs to be [type, source, target, ...]"));
+					}
+
+					for (int ind = 0; ind < dockerMounts.length-2; ind+=3) {
+						String type = dockerMounts[ind];
+						String source = dockerMounts[ind+1];
+						String target = dockerMounts[ind+2];
+						System.out.println("- " + type + ": " + source + " -> " + target);
+						parametersBuilder.set_mount_mapping(type, source, target);
+					}
+				}
+
 				// Create container
 				JsonObject config = parametersBuilder.get_config();
 				container = new ContainerWrapper(
@@ -276,17 +307,19 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 		if (container != null) {
 			// TODO container is not stopped on DUCC?
 			try {
-				System.out.println("Stopping Docker container");
-				container.get_handle().stop();
+                System.out.println("Stopping Docker container " + container.get_name());
+                container.get_handle().stop();
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
-			// TODO container removed at stop already?
+            // TODO container removed at stop already?
 			try {
 				System.out.println("Waiting for Docker to stop...");
 				container.get_handle().waitOn("not-running");
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -294,6 +327,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				System.out.println("Removing Docker container");
 				container.get_handle().remove();
 			} catch (Exception e) {
+                System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -304,7 +338,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	@Override
 	public void destroy() {
 		dockerStop();
-		System.out.println("Docker annotator destroyed");
 		super.destroy();
 	}
+
 }

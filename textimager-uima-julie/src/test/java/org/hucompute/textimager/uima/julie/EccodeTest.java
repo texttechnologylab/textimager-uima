@@ -1,6 +1,7 @@
 package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.Enzyme;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -29,7 +30,13 @@ public class EccodeTest {
      */
     @Test
     public void testProcess() throws IOException, UIMAException {
-        JCas jCas = JCasFactory.createText("Acetylesterase has number EC 3.1.1.6");
+        // Parameters
+        String Text = "Acetylesterase has number EC 3.1.1.6";
+
+        JCas jCas = JCasFactory.createText(Text);
+        // input: de.julielab.jcore.types.Sentence
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
 
         //AnalysisEngineDescription engine = createEngineDescription(ECCode.class);
         AnalysisEngineDescription engine = createEngineDescription(ECCode.class);

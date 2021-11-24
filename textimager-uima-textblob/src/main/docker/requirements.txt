@@ -9,6 +9,7 @@ regex==2021.8.3
 starlette==0.14.2
 textblob==0.15.3
 textblob-de==0.4.3
+textblob-fr==0.2.0
 tqdm==4.62.0
 typing-extensions==3.10.0.0
 uvicorn==0.14.0

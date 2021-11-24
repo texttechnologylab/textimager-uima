@@ -39,13 +39,18 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-io</artifactId>
+			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-types</artifactId>
+			<artifactId>textimager-uima-io</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.texttechnologylab</groupId>
+			<artifactId>UIMATypeSystem</artifactId>
+			<version>${ttlab.typesystem.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dkpro.core</groupId>

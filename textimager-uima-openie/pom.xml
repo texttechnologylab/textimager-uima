@@ -16,13 +16,14 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-util</artifactId>
+			<artifactId>textimager-uima-base-annotators</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			 <groupId>edu.washington.cs.knowitall.openie</groupId>
-			 <artifactId>openie_2.10</artifactId>
-			 <version>4.2.1</version>
+			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-util</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

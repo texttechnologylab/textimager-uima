@@ -25,7 +25,7 @@
 		<dkpro.core.version>1.12.0</dkpro.core.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<ttlab.typesystem.version>c1123cc2240be4213bec594eb3de4b9408a3a2c7</ttlab.typesystem.version>
+		<ttlab.typesystem.version>667e4c061c07d2853243c8cf87fda97404982d8a</ttlab.typesystem.version>
 		<ttlab.utilities.version>1.1.1-uima-2.10.4</ttlab.utilities.version>
 		<jcore.types.version>9df8678666856d87b815e79fe100da26f777fb91</jcore.types.version>
 	</properties>
@@ -106,7 +106,6 @@
 		<module>textimager-uima-HUComputeNER</module>
 		<module>textimager-uima-disambiguation</module>
 		<module>textimager-uima-io-abbyy</module>
-		<module>textimager-uima-deploy</module>
 		<module>textimager-uima-heideltime</module>
 <!--		<module>textimager-uima-agreement</module>-->
 		<module>textimager-uima-biofid-gazetteer</module>
@@ -134,9 +133,12 @@
 		<module>textimager-uima-bert-sentiment</module>
 		<module>textimager-uima-sentiment-base</module>
 		<module>textimager-uima-gervader</module>
+		<module>textimager-uima-vader</module>
 		<module>textimager-uima-german-emotion-detection</module>
 		<module>textimager-uima-polyglot</module>
   		<module>textimager-uima-openie</module>
 		<module>textimager-uima-gnfinder</module>
+		<module>textimager-uima-supar</module>
+		<module>textimager-uima-splitter</module>
 	</modules>
 </project>
