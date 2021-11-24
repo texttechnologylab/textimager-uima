@@ -137,5 +137,6 @@
 		<module>textimager-uima-german-emotion-detection</module>
 		<module>textimager-uima-polyglot</module>
   		<module>textimager-uima-openie</module>
+		<module>textimager-uima-gnfinder</module>
 	</modules>
 </project>
