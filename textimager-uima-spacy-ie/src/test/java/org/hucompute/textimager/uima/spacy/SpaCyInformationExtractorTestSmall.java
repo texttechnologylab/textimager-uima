@@ -27,7 +27,7 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDesc
 
 public class SpaCyInformationExtractorTestSmall {
 //	private final String sourceLocation = "/mnt/ssd/data/geonames_sample.txt";
-	private final String sourceLocation = "/mnt/ssd/data/geonames.txt";
+	private final String sourceLocation = "/mnt/ssd/data/geonames/geonames.txt";
 	@Test
 	public void multiTaggerTest() throws UIMAException, IOException {
 //		JCas cas = JCasFactory.createText("Man sollte meinen, dafs ein solches Gebiet eine artenreiche Flora " +
@@ -53,6 +53,7 @@ public class SpaCyInformationExtractorTestSmall {
 //		text = "Am Montag ist Carl für drei Wochen nach Spanien abgereist und kehrt erst am Freitag zurück.";
 //		text = "Die Straße 'Unter den Linden' führt zum Brandenburger Tor.";
         text = "Was du heute kannst besorgen, das verschiebe nicht auf die Birne.";
+		text = "Heute geht Australien unter.";
 //        text = "Den Bayerischen Wald, so sagt Berlin, wird man nicht in die Liste von Naturschutzgebieten aufnehmen.";
 		JCas cas = JCasFactory.createText(text, "de");
 		AnalysisEngineDescription spacyIE = createEngineDescription(SpaCyInformationExtractor.class,
@@ -79,7 +80,8 @@ public class SpaCyInformationExtractorTestSmall {
 //		SimplePipeline.runPipeline(cas, heidelTime, segmenter, geoNames);
 //		SimplePipeline.runPipeline(cas, segmenter, heidelTime, geoNames, spacyIE);
 //		SimplePipeline.runPipeline(cas, segmenter, heidelTime, spacyIE);
-		SimplePipeline.runPipeline(cas, spacyIE);
+//		SimplePipeline.runPipeline(cas, segmenter, heidelTime);
+		SimplePipeline.runPipeline(cas, segmenter, heidelTime, geoNames, spacyIE);
 
 				//		for (Token t : JCasUtil.select(cas, Token.class)) {
 				//			System.out.println("!~" + t.getCoveredText() + "!~");
@@ -105,12 +107,12 @@ public class SpaCyInformationExtractorTestSmall {
 			e.printStackTrace();
 		}
 
-		Path outputXml = Paths.get("/mnt/ssd/SRL/bio_test/test_in.xml");
+//		Path outputXml = Paths.get("/mnt/ssd/SRL/bio_test/test_in.xml");
 //				Path outputXml = Paths.get("test.xml");
-		try (OutputStream outputStreamTS = Files.newOutputStream(outputXml)) {
-			TypeSystemUtil.typeSystem2TypeSystemDescription(cas.getTypeSystem()).toXML(outputStreamTS);
-		} catch (SAXException e) {
-			e.printStackTrace();
-				}
+//		try (OutputStream outputStreamTS = Files.newOutputStream(outputXml)) {
+//			TypeSystemUtil.typeSystem2TypeSystemDescription(cas.getTypeSystem()).toXML(outputStreamTS);
+//		} catch (SAXException e) {
+//			e.printStackTrace();
+//				}
 		}
 }
