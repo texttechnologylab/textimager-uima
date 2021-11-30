@@ -124,6 +124,11 @@
 					<artifactId>textimager-uima-heideltime</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+                <dependency>
+                    <groupId>org.hucompute.textimager.uima</groupId>
+                    <artifactId>textimager-uima-heideltime-biofid</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-tagme</artifactId>
