@@ -1,29 +1,13 @@
 package org.hucompute.textimager.uima.spacy;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.SemArg;
-import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.SemArgLink;
-import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.SemPred;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
-import de.unihd.dbs.uima.annotator.heideltime2.HeidelTime;
 import de.unihd.dbs.uima.types.heideltime.Timex3;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.TOP_Type;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
@@ -32,9 +16,8 @@ import org.json.JSONObject;
 import org.texttechnologylab.annotation.GeoNamesEntity;
 import org.texttechnologylab.annotation.semaf.isobase.Entity;
 import org.texttechnologylab.annotation.semaf.semafsr.SrLink;
-import org.texttechnologylab.annotation.semaf.semafsr.SrLink_Type;
 
-import java.util.*;
+import java.util.Iterator;
 
 public class SpaCyInformationExtractor extends DockerRestAnnotator {
     public static final String PARAM_VARIANT = "variant";
