@@ -107,6 +107,7 @@
 		<module>textimager-uima-disambiguation</module>
 		<module>textimager-uima-io-abbyy</module>
 		<module>textimager-uima-heideltime</module>
+		<module>textimager-uima-heideltime-biofid</module>
 <!--		<module>textimager-uima-agreement</module>-->
 		<module>textimager-uima-biofid-gazetteer</module>
 <!--		<module>textimager-uima-deep-eos</module>-->
@@ -129,7 +130,7 @@
 		<module>textimager-uima-gnd-gazetteer</module>
 		<module>textimager-uima-biofid-general-gazetteer</module>
 		<module>textimager-uima-steps</module>
-		<module>textimager-uima-julie</module>
+<!--		<module>textimager-uima-julie</module>-->
 		<module>textimager-uima-bert-sentiment</module>
 		<module>textimager-uima-sentiment-base</module>
 		<module>textimager-uima-gervader</module>

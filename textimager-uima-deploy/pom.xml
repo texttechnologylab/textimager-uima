@@ -79,6 +79,13 @@
 					<groupId>com.github.texttechnologylab</groupId>
 					<artifactId>UIMATypeSystem</artifactId>
 					<version>${ttlab.typesystem.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.github.texttechnologylab.textimager-uima</groupId>
+                            <artifactId>textimager-uima-types</artifactId>
+                        </exclusion>
+
+                    </exclusions>
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
@@ -121,6 +128,11 @@
 					<artifactId>textimager-uima-heideltime</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+                <dependency>
+                    <groupId>org.hucompute.textimager.uima</groupId>
+                    <artifactId>textimager-uima-heideltime-biofid</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-tagme</artifactId>
@@ -161,11 +173,11 @@
 					<artifactId>textimager-uima-textblob</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-textscorer</artifactId>
-					<version>${project.version}</version>
-				</dependency>
+<!--				<dependency>-->
+<!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+<!--					<artifactId>textimager-uima-textscorer</artifactId>-->
+<!--					<version>${project.version}</version>-->
+<!--				</dependency>-->
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-supar</artifactId>
@@ -191,11 +203,11 @@
 					<artifactId>textimager-uima-database</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-text2scene</artifactId>
-					<version>${project.version}</version>
-				</dependency>
+<!--				<dependency>-->
+<!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+<!--					<artifactId>textimager-uima-text2scene</artifactId>-->
+<!--					<version>${project.version}</version>-->
+<!--				</dependency>-->
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-steps</artifactId>

@@ -1,5 +1,5 @@
 /*
- * HeidelTime.java
+ * HeidelTimeBioFID.java
  * 
  * Copyright (c) 2011, Database Research Group, Institute of Computer Science, Heidelberg University. 
  * All rights reserved. This program and the accompanying materials 
@@ -8,36 +8,20 @@
  * author: Jannik Strötgen
  * email:  stroetgen@uni-hd.de
  * 
- * HeidelTime is a multilingual, cross-domain temporal tagger.
+ * HeidelTimeBioFID is a multilingual, cross-domain temporal tagger.
  * For details, see http://dbs.ifi.uni-heidelberg.de/heideltime
+ *
+ * Adaption for BioFID by Andy Lücking, 2021-11-30
  */
 
-package de.unihd.dbs.uima.annotator.heideltime2;
+package de.unihd.dbs.uima.annotator.heideltime.biofid;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
-
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.unihd.dbs.uima.annotator.heideltime.ProcessorManager;
 import de.unihd.dbs.uima.annotator.heideltime.ProcessorManager.Priority;
 import de.unihd.dbs.uima.annotator.heideltime.processors.TemponymPostprocessing;
-import de.unihd.dbs.uima.annotator.heideltime.resources.Language;
-import de.unihd.dbs.uima.annotator.heideltime.resources.NormalizationManager;
-import de.unihd.dbs.uima.annotator.heideltime.resources.RePatternManager;
-import de.unihd.dbs.uima.annotator.heideltime.resources.RegexHashMap;
-import de.unihd.dbs.uima.annotator.heideltime.resources.RuleManager;
+import de.unihd.dbs.uima.annotator.heideltime.resources.*;
 import de.unihd.dbs.uima.annotator.heideltime.utilities.DateCalculator;
 import de.unihd.dbs.uima.annotator.heideltime.utilities.LocaleException;
 import de.unihd.dbs.uima.annotator.heideltime.utilities.Logger;
@@ -45,18 +29,25 @@ import de.unihd.dbs.uima.annotator.heideltime.utilities.Toolbox;
 import de.unihd.dbs.uima.annotator.heideltime.utilities2.ContextAnalyzer;
 import de.unihd.dbs.uima.types.heideltime.Dct;
 import de.unihd.dbs.uima.types.heideltime.Timex3;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
+import org.apache.uima.cas.FSIterator;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+
+import java.util.*;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 
 /**
- * HeidelTime finds temporal expressions and normalizes them according to the TIMEX3 
+ * HeidelTimeBioFID finds temporal expressions and normalizes them according to the TIMEX3
  * TimeML annotation standard.
  * 
  * @author jannik stroetgen
  * 
  */
-public class HeidelTime extends JCasAnnotator_ImplBase {
+public class HeidelTimeBioFID extends JCasAnnotator_ImplBase {
 
 	// TOOL NAME (may be used as componentId)
 	private Class<?> component = this.getClass();
@@ -191,7 +182,7 @@ public class HeidelTime extends JCasAnnotator_ImplBase {
 		// check whether a given DCT (if any) is of the correct format and if not, skip this call
 		if(!isValidDCT(jcas)) {
 			Logger.printError(component, "The reader component of this workflow has set an incorrect DCT."
-					+ " HeidelTime expects either \"YYYYMMDD\" or \"YYYY-MM-DD...\". This document was skipped.");
+					+ " HeidelTimeBioFID expects either \"YYYYMMDD\" or \"YYYY-MM-DD...\". This document was skipped.");
 			return;
 		}
 		
@@ -238,8 +229,8 @@ public class HeidelTime extends JCasAnnotator_ImplBase {
 		 * will return from process() with a warning message.
 		 */
 		if(!sentIter.hasNext()) {
-			Logger.printError(component, "HeidelTime has not found any sentence tokens in this document. " +
-					"HeidelTime needs sentence tokens tagged by a preprocessing UIMA analysis engine to " +
+			Logger.printError(component, "HeidelTimeBioFID has not found any sentence tokens in this document. " +
+					"HeidelTimeBioFID needs sentence tokens tagged by a preprocessing UIMA analysis engine to " +
 					"do its work. Please check your UIMA workflow and add an analysis engine that creates " +
 					"these sentence tokens.");
 		}
@@ -287,7 +278,7 @@ public class HeidelTime extends JCasAnnotator_ImplBase {
 						debugIteration = true;
 						Logger.setPrintDetails(true);
 						
-						Logger.printError(component, "HeidelTime's execution has been interrupted by an exception that " +
+						Logger.printError(component, "HeidelTimeBioFID's execution has been interrupted by an exception that " +
 								"is likely rooted in faulty normalization resource files. Please consider opening an issue " +
 								"report containing the following information at our GitHub project issue tracker: " +
 								"https://github.com/HeidelTime/heideltime/issues - Thanks!");
@@ -2590,4 +2581,7 @@ public class HeidelTime extends JCasAnnotator_ImplBase {
 			}
 		}
 	}
+
+
 }
+
