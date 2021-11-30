@@ -1,6 +1,6 @@
 package org.hucompute.textimager.uima.spacy;
 
-import de.unihd.dbs.uima.annotator.heideltime2.HeidelTime;
+import de.unihd.dbs.uima.annotator.heideltime.biofid.HeidelTime;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
