@@ -1,7 +1,7 @@
 package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.Sentence;
-import de.julielab.jcore.types.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -30,9 +30,19 @@ public class OpennlpTokenTest {
      */
     @Test
     public void testEN() throws IOException, UIMAException {
+        // parameters
         String Text = "CD44, at any stage, is a XYZ";
+
         JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("en");
+
+        // input: de.julielab.jcore.types.Sentence
+        //Sentence sentence = new Sentence(jCas, 0, Text.length());
+        //sentence.addToIndexes();
+
+        //input: dkpro.sentence
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
 
         //AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
         AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
@@ -50,15 +60,25 @@ public class OpennlpTokenTest {
      */
     @Test
     public void testDE() throws IOException, UIMAException {
+        // parameters
         String Text = "CD44 ist in jedem Stadium ein XYZ";
+
         JCas jCas = JCasFactory.createText(Text);
         jCas.setDocumentLanguage("de");
+
+        // input: de.julielab.jcore.types.Sentence
+        //Sentence sentence = new Sentence(jCas, 0, Text.length());
+        //sentence.addToIndexes();
+
+        //input: dkpro.sentence
+        de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jCas, 0, Text.length());
+        sentence.addToIndexes();
 
         //AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
         AnalysisEngineDescription engine = createEngineDescription(OpennlpToken.class);
         SimplePipeline.runPipeline(jCas, engine);
 
-        String[] casToken = (String[]) JCasUtil.select(jCas, Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
+        String[] casToken = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class).stream().map(a -> a.getBegin() + "-" + a.getEnd()).toArray(String[]::new);
         String[] testtoken = new String[] {"0-4","5-8","9-11","12-17","18-25","26-29","30-33"};
 
         assertArrayEquals(testtoken, casToken);

@@ -4,6 +4,7 @@ import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
+import org.hucompute.textimager.uima.julie.helper.Converter;
 import org.hucompute.textimager.uima.julie.reader.JsonReader;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
@@ -34,6 +35,13 @@ public class LikelihoodDetection extends JulieBase {
         try {
             JsonReader reader = new JsonReader();
             reader.UpdateJsonToCas(jsonResult, aJCas);
+
+            Converter conv = new Converter();
+
+            //remove input: Token, Lemma
+            conv.RemoveSentence(aJCas);
+            conv.RemoveToken(aJCas);
+            conv.RemoveLemma(aJCas);
 
         /*for (Token token: JCasUtil.select(aJCas, Token.class))
         {

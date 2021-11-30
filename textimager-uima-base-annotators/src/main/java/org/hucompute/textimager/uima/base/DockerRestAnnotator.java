@@ -78,6 +78,13 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	protected String dockerNetwork;
 
 	/**
+	 * Override Docker mounts
+	 */
+	public static final String PARAM_DOCKER_MOUNTS = "dockerMounts";
+	@ConfigurationParameter(name = PARAM_DOCKER_MOUNTS, mandatory = false)
+	protected String[] dockerMounts;
+
+	/**
 	 * Docker API socket path, currently only socket is supported
 	 */
 	public static final String PARAM_DOCKER_SOCKET = "dockerSocket";
@@ -102,6 +109,11 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	// Provides default Docker Port, if none is configured
 	abstract protected int getDefaultDockerPort();
+
+	// Provides default Docker Mounts inf format [type, source, target, ...], if none is configured
+	protected String[] getDefaultDockerMounts() {
+		return null;
+	}
 
 	// Docker image name with registry info
 	protected String fullDockerImageName;
@@ -205,6 +217,27 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 				System.out.println("Using Docker network " + dockerNetwork);
 				parametersBuilder.set_network_mode(dockerNetwork);
 
+				// Get Docker mounts from annotator class if not specified
+				if (dockerMounts == null) {
+					dockerMounts = getDefaultDockerMounts();
+				}
+
+				// Set mounts
+				if (dockerMounts != null) {
+					System.out.println("Mounting paths:");
+					if (dockerMounts.length % 3 != 0) {
+						throw new ResourceInitializationException(new Exception("Wrong format: mount array needs to be [type, source, target, ...]"));
+					}
+
+					for (int ind = 0; ind < dockerMounts.length-2; ind+=3) {
+						String type = dockerMounts[ind];
+						String source = dockerMounts[ind+1];
+						String target = dockerMounts[ind+2];
+						System.out.println("- " + type + ": " + source + " -> " + target);
+						parametersBuilder.set_mount_mapping(type, source, target);
+					}
+				}
+
 				// Create container
 				JsonObject config = parametersBuilder.get_config();
 				container = new ContainerWrapper(
@@ -259,18 +292,11 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 					}
 				} while (!isReady());
 
-                if (container != null) {
-                    System.out.println("Status: " + container.get_status());
-                    System.out.println("Log: " + container.get_log());
-                    container.get_handle().stop();
-
-                }
-
 				System.out.println("Docker container should be running now");
 
 			} catch (Exception e) {
 				// stop Docker before throwing
-				System.out.println("Stopping Docker container before throwing...");
+				System.out.println("Trying to stop Docker container before throwing...");
 				dockerStop();
 				throw new ResourceInitializationException(e);
 			}
@@ -278,29 +304,15 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 	}
 
 	private void dockerStop() {
-        System.out.println("A");
-
 		if (container != null) {
-            System.out.println("B");
 			// TODO container is not stopped on DUCC?
 			try {
-                System.out.println("Status: " + container.get_status());
-                System.out.println("Log: " + container.get_log());
                 System.out.println("Stopping Docker container " + container.get_name());
                 container.get_handle().stop();
-                System.out.println("C");
 			} catch (Exception e) {
                 System.out.println(e.getMessage());
 				e.printStackTrace();
-			} finally {
-                try {
-                    container.get_handle().kill();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-
+			}
 
             // TODO container removed at stop already?
 			try {
@@ -325,7 +337,6 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	@Override
 	public void destroy() {
-        System.out.println("Calling Destroy");
 		dockerStop();
 		super.destroy();
 	}

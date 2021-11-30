@@ -87,7 +87,11 @@
 
                     </exclusions>
 				</dependency>
-
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-base-annotators</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-util</artifactId>
@@ -151,6 +155,11 @@
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-spacy-ie</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-biofid-flair</artifactId>
 					<version>${project.version}</version>
 				</dependency>
@@ -169,6 +178,11 @@
 <!--					<artifactId>textimager-uima-textscorer</artifactId>-->
 <!--					<version>${project.version}</version>-->
 <!--				</dependency>-->
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-supar</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-biofid-gazetteer</artifactId>
@@ -206,6 +220,21 @@
 				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-openie</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-vader</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-sentiment-base</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-bert-sentiment</artifactId>
 					<version>${project.version}</version>
 				</dependency>
@@ -234,11 +263,16 @@
 					<artifactId>textimager-uima-biofid-general-gazetteer</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-<!--				<dependency>-->
-<!--					<groupId>org.hucompute.textimager.uima</groupId>-->
-<!--					<artifactId>textimager-uima-julie</artifactId>-->
-<!--					<version>${project.version}</version>-->
-<!--				</dependency>-->
+				<dependency>
+					<groupId>com.github.myyyvothrr.jcore-base</groupId>
+					<artifactId>jcore-types</artifactId>
+					<version>${jcore.types.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hucompute.textimager.uima</groupId>
+					<artifactId>textimager-uima-julie</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-german-emotion-detection</artifactId>

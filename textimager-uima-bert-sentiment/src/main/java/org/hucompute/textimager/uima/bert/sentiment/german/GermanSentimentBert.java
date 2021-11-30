@@ -9,6 +9,8 @@ import org.json.JSONObject;
 import org.texttechnologylab.annotation.AnnotationComment;
 
 public class GermanSentimentBert extends SentimentBase {
+    static final String MODEL_NAME = "oliverguhr/german-sentiment-bert";
+
     @Override
     protected String getDefaultDockerImage() {
         return "textimager-uima-service-bert-sentiment";
@@ -56,6 +58,12 @@ public class GermanSentimentBert extends SentimentBase {
                     comment.setKey("selection");
                     comment.setValue(selectionAnnotation);
                     comment.addToIndexes();
+
+                    AnnotationComment bertModel = new AnnotationComment(aJCas);
+                    bertModel.setReference(sentiment);
+                    bertModel.setKey("bert_model");
+                    bertModel.setValue(MODEL_NAME);
+                    bertModel.addToIndexes();
 
                     addAnnotatorComment(aJCas, sentiment);
                 }

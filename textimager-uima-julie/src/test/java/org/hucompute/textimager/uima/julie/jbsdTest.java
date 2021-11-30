@@ -1,6 +1,6 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -52,20 +52,20 @@ public class jbsdTest {
                 new int[] { 0, 49 },
                 new int[] { 50, 74 }
         };
-        int[][] casSentence = (int[][]) JCasUtil.select(jCas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSentence = (int[][]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
 
         String[] senText = new String[] {
                 "This is a simple test sentence to test this tool.", "Using a second sentence."
         };
-        String[] casSenTex = (String[]) JCasUtil.select(jCas, Sentence.class).stream().map(s -> s.getCoveredText()).toArray(String[]::new);
+        String[] casSenTex = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence.class).stream().map(s -> s.getCoveredText()).toArray(String[]::new);
 
         //print the Sentence
-        for (Sentence objekt : select(jCas, Sentence.class)) {
+        for (de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence objekt : select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence.class)) {
             System.out.println(objekt);
             System.out.println(objekt.getCoveredText());
         }
 
-        Assert.assertTrue(2 == JCasUtil.select(jCas, Sentence.class).size() );
+        Assert.assertTrue(2 == JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence.class).size() );
         assertArrayEquals(sentence, casSentence);
         assertArrayEquals(senText, casSenTex);
     }
@@ -88,15 +88,15 @@ public class jbsdTest {
                 new int[] { 0, 19 },
                 new int[] { 20, 40 }
         };
-        int[][] casSentence = (int[][]) JCasUtil.select(jCas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSentence = (int[][]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
 
         String[] senText = new String[] {
                 "Das ist erste Satz.", "Das ist zweite Satz."
         };
-        String[] casSenTex = (String[]) JCasUtil.select(jCas, Sentence.class).stream().map(s -> s.getCoveredText()).toArray(String[]::new);
+        String[] casSenTex = (String[]) JCasUtil.select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence.class).stream().map(s -> s.getCoveredText()).toArray(String[]::new);
 
         //print the Sentence
-        for (Sentence objekt : select(jCas, Sentence.class)) {
+        for (de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence objekt : select(jCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence.class)) {
             System.out.println(objekt);
             System.out.println(objekt.getCoveredText());
         }

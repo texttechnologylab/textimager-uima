@@ -1,6 +1,8 @@
 package org.hucompute.textimager.uima.textblob;
 
 import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.sentiment.base.SentimentBase;
@@ -10,6 +12,13 @@ import org.json.JSONObject;
 import org.texttechnologylab.annotation.AnnotationComment;
 
 public class TextBlobSentiment extends SentimentBase {
+    /**
+     * Model name
+     */
+    public static final String PARAM_MODEL_NAME = "modelName";
+    @ConfigurationParameter(name = PARAM_MODEL_NAME, defaultValue = "")
+    protected String modelName;
+
     @Override
     protected String getDefaultDockerImage() {
         return "textimager-uima-service-textblob";
@@ -17,7 +26,7 @@ public class TextBlobSentiment extends SentimentBase {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.2";
+        return "0.3";
     }
 
     @Override
@@ -38,6 +47,13 @@ public class TextBlobSentiment extends SentimentBase {
     @Override
     protected String getAnnotatorVersion() {
         return "0.0.1";
+    }
+
+    @Override
+    protected JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException {
+        JSONObject result = super.buildJSON(aJCas);
+        result.put("model", modelName);
+        return result;
     }
 
     @Override
@@ -63,6 +79,12 @@ public class TextBlobSentiment extends SentimentBase {
                     comment.setKey("selection");
                     comment.setValue(selectionAnnotation);
                     comment.addToIndexes();
+
+                    AnnotationComment bertModel = new AnnotationComment(aJCas);
+                    bertModel.setReference(sentiment);
+                    bertModel.setKey("textblob_model");
+                    bertModel.setValue(modelName);
+                    bertModel.addToIndexes();
 
                     addAnnotatorComment(aJCas, sentiment);
                 }
