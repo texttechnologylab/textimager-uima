@@ -20,6 +20,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
+			<artifactId>textimager-uima-heideltime</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hucompute.textimager.uima</groupId>
 			<artifactId>textimager-uima-geonames-gazetteer</artifactId>
 			<version>${project.version}</version>
 		</dependency>
