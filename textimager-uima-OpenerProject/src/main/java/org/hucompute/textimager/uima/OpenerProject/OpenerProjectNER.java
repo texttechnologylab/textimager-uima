@@ -1,22 +1,13 @@
 package org.hucompute.textimager.uima.OpenerProject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.lang.ProcessBuilder.Redirect;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
+import ixa.kaflib.Entity;
+import ixa.kaflib.KAFDocument;
+import ixa.kaflib.Term;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
@@ -24,25 +15,17 @@ import org.apache.uima.cas.Type;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
+import org.apache.uima.fit.util.JCasUtil.*;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.fit.util.JCasUtil.*;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import ixa.kaflib.Entity;
-import ixa.kaflib.KAFDocument;
-import ixa.kaflib.Span;
-import ixa.kaflib.Term;
-import ixa.kaflib.WF;
+import java.io.*;
+import java.lang.ProcessBuilder.Redirect;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 @TypeCapability(
 		inputs = {
@@ -62,7 +45,7 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
     public static final String PARAM_JRUBY_LOCATION = "PARAM_JRUBY_LOCATION";
     @ConfigurationParameter(name = PARAM_JRUBY_LOCATION, mandatory = false)
     protected String jRubyLocation;
-	
+
 	/**
      * Use this language instead of the document language to resolve the model.
      */
@@ -116,7 +99,7 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 
 
 
-    
+
     @Override
     public void initialize(UimaContext aContext)
         throws ResourceInitializationException
@@ -145,14 +128,14 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
                 return ResourceUtils.getUrlAsFile(aUrl, true);
             }
         };
-        
+
         mappingProvider = new MappingProvider();
         mappingProvider
                 .setDefaultVariantsLocation("classpath:/org/hucompute/textimager/uima/OpenerProject/lib/ner-default.map");
         mappingProvider.setDefault(MappingProvider.LOCATION, "classpath:/org/hucompute/textimager/uima/"
                 + "OpenerProject/lib/ner-default.map");
         mappingProvider.setDefault(MappingProvider.BASE_TYPE, NamedEntity.class.getName());
-        
+
         mappingProvider.setOverride(MappingProvider.LOCATION, namedEntityMappingLocation);
         mappingProvider.setOverride(MappingProvider.LANGUAGE, language);
         mappingProvider.setOverride(MappingProvider.VARIANT, variant);
@@ -162,13 +145,13 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
     }
 
 	@Override
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {		
-		
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
+
 		// Needed for Mapping
 		CAS cas = aJCas.getCas();
 		modelProvider.configure(cas);
 		mappingProvider.configure(cas);
-		
+
 		//Generate KAF File
 		JCastoKaf jkaf = new JCastoKaf(aJCas);
 		jkaf.add_POS_Lemma();
@@ -178,12 +161,12 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 
 		String pathToJruby = "~/jruby/bin/";
 		if(jRubyLocation != null) pathToJruby=jRubyLocation;
-		
+
 		// command for the Process
 		List<String> cmd = new ArrayList<String>();
 		cmd.add("/bin/sh");
 		cmd.add("-c");
-		cmd.add("export PATH=/usr/bin:$PATH && cat" + " \"" + KAF_LOCATION + "\"" + 
+		cmd.add("export PATH=/usr/bin:$PATH && cat" + " \"" + KAF_LOCATION + "\"" +
 				"| "+pathToJruby+"jruby -S ner");
 		//| jruby --2.0 -S ned
 
@@ -194,34 +177,34 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 
         boolean success = false;
         Process proc = null;
-        
+
         try {
 	    	// Start Process
 	        proc = pb.start();
-	
+
 	        // IN, OUT, ERROR Streams
 	        PrintWriter out = new PrintWriter(new OutputStreamWriter(proc.getOutputStream()));
 	        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 	        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-			       
-	        // InputSteam to KAF 
+
+	        // InputSteam to KAF
 	        KAFDocument inputkaf = KAFDocument.createFromStream(in);
-	        
-	        
+
+
 	        List<Entity> entityList = inputkaf.getEntities();
-	        
+
 	        for(Entity entity : entityList) {
-	        	
-	        	
-	        	
+
+
+
 	        	List<Term> kafTerms = entity.getTerms();
 	        	int t = kafTerms.size();
 	        	int w = kafTerms.get(t-1).getWFs().size();
-	        	
+
 	        	int begin = kafTerms.get(0).getWFs().get(0).getOffset();
-	        	int end = kafTerms.get(t-1).getWFs().get(w-1).getOffset() 
-	        			+ kafTerms.get(t-1).getWFs().get(w-1).getLength(); 
-	        	
+	        	int end = kafTerms.get(t-1).getWFs().get(w-1).getOffset()
+	        			+ kafTerms.get(t-1).getWFs().get(w-1).getLength();
+
 	        	String tag = entity.getType();
 	        	Type nameTag = mappingProvider.getTagType(tag);
 	        	NamedEntity nameAnno = (NamedEntity) cas.createAnnotation(nameTag, begin, end);
@@ -229,9 +212,9 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 	        	nameAnno.addToIndexes();
 
 	        }
-	                
-	       	        
-            
+
+
+
              // Get Errors
              String line = "";
              String errorString = "";
@@ -247,7 +230,7 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
 			 // Log Error
 			 if(errorString != "")
 			 getLogger().error(errorString);
-			 
+
              success = true;
         }
         catch (IOException e) {
@@ -261,7 +244,7 @@ public class OpenerProjectNER extends JCasAnnotator_ImplBase {
                 proc.destroy();
             }
         }
-        
+
         try {
 			Files.delete(Paths.get(KAF_LOCATION));
 		} catch (IOException e) {

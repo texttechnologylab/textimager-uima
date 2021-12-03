@@ -1,19 +1,14 @@
 package org.hucompute.textimager.uima.io.embeddings.writer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
+import java.util.*;
 
 public class LevyWriter extends BaseEmbeddingsWriter{
 
@@ -54,7 +49,7 @@ public class LevyWriter extends BaseEmbeddingsWriter{
 //		if(processed++ % 100 == 0)
 //			System.out.println(processed);
 //	}
-	
+
 
 	@Override
 	public void process(JCas aJCas)
@@ -67,7 +62,7 @@ public class LevyWriter extends BaseEmbeddingsWriter{
 
 
 		StringBuilder sbMikolov = new StringBuilder();
-		
+
 		HashSet<String>uniqueWords = new HashSet<>();
 
 		for (Sentence sentence : JCasUtil.select(aJCas,Sentence.class)) {
@@ -93,7 +88,7 @@ public class LevyWriter extends BaseEmbeddingsWriter{
 					}
 				}
 			}
-		}	
+		}
 	}
 
 	public List<Dependency>getDependents(Collection<Dependency> dependencies,Token token){

@@ -1,13 +1,8 @@
 package org.hucompute.textimager.similarity;
 
-import static org.apache.uima.fit.util.JCasUtil.select;
-import static org.apache.uima.fit.util.JCasUtil.selectCovered;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -16,9 +11,13 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.hucompute.textimager.uima.type.Similarity;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import static org.apache.uima.fit.util.JCasUtil.select;
+import static org.apache.uima.fit.util.JCasUtil.selectCovered;
 
 @TypeCapability(
 		outputs={
@@ -32,8 +31,8 @@ public abstract class AbstractSimilarity extends JCasAnnotator_ImplBase{
 		}
 	}
 
-	private double round(final double value, final int frac) { 
-		return Math.round(Math.pow(10.0, frac) * value) / Math.pow(10.0, frac); 
+	private double round(final double value, final int frac) {
+		return Math.round(Math.pow(10.0, frac) * value) / Math.pow(10.0, frac);
 	}
 
 	/**
@@ -84,7 +83,7 @@ public abstract class AbstractSimilarity extends JCasAnnotator_ImplBase{
 	 * @param sentence1
 	 * @param sentence2
 	 * @return
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public abstract double getSimilarityValue(JCas jCas,Annotation sentence1, Annotation sentence2);
 //		throw new NotImplementedException();
@@ -94,7 +93,7 @@ public abstract class AbstractSimilarity extends JCasAnnotator_ImplBase{
 
 
 	@Override
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {		
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		List<Sentence> sentences = IteratorUtils.toList(select(aJCas, Sentence.class).iterator());
 		int docSize = 1;
 
@@ -105,7 +104,7 @@ public abstract class AbstractSimilarity extends JCasAnnotator_ImplBase{
 		boolean documentSentenceBipartite = false;
 
 		for (int i = 0; i<sentences.size(); i++) {
-			Sentence sentence1 = sentences.get(i);				
+			Sentence sentence1 = sentences.get(i);
 			indexes.append(sentence1.getBegin()).append("-").append(sentence1.getEnd()).append(",");
 
 			for(int j = i+1; j<sentences.size();j++){
@@ -127,7 +126,7 @@ public abstract class AbstractSimilarity extends JCasAnnotator_ImplBase{
 		sb.insert(0, indexes.toString().substring(0, indexes.length()-1)+";");
 		Similarity value = new Similarity(aJCas);
 		value.setValue(sb.toString());
-		aJCas.addFsToIndexes(value);	
+		aJCas.addFsToIndexes(value);
 		System.out.println("similarity finished");
 	}
 

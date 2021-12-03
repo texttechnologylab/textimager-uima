@@ -1,5 +1,13 @@
 package org.hucompute.textimager.uima.base;
 
+import jep.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.uima.UimaContext;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.resource.ResourceInitializationException;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,24 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.uima.UimaContext;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.resource.ResourceInitializationException;
-
-import jep.JepConfig;
-import jep.JepException;
-import jep.MainInterpreter;
-import jep.PyConfig;
-import jep.SharedInterpreter;
-import jep.SubInterpreter;
-
 public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	/**
 	 * Directory structure:
-	 * 
+	 *
 	 * ~
 	 *  - .textimager
 	 *    - conda
@@ -36,18 +30,18 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	 *          - envs
 	 *            - [envName]
 	 *              - [bashScript]
-	 * 
+	 *
 	 */
-	
+
 	// TODO add default config
-	
+
 	/**
 	 * Conda Version
 	 */
 	public static final String PARAM_CONDA_VERSION = "condaVersion";
 	@ConfigurationParameter(name = PARAM_CONDA_VERSION, mandatory = false, defaultValue = "py37_4.8.3")
 	public String condaVersion ;
-	
+
 	/**
 	 * Conda Environment Name, should be unique for this Annotator
 	 */
@@ -68,38 +62,38 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	public static final String PARAM_CONDA_ENV_DEPS_CONDA = "envDepsConda";
 	@ConfigurationParameter(name = PARAM_CONDA_ENV_DEPS_CONDA, mandatory = false)
 	public String envDepsConda;
-	
+
 	/**
 	 * Python Dependencies from Pip
 	 */
 	public static final String PARAM_CONDA_ENV_DEPS_PIP = "envDepsPip";
 	@ConfigurationParameter(name = PARAM_CONDA_ENV_DEPS_PIP, mandatory = false)
 	public String envDepsPip;
-	
+
 	/**
 	 * Script for additional conda setup
 	 */
 	public static final String PARAM_CONDA_BASH_SCRIPT = "condaBashScript";
 	@ConfigurationParameter(name = PARAM_CONDA_BASH_SCRIPT, mandatory = false)
 	public String condaBashScript;
-	
+
 	// Conda Base Directory
 	protected static final Path condaBaseDir = Paths.get(System.getProperty("user.home"), ".textimager", "conda");
-	
+
 	private int threadSleepTime = 10000;
-	
+
 	protected Path condaDir;
 	protected Path condaInstallDir;
 	protected Path envDir;
-	
+
 	protected static SubInterpreter interpreter;
 	protected static int interpreterUseCount = 0;
-	
+
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		System.out.println("Conda Base Dir: " + condaBaseDir.toString());
 	}
-	
+
 	@Override
 	public void destroy() {
 		interpreterUseCount--;
@@ -116,7 +110,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		}
 		super.destroy();
 	}
-	
+
 	private int runCommand(List<String> command) throws ResourceInitializationException {
 		try {
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
@@ -127,26 +121,26 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			throw new ResourceInitializationException(e);
 		}
 	}
-	
+
 	// Initializes Conda
 	protected void initConda() throws ResourceInitializationException {
 		// set conda base dir
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			throw new ResourceInitializationException(new IllegalArgumentException("condaVersion ist null or empty!"));
 		}
-		
+
 		// conda dir with version
 		condaDir = condaBaseDir.resolve(condaVersion);
 		System.out.println("Conda Dir: " + condaDir.toString());
-		
+
 		// path to install conda to
 		condaInstallDir = condaDir.resolve("miniconda");
 		System.out.println("Conda Install Dir: " + condaInstallDir.toString());
-		
+
 		// base path for envs
 		envDir = condaInstallDir.resolve("envs").resolve(envName);
 		System.out.println("Env Dir: " + envDir.toString());
-		
+
 		// create base directory
 		try {
 			System.out.println("creating dir: " + condaDir.toString());
@@ -173,7 +167,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
-				
+
 		// Check if conda dir is already there
 		System.out.println("checking for conda isntall dir: " + condaInstallDir.toString());
 		if (Files.exists(condaInstallDir)) {
@@ -182,7 +176,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		else {
 			// Not installed, continue
 			System.out.println("not installed, doing now...");
-			
+
 			// copy install script
 			Path condaInstallScript = condaDir.resolve("conda_install.sh");
 			System.out.println("conda install script: " + condaInstallScript.toString());
@@ -191,7 +185,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			} catch (IOException e) {
 				throw new ResourceInitializationException(e);
 			}
-			
+
 			// install conda
 			List<String> command = new ArrayList<>();
 	        command.add("bash");
@@ -206,23 +200,23 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 	        	throw new ResourceInitializationException(new IOException("failed to install conda"));
 	        }
 		}
-		
+
 		System.out.println("deleting lockfile: " + lockfile.toString());
 		try {
 			Files.delete(lockfile);
 		} catch (IOException e) {
 			// ignore
 		}
-    	
+
 		initEnv();
 		runBashScript();
 		initInterpreter();
 	}
-	
+
 	// Initializes Conda Env with Dependencies
 	private void initEnv() throws ResourceInitializationException {
 		System.out.println("init env");
-		
+
 		// Lockfile
 		Path lockfile = condaDir.resolve("textimager_" + envDir.getFileName().toString() +".env_lock");
 		System.out.println("lockfile: " + lockfile.toString());
@@ -241,7 +235,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		} catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
-		
+
 		// Check if env dir is already there
 		System.out.println("checking env dir: " + envDir.toString());
 		if (Files.exists(envDir)) {
@@ -250,7 +244,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		else {
 		// Not installed, continue
 			System.out.println("not installed, doing now...");
-		
+
 			// copy install script
 			Path condaEnvScript = condaDir.resolve("conda_env.sh");
 			System.out.println("conda env script: " + condaEnvScript.toString());
@@ -259,10 +253,10 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			} catch (IOException e) {
 				throw new ResourceInitializationException(e);
 			}
-			
+
 			// Get JVM home path
 			String javaHome = StringUtils.substringBefore(System.getProperties().getProperty("java.home"), "/jre");
-			
+
 			// install env
 			List<String> command = new ArrayList<>();
 	        command.add("bash");
@@ -288,14 +282,14 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			// ignore
 		}
 	}
-	
+
 	private void runBashScript() throws ResourceInitializationException {
 		System.out.println("run bash script...");
-		
+
 		if (condaBashScript != null && !condaBashScript.isEmpty()) {
 			Path script = envDir.resolve(condaBashScript);
 			System.out.println("script: " + script.toString());
-			
+
 			// Lockfile
 			Path lockfile = condaDir.resolve("textimager_" + script.getFileName().toString() +".script_lock");
 			System.out.println("lockfile: " + lockfile.toString());
@@ -314,7 +308,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			} catch (IOException e) {
 				throw new ResourceInitializationException(e);
 			}
-			
+
 			if (Files.exists(script)) {
 				System.out.println("bash script already run, skipping...");
 			}
@@ -326,7 +320,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 				} catch (IOException e) {
 					throw new ResourceInitializationException(e);
 				}
-				
+
 				// install env
 				List<String> command = new ArrayList<>();
 		        command.add("bash");
@@ -340,7 +334,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 		        	throw new ResourceInitializationException(new IOException("failed to run bash script"));
 		        }
 			}
-			
+
 			System.out.println("deleting lockfile: " + lockfile.toString());
 			try {
 				Files.delete(lockfile);
@@ -349,18 +343,18 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
 			}
 		}
 	}
-	
+
 	// Initializes the Python Interpreter
 	private void initInterpreter() throws ResourceInitializationException {
 		System.out.println("initializing interpreter in env: " + envDir.toString());
-		
+
 		interpreterUseCount++;
-		
+
 		if (interpreter != null) {
 			System.out.println("python interpreter already set up");
 			return;
 		}
-		
+
 		System.out.println("initializing new python interpreter...");
 
         PyConfig pyConfig = new PyConfig();
@@ -395,7 +389,7 @@ public abstract class JepAnnotator extends JCasAnnotator_ImplBase {
         } catch (IOException e) {
 			throw new ResourceInitializationException(e);
 		}
-        
+
         try {
         	interpreter = jepConfig.createSubInterpreter();
 		} catch (JepException e) {

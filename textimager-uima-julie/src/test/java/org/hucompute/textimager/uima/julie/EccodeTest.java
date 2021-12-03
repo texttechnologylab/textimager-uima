@@ -11,9 +11,9 @@ import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
 import java.io.IOException;
-import static org.junit.Assert.assertArrayEquals;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.junit.Assert.assertArrayEquals;
 /**
  * Eccode
  *

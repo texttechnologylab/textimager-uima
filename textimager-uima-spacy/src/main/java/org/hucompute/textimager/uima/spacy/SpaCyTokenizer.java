@@ -1,15 +1,7 @@
 package org.hucompute.textimager.uima.spacy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import jep.JepException;
 
 public class SpaCyTokenizer extends SpaCyBase {
 
@@ -34,7 +26,7 @@ public class SpaCyTokenizer extends SpaCyBase {
 					casToken.addToIndexes();
 				}
 			}
-			
+
 		} catch (JepException e) {
 			e.printStackTrace();
 		}

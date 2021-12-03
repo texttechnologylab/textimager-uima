@@ -1,16 +1,13 @@
 package org.hucompute.textimager.uima.marmot;
 
-import static org.apache.uima.fit.util.JCasUtil.select;
-
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import marmot.morph.MorphTagger;
+import marmot.morph.Word;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.Type;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
@@ -24,15 +21,16 @@ import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
 import org.dkpro.core.api.resources.ModelProviderBase;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import marmot.morph.MorphTagger;
-import marmot.morph.Word;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+
+import static org.apache.uima.fit.util.JCasUtil.select;
 
 /**
- * 
+ *
  * @author Wahed Hemati
  *
  */
@@ -92,7 +90,7 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 	public static final String PARAM_WRITE_MORPH = ComponentParameters.PARAM_WRITE_MORPH;
 	@ConfigurationParameter(name=PARAM_WRITE_MORPH, mandatory=true, defaultValue="false")
 	private boolean writeMorph;
-	
+
 	public static final String PARAM_MAX_SENTENCE_LENGTH = "PARAM_MAX_SENTENCE_LENGTH";
 	@ConfigurationParameter(name = PARAM_MAX_SENTENCE_LENGTH, mandatory = false, defaultValue="-1")
 	protected int maximumSentenceLength;
@@ -124,7 +122,7 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 				"classpath:/org/hucompute/textimager/uima/marmot/lib/pos-default-variants.map");
         featuresParser = new MorphologicalFeaturesParser(this, modelProvider);
 	}
-	
+
 	int processed = 0;
 
 
@@ -144,7 +142,7 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 				sentence.removeFromIndexes();
 				continue;
 			}
-			
+
 			for (Token token : tokens) {
 				words.add(new Word(token.getCoveredText()));
 			}
@@ -159,7 +157,7 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 					posAnno.addToIndexes();
 					tokens.get(i).setPos(posAnno);
 				}
-				
+
 				//Add Morph
 				if(writeMorph){
                     MorphologicalFeatures analysis = featuresParser
@@ -168,5 +166,5 @@ public class MarMoTTagger extends JCasAnnotator_ImplBase {
 				}
 			}
 		}
-	}		
+	}
 }

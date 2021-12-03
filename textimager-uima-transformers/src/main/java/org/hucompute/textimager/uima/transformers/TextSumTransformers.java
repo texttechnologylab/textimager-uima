@@ -1,15 +1,14 @@
 package org.hucompute.textimager.uima.transformers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import jep.JepException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import jep.JepException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TextSumTransformers extends BaseTransformers {
 
@@ -17,7 +16,7 @@ public class TextSumTransformers extends BaseTransformers {
 		super.initialize(aContext);
 
 	}
-	
+
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
@@ -35,13 +34,13 @@ public class TextSumTransformers extends BaseTransformers {
 
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("textsum");
 			poss.forEach(p -> {
-				
+
 				String labelStr = p.get("summary_text").toString();
-				
+
 				NamedEntity neAnno = new NamedEntity(aJCas, 0, (aJCas.getDocumentText()).length());
 				neAnno.setValue(labelStr);
 				neAnno.addToIndexes();
-				
+
 			});
 		} catch (JepException e) {
 			e.printStackTrace();

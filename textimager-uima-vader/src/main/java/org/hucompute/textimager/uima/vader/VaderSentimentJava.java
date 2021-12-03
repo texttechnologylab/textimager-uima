@@ -1,17 +1,14 @@
 package org.hucompute.textimager.uima.vader;
 
 //import com.vader.sentiment.analyzer.SentimentAnalyzer;
+
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.hucompute.textimager.uima.base.TextImagerBaseAnnotator;
-import org.texttechnologylab.annotation.AnnotationComment;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class VaderSentimentJava extends TextImagerBaseAnnotator {
     /**

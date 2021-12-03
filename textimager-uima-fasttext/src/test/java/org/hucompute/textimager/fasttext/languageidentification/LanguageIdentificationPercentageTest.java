@@ -1,7 +1,8 @@
 package org.hucompute.textimager.fasttext.languageidentification;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Language;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -10,13 +11,10 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Language;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-
-import static org.junit.Assert.*;
-
 import java.util.Iterator;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.junit.Assert.assertEquals;
 
 
 public class LanguageIdentificationPercentageTest {
@@ -27,7 +25,7 @@ public class LanguageIdentificationPercentageTest {
 		DocumentMetaData.create(cas).setDocumentId("test");
 		new Sentence(cas, 0, 22).addToIndexes();
 		new Sentence(cas, 23, cas.getDocumentText().length()).addToIndexes();
-		
+
 		AggregateBuilder builder = new AggregateBuilder();
 		builder.add(createEngineDescription(
 				LanguageIdentificationPercentage.class
@@ -39,7 +37,7 @@ public class LanguageIdentificationPercentageTest {
 		assertEquals(iter.next().getValue(), "de");
 		assertEquals(iter.next().getValue(), "en");
 	}
-	
-	
+
+
 
 }

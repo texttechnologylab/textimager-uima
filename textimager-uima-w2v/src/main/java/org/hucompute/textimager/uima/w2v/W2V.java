@@ -32,8 +32,6 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.*;
-
 //import org.deeplearning4j.text.sentenceiterator.CollectionSentenceIterator;
 //import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 //import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;

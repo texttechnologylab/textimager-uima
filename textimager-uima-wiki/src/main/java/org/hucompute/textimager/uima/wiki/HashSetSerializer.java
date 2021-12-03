@@ -1,16 +1,16 @@
 package org.hucompute.textimager.uima.wiki;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashSet;
-
 import org.mapdb.DataInput2;
 import org.mapdb.DataOutput2;
 import org.mapdb.Serializer;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashSet;
+
 public class HashSetSerializer implements Serializable,Serializer<HashSet<WikidataHyponymObject>> {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -7297871012667258562L;
 

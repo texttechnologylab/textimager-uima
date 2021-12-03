@@ -1,17 +1,16 @@
 package org.hucompute.textimager.uima.transformers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import jep.JepException;
+import jep.SharedInterpreter;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.JepAnnotator;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import jep.JepException;
-import jep.SharedInterpreter;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public abstract class BaseTransformers extends JepAnnotator {
 
@@ -19,7 +18,7 @@ public abstract class BaseTransformers extends JepAnnotator {
 
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-		
+
 		super.initialize(aContext);
 		System.out.println("initializing transformers base class...");
 
@@ -43,22 +42,22 @@ public abstract class BaseTransformers extends JepAnnotator {
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			condaVersion = "py37_4.8.3";
 		}
-		
+
 		System.out.println("initializing transformers base class: conda");
-		
+
 		initConda();
-		
+
 		System.out.println("initializing transformers base class: interprter extras...");
-		
+
 		try {
 			interpreter.exec("import os");
 			interpreter.exec("import sys");
-			interpreter.exec("from tranformers import pipeline, AutoTokenizer"); 
+			interpreter.exec("from tranformers import pipeline, AutoTokenizer");
 			interpreter.exec("from java.lang import System");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
-		
+
 		System.out.println("initializing transformers base class done");
 
 	}
@@ -124,7 +123,7 @@ public abstract class BaseTransformers extends JepAnnotator {
 		jsonAddWordsAndSpaces(aJCas, json);
 		return json;
 	}
-	
+
 	@Override
 	public void destroy() {
 		try {

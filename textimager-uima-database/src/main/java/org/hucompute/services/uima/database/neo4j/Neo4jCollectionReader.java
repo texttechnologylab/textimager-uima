@@ -1,8 +1,9 @@
 package org.hucompute.services.uima.database.neo4j;
 
-import java.io.IOException;
-import java.util.Iterator;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UimaContext;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
@@ -18,10 +19,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.io.IOException;
+import java.util.Iterator;
 
 
 public class Neo4jCollectionReader extends AbstractCollectionReader {
@@ -59,7 +58,7 @@ public class Neo4jCollectionReader extends AbstractCollectionReader {
 					Token_Neo4J_Impl token = new Token_Neo4J_Impl(pMDB, type.getEndNode());
 
 					Token xmiToken = new Token(aCAS.getJCas(),(Integer)token.getProperty("begin"),(Integer)token.getProperty("end"));
-					
+
 					Iterator<Relationship>posLemma =  token.getRelationship(RelationType.lemma,RelationType.pos).iterator();
 					while (posLemma.hasNext()) {
 						Relationship type2 = posLemma.next();

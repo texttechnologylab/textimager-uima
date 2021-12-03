@@ -11,19 +11,17 @@ import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
-import org.hucompute.textimager.uima.sentiment.base.SentimentBase;
-import org.hucompute.textimager.uima.type.Sentiment;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.texttechnologylab.annotation.AnnotationComment;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class StanzaMultiTagger extends DockerRestAnnotator {

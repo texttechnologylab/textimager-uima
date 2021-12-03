@@ -1,27 +1,23 @@
 package org.hucompute.textimager.uima.flair;
 
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import jep.JepException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.Type;
+import org.apache.uima.cas.text.AnnotationFS;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.resources.MappingProvider;
+import org.texttechnologylab.annotation.NamedEntity;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.cas.Type;
-import org.apache.uima.cas.text.AnnotationFS;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.texttechnologylab.annotation.NamedEntity;
-import org.texttechnologylab.annotation.type.*;
-
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import jep.JepException;
-
-import org.dkpro.core.api.parameter.ComponentParameters;
-import org.dkpro.core.api.resources.MappingProvider;
 
 public class FlairNERBiofid extends FlairBase {
 	public static final String PARAM_CACHE_MODELS = "cacheModels";

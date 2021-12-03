@@ -1,14 +1,13 @@
 package org.hucompute.textimager.uima.turkish_deasciifier;
 
-import static org.apache.uima.fit.util.JCasUtil.select;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import deasciifiedAnnotation.type.DeasciifiedAnnotation;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import deasciifiedAnnotation.type.DeasciifiedAnnotation;
+import static org.apache.uima.fit.util.JCasUtil.select;
 
 /**
 * TurkishDeasciifierToken
@@ -18,7 +17,7 @@ import deasciifiedAnnotation.type.DeasciifiedAnnotation;
 * @author Alexander Sang
 * @version 1.1
 *
-* This class provide deasciified text for turkish language. 
+* This class provide deasciified text for turkish language.
 * UIMA-Token is needed as input to create deasciifiedText.
 */
 @TypeCapability(
@@ -35,19 +34,19 @@ public class TurkishDeasciifierToken extends SegmenterBase {
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 		// Create new Turkish-Deasciifier
 		TurkishDeasciifier deasciifier = new TurkishDeasciifier();
-		// Create DeasciifiedAnnotation		
+		// Create DeasciifiedAnnotation
 		// Loop over every Token and create deasciified text.
-		for (Token token : select(aJCas, Token.class)) {				
+		for (Token token : select(aJCas, Token.class)) {
 			deasciifier.setAsciiString(token.getCoveredText());
-			// Create DeasciifiedAnnotation		
+			// Create DeasciifiedAnnotation
 			DeasciifiedAnnotation deasciifiedUIMAText = new DeasciifiedAnnotation(aJCas, token.getBegin(), token.getEnd());
 			deasciifiedUIMAText.setValue(deasciifier.convertToTurkish());
 			deasciifiedUIMAText.addToIndexes();
-        }	
+        }
 	}
-	
+
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {
-		
+
 	}
 }

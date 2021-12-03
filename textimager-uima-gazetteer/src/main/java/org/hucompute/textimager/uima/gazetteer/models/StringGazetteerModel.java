@@ -16,7 +16,6 @@ import org.texttechnologylab.utilities.helper.FileUtils;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -32,9 +31,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class StringGazetteerModel implements IGazetteerModel {
-	
+
 	public static final Pattern nonTokenCharacterClass = Pattern.compile("[^\\p{Alpha}\\- ]+", Pattern.UNICODE_CHARACTER_CLASS);
-	
+
 	protected static final Logger logger = Logger.getLogger(StringGazetteerModel.class);
 	protected static Path tempPath;
 	protected static Path cachePath;
@@ -48,11 +47,11 @@ public class StringGazetteerModel implements IGazetteerModel {
 	protected final HashSet<String> filterSet;
 	protected final int minWordCountForSkipGrams;
 	protected final boolean noSkipGrams;
-	
+
 	Map<String, String> skipGramTaxonLookup;
 	Set<String> sortedSkipGramSet;
 	Map<String, HashSet<Object>> taxonUriMap;
-	
+
 	/**
 	 * Create 1-skip-n-grams from each taxon in a file from a given list of files.
 	 *
@@ -98,27 +97,27 @@ public class StringGazetteerModel implements IGazetteerModel {
 		minWordCountForSkipGrams = iMinWordCountForSkipGrams;
 		filterSet = pFilterSet;
 		this.noSkipGrams = noSkipGrams;
-		
+
 		long startTime = System.currentTimeMillis();
-		
+
 		// Map: Taxon -> {URI}
 		taxonUriMap = buildTaxaUriMap(simpleLoading);
-		
+
 		// Map: {Skip-Grams} -> Taxon
 		skipGramTaxonLookup = buildSkipGramTaxonLookup();
-		
+
 		// Set: {Skip-Gram}
 		sortedSkipGramSet = buildSortedSkipGramSet();
-		
+
 		logger.info(String.format("Finished loading %d skip-grams from %d taxa in %dms.",
 				sortedSkipGramSet.size(), taxonUriMap.size(), System.currentTimeMillis() - startTime)
 		);
 	}
-	
+
 	protected LinkedHashMap<String, HashSet<Object>> buildTaxaUriMap(boolean simpleLoading) throws IOException {
 		final AtomicInteger duplicateKeys = new AtomicInteger(0);
 		final LinkedHashMap<String, HashSet<Object>> lTaxonUriMap = new LinkedHashMap<>();
-		
+
 		logger.info(String.format("Loading entries from %d files..", sourceLocations.size()));
 		for (int i = 0; i < sourceLocations.size(); i++) {
 			String sourceLocation = sourceLocations.get(i);
@@ -134,13 +133,13 @@ public class StringGazetteerModel implements IGazetteerModel {
 			});
 		}
 		logger.info(String.format("Loaded %d entries from %d files.", lTaxonUriMap.size(), sourceLocations.size()));
-		
+
 		if (duplicateKeys.get() > 0)
 			logger.warn(String.format("Merged %d duplicate entries!", duplicateKeys.get()));
-		
+
 		return lTaxonUriMap;
 	}
-	
+
 	protected LinkedHashMap<String, String> buildSkipGramTaxonLookup() {
 		AtomicInteger duplicateKeys = new AtomicInteger(0);
 		final LinkedHashMap<String, String> lSkipGramTaxonLookup = taxonUriMap.keySet().stream()
@@ -156,13 +155,13 @@ public class StringGazetteerModel implements IGazetteerModel {
 						},
 						LinkedHashMap::new));
 		logger.info(String.format("Ignoring %d duplicate skip-grams!", duplicateKeys.get()));
-		
+
 		// Ensure actual taxa are contained in lSkipGramTaxonLookup
 		taxonUriMap.keySet().forEach(tax -> lSkipGramTaxonLookup.put(tax, tax));
-		
+
 		return lSkipGramTaxonLookup;
 	}
-	
+
 	protected LinkedHashSet<String> buildSortedSkipGramSet() {
 		return skipGramTaxonLookup.keySet().stream()
 				.filter(s -> !Strings.isNullOrEmpty(s))
@@ -170,7 +169,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 				.sorted(Comparator.comparingInt(String::length).reversed())
 				.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
-	
+
 	/**
 	 * Find this Skip-Grams taxon return its respective URI.
 	 *
@@ -180,13 +179,13 @@ public class StringGazetteerModel implements IGazetteerModel {
 	public Set<Object> getUriFromSkipGram(String skipGram) {
 		return taxonUriMap.get(skipGramTaxonLookup.get(skipGram));
 	}
-	
+
 	protected ArrayList<String> getTaxaFiles(String[] aSourceLocations) throws IOException {
 		ArrayList<String> lSourceLocations = new ArrayList<>();
 		for (String sourceLocation : aSourceLocations) {
 			// If sourceLocation is a valid URL, download the given file
 			sourceLocation = downloadTaxaFiles(sourceLocation);
-			
+
 			// If zipped extract taxa files to temp folder
 			if (sourceLocation.endsWith(".zip")) {
 				lSourceLocations.addAll(extractTaxaFiles(sourceLocation));
@@ -207,7 +206,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 		}
 		return lSourceLocations;
 	}
-	
+
 	/**
 	 * Load taxa from UTF-8 file, one taxon per line.
 	 *
@@ -243,7 +242,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 					);
 		}
 	}
-	
+
 	/**
 	 * Attempt to download the taxa files, if the location parameter is a valid URL
 	 *
@@ -262,10 +261,10 @@ public class StringGazetteerModel implements IGazetteerModel {
 		}
 		return sourceLocation;
 	}
-	
+
 	protected static ArrayList<String> extractTaxaFiles(String sourceLocation) throws IOException {
 		logger.info(String.format("Extracting taxa files from '%s'..", sourceLocation));
-		
+
 		File gazetteerFolder = getTaxaLocation().toFile();
 		ArrayList<String> extractedFiles = new ArrayList<>();
 		try (ZipFile zipFile = new ZipFile(sourceLocation)) {
@@ -288,7 +287,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 		logger.info(String.format("Extracted %d taxa files to '%s'.", extractedFiles.size(), sourceLocation));
 		return extractedFiles;
 	}
-	
+
 	/**
 	 * Check the possible paths for automatic download and extraction for read/write access and create folders if
 	 * necessary.
@@ -314,7 +313,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 		gazetteerFolder.toFile().mkdirs();
 		return gazetteerFolder;
 	}
-	
+
 	/**
 	 * Calls {@link #getSkipGramsFromTaxonAsStream getSkipGramsFromTaxonAsStream(String)} and collects the result in a
 	 * Set.
@@ -328,7 +327,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 	 */
 	public static Set<String> getSkipGramsFromTaxon(boolean noSkipGrams, String pString, boolean addAbbreviatedTaxa, int minWordCountForSkipGrams, boolean getAllSkips, boolean splitHyphen) {
 		HashSet<String> basicSkipGrams = getSkipGramsFromTaxonAsStream(noSkipGrams, pString, minWordCountForSkipGrams, getAllSkips, splitHyphen, 5);
-		
+
 		if (addAbbreviatedTaxa) {
 			ArrayList<String> words = getWords(pString, splitHyphen);
 			if (words.size() > 1) {
@@ -342,7 +341,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 		}
 		return basicSkipGrams;
 	}
-	
+
 	/**
 	 * Get a List of 1-skip-n-grams for the given string. The string itself is always the first element of the list. The
 	 * string is split by whitespaces and all n over n-1 combinations are computed and added to the list. If there is
@@ -366,13 +365,13 @@ public class StringGazetteerModel implements IGazetteerModel {
 			} else {
 				combinationRange = IntStream.of(words.size() - 1);
 			}
-			
+
 			Stream<Integer[]> combinationsArraysStream = combinationRange
 					.boxed()
 					.map(i -> new Combinations(words.size(), i).iterator())
 					.flatMap(Streams::stream)
 					.map(ArrayUtils::toObject);
-			
+
 			return combinationsArraysStream
 					.parallel()
 					.map(combination -> {
@@ -384,7 +383,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 					}).collect(Collectors.toCollection(HashSet::new));
 		}
 	}
-	
+
 	protected static ArrayList<String> getWords(String pString, boolean splitHyphen) {
 		ArrayList<String> words;
 		if (splitHyphen) {
@@ -394,7 +393,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 		}
 		return words;
 	}
-	
+
 	protected StringTreeNode buildTree(Boolean bUseLowercase, String tokenBoundaryRegex) {
 		logger.info("Building tree..");
 		StringTreeNode tree = new StringTreeNode(tokenBoundaryRegex, bUseLowercase);
@@ -404,7 +403,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 				.forEach(tree::insert);
 		return tree;
 	}
-	
+
 	/**
 	 * Stream all previously created skip-grams sorted .
 	 *
@@ -413,20 +412,20 @@ public class StringGazetteerModel implements IGazetteerModel {
 	public Stream<String> stream() {
 		return this.sortedSkipGramSet.stream();
 	}
-	
+
 	@Override
 	public Map<String, String> getSkipGramTaxonLookup() {
 		return skipGramTaxonLookup;
 	}
-	
+
 	@Override
 	public Set<String> getSortedSkipGramSet() {
 		return sortedSkipGramSet;
 	}
-	
+
 	@Override
 	public Map<String, HashSet<Object>> getTaxonUriMap() {
 		return taxonUriMap;
 	}
-	
+
 }

@@ -1,15 +1,5 @@
 package org.hucompute.services.uima.database.xmi;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.uima.UimaContext;
@@ -23,6 +13,16 @@ import org.dkpro.core.api.io.ResourceCollectionReaderBase;
 import org.dkpro.core.api.resources.CompressionUtils;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static org.apache.commons.io.IOUtils.closeQuietly;
+
 
 /**
  * Reader for UIMA XMI files.
@@ -35,7 +35,7 @@ extends ResourceCollectionReaderBase
 {
 	public static final String PARAM_LOG_FILE_LOCATION = "logFile";
 	@ConfigurationParameter(name = PARAM_LOG_FILE_LOCATION,mandatory = false)
-	public File logFile; 
+	public File logFile;
 
 	public StopWatch stopWatch;
 	int processed = 0;
@@ -50,7 +50,7 @@ extends ResourceCollectionReaderBase
 		stopWatch.start();
 		stopWatch.suspend();
 	}
-	
+
 	public void resumeWatch(){
 		stopWatch.resume();
 	}
@@ -58,7 +58,7 @@ extends ResourceCollectionReaderBase
 	public void suspendWatch(){
 		stopWatch.suspend();
 	}
-	
+
 	public void log(){
 		if(processed++%100==0){
 			System.out.println("Reader processed documentscount: " + processed +" in " + getSeconds(stopWatch.toString()) +" ms");
@@ -68,10 +68,10 @@ extends ResourceCollectionReaderBase
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}	
+				}
 		}
 	}
-	
+
 	private long getSeconds(String iso){
 		try {
 			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
@@ -83,7 +83,7 @@ extends ResourceCollectionReaderBase
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * In lenient mode, unknown types are ignored and do not cause an exception to be thrown.
 	 */
@@ -113,7 +113,7 @@ extends ResourceCollectionReaderBase
 			getNext(aCAS);
 			e.printStackTrace();
 			return;
-		}		
+		}
 		finally {
 			closeQuietly(is);
 		}

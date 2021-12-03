@@ -2,11 +2,7 @@ package com.srbenoit.math.delaunay;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A class to compute Voronoi diagrams.

@@ -1,20 +1,13 @@
 package org.hucompute.textimager.uima.gnfinder;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertArrayEquals;
 
 public class GnfinderTest {
 	@Test

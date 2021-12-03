@@ -1,7 +1,5 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.EntityMention;
-import de.julielab.jcore.types.POSTag;
 import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
