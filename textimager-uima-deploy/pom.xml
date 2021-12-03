@@ -268,11 +268,11 @@
 					<artifactId>jcore-types</artifactId>
 					<version>${jcore.types.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-julie</artifactId>
-					<version>${project.version}</version>
-				</dependency>
+                <!--				<dependency>-->
+                <!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+                <!--					<artifactId>textimager-uima-julie</artifactId>-->
+                <!--					<version>${project.version}</version>-->
+                <!--				</dependency>-->
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-german-emotion-detection</artifactId>
