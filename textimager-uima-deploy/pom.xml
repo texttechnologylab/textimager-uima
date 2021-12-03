@@ -153,11 +153,11 @@
 					<artifactId>textimager-uima-spacy</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-spacy-ie</artifactId>
-					<version>${project.version}</version>
-				</dependency>
+				<!--				<dependency>-->
+				<!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+				<!--					<artifactId>textimager-uima-spacy-ie</artifactId>-->
+				<!--					<version>${project.version}</version>-->
+				<!--				</dependency>-->
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-biofid-flair</artifactId>

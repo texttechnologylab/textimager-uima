@@ -1,21 +1,15 @@
 package org.hucompute.textimager.uima.spacy;
 
-import de.tudarmstadt.ukp.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.apache.uima.UIMAException;
-import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.CasIOUtil;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.texttechnologylab.annotation.administration.FinishAnnotation;
-import org.texttechnologylab.annotation.type.Fingerprint;
 
 import java.io.File;
 import java.io.IOException;
-
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 public class TestFs {
 
