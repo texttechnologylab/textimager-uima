@@ -9,7 +9,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.Combinations;
 import org.apache.commons.math3.util.Pair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.uima.util.UriUtils;
 import org.hucompute.textimager.uima.gazetteer.tree.StringTreeNode;
 import org.texttechnologylab.utilities.helper.FileUtils;
@@ -34,7 +35,7 @@ public class StringGazetteerModel implements IGazetteerModel {
 
 	public static final Pattern nonTokenCharacterClass = Pattern.compile("[^\\p{Alpha}\\- ]+", Pattern.UNICODE_CHARACTER_CLASS);
 
-	protected static final Logger logger = Logger.getLogger(StringGazetteerModel.class);
+	protected static final Logger logger = LogManager.getLogger(StringGazetteerModel.class);
 	protected static Path tempPath;
 	protected static Path cachePath;
 	protected final ArrayList<String> sourceLocations;
