@@ -1,14 +1,14 @@
 package org.hucompute.textimager.uima.io.html;
 
-import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDescription;
+import org.apache.uima.UIMAException;
+import org.apache.uima.collection.CollectionReaderDescription;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.apache.uima.UIMAException;
-import org.apache.uima.collection.CollectionReaderDescription;
-import org.xml.sax.SAXException;
+import static org.apache.uima.fit.factory.CollectionReaderFactory.createReaderDescription;
 
 
 public class EnhancedHtmlReaderTest {
@@ -18,7 +18,7 @@ public class EnhancedHtmlReaderTest {
         		EnhancedHtmlReader.PARAM_LANGUAGE, "de",
         		EnhancedHtmlReader.PARAM_SOURCE_ENCODING, "auto"
         );
-        
+
         htmlReader.toXML(new FileWriter(new File("EnhancedHtmlReader.xml")));
 
 //        AnalysisEngineDescription xmiWriter = createEngineDescription(XmiWriter.class,

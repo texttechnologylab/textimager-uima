@@ -1,11 +1,10 @@
 package org.hucompute.textimager.uima.cltk;
 
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 
 public class CLTKSentenceSegmenter extends CLTKBase {
 	@Override
@@ -14,7 +13,7 @@ public class CLTKSentenceSegmenter extends CLTKBase {
 			.put("lang", aJCas.getDocumentLanguage())
 			.put("text", aJCas.getDocumentText());
 	}
-	
+
 	@Override
 	protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
 		String docText = aJCas.getDocumentText();
@@ -22,15 +21,15 @@ public class CLTKSentenceSegmenter extends CLTKBase {
 		JSONArray sentences = jsonResult.getJSONArray("sents");
 		for (Object s : sentences) {
 			String sentence = (String)s;
-			
+
 			int pos = docText.indexOf(sentence, last_search_pos);
-			if (pos != -1) {				
+			if (pos != -1) {
 				int begin = pos;
 				int end = pos + sentence.length();
-				
+
 				Sentence casSentence = new Sentence(aJCas, begin, end);
 				casSentence.addToIndexes();
-				
+
 				last_search_pos = pos + 1;
 			}
 		};

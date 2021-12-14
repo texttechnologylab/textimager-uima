@@ -1,11 +1,9 @@
 package org.hucompute.textimager.uima.allennlp;
 
+import jep.JepException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.JepAnnotator;
-
-import jep.JepException;
-import jep.SharedInterpreter;
 
 public abstract class AllenNLPBase extends JepAnnotator {
 
@@ -34,13 +32,13 @@ public abstract class AllenNLPBase extends JepAnnotator {
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			condaVersion = "py37_4.8.3";
 		}
-		
+
 		System.out.println("initializing spacy base class: conda");
-		
+
 		initConda();
-		
+
 		System.out.println("initializing spacy base class: interprter extras...");
-		
+
 		try {
 			interpreter.exec("import sys");
 			interpreter.exec("sys.argv=['']");
@@ -50,8 +48,8 @@ public abstract class AllenNLPBase extends JepAnnotator {
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
-		
+
 		System.out.println("initializing allennlp base class done");
-		
+
 	}
 }

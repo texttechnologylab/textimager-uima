@@ -1,15 +1,14 @@
 package org.hucompute.services.uima.database.cassandra;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.TagsetDescription;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.*;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UimaContext;
 import org.apache.uima.cas.CAS;
@@ -19,6 +18,11 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
 import org.hucompute.services.uima.database.AbstractCollectionReader;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class CassandraCollectionReader extends AbstractCollectionReader {
@@ -79,7 +83,7 @@ public class CassandraCollectionReader extends AbstractCollectionReader {
 			return true;
 		}
 		else
-		{	
+		{
 			session.close();
 			cluster.close();
 			return false;
@@ -210,6 +214,6 @@ public class CassandraCollectionReader extends AbstractCollectionReader {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 }

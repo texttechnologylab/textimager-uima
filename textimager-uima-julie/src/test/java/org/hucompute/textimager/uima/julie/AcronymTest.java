@@ -1,6 +1,5 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Abbreviation;
 import de.julielab.jcore.types.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ABBREV;
 import org.apache.uima.UIMAException;
@@ -9,9 +8,7 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-
 import org.junit.Test;
-
 
 import java.io.IOException;
 

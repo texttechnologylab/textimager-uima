@@ -1,15 +1,14 @@
 package org.hucompute.textimager.uima.polyglot;
 
-import static org.apache.uima.fit.util.JCasUtil.select;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.ProcessBuilder.Redirect;
-import java.net.URL;
-import java.util.ArrayList;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
@@ -19,16 +18,15 @@ import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.ProcessBuilder.Redirect;
+import java.net.URL;
+import java.util.ArrayList;
+
+import static org.apache.uima.fit.util.JCasUtil.select;
 
 /**
 * PolyglotPartOfSpeech
@@ -38,21 +36,21 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 * @author Alexander Sang
 * @version 1.2
 *
-* This class provide POS for 16 languages. (http://polyglot.readthedocs.io/en/latest/POS.html) 
+* This class provide POS for 16 languages. (http://polyglot.readthedocs.io/en/latest/POS.html)
 * UIMA-Token is needed as input to create POS.
 * UIMA-Standard is used to represent the final POS.*/
 @TypeCapability(
 		inputs = {"de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence"},
 		outputs = {"de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS"})
 public class PolyglotPartOfSpeech  extends SegmenterBase {
-	
+
 	/**
      * Load the PythonPATH
      */
     public static final String PARAM_PYTHON_PATH = "PythonPathPolyglot";
     @ConfigurationParameter(name = PARAM_PYTHON_PATH, mandatory = false)
     protected String PythonPATH;
-    
+
 	/**
      * Use this language instead of the document language to resolve the model.
      */
@@ -81,11 +79,11 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
     public static final String PARAM_POS_MAPPING_LOCATION = ComponentParameters.PARAM_POS_MAPPING_LOCATION;
     @ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
     protected String posMappingLocation;
-    
+
     public static final String PARAM_POLYGLOT_PATH = "PolyglotPath";
     @ConfigurationParameter(name = PARAM_POLYGLOT_PATH, mandatory = false)
     protected String POLYGLOT_LOCATION;
-    
+
     /**
      * Log the tag set(s) when a model is loaded.
      *
@@ -129,7 +127,7 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
 
         posMappingProvider = MappingProviderFactory.createPosMappingProvider(posMappingLocation, language, modelProvider);
     }
-	
+
 	/**
 	 * Analyze the text and create tokens for every word. After successfully creation, add tokens to JCas.
 	 * @param aJCas
@@ -139,36 +137,36 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
 		if(POLYGLOT_LOCATION == null) {
 			POLYGLOT_LOCATION = "src/main/resources/org/hucompute/textimager/uima/polyglot/python/";
 		}
-		
+
 		// Variables for mapping
 		CAS cas = aJCas.getCas();
 		modelProvider.configure(cas);
 		posMappingProvider.configure(cas);
-		
+
 		// Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
 		ArrayList<Token> T = new ArrayList<Token>();
 		for (Token token : select(aJCas, Token.class)) {
 			T.add(token);
 		}
-		
+
 		int offsetToken = 0;
-		
-		for (Sentence sentence : select(aJCas, Sentence.class)) {	
+
+		for (Sentence sentence : select(aJCas, Sentence.class)) {
 			// Define ProcessBuilder
 	        ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "pos", sentence.getCoveredText());
 	        pb.redirectError(Redirect.INHERIT);
-	        
+
 	        boolean success = false;
 	        Process proc = null;
-			
+
 	        try {
 		    	// Start Process
 		        proc = pb.start();
-		
+
 		        // IN, ERROR Streams
 		        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 		        BufferedReader error = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-		      
+
 		        StringBuilder builder = new StringBuilder();
 						String line = null;
 						while ( (line = in.readLine()) != null) {
@@ -181,19 +179,19 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
 				int currentOffset = 0;
 				for(int i = 0; i < T.size(); i = i + 1) {
 					if(i + offsetToken >= T.size()) {
-						break;						
+						break;
 					}
-					
+
 					if(T.get(i + offsetToken).getEnd() > sentence.getEnd() || T.get(i + offsetToken).getBegin() > sentence.getEnd()) {
 //						System.out.println("ABBRUCH");
 						break;
 					}
-					
+
 					if(T.get(i + offsetToken).getBegin() < sentence.getBegin()) {
 //						System.out.println("WEITER");
 						continue;
 					}
-					
+
 					if(resultInParts[i * 2].equals(T.get(i + offsetToken).getCoveredText())) {
 						// Create POS-Tag
 						String tag = resultInParts[i * 2 + 1];
@@ -203,10 +201,10 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
 						posElement.addToIndexes();
 						currentOffset = currentOffset + 1;
 					}
-				}		
+				}
 
 				offsetToken = offsetToken + currentOffset;
-				
+
 		        // Get Errors
 	             String errorString = "";
 				 line = "";
@@ -217,22 +215,22 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
 				 } catch (IOException e) {
 					e.printStackTrace();
 				 }
-	
+
 				 // Log Error
 				 if(errorString != "")
 				 getLogger().error(errorString);
-				 
+
 	             success = true;
 	        }
 	        catch (IOException e) {
 	            throw new AnalysisEngineProcessException(e);
 	        }
-	        
+
 	        finally {
 	            if (!success) {
-	
+
 	            }
-	            
+
 	            if (proc != null) {
 	                proc.destroy();
 	            }
@@ -240,10 +238,10 @@ public class PolyglotPartOfSpeech  extends SegmenterBase {
 		}
 	}
 
-	
+
 	@Override
-	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {		
-			
+	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {
+
 	}
 
 }

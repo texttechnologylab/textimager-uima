@@ -1,10 +1,7 @@
 package org.hucompute.textimager.uima.allennlp;
 
-import static java.lang.Math.toIntExact;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import jep.JepException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
@@ -15,8 +12,10 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
 
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import jep.JepException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import static java.lang.Math.toIntExact;
 
 public class AllenNLPNER extends AllenNLPBase {
 
@@ -37,7 +36,7 @@ public class AllenNLPNER extends AllenNLPBase {
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		try {
-			interpreter.exec("predictor = Predictor.from_path('https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz')");			
+			interpreter.exec("predictor = Predictor.from_path('https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz')");
 		}
 		catch (JepException e) {
 			e.printStackTrace();

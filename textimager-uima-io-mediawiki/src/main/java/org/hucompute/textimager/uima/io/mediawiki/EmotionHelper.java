@@ -1,15 +1,13 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.bitbucket.rkilinger.ged.Emotion;
 import org.json.JSONArray;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import io.swagger.util.Json;
+import java.util.HashSet;
+import java.util.Set;
 class EmotionHelper {
     Set<Token> disgustSet = new HashSet<Token>();
     Set<Token> contemptSet = new HashSet<Token>();
@@ -18,7 +16,7 @@ class EmotionHelper {
     Set<Token> mourningSet = new HashSet<Token>();
     Set<Token> angerSet = new HashSet<Token>();
     Set<Token> joySet = new HashSet<Token>();
-	
+
 
 	public EmotionHelper(JCas cas) {
 		for (Emotion emotion : JCasUtil.select(cas, Emotion.class)) {
@@ -59,7 +57,7 @@ class EmotionHelper {
             }
 
         }
-        
+
 	}
 
 	public String getUpToNSubString(String text, int n) {
@@ -115,12 +113,12 @@ class EmotionHelper {
 				res.put(tagged_word);
 			}else{
 				System.out.println("Emotionhelper: Semiograph - Unsupported POS tag: " + tpos_tag);
-				
+
 			}
 		}
 		return res;
 	}
-    
+
 	public String getEmotionStringListJS(Set<Token> emotionSet) {
 		StringBuilder res = new StringBuilder();
 		res.append("[");

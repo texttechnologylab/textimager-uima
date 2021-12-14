@@ -1,20 +1,6 @@
 package org.hucompute.textimager.fasttext.disambig;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -27,7 +13,14 @@ import org.hucompute.textimager.fasttext.FastTextResult;
 import org.hucompute.textimager.fasttext.ProbabilityLabel;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Disambig extends BaseAnnotator {
 	/**

@@ -1,20 +1,5 @@
 package org.hucompute.textimager.uima.marmot;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.dkpro.core.testing.AssertAnnotations.assertPOS;
-
-import org.apache.uima.UIMAException;
-import org.apache.uima.fit.factory.AggregateBuilder;
-import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.jcas.JCas;
-import org.junit.Test;
-
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-
 public class MarMoTTaggerTest {
 
 //	@Test
@@ -43,7 +28,7 @@ public class MarMoTTaggerTest {
 //				new String[] {"POS","POS","POS","POS","POS","POS"},
 ////				new String[] { "PR", "V", "ART", "ADJ", "NN","PUNC"},
 //								new String[] { "PDS|PDS", "VAFIN|VAFIN", "ART|ART", "ADJA|ADJA", "NN|NN","$.|$."},
-//				JCasUtil.select(cas, POS.class));	
+//				JCasUtil.select(cas, POS.class));
 //	}
 //
 //	@Test
@@ -67,8 +52,8 @@ public class MarMoTTaggerTest {
 //		assertPOS(
 ////				new String[] { "NP", "NN", "V", "PUNC"},
 //				new String[]{"POS","POS","POS","POS"},
-//				new String[] { "NP","NN", "V", "$."}, 
-//				JCasUtil.select(cas, POS.class));	
+//				new String[] { "NP","NN", "V", "$."},
+//				JCasUtil.select(cas, POS.class));
 //	}
 
 }

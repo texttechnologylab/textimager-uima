@@ -1,17 +1,10 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import org.apache.uima.jcas.JCas;
-
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+
+import java.text.DecimalFormat;
+import java.util.*;
 
 /** Infos about multiple lemmas. */
 public class LemmaInfos {

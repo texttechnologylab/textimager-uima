@@ -17,34 +17,27 @@ import org.texttechnologylab.annotation.AnnotationComment;
 
 public class GNfinder extends DockerRestAnnotator {
     public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = ComponentParameters.PARAM_NAMED_ENTITY_MAPPING_LOCATION;
+    public static final String PARAM_LANGUAGE = ComponentParameters.PARAM_LANGUAGE;
+    public static final String PARAM_VARIANT = ComponentParameters.PARAM_VARIANT;
+    public static final String PARAM_VERIFICATION = "verification";
+    public static final String PARAM_VERIFICATION_SOURCES = "verificationSources";
+    public static final String PARAM_WORDS_AROUND = "wordsAround";
+    public static final String PARAM_NO_BAYES = "noBayes";
+    public static final String PARAM_ODD_DETAILS = "oddDetails";
     @ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
     protected String mappingProviderLocation;
-
-    public static final String PARAM_LANGUAGE = ComponentParameters.PARAM_LANGUAGE;
     @ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
     protected String language;
-
-    public static final String PARAM_VARIANT = ComponentParameters.PARAM_VARIANT;
     @ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
     protected String variant;
-
-    public static final String PARAM_VERIFICATION = "verification";
     @ConfigurationParameter(name = PARAM_VERIFICATION, mandatory = false, defaultValue = "false")
     protected boolean verification;
-
-    public static final String PARAM_VERIFICATION_SOURCES = "verificationSources";
     @ConfigurationParameter(name = PARAM_VERIFICATION_SOURCES, mandatory = false, defaultValue = "")
     protected String verificationSources;
-
-    public static final String PARAM_WORDS_AROUND = "wordsAround";
     @ConfigurationParameter(name = PARAM_WORDS_AROUND, mandatory = false, defaultValue = "0")
     protected int wordsAround;
-
-    public static final String PARAM_NO_BAYES = "noBayes";
     @ConfigurationParameter(name = PARAM_NO_BAYES, mandatory = false, defaultValue = "false")
     protected boolean noBayes;
-
-    public static final String PARAM_ODD_DETAILS = "oddDetails";
     @ConfigurationParameter(name = PARAM_ODD_DETAILS, mandatory = false, defaultValue = "true")
     protected boolean oddDetails;
 
@@ -195,8 +188,7 @@ public class GNfinder extends DockerRestAnnotator {
                     }
 
                     addAnnotatorComment(aJCas, neAnno);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }

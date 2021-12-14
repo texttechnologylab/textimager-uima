@@ -2,8 +2,6 @@ package org.hucompute.textimager.uima.io.mediawiki;
 
 /* We tried to make this class a subclass of MorphologicalFeatures, but when it came to printing the lemma pages, all attributes were lost (set to null). Maybe this is because the CAS got away. We could not figure it out, so we did a stupd read-only copy of MorphologicalFeatures. */
 
-import org.apache.uima.jcas.JCas;
-
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 
 public class EnhancedMorphologicalFeatures implements Comparable {

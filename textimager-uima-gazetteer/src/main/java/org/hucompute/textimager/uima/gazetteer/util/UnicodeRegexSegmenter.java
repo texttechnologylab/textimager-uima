@@ -18,11 +18,9 @@
 
 package org.hucompute.textimager.uima.gazetteer.util;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import eu.openminted.share.annotations.api.DocumentationResource;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -32,9 +30,10 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.segmentation.SegmenterBase;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import eu.openminted.share.annotations.api.DocumentationResource;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * This segmenter splits sentences and tokens based on regular expressions that define the sentence
@@ -63,7 +62,7 @@ public class UnicodeRegexSegmenter
      * tokenized with the pattern {@code [-\n]}.
      */
     public static final String PARAM_TOKEN_BOUNDARY_REGEX = "tokenBoundaryRegex";
-    @ConfigurationParameter(name = PARAM_TOKEN_BOUNDARY_REGEX, mandatory = true, 
+    @ConfigurationParameter(name = PARAM_TOKEN_BOUNDARY_REGEX, mandatory = true,
             defaultValue = WHITESPACE_PATTERN)
     private String tokenBoundaryRegex;
     private Pattern tokenBoundaryPattern;
@@ -72,7 +71,7 @@ public class UnicodeRegexSegmenter
      * Define the sentence boundary.
      */
     public static final String PARAM_SENTENCE_BOUNDARY_REGEX = "sentenceBoundaryRegex";
-    @ConfigurationParameter(name = PARAM_SENTENCE_BOUNDARY_REGEX, mandatory = true, 
+    @ConfigurationParameter(name = PARAM_SENTENCE_BOUNDARY_REGEX, mandatory = true,
             defaultValue = LINEBREAK_PATTERN)
     private String sentenceBoundaryRegex;
     private Pattern sentenceBoundaryPattern;

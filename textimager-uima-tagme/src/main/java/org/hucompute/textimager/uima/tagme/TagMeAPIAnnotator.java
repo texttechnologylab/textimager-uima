@@ -18,8 +18,9 @@
  */
 package org.hucompute.textimager.uima.tagme;
 
-import java.io.IOException;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -29,9 +30,7 @@ import org.apache.uima.jcas.JCas;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
+import java.io.IOException;
 
 /**
  * Stanford Part-of-Speech tagger component.
@@ -51,7 +50,7 @@ extends JCasAnnotator_ImplBase
 	public static final String PARAM_GCUBE_TOKEN = "gcube-token";
 	@ConfigurationParameter(name = PARAM_GCUBE_TOKEN, mandatory = true)
 	protected String gcube_token;
-	
+
 	/**
 	 * Threshold
 	 */
@@ -109,10 +108,10 @@ extends JCasAnnotator_ImplBase
 							}
 						} catch (Exception e1) {
 							e1.printStackTrace();
-						}	
+						}
 				}
 
-			}	
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}

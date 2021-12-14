@@ -1,7 +1,6 @@
 package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.DependencyRelation;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import org.apache.uima.UIMAException;

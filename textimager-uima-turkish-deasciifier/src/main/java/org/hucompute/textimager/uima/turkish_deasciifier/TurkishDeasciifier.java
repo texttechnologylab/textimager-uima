@@ -1,12 +1,6 @@
 package org.hucompute.textimager.uima.turkish_deasciifier;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Scanner;
@@ -14,13 +8,13 @@ import java.util.Scanner;
 /**
  * This class provides functionality to deasciify a given ASCII based Turkish
  * text.
- * 
+ *
  * <p>
  * Note: Adapted from Emre Sevinc's Turkish deasciifier for Python which was
  * influenced from Deniz Yuret's Emacs Turkish Mode implementation which is was
  * inspired by Gokhan Tur's Turkish Text Deasciifier.
  * </p>
- * 
+ *
  * <p>
  * See: <a
  * href="http://denizyuret.blogspot.com/2006/11/emacs-turkish-mode.html">Deniz
@@ -30,26 +24,26 @@ import java.util.Scanner;
  * <a href="http://github.com/emres/turkish-deasciifier/">Turkish Deasciifier
  * for Python on Emre Sevinc's Github Repo</a><br />
  * </p>
- * 
+ *
  * <p>
  * <h3>Usage</h3>
- * 
+ *
  * <pre>
  * Deasciifier d = new Deasciifier();
  * d.setAsciiString(&quot;Hadi bir masal uyduralim, icinde mutlu, doygun, telassiz durdugumuz.&quot;);
  * System.out.println(d.convertToTurkish());
  * </pre>
- * 
+ *
  * </p>
- * 
+ *
  * @author Ahmet Alp Balkan <ahmet at ahmetalpbalkan.com>
  */
 public class TurkishDeasciifier {
 
 	static int turkishContextSize = 10;
-	
+
 	static HashMap<String, HashMap<String, Integer>> turkishPatternTable = null;
-	
+
 	static HashMap<String, String> turkishAsciifyTable = new HashMap<String, String>();
 	static {
 		turkishAsciifyTable.put("ç", "c");
@@ -309,7 +303,7 @@ public class TurkishDeasciifier {
 
 	/**
 	 * Convert a string with ASCII-only letters into one with Turkish letters.
-	 * 
+	 *
 	 * @return Deasciified text.
 	 */
 	public String convertToTurkish() {
@@ -362,17 +356,17 @@ public class TurkishDeasciifier {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void loadPatternTable(){
 		if (turkishPatternTable != null) return;
-		
+
 		turkishPatternTable = new HashMap<String, HashMap<String, Integer>>();
 		InputStream is = this.getClass().getResourceAsStream("/turkishPatternTable");
-		
+
 		try {
 			ObjectInputStream ois = new ObjectInputStream(is);
-			
+
 			turkishPatternTable = (HashMap<String, HashMap<String, Integer>>) ois.readObject();
 			ois.close();
 		} catch (Exception e) {

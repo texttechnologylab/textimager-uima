@@ -1,6 +1,5 @@
 package org.hucompute.textimager.uima.util;
 
-import it.unimi.dsi.fastutil.Hash;
 import org.apache.uima.UIMAException;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;

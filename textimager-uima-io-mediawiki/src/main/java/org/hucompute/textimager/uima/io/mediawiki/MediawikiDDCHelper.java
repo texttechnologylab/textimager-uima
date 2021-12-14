@@ -1,11 +1,11 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 public class MediawikiDDCHelper {
 
@@ -38,7 +38,7 @@ public class MediawikiDDCHelper {
 
 		return "[UNKNOWN_ID]";
 	}
-	
+
 	public static int getDDCLevel(String id) {
 		if (id == null) return -1;
 		return id.substring(2, 3).equals("0") ? (id.substring(1, 2).equals("0") ? 1 : 2) : 3;

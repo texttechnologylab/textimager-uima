@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,27 +19,16 @@
 
 package org.apache.uima.json;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.io.SerializedString;
 import org.apache.uima.cas.ByteArrayFS;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.Marker;
 import org.apache.uima.cas.TypeSystem;
-import org.apache.uima.cas.impl.ByteArrayFSImpl;
-import org.apache.uima.cas.impl.CASImpl;
-import org.apache.uima.cas.impl.CasSerializerSupport;
+import org.apache.uima.cas.impl.*;
 import org.apache.uima.cas.impl.CasSerializerSupport.CasDocSerializer;
 import org.apache.uima.cas.impl.CasSerializerSupport.CasSerializerSupportSerialize;
-import org.apache.uima.cas.impl.ListUtils;
-import org.apache.uima.cas.impl.LowLevelCAS;
-import org.apache.uima.cas.impl.MarkerImpl;
-import org.apache.uima.cas.impl.TypeImpl;
-import org.apache.uima.cas.impl.TypeSystemImpl;
-import org.apache.uima.cas.impl.XmiSerializationSharedData;
 import org.apache.uima.cas.impl.XmiSerializationSharedData.XmiArrayElement;
 import org.apache.uima.internal.util.IntVector;
 import org.apache.uima.internal.util.PositiveIntSet;
@@ -51,49 +40,51 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.io.SerializedString;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <h2>CAS serializer for JSON formats.</h2>
  * <p>Writes a CAS in a JSON format.</p>
- *   
+ *
  * <p>To use,</p>
  * <ul>
- *   <li>create an instance of this class,</li> 
- *   <li>(optionally) configure the instance, and then</li> 
+ *   <li>create an instance of this class,</li>
+ *   <li>(optionally) configure the instance, and then</li>
  *   <li>call serialize on the instance, optionally passing in additional parameters.</li></ul>
- *   
+ *
  * <p>After the 1st 2 steps, the serializer instance may be used for multiple calls (on multiple threads) to
  * the 3rd serialize step, if all calls use the same configuration.</p>
- * 
+ *
  * <p>There are "convenience" static serialize methods that do these three steps for common configurations.</p>
- * 
+ *
  * <p>Parameters can be configured in this instance (I), and/or as part of the serialize(S) call.</p>
- * 
+ *
  * <p>The parameters that can be configured are:</p>
  * <ul>
  *   <li>(S) The CAS to serialize
  *   <li>(S) where to put the output - an OutputStream, Writer, or File</li>
- *   <li>(I,S) a type system - (default null) if supplied, it is used to "filter" types and features that are serialized.  If provided, only 
+ *   <li>(I,S) a type system - (default null) if supplied, it is used to "filter" types and features that are serialized.  If provided, only
  *   those that exist in the passed in type system are included in the serialization</li>
  *   <li>(I,S) a flag for prettyprinting - default false (no prettyprinting)</li>
  * </ul>
- * 
+ *
  * <p>For Json serialization, additional configuration from the Jackson implementation can be configured</p>
- * on 2 associated Jackson instances:  
- *   <ul><li>JsonFactory</li> 
+ * on 2 associated Jackson instances:
+ *   <ul><li>JsonFactory</li>
  *       <li>JsonGenerator</li></ul>
- * using the standard Jackson methods on the associated JsonFactory instance; 
+ * using the standard Jackson methods on the associated JsonFactory instance;
  * see the Jackson JsonFactory and JsonGenerator javadocs for details.
- * 
+ *
  * <p>These 2 Jackson objects are settable/gettable from an instance of this class.
  * They are created if not supplied by the caller.</p>
- * 
+ *
  * <p>Once this instance is configured, the serialize method is called
  * to serialized a CAS to an output.</p>
- * 
+ *
  * <p>Instances of this class must be used on only one thread while configuration is being done;
  * afterwards, multiple threads may use the configured instance, to call serialize.</p>
  */
@@ -113,11 +104,11 @@ public class JsonCasSerializerModified {
 	private static final SerializedString FEATURE_TYPES_NAME = new SerializedString("_feature_types");
 	private static final SerializedString FEATURE_REFS_NAME = new SerializedString("_ref");
 	private static final SerializedString FEATURE_ARRAY_NAME = new SerializedString("_array");
-	private static final SerializedString FEATURE_BYTE_ARRAY_NAME = new SerializedString("_byte_array");    
+	private static final SerializedString FEATURE_BYTE_ARRAY_NAME = new SerializedString("_byte_array");
 
 
 	private static final SerializedString REFERENCED_FSS_NAME = new SerializedString("_referenced_fss");
-	private static final SerializedString VIEWS_NAME = new SerializedString("_views");  
+	private static final SerializedString VIEWS_NAME = new SerializedString("_views");
 
 	private static final SerializedString TYPE_NAME = new SerializedString("_type");
 
@@ -132,23 +123,23 @@ public class JsonCasSerializerModified {
 
 	/**
 	 * <p>The serialization can optionally include context information in addition to the feature structures.</p>
-	 * 
+	 *
 	 * <p>This context information is specified, per used-type.</p>
-	 * 
+	 *
 	 * <p>It can be further subdivided into 3 parts:</p>
 	 *   <ol>
-	 *   <li>What their (used) subtypes are.  This enables iterating over a type 
+	 *   <li>What their (used) subtypes are.  This enables iterating over a type
 	 *      and all of its subtypes, e.g. an iterator over all "Annotations".</li>
 	 *   <li> whether or not to include the map from short type names to their fully qualified equivalents.</li>
 	 *   <li>Information to enable deserialization of some ambiguous values, depending on the range type of a feature
 	 *   </ol>
-	 *   
+	 *
 	 * <p>Some of these may be omitted, if not wanted.  This enum allows specifying what to omit.</p>
 	 *
 	 */
 	public enum JsonContextFormat {
-		omitContext,      // omit the entire context  
-		omitSubtypes,       
+		omitContext,      // omit the entire context
+		omitSubtypes,
 		omitExpandedTypeNames,
 	}
 
@@ -161,7 +152,7 @@ public class JsonCasSerializerModified {
 
 	private JsonFactory jsonFactory = null;
 
-	private boolean isDynamicEmbedding = false;  
+	private boolean isDynamicEmbedding = false;
 	private boolean isWithContext = true;
 	private boolean isWithSubtypes = true;
 	private boolean isWithExpandedTypeNames = true;
@@ -171,7 +162,7 @@ public class JsonCasSerializerModified {
 
 
 	/***********************************************
-	 *         C O N S T R U C T O R S             *  
+	 *         C O N S T R U C T O R S             *
 	 ***********************************************/
 
 	/**
@@ -179,7 +170,7 @@ public class JsonCasSerializerModified {
 	 */
 	public JsonCasSerializerModified() {
 		System.out.println("init");
-	}     
+	}
 
 	/**************************************************
 	 *                  J S O N                       *
@@ -195,32 +186,32 @@ public class JsonCasSerializerModified {
 
 	/**
 	 * Serializes a CAS using JSON
-	 * 
+	 *
 	 * @param aCAS
 	 *          CAS to serialize.
 	 * @param output
 	 *          a File, OutputStream or Writer to which to write the XMI document
-	 * 
+	 *
 	 * @throws IOException if there was an IOException
 	 */
-	public static void jsonSerialize(CAS aCAS, Object output) throws IOException {  
+	public static void jsonSerialize(CAS aCAS, Object output) throws IOException {
 		jsonSerialize(aCAS, null, output, false, null, null);
 	}
 
 	/**
-	 * Serializes a CAS to an output (File, OutputStream, XMI stream, or Writer). 
+	 * Serializes a CAS to an output (File, OutputStream, XMI stream, or Writer).
 	 * The supplied typesystem filters the output
-	 * 
+	 *
 	 * @param aCAS
 	 *          CAS to serialize.
 	 * @param aTargetTypeSystem
 	 *          type system used for filtering what gets serialized. Any types or features not in the
-	 *          target type system will not be serialized.  A null value indicates no filtering, that is, 
+	 *          target type system will not be serialized.  A null value indicates no filtering, that is,
 	 *          that all types and features will be serialized.
-	 * @param output 
+	 * @param output
 	 *          output (File, OutputStream, or Writer) to which to write the JSON document
-	 * 
-	 * @throws IOException if there was an IOException 
+	 *
+	 * @throws IOException if there was an IOException
 	 */
 	public static void jsonSerialize(CAS aCAS, TypeSystem aTargetTypeSystem, Object output)
 			throws IOException {
@@ -228,10 +219,10 @@ public class JsonCasSerializerModified {
 	}
 
 	/**
-	 * Serializes a Delta CAS to an output (File, Writer, or OutputStream).  
+	 * Serializes a Delta CAS to an output (File, Writer, or OutputStream).
 	 * This version of this method allows many options to be configured.
-	 *    
-	 *    
+	 *
+	 *
 	 * @param aCAS
 	 *          CAS to serialize.
 	 * @param aTargetTypeSystem
@@ -245,38 +236,38 @@ public class JsonCasSerializerModified {
 	 * @param aMarker
 	 *        an optional object used to determine which FeatureStructures and modifications were created after
 	 *          the mark was set. Used to serialize a Delta CAS consisting of only new FSs and views and
-	 *          preexisting FSs and Views that have been modified.  If null, full serialization is done.        
+	 *          preexisting FSs and Views that have been modified.  If null, full serialization is done.
 	 *          See the JavaDocs for {@link Marker} for details.
 	 * @param sharedData optional, used for delta serialization (not yet supported)
 	 * @throws IOException if there was an IOException
 	 */
-	public static void jsonSerialize(CAS aCAS, TypeSystem aTargetTypeSystem, Object output, boolean aPrettyPrint, 
-			Marker aMarker, XmiSerializationSharedData sharedData) 
+	public static void jsonSerialize(CAS aCAS, TypeSystem aTargetTypeSystem, Object output, boolean aPrettyPrint,
+			Marker aMarker, XmiSerializationSharedData sharedData)
 					throws IOException {
 		JsonCasSerializerModified ser = new JsonCasSerializerModified();
 		ser.setFilterTypes((TypeSystemImpl)aTargetTypeSystem);
 		ser.setPrettyPrint(aPrettyPrint);
 		ser.serialize(aCAS, output, sharedData, aMarker);
-	} 
+	}
 
 	/*************************************************************************************
 	 * Multi-step api
-	 * 
+	 *
 	 *   1) Create an instance of this class and use for configuration, specifying or defaulting
 	 *          type system to use for filtering (default - no filtering)
 	 *          prettyprinting (default - false)
-	 *             
+	 *
 	 *       1b) Do any additional wanted configuration on the instance of this class
 	 *          instance.prettyPrint(true/false);
 	 *          instance.useJsonFactory(factory)
 	 *          instance.filterTypes(typeSystem)
 	 *          instance.errorHandler(errorHandler)
 	 *          instance.jsonFormat(EnumSet.of(x, y, z)) - default is none of the settings
-	 *          
+	 *
 	 *          instance.getGenerator() to further configure the generator if the defaults are not what is wanted.
-	 *                    
+	 *
 	 *   2) call its serializeJson method, passing in the CAS, and an output (Writer/Outputstream/File)
-	 *               
+	 *
 	 *************************************************************************************/
 
 	/**
@@ -302,15 +293,15 @@ public class JsonCasSerializerModified {
 
 	/**
 	 * Serialize a Cas to an Output configured in the passed in JsonContentHandlerJacksonWrapper
-	 *   Constructs a new CasDocSerializer instance to do the serialization, 
+	 *   Constructs a new CasDocSerializer instance to do the serialization,
 	 *      configured using this class's Delta marker setting (if any)
 	 * @param cas The CAS to serialize
 	 * @param jch the configured content handler
-	 * @throws IOException if there was an IOException 
+	 * @throws IOException if there was an IOException
 	 */
 	public void serialize(CAS cas, JsonContentHandlerJacksonWrapper jch) throws IOException {
 		serialize(cas, jch, null, null);
-	} 
+	}
 
 	public void serialize(CAS cas, JsonContentHandlerJacksonWrapper jch, XmiSerializationSharedData sharedData, Marker marker) throws IOException {
 		JsonDocSerializer ser = new JsonDocSerializer(jch, ((CASImpl) cas).getBaseCAS(), sharedData, (MarkerImpl) marker);
@@ -406,12 +397,12 @@ public class JsonCasSerializerModified {
 	 */
 	public JsonCasSerializerModified setJsonContext(JsonContextFormat format) {
 		switch (format) {
-		case omitContext: 
-			isWithContext = false;                                                             
+		case omitContext:
+			isWithContext = false;
 			isWithSubtypes = false;
 			isWithExpandedTypeNames = false; break;
 
-		case omitSubtypes: 
+		case omitSubtypes:
 			isWithSubtypes = false; break;
 
 		case omitExpandedTypeNames:
@@ -427,7 +418,7 @@ public class JsonCasSerializerModified {
 
 	private static class MapType2Subtypes extends RedBlackTree<IntVector> {
 		/**
-		 * 
+		 *
 		 * @param type main type
 		 * @param subtype subtype of main type
 		 * @return true if added, false if already was there
@@ -439,7 +430,7 @@ public class JsonCasSerializerModified {
 				iv.add(subtype);
 				put(type, iv);
 				return true;
-			} 
+			}
 			if (iv.contains(subtype)) {
 				return false;
 			}
@@ -489,14 +480,14 @@ public class JsonCasSerializerModified {
 
 		private JsonDocSerializer(ContentHandler ch, CASImpl cas, XmiSerializationSharedData sharedData, MarkerImpl marker) {
 			cds = css.new CasDocSerializer(ch, cas, sharedData, marker, this, JsonCasSerializerModified.this.isDynamicEmbedding);
-			this.isOmitDefaultValues = JsonCasSerializerModified.this.isOmit0Values;  
-			isWithExpandedTypeNames = JsonCasSerializerModified.this.isWithExpandedTypeNames; 
-			isWithSubtypes = JsonCasSerializerModified.this.isWithSubtypes; 
+			this.isOmitDefaultValues = JsonCasSerializerModified.this.isOmit0Values;
+			isWithExpandedTypeNames = JsonCasSerializerModified.this.isWithExpandedTypeNames;
+			isWithSubtypes = JsonCasSerializerModified.this.isWithSubtypes;
 			typeSystemReference = JsonCasSerializerModified.this.typeSystemReference;
 			jch = (JsonContentHandlerJacksonWrapper) ch;
 			jg = jch.getJsonGenerator();
-			isWithContext = JsonCasSerializerModified.this.isWithContext || isWithSubtypes || isWithExpandedTypeNames; 
-			usedTypeName2XmlElementName = new HashMap<String, XmlElementName>(cds.tsi.getNumberOfTypes());    
+			isWithContext = JsonCasSerializerModified.this.isWithContext || isWithSubtypes || isWithExpandedTypeNames;
+			usedTypeName2XmlElementName = new HashMap<String, XmlElementName>(cds.tsi.getNumberOfTypes());
 		}
 
 		@Override
@@ -517,10 +508,10 @@ public class JsonCasSerializerModified {
 			}
 			jch.writeNlJustBeforeNext();
 			jg.writeFieldName(DELTA_CAS_NAME);
-			jg.writeStartObject();        
+			jg.writeStartObject();
 
 			cds.writeViewsCommons(); // encodes cas.sofaCount + 1 elements
-			jg.writeEndObject();  // and end of views property 
+			jg.writeEndObject();  // and end of views property
 		}
 
 		@Override
@@ -542,7 +533,7 @@ public class JsonCasSerializerModified {
 			jg.writeFieldName(VIEWS_NAME);
 			jg.writeStartObject();
 
-			final Integer[][] byViewByTypeFSs = sortByViewType(); 
+			final Integer[][] byViewByTypeFSs = sortByViewType();
 
 			for (int viewNbr = 1; viewNbr <= byViewByTypeFSs.length; viewNbr++) {
 				// viewNbr starts at 1
@@ -550,10 +541,10 @@ public class JsonCasSerializerModified {
 				final Integer[] fssInView = byViewByTypeFSs[viewNbr - 1];
 				final int sofaAddr = cds.getSofaAddr(viewNbr);
 				if (sofaAddr == 0 && fssInView.length == 0) {
-					continue;  // skip non-existent initial view with no sofa and no elements                    
+					continue;  // skip non-existent initial view with no sofa and no elements
 				}
 				jch.writeNlJustBeforeNext();
-				String viewName = (0 == sofaAddr) ?  
+				String viewName = (0 == sofaAddr) ?
 						CAS.NAME_DEFAULT_SOFA :
 							cds.cas.getStringValue(sofaAddr, cds.tsi.sofaIdFeatCode);
 				jg.writeFieldName(viewName);  // view namne
@@ -588,7 +579,7 @@ public class JsonCasSerializerModified {
 		}
 
 		// sort the by-view by-type set
-		//   previously Serialized 
+		//   previously Serialized
 		private Integer[][] sortByViewType() {
 			final Integer[] [] r = new Integer[cds.indexedFSs.length] [];
 			int i = 0;
@@ -621,7 +612,7 @@ public class JsonCasSerializerModified {
 		private void writeViewForDeltas(SerializedString kind, int[] deltaMembers) throws IOException {
 			jg.writeFieldName(kind);
 			jg.writeStartArray();
-			writeViewMembers(deltaMembers);   
+			writeViewMembers(deltaMembers);
 			jg.writeEndArray();
 		}
 
@@ -632,7 +623,7 @@ public class JsonCasSerializerModified {
 			jg.writeStartObject();
 			writeViewForDeltas(ADDED_MEMBERS_NAME, added);
 			writeViewForDeltas(DELETED_MEMBERS_NAME, deleted);
-			writeViewForDeltas(REINDEXED_MEMBERS_NAME, reindexed);      
+			writeViewForDeltas(REINDEXED_MEMBERS_NAME, reindexed);
 			jg.writeEndObject();
 		}
 
@@ -672,41 +663,41 @@ public class JsonCasSerializerModified {
 		}
 		/**
 		 * <h2>JSON: serialize context info</h2>
-		 * 
+		 *
 		 * <p>The context has several parts.
 		 * <p>The typeSystemReference is an optional URI to a type system that is written out.
 		 * <p>The types part is organized by the type hierarchy, starting with the uima.cas.TOP type.  There is an entry
 		 * for each type which has 1 or more serailized instances, and also for all supertypes of those types.
 		 * The entry is a JSON key-value pair "short-type-name" : {...}.   </p>
-		 * 
+		 *
 		 * <p>The information for each type has 3 sections:</p>
 		 * <ol>
 		 *   <li>_subtypes - a JSON map of key-value pairs, keyed by the short type-name of
 		 *                   used subtypes of this type.  If this type has
-		 *                   no used subtypes, this element is omitted. 
+		 *                   no used subtypes, this element is omitted.
 		 *                   The value is an instance of this structure, for that type.</li>
-		 *                   
+		 *
 		 *   <li>_id - the fully qualified UIMA type name</li>
-		 *   
-		 *   <li>@featureTypes - a map with keys being specific features of the type 
-		 *                       that need extra information about their contents, 
+		 *
+		 *   <li>@featureTypes - a map with keys being specific features of the type
+		 *                       that need extra information about their contents,
 		 *                       and the value being that extra information.</li>
 		 * </ol>
-		 *   
+		 *
 		 *  RANGE_IDs specify the type of the value of a feature.  There are currently 2 kinds:
-		 *  
+		 *
 		 *  <ul>
 		 *    <li>"@featureByteArray" - indicates the string value should be decoded as a base64 binary encoded byte array</li>
-		 *    <li>"{ "@featureRef" : "short_type_name" } - indicates the number or array of numbers 
-		 *                      should be interpreted as a reference to a FS having this number (or array of numbers) 
+		 *    <li>"{ "@featureRef" : "short_type_name" } - indicates the number or array of numbers
+		 *                      should be interpreted as a reference to a FS having this number (or array of numbers)
 		 *                      as its id(s).
 		 *                      0 is interpreted as a null reference.
 		 *                      The type of the FS being referred to is of type "short_type_name" or a subtype.</li>
-		 *  </ul> 
-		 * @throws IOException 
+		 *  </ul>
+		 * @throws IOException
 		 */
 
-		private void serializeJsonLdContext() throws IOException {  
+		private void serializeJsonLdContext() throws IOException {
 			jg.writeFieldName(CONTEXT_NAME);
 			jg.writeStartObject();
 
@@ -723,7 +714,7 @@ public class JsonCasSerializerModified {
 			jg.writeStartObject();
 
 			for (TypeImpl ti : cds.getSortedUsedTypes()) {
-				jch.writeNlJustBeforeNext();      
+				jch.writeNlJustBeforeNext();
 				jg.writeFieldName(getSerializedTypeName(ti.getCode()));
 				jg.writeStartObject();
 				if (isWithExpandedTypeNames) {
@@ -739,7 +730,7 @@ public class JsonCasSerializerModified {
 
 			// write out contexts for types in the supertype chain which have no instances
 			for (final int typeCode : parentTypesWithNoInstances.toArray()) {
-				jch.writeNlJustBeforeNext();      
+				jch.writeNlJustBeforeNext();
 				jg.writeFieldName(getSerializedTypeName(typeCode));
 				jg.writeStartObject();
 				XmlElementName xe = cds.typeCode2namespaceNames[typeCode];
@@ -764,9 +755,9 @@ public class JsonCasSerializerModified {
 
 		/**
 		 * _feature_types : { "featName" : "_ref" or "_byte_array, ... }
-		 * 
-		 * @param type the type for which to generate the feature context info 
-		 * @throws IOException 
+		 *
+		 * @param type the type for which to generate the feature context info
+		 * @throws IOException
 		 */
 		private void addJsonFeatContext(TypeImpl type) throws IOException {
 			addJsonFeatContext(type.getCode());
@@ -781,13 +772,13 @@ public class JsonCasSerializerModified {
 				SerializedString featKind = featureTypeLabel(fsClass, featCode);
 				if (null != featKind) {
 					maybeDoStartFeatureTypes();
-					jg.writeFieldName(getShortFeatureName(featCode)); 
+					jg.writeFieldName(getShortFeatureName(featCode));
 					jg.writeString(featKind);
-				}  
+				}
 			}
 			if (startedFeatureTypes) {
 				jg.writeEndObject();
-			} 
+			}
 		}
 
 		private void maybeDoStartFeatureTypes() throws IOException {
@@ -805,7 +796,7 @@ public class JsonCasSerializerModified {
 
 		/**
 		 * Add subtype information for used types limited to used subtypes
-		 * @throws IOException 
+		 * @throws IOException
 		 */
 		private void addJsonSubtypes(TypeImpl ti) throws IOException {
 			addJsonSubtypes(ti.getCode());
@@ -831,11 +822,11 @@ public class JsonCasSerializerModified {
 			for (TypeImpl ti : tiArray) {  // all used types
 				int subtypeCode = ti.getCode();
 
-				// loop up the super chain for this type, 
+				// loop up the super chain for this type,
 				// add parent -> subtype entries (until try to add one that's already there)
 
 				for (TypeImpl parent = (TypeImpl) ti.getSuperType();
-						parent != null; 
+						parent != null;
 						parent = (TypeImpl) parent.getSuperType()) {
 					final int parentCode = parent.getCode();
 					if (Arrays.binarySearch(tiArray,  parent) < 0 ) {  // if parentCode not contained in tiArray
@@ -919,10 +910,10 @@ public class JsonCasSerializerModified {
 					jg.writeFieldName(getSerializedTypeName(typeCode));
 					jg.writeStartArray();
 				}
-				// if we're not going to write the actual FS here, 
-				//   and are just going to write the ref, 
+				// if we're not going to write the actual FS here,
+				//   and are just going to write the ref,
 				//   skip the start object
-				if (cds.multiRefFSs == null || !cds.multiRefFSs.contains(addr)) {         
+				if (cds.multiRefFSs == null || !cds.multiRefFSs.contains(addr)) {
 					jch.writeNlJustBeforeNext();
 					jg.writeStartObject();  // start of feat : value
 				}
@@ -932,8 +923,8 @@ public class JsonCasSerializerModified {
 
 		@Override
 		protected void writeFsRef(int addr) throws Exception {
-			jg.writeNumber(cds.getXmiIdAsInt(addr));      
-		}    
+			jg.writeNumber(cds.getXmiIdAsInt(addr));
+		}
 
 		//    private void maybeWriteIdFeat(int addr) throws IOException {
 		//      if (!omitId) {
@@ -983,7 +974,7 @@ public class JsonCasSerializerModified {
 				switch (featureClass) {
 
 				case LowLevelCAS.TYPE_CLASS_BYTE:
-				case LowLevelCAS.TYPE_CLASS_SHORT:  
+				case LowLevelCAS.TYPE_CLASS_SHORT:
 				case LowLevelCAS.TYPE_CLASS_INT:
 					if (featValRaw == 0 && isOmitDefaultValues) continue;
 					jg.writeFieldName(getShortFeatureName(featCode));
@@ -1021,17 +1012,17 @@ public class JsonCasSerializerModified {
 
 				case LowLevelCAS.TYPE_CLASS_BOOLEAN:
 					jg.writeFieldName(getShortFeatureName(featCode));
-					jg.writeBoolean(cds.cas.ll_getBooleanValue(addr, featCode));           
-					break; 
+					jg.writeBoolean(cds.cas.ll_getBooleanValue(addr, featCode));
+					break;
 
 				case LowLevelCAS.TYPE_CLASS_STRING:
-					if (featValRaw == 0 /*&& isOmitDefaultValues*/) continue; 
+					if (featValRaw == 0 /*&& isOmitDefaultValues*/) continue;
 					jg.writeFieldName(getShortFeatureName(featCode));
 					jg.writeString(cds.cas.getStringForCode(featValRaw));
-					break; 
+					break;
 
-					// all other fields (arrays, lists, fsRefs) can be null and are omitted if so  
-				default: 
+					// all other fields (arrays, lists, fsRefs) can be null and are omitted if so
+				default:
 					if (featValRaw != CASImpl.NULL /*|| !isOmitDefaultValues*/) {
 
 						jg.writeFieldName(getShortFeatureName(featCode));
@@ -1061,7 +1052,7 @@ public class JsonCasSerializerModified {
 								jg.writeNumber(cds.getXmiIdAsInt(featValRaw));
 							} else {
 								writeJsonListValues(featValRaw);
-							}              
+							}
 						} else {  // is error
 							throw new RuntimeException("Invalid State, featureClass was "+ featureClass);
 						}
@@ -1072,8 +1063,8 @@ public class JsonCasSerializerModified {
 
 		/**
 		 * for arrays and lists,
-		 * recursively write one FS, 
-		 *    as actual FS, 
+		 * recursively write one FS,
+		 *    as actual FS,
 		 *    if dynamic embedding and single ref
 		 *  OR, just write the reference id
 		 *  If trying to write the null FS (due to filtering for instance), write 0
@@ -1101,7 +1092,7 @@ public class JsonCasSerializerModified {
 				throw new RuntimeException(e);
 			} finally {
 				isEmbedded = savedEmbedded;
-			}  // embed 
+			}  // embed
 		}
 
 		private void writeFsOrRef(int addr, int featCode) throws IOException {
@@ -1129,7 +1120,7 @@ public class JsonCasSerializerModified {
 			//      maybeWriteIdFeat(addr);
 			maybeWriteTypeFeat(typeCode);
 
-			jg.writeFieldName(COLLECTION_NAME);            
+			jg.writeFieldName(COLLECTION_NAME);
 			writeJsonArrayValues(addr, typeClass);
 		}
 
@@ -1152,7 +1143,7 @@ public class JsonCasSerializerModified {
 			final int array_size = cds.cas.ll_getArraySize(addr);
 
 			if (arrayType == LowLevelCAS.TYPE_CLASS_BYTEARRAY) {
-				// special case for byte arrays: 
+				// special case for byte arrays:
 				// serialize using standard JACKSON/JSON binary serialization
 				// (doing extra copy to avoid figuring out the impl details)
 				ByteArrayFS byteArrayFS = new ByteArrayFSImpl(addr, cds.cas);
@@ -1168,7 +1159,7 @@ public class JsonCasSerializerModified {
 
 				if (arrayType == LowLevelCAS.TYPE_CLASS_FSARRAY) {
 
-					List<XmiArrayElement> ootsArrayElementsList = cds.sharedData == null ? null : 
+					List<XmiArrayElement> ootsArrayElementsList = cds.sharedData == null ? null :
 						cds.sharedData.getOutOfTypeSystemArrayElements(addr);
 					int ootsIndex = 0;
 
@@ -1176,7 +1167,7 @@ public class JsonCasSerializerModified {
 						int heapValue = cds.cas.getHeapValue(pos++);
 
 						if (heapValue == CASImpl.NULL) {
-							// this null array element might have been a reference to an 
+							// this null array element might have been a reference to an
 							// out-of-typesystem FS, which, when deserialized, was replaced with NULL,
 							// so check the ootsArrayElementsList
 							boolean found = false;
@@ -1188,14 +1179,14 @@ public class JsonCasSerializerModified {
 										jg.writeNumber(Integer.parseInt(arel.xmiId));
 										found = true;
 										break;
-									}                
+									}
 								}
 							}
 							if (!found) {
 								jg.writeNumber(0);
 							}
 
-							// else, not null FS ref  
+							// else, not null FS ref
 						} else {
 							if (cds.isFiltering) { // return as null any references to types not in target TS
 								String typeName = cds.tsi.ll_getTypeForCode(cds.cas.getHeapValue(addr)).getName();
@@ -1252,7 +1243,7 @@ public class JsonCasSerializerModified {
 			final PositiveIntSet visited = new PositiveIntSet_impl();
 
 			jg.writeStartArray();
-			while (curNode != CASImpl.NULL) { 
+			while (curNode != CASImpl.NULL) {
 
 				cds.visited_not_yet_written.remove(curNode);
 				final int curNodeType = cds.cas.getHeapValue(curNode);
@@ -1272,7 +1263,7 @@ public class JsonCasSerializerModified {
 					jg.writeNumber(CASImpl.int2float(val));
 				} else if (curNodeType == listUtils.neFsListType) {
 					writeFsOrRef(val);  // maybe embed
-				} else {  // for ints 
+				} else {  // for ints
 					jg.writeNumber(val);
 				}
 
@@ -1284,8 +1275,8 @@ public class JsonCasSerializerModified {
 
 		/**
 		 * Return null or a string representing the type of the feature
-		 *     
-		 *   
+		 *
+		 *
 		 * @param fsClass the class of the feature
 		 * @param featCode the feature code
 		 * @return _ref, _array, _byte_array, or null
@@ -1293,8 +1284,8 @@ public class JsonCasSerializerModified {
 
 		private SerializedString featureTypeLabel(int fsClass, int featCode) {
 			switch (fsClass) {
-			case LowLevelCAS.TYPE_CLASS_FS: 
-			case LowLevelCAS.TYPE_CLASS_FSARRAY: 
+			case LowLevelCAS.TYPE_CLASS_FS:
+			case LowLevelCAS.TYPE_CLASS_FSARRAY:
 			case CasSerializerSupport.TYPE_CLASS_FSLIST:
 				return FEATURE_REFS_NAME;
 
@@ -1307,10 +1298,10 @@ public class JsonCasSerializerModified {
 			case LowLevelCAS.TYPE_CLASS_DOUBLEARRAY:
 			case CasSerializerSupport.TYPE_CLASS_INTLIST:
 			case CasSerializerSupport.TYPE_CLASS_FLOATLIST:
-			case CasSerializerSupport.TYPE_CLASS_STRINGLIST: 
+			case CasSerializerSupport.TYPE_CLASS_STRINGLIST:
 				// we have refs only if the feature has
 				// multipleReferencesAllowed = true
-				return FEATURE_ARRAY_NAME;   
+				return FEATURE_ARRAY_NAME;
 
 			case LowLevelCAS.TYPE_CLASS_BYTEARRAY:
 				return FEATURE_BYTE_ARRAY_NAME;
@@ -1326,7 +1317,7 @@ public class JsonCasSerializerModified {
 		 * Converts a UIMA-style dotted type name to the element name that should be used in the
 		 * serialization. The XMI element name consists of three parts - the Namespace URI, the Local
 		 * Name, and the QName (qualified name).
-		 * 
+		 *
 		 * @param uimaTypeName
 		 *          a UIMA-style dotted type name
 		 * @return a data structure holding the three components of the XML element name
@@ -1366,14 +1357,14 @@ public class JsonCasSerializerModified {
 		}
 
 		private boolean isDynamicOrStaticMultiRef(int featCode, int addr) {
-			return (cds.multiRefFSs == null) ? 
-					cds.isStaticMultiRef(featCode) : 
+			return (cds.multiRefFSs == null) ?
+					cds.isStaticMultiRef(featCode) :
 						cds.multiRefFSs.contains(addr);
 		}
 
 		private boolean isDynamicOrStaticMultiRef(int featCode, int addr, boolean isListAsFSs) {
-			return (cds.multiRefFSs == null) ? 
-					(isListAsFSs || cds.isStaticMultiRef(featCode)) : 
+			return (cds.multiRefFSs == null) ?
+					(isListAsFSs || cds.isStaticMultiRef(featCode)) :
 						cds.multiRefFSs.contains(addr);
 		}
 

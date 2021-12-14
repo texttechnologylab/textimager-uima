@@ -1,22 +1,21 @@
 package org.hucompute.textimager.uima.zemberek;
 
-import static org.apache.uima.fit.util.JCasUtil.select;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
-
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.SegmenterBase;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import pronunciationAnnotation.type.PronunciationAnnotation;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import static org.apache.uima.fit.util.JCasUtil.select;
 
 /**
 * ZemberekPronunciation
@@ -26,7 +25,7 @@ import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
 * @author Alexander Sang
 * @version 1.2
 *
-* This class provide pronunciation for turkish language. 
+* This class provide pronunciation for turkish language.
 * UIMA-Token is needed as input to create analysis.
 * UIMA-Standard is used to represent the final disambiguation.
 */
@@ -45,29 +44,29 @@ public class ZemberekPronunciation extends SegmenterBase {
 		try {
 			// Create new morphology
 			TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-	        Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();		
+	        Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
 	        TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
-	        
+
 	        SentenceAnalysis result = sentenceAnalyzer.analyze(inputText);
 	        sentenceAnalyzer.disambiguate(result);
-	        
+
 		    // Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
 			ArrayList<Token> T = new ArrayList<Token>();
 			for (Token token : select(aJCas, Token.class)) {
 				T.add(token);
 			}
-			
+
 			int i = 0;
-	        
+
 	        for(SentenceAnalysis.Entry entry : result) {
 	        	for (WordAnalysis analysis : entry.parses) {
-	                // Create PronunciationAnnotation		
+	                // Create PronunciationAnnotation
 	        		PronunciationAnnotation pronunciation = new PronunciationAnnotation(aJCas, T.get(i).getBegin(), T.get(i).getEnd());
 					pronunciation.setValue(analysis.getPronunciation());
-					pronunciation.addToIndexes();	
+					pronunciation.addToIndexes();
 					break;
 	            }
-	        	
+
 	        	i++;
 	        }
 		} catch (IOException e) {
@@ -77,6 +76,6 @@ public class ZemberekPronunciation extends SegmenterBase {
 
 	@Override
 	protected void process(JCas aJCas, String text, int zoneBegin) throws AnalysisEngineProcessException {
-		
-	}	
+
+	}
 }

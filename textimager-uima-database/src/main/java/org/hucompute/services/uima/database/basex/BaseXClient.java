@@ -1,10 +1,12 @@
 package org.hucompute.services.uima.database.basex;
 
 import java.io.*;
-import java.net.*;
-import java.nio.charset.*;
-import java.security.*;
-import java.util.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 /**
  * Java client for BaseX.

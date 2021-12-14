@@ -1,11 +1,5 @@
 package org.hucompute.services.uima.database.test;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngine;
-import static org.apache.uima.fit.pipeline.SimplePipeline.runPipeline;
-
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.uima.UIMAException;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
@@ -16,6 +10,12 @@ import org.hucompute.services.uima.database.cassandra.CassandraCollectionReader;
 import org.hucompute.services.uima.database.mongo.MongoCollectionReader;
 import org.hucompute.services.uima.database.neo4j.Neo4jCollectionReader;
 import org.hucompute.services.uima.database.xmi.XmiReaderModified;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngine;
+import static org.apache.uima.fit.pipeline.SimplePipeline.runPipeline;
 
 
 public class DBReaderTest {
@@ -30,7 +30,7 @@ public class DBReaderTest {
 						XmiWriter.PARAM_OVERWRITE, true)
 				);
 	}
-	
+
 	public static CollectionReader getReader(String reader) throws ResourceInitializationException {
 		switch (reader) {
 		case "XMI": return getXMIReader();
@@ -48,7 +48,7 @@ public class DBReaderTest {
 				Neo4jCollectionReader.PARAM_LOG_FILE_LOCATION, new File("dbtest/read/neo4j.log")
 				);
 	}
-	
+
 	public static CollectionReader getBasexReader() throws ResourceInitializationException{
 		return  CollectionReaderFactory.createReader(BasexCollectionReader.class,
 				BasexCollectionReader.PARAM_LOG_FILE_LOCATION, new File("dbtest/read/basex.log")

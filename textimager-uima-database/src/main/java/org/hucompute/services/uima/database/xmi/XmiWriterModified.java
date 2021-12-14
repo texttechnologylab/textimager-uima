@@ -1,15 +1,5 @@
 package org.hucompute.services.uima.database.xmi;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.uima.UimaContext;
@@ -24,6 +14,16 @@ import org.apache.uima.util.TypeSystemUtil;
 import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import org.dkpro.core.api.resources.CompressionUtils;
 import org.xml.sax.SAXException;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static org.apache.commons.io.IOUtils.closeQuietly;
 
 /**
  * UIMA XMI format writer.
@@ -48,10 +48,10 @@ public class XmiWriterModified
 	private File typeSystemFile;
 
 	private boolean typeSystemWritten;
-	
+
 	public static final String PARAM_LOG_FILE_LOCATION = "logFile";
 	@ConfigurationParameter(name = PARAM_LOG_FILE_LOCATION,mandatory = false)
-	public File logFile; 
+	public File logFile;
 
 	public StopWatch stopWatch;
 	int processed = 0;
@@ -69,8 +69,8 @@ public class XmiWriterModified
 		stopWatch.start();
 		stopWatch.suspend();
 	}
-	
-	
+
+
 	public void resumeWatch(){
 		stopWatch.resume();
 	}
@@ -78,7 +78,7 @@ public class XmiWriterModified
 	public void suspendWatch(){
 		stopWatch.suspend();
 	}
-	
+
 	public void log(){
 		if(processed++%100==0){
 			System.out.println("Writer processed documentscount: " + processed +" in " + getSeconds(stopWatch.toString()) +" ms");
@@ -88,10 +88,10 @@ public class XmiWriterModified
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}	
+				}
 		}
 	}
-	
+
 	private long getSeconds(String iso){
 		try {
 			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
@@ -129,7 +129,7 @@ public class XmiWriterModified
     {
 		@SuppressWarnings("resource")
         OutputStream typeOS = null;
-		
+
         try {
     		if (typeSystemFile != null) {
     		    typeOS = CompressionUtils.getOutputStream(typeSystemFile);

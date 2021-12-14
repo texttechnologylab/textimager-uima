@@ -13,24 +13,24 @@ import org.junit.Test;
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 public class GNfinderTest {
-	@Test
-	public void gnfinderTest() throws UIMAException {
-		//JCas cas = JCasFactory.createText("Pomatomus saltator und Parus major im Beispiel.", "de");
-		JCas cas = JCasFactory.createText("Homo sapiens Linnaeus", "de");
+    @Test
+    public void gnfinderTest() throws UIMAException {
+        //JCas cas = JCasFactory.createText("Pomatomus saltator und Parus major im Beispiel.", "de");
+        JCas cas = JCasFactory.createText("Homo sapiens Linnaeus", "de");
 
-		AnalysisEngineDescription gnFinder = createEngineDescription(GNfinder.class,
-				GNfinder.PARAM_DOCKER_HOST_PORT, 8888,
-				GNfinder.PARAM_VERIFICATION, true,
-				GNfinder.PARAM_VERIFICATION_SOURCES, "1"
-		);
+        AnalysisEngineDescription gnFinder = createEngineDescription(GNfinder.class,
+                GNfinder.PARAM_DOCKER_HOST_PORT, 8888,
+                GNfinder.PARAM_VERIFICATION, true,
+                GNfinder.PARAM_VERIFICATION_SOURCES, "1"
+        );
 
-		SimplePipeline.runPipeline(cas, gnFinder);
+        SimplePipeline.runPipeline(cas, gnFinder);
 
-		System.out.println(XmlFormatter.getPrettyString(cas));
+        System.out.println(XmlFormatter.getPrettyString(cas));
 
-		for (NamedEntity ne : JCasUtil.select(cas, NamedEntity.class)) {
-			System.out.println("!" + ne.getCoveredText() + "!");
-		}
-	}
+        for (NamedEntity ne : JCasUtil.select(cas, NamedEntity.class)) {
+            System.out.println("!" + ne.getCoveredText() + "!");
+        }
+    }
 }
 

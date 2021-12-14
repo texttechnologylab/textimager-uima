@@ -1,21 +1,7 @@
 package org.hucompute.services.uima.database.neo4j.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.hucompute.services.uima.database.neo4j.data.MDB;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.event.ErrorState;
 import org.neo4j.graphdb.event.KernelEventHandler;
 import org.neo4j.graphdb.event.TransactionData;
@@ -25,6 +11,12 @@ import org.neo4j.graphdb.schema.IndexCreator;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
  * Created by abrami on 17.02.17.
  */
@@ -33,13 +25,13 @@ public class MDB_Neo4J_Impl implements MDB, TransactionEventHandler<Object>, Ker
     public static GraphDatabaseService gdbs = null;
 
     private static String confFile = "";
-    
+
     private static Map<String, String> conf = new HashMap<>();
     private static File db_dir;
 
     public MDB_Neo4J_Impl(String sConf){
         confFile = sConf;
-        
+
         Properties lProperties = new Properties();
         try {
             lProperties.load(new FileInputStream(new File(confFile)));
@@ -51,7 +43,7 @@ public class MDB_Neo4J_Impl implements MDB, TransactionEventHandler<Object>, Ker
             conf.put(lString, (String) lProperties.get(lString));
         }
         db_dir = new File(conf.get("db_dir"));
-        
+
         // Check if Graphdatabase is intialized and if not- do it
         //if (gdbs == null && new File(conf.get("db_dir")).list().length == 0) {
         if (gdbs == null && new File(conf.get("db_dir")).list() == null) {
