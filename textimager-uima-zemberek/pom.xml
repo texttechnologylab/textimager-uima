@@ -2,14 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>TextImager</groupId>
   <artifactId>Zemberek-NLP</artifactId>
-  <version>0.0.1-SNAPSHOT</version>  
+	<version>0.0.1-SNAPSHOT</version>
   <repositories>
       <repository>
           <id>ahmetaa-repo</id>
           <name>ahmetaa Maven Repo on Github</name>
           <url>https://raw.github.com/ahmetaa/maven-repo/master</url>
       </repository>
-  </repositories>  
+  </repositories>
   <dependencies>
     <dependency>
         <groupId>zemberek-nlp</groupId>
@@ -46,6 +46,12 @@
   			de.tudarmstadt.ukp.dkpro.core.maltparser-asl
   		</artifactId>
   		<version>1.8.0</version>
+		<exclusions>
+			<exclusion>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+			</exclusion>
+		</exclusions>
   	</dependency>
   	<dependency>
   		<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
@@ -66,17 +72,17 @@
 	  <artifactId>junit</artifactId>
 	  <version>4.13.1</version>
 	  <scope>test</scope>
-	</dependency> 
+	</dependency>
   </dependencies>
   <build>
 	    <plugins>
 	        <plugin>
 	            <artifactId>maven-assembly-plugin</artifactId>
-	            <version>2.6</version>        
+				<version>2.6</version>
 	            <executions>
 	                <execution>
 	            <phase>package</phase>
-	            <goals>  
+						<goals>
 	                        <goal>single</goal>
 	                    </goals>
 	            </execution>

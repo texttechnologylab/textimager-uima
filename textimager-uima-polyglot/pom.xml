@@ -26,6 +26,12 @@
   			de.tudarmstadt.ukp.dkpro.core.maltparser-asl
   		</artifactId>
   		<version>1.8.0</version>
+        <exclusions>
+            <exclusion>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+            </exclusion>
+        </exclusions>
   	</dependency>
   	<dependency>
   		<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
