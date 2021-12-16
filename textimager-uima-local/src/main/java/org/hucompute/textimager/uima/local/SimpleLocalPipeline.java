@@ -1,4 +1,4 @@
-package org.hucompute.textimager.uima.util;
+package org.hucompute.textimager.uima.local;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
