@@ -48,7 +48,8 @@ public class SimpleLocalPipeline {
         } else if (fileType.equalsIgnoreCase("txt")) {
             reader = CollectionReaderFactory.createReader(
                     TextReader.class
-                    , TextReader.PARAM_TARGET_LOCATION, inputDir.toString()
+                    , TextReader.PARAM_SOURCE_LOCATION, inputDir.toString()
+                    , TextReader.PARAM_PATTERNS, "**/*.txt"
                     , TextReader.PARAM_SOURCE_ENCODING, "UTF-8"
                     , XmiReader.PARAM_USE_DEFAULT_EXCLUDES, true
                     , XmiReader.PARAM_INCLUDE_HIDDEN, false
