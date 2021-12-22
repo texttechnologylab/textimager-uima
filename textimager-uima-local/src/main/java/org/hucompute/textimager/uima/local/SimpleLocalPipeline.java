@@ -5,6 +5,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.dkpro.core.api.resources.CompressionMethod;
 import org.dkpro.core.io.text.TextReader;
 import org.dkpro.core.io.xmi.XmiReader;
 import org.dkpro.core.io.xmi.XmiWriter;
@@ -18,16 +19,17 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDesc
 
 public class SimpleLocalPipeline {
     public static void main(String[] args) throws UIMAException, IOException {
-        if (args.length != 4) {
+        if (args.length != 5) {
             System.out.println("Usage:");
-            System.out.println("  fileType language inputDir outputDir");
+            System.out.println("  fileType language inputDir outputDir dockerPort");
             System.exit(1);
         }
 
-        String fileType = args[0];              // xmi, txt, ...
-        String language = args[1];              // de, en, ...
-        Path inputDir = Paths.get(args[2]);     // path
-        Path outputDir = Paths.get(args[3]);    // path
+        String fileType = args[0];                      // xmi, txt, ...
+        String language = args[1];                      // de, en, ...
+        Path inputDir = Paths.get(args[2]);             // path
+        Path outputDir = Paths.get(args[3]);            // path
+        int dockerPort = Integer.parseInt(args[4]);     // 8462
 
         CollectionReader reader = null;
         if (fileType.equalsIgnoreCase("xmi")) {
@@ -59,10 +61,13 @@ public class SimpleLocalPipeline {
                 XmiWriter.class
                 , XmiWriter.PARAM_TARGET_LOCATION, outputDir.toString()
                 , XmiWriter.PARAM_VERSION, "1.1"
+                , XmiWriter.PARAM_COMPRESSION, CompressionMethod.GZIP
+                , XmiWriter.PARAM_PRETTY_PRINT, true
         );
 
         AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger3.class,
-                SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, 8000
+                SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, dockerPort,
+                SpaCyMultiTagger3.PARAM_DOCKER_REGISTRY, "141.2.89.20:5000"
         );
 
         assert reader != null;
