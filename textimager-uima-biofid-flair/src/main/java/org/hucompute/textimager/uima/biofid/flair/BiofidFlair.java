@@ -1,5 +1,6 @@
 package org.hucompute.textimager.uima.biofid.flair;
 
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.MetaDataStringField;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -19,8 +20,25 @@ import org.texttechnologylab.annotation.type.Taxon;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static java.lang.Integer.parseInt;
+
 public class BiofidFlair extends RestAnnotatorParallel {
 	protected MappingProvider mappingProvider;
+
+	@Override
+	protected String getAnnotatorVersion() {
+		return "0.1";
+	}
+
+	@Override
+	protected String getModelName() {
+		return "";
+	}
+
+	@Override
+	protected String getModelVersion() {
+		return "";
+	}
 
 	@Override
 	protected String getRestRoute() {
@@ -38,6 +56,24 @@ public class BiofidFlair extends RestAnnotatorParallel {
 		mappingProvider.setDefault(MappingProvider.LANGUAGE, "de");
 	}
 
+	/**
+	 * The unique key to identify the annotation of the dynamic batch size inside of the jCas Object
+	 */
+	static public String DYNAMIC_CONFIGURATION_BATCH_SIZE_KEY = "biofid_flair.dynamic_configuration.batch_size";
+
+	/**
+	 * Sets the batch size as annotation inside of the jCAS
+	 * @param aJCAS The jCAS Object to annotate
+	 * @param batch_size The batch size to write into the jCas Object
+	 */
+	public static void set_batch_size(JCas aJCAS, int batch_size) {
+		MetaDataStringField field = new MetaDataStringField(aJCAS);
+		field.setValue(Integer.toString(batch_size));
+		//Set the key to something constant
+		field.setKey(BiofidFlair.DYNAMIC_CONFIGURATION_BATCH_SIZE_KEY);
+		field.addToIndexes();
+	}
+
 	@Override
 	protected JSONObject buildJSON(JCas aJCas) {
 		// Format:
@@ -50,9 +86,23 @@ public class BiofidFlair extends RestAnnotatorParallel {
 				.map(Annotation::getCoveredText)
 				.forEach(sentences::put);
 
+		//Default batch size is 16
+		int batch_size = 16;
+
+		// Extract the batch size from the jCas if there is any
+		for (MetaDataStringField i : JCasUtil.select(aJCas, MetaDataStringField.class)) {
+			if (i.getKey().trim().equals(BiofidFlair.DYNAMIC_CONFIGURATION_BATCH_SIZE_KEY.trim())) {
+				batch_size = parseInt(i.getValue().trim());
+				if(batch_size > 128) {
+					batch_size = 128;
+				}
+			}
+		}
+
 		// Pack in "sentences" object
 		JSONObject payload = new JSONObject();
 		payload.put("sentences", sentences);
+		payload.put("batch_size",batch_size);
 
 		return payload;
 	}

@@ -3,7 +3,6 @@ package org.hucompute.services.uima.database.neo4j.impl;
 import org.hucompute.services.uima.database.neo4j.data.Annotation;
 import org.hucompute.services.uima.database.neo4j.data.Const;
 import org.hucompute.services.uima.database.neo4j.data.Document;
-import org.hucompute.services.uima.database.neo4j.data.Pos;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -39,7 +38,7 @@ public class Document_Neo4J_Impl extends Annotation_Neo4J_Impl implements Docume
 		}
 		return lResult;
 	}
-	
+
 	public void addAnnotation(Annotation pAnnotation, Const.RelationType type) {
 		this.createRelationshipTo(pAnnotation.getNode(), type);
 	}

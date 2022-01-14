@@ -1,12 +1,11 @@
 package org.hucompute.services.uima.database.test;
 
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasConsumer_ImplBase;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 /**
  * DKPro Annotator for the MateToolsMorphTagger.
@@ -33,7 +32,7 @@ extends JCasConsumer_ImplBase
 			System.out.println(token.getCoveredText());
 		}
 	}
-	
+
 	@Override
 	public void collectionProcessComplete() throws AnalysisEngineProcessException {
 		super.collectionProcessComplete();

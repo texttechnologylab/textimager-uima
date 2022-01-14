@@ -1,8 +1,6 @@
 package org.hucompute.textimager.uima.uaic;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.*;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.NN;
-
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;

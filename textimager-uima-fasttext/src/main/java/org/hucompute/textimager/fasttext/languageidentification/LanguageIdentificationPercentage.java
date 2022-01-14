@@ -1,8 +1,8 @@
 package org.hucompute.textimager.fasttext.languageidentification;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 
+import com.github.jfasttext.JFastText;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Language;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
@@ -15,10 +15,9 @@ import org.dkpro.core.api.resources.CasConfigurableProviderBase;
 import org.dkpro.core.api.resources.ModelProviderBase;
 import org.dkpro.core.api.resources.ResourceUtils;
 
-import com.github.jfasttext.JFastText;
-
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Language;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 
 public class LanguageIdentificationPercentage extends JCasAnnotator_ImplBase{
@@ -81,7 +80,7 @@ public class LanguageIdentificationPercentage extends JCasAnnotator_ImplBase{
 			lang.setEnd(sentence.getEnd());
 			lang.setValue(foundLanguage);
 			lang.addToIndexes(aJCas);
-		}	
+		}
 	}
 
 }

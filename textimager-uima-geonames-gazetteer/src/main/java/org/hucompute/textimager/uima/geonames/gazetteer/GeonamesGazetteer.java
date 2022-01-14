@@ -1,8 +1,10 @@
 package org.hucompute.textimager.uima.geonames.gazetteer;
 
+import org.apache.uima.cas.Type;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.hucompute.textimager.uima.gazetteer.SingleClassTreeGazetteer;
+import org.texttechnologylab.annotation.AnnotationComment;
 import org.texttechnologylab.annotation.GeoNamesEntity;
 
 import java.util.HashSet;
@@ -10,9 +12,9 @@ import java.util.stream.Collectors;
 
 public class GeonamesGazetteer extends SingleClassTreeGazetteer {
     @Override
-    protected void addMyAnnotation(JCas aJCas, Annotation fromToken, Annotation toToken, String element, HashSet<Object> objects) {
+    protected void addMyAnnotation(JCas aJCas, Annotation fromToken, Annotation toToken, Type type, HashSet<Object> objects) {
         //GeoNamesEntity geoNames = new GeoNamesEntity(aJCas, fromToken.getBegin(), toToken.getEnd());
-        GeoNamesEntity geoNames = (GeoNamesEntity) aJCas.getCas().createAnnotation(getTaggingType(element), fromToken.getBegin(), toToken.getEnd());
+        GeoNamesEntity geoNames = (GeoNamesEntity) aJCas.getCas().createAnnotation(type, fromToken.getBegin(), toToken.getEnd());
 
         String sID = objects.stream()
                 .map(Object::toString)
@@ -35,6 +37,16 @@ public class GeonamesGazetteer extends SingleClassTreeGazetteer {
         }
 
         aJCas.addFsToIndexes(geoNames);
+
+        // Annotator version
+        AnnotationComment commentVersion = new AnnotationComment(aJCas);
+        commentVersion.setReference(geoNames);
+        commentVersion.setKey("ttlab_annotator");
+        commentVersion.setValue("ttlab_geonamesl_v_1.0.1");
+        aJCas.addFsToIndexes(commentVersion);
+
+        // Additional comments from config
+        addAdditionalComments(aJCas, geoNames);
     }
 
     @Override

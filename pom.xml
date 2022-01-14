@@ -25,8 +25,10 @@
 		<dkpro.core.version>1.12.0</dkpro.core.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<ttlab.typesystem.version>1.8.9.2</ttlab.typesystem.version>
+		<ttlab.typesystem.version>667e4c061c07d2853243c8cf87fda97404982d8a</ttlab.typesystem.version>
 		<ttlab.utilities.version>1.1.1-uima-2.10.4</ttlab.utilities.version>
+		<jcore.types.version>9df8678666856d87b815e79fe100da26f777fb91</jcore.types.version>
+		<log4j.version>2.16.0</log4j.version>
 	</properties>
 
 	<repositories>
@@ -41,7 +43,11 @@
 		</repository>
 		<repository>
 			<id>ukp-oss-model-releases</id>
-			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-model-releases-local</url>
+			<url>https://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-model-releases-local</url>
+		</repository>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
 
@@ -65,6 +71,14 @@
 	</dependencyManagement>
 
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-core</artifactId>
@@ -77,11 +91,22 @@
 			<groupId>org.dkpro.core</groupId>
 			<artifactId>dkpro-core-testing-asl</artifactId>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
 
 	<modules>
+		<module>textimager-uima-docker</module>
 		<module>textimager-uima-base-annotators</module>
 		<module>textimager-uima-types</module>
 		<module>textimager-uima-io</module>
@@ -92,6 +117,7 @@
 <!--		<module>textimager-uima-IXA</module>-->
 <!--		<module>textimager-uima-uaic</module>-->
 		<module>textimager-uima-spacy</module>
+		<module>textimager-uima-spacy-ie</module>
 <!--		<module>textimager-uima-NeuralnetworkNER</module>-->
 <!--		<module>textimager-uima-cltk</module>-->
 		<module>textimager-uima-fasttext</module>
@@ -99,27 +125,40 @@
 		<module>textimager-uima-HUComputeNER</module>
 		<module>textimager-uima-disambiguation</module>
 		<module>textimager-uima-io-abbyy</module>
-<!--		<module>textimager-uima-deploy</module>-->
 		<module>textimager-uima-heideltime</module>
+		<module>textimager-uima-heideltime-biofid</module>
 <!--		<module>textimager-uima-agreement</module>-->
 		<module>textimager-uima-biofid-gazetteer</module>
 <!--		<module>textimager-uima-deep-eos</module>-->
 		<module>textimager-uima-similarity</module>
 		<module>textimager-uima-database</module>
-<!--		<module>textimager-uima-io-mediawiki</module>-->
+		<module>textimager-uima-io-mediawiki</module>
 		<module>textimager-uima-util</module>
 		<module>textimager-uima-stanza</module>
 		<module>textimager-uima-io-embeddings</module>
 <!--		<module>textimager-uima-allennlp</module>-->
 <!--		<module>textimager-uima-flair-ner</module>-->
-		<module>textimager-uima-text2scene</module>
+	<!--	<module>textimager-uima-text2scene</module>-->
 		<module>textimager-uima-textblob</module>
 <!-- 		<module>textimager-uima-transformers</module>-->
-		<module>textimager-uima-w2v</module>
-		<module>textimager-uima-textscorer</module>
+<!--		<module>textimager-uima-w2v</module>-->
+		<!--<module>textimager-uima-textscorer</module>-->
 		<module>textimager-uima-biofid-flair</module>
 		<module>textimager-uima-gazetteer</module>
 		<module>textimager-uima-geonames-gazetteer</module>
 		<module>textimager-uima-gnd-gazetteer</module>
-    </modules>
+		<module>textimager-uima-biofid-general-gazetteer</module>
+		<module>textimager-uima-steps</module>
+<!--		<module>textimager-uima-julie</module>-->
+		<module>textimager-uima-bert-sentiment</module>
+		<module>textimager-uima-sentiment-base</module>
+		<module>textimager-uima-gervader</module>
+		<module>textimager-uima-vader</module>
+		<module>textimager-uima-german-emotion-detection</module>
+		<module>textimager-uima-polyglot</module>
+  		<module>textimager-uima-openie</module>
+		<module>textimager-uima-gnfinder</module>
+		<module>textimager-uima-supar</module>
+		<module>textimager-uima-splitter</module>
+	</modules>
 </project>

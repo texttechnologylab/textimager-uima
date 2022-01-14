@@ -1,9 +1,9 @@
 package org.hucompute.textimager.uima.wiki;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 import java.util.Objects;
-
-import com.google.gson.Gson;
 
 public class WikidataHyponymObject implements Serializable{
 	private static final long serialVersionUID = 3444885324460109932L;
@@ -11,7 +11,7 @@ public class WikidataHyponymObject implements Serializable{
 	public String linkTo;
 	public int depth;
 	public boolean isInstanceOf;
-	
+
 	@Override
 	public String toString() {
 		return new Gson().toJson(this);

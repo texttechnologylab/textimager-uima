@@ -4,16 +4,16 @@ import org.apache.commons.collections4.SetUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 
 public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 	private HashMap<String, Integer> fileLocationSourceMapping;
-	private HashMap<String, Integer> taxonSourceMapping;
-	
+	private HashMap<String, Set<Integer>> taxonSourceMapping;
+
 	/**
 	 * Create 1-skip-n-grams from each taxon in a file from a given list of files.
 	 *
@@ -31,10 +31,10 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 	 * @param pFilterSet
 	 * @throws IOException
 	 */
-	public MultiClassTreeGazetteerModel(String[] aSourceLocations, Boolean bUseLowercase, String sLanguage, double dMinLength, boolean bAllSkips, boolean bSplitHyphen, boolean bAddAbbreviatedTaxa, int iMinWordCountForSkipGrams, String tokenBoundaryRegex, HashSet<String> pFilterSet, String gazetteerName, boolean simpleLoading) throws IOException {
-		super(aSourceLocations, bUseLowercase, sLanguage, dMinLength, bAllSkips, bSplitHyphen, bAddAbbreviatedTaxa, iMinWordCountForSkipGrams, tokenBoundaryRegex, pFilterSet, gazetteerName, simpleLoading);
+	public MultiClassTreeGazetteerModel(String[] aSourceLocations, Boolean bUseLowercase, String sLanguage, double dMinLength, boolean bAllSkips, boolean bSplitHyphen, boolean bAddAbbreviatedTaxa, int iMinWordCountForSkipGrams, String tokenBoundaryRegex, HashSet<String> pFilterSet, String gazetteerName, boolean simpleLoading, boolean noSkipGrams) throws IOException {
+		super(aSourceLocations, bUseLowercase, sLanguage, dMinLength, bAllSkips, bSplitHyphen, bAddAbbreviatedTaxa, iMinWordCountForSkipGrams, tokenBoundaryRegex, pFilterSet, gazetteerName, simpleLoading, noSkipGrams);
 	}
-	
+
 	@Override
 	protected ArrayList<String> getTaxaFiles(String[] aSourceLocations) throws IOException {
 		fileLocationSourceMapping = new HashMap<>(10, 1);
@@ -44,7 +44,7 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 			String sourcePath = aSourceLocations[i];
 			// If sourcePath is a valid URL, download the given file
 			sourcePath = downloadTaxaFiles(sourcePath);
-			
+
 			// If zipped extract taxa files to temp folder
 			if (sourcePath.endsWith(".zip")) {
 				fileLocations.addAll(extractTaxaFiles(sourcePath));
@@ -65,39 +65,46 @@ public class MultiClassTreeGazetteerModel extends TreeGazetteerModel {
 					fileLocationSourceMapping.put(sourcePath, i);
 				}
 			}
-			
+
 		}
 		return fileLocations;
 	}
-	
+
 	@Override
 	protected LinkedHashMap<String, HashSet<Object>> buildTaxaUriMap(boolean simpleLoading) throws IOException {
 		final AtomicInteger duplicateKeys = new AtomicInteger(0);
 		final LinkedHashMap<String, HashSet<Object>> lTaxonUriMap = new LinkedHashMap<>();
-		
+
 		logger.info(String.format("Loading entries from %d files", sourceLocations.size()));
 		for (int i = 0; i < sourceLocations.size(); i++) {
 			String sourceLocation = sourceLocations.get(i);
 			logger.info(String.format("[%d/%d] Loading file %s", i + 1, sourceLocations.size(), sourceLocation));
 			loadTaxaMap(sourceLocation, useLowercase, language, simpleLoading).forEach((taxon, uri) ->
 					{
-						lTaxonUriMap.merge(taxon, uri, (uUri, vUri) -> {
+						Integer src = fileLocationSourceMapping.get(sourceLocation);
+
+						HashSet<Object> uriNew = (HashSet<Object>) uri.stream().map(u -> (Object)(src + ":" + u)).collect(Collectors.toSet());
+
+						lTaxonUriMap.merge(taxon, uriNew, (uUri, vUri) -> {
 							duplicateKeys.incrementAndGet();
 							return new HashSet<>(SetUtils.union(uUri, vUri));
 						});
-						taxonSourceMapping.put(taxon, fileLocationSourceMapping.get(sourceLocation));
+						if (!taxonSourceMapping.containsKey(taxon)) {
+							taxonSourceMapping.put(taxon, new HashSet<>());
+						}
+						taxonSourceMapping.get(taxon).add(src);
 					}
 			);
 		}
 		logger.info(String.format("Loaded %d entries from %d files.", lTaxonUriMap.size(), sourceLocations.size()));
-		
+
 		if (duplicateKeys.get() > 0)
 			logger.warn(String.format("Merged %d duplicate entries!", duplicateKeys.get()));
-		
+
 		return lTaxonUriMap;
 	}
-	
-	public Integer getClassIdFromTaxon(String taxon) {
+
+	public Set<Integer> getClassIdFromTaxon(String taxon) {
 		return this.taxonSourceMapping.get(taxon);
 	}
 }

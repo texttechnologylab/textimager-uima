@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,99 +19,25 @@
 
 package org.apache.uima.json;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.*;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.tweet.POS_NPV;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.TagsetDescription;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.*;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.*;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.AnnotationBase;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 //import org.hucompute.services.type.html.li;
 //import org.hucompute.services.type.html.ul;
 //import org.hucompute.services.type.segmentation.Div;
-import org.json.JSONObject;
-
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADJ;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADV;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_CONJ;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_DET;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_NOUN;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_NUM;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PART;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PRON;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PROPN;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PUNCT;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_X;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.tweet.POS_NNV;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.tweet.POS_NPV;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.TagsetDescription;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Div;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ABBREV;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ACOMP;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ADVCL;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ADVMOD;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.AGENT;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.AMOD;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.APPOS;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ATTR;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.AUX0;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.AUXPASS;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.CC;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.CCOMP;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.COMPLM;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.CONJ;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.CONJP;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.CONJ_YET;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.COP;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.CSUBJ;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.CSUBJPASS;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DEP;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DET;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DOBJ;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.EXPL;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.INFMOD;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.IOBJ;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.MARK;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.MEASURE;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.MWE;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.NEG;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.NPADVMOD;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.NSUBJ;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.NSUBJPASS;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.NUM;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.NUMBER;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PARATAXIS;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PARTMOD;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PCOMP;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.POBJ;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.POSS;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.POSSESSIVE;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PRECONJ;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PRED;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PREDET;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PREP;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PREPC;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PRT;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PUNCT;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.PURPCL;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.QUANTMOD;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.RCMOD;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.REF;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.REL;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.TMOD;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.XCOMP;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.XSUBJ;
-import de.tudarmstadt.ukp.wikipedia.api.CategoryTitleComparator;
 
 
 
@@ -119,42 +45,42 @@ import de.tudarmstadt.ukp.wikipedia.api.CategoryTitleComparator;
 /**
  * <h2>CAS serializer for JSON formats.</h2>
  * <p>Writes a CAS in a JSON format.</p>
- *   
+ *
  * <p>To use,</p>
  * <ul>
- *   <li>create an instance of this class,</li> 
- *   <li>(optionally) configure the instance, and then</li> 
+ *   <li>create an instance of this class,</li>
+ *   <li>(optionally) configure the instance, and then</li>
  *   <li>call serialize on the instance, optionally passing in additional parameters.</li></ul>
- *   
+ *
  * <p>After the 1st 2 steps, the serializer instance may be used for multiple calls (on multiple threads) to
  * the 3rd serialize step, if all calls use the same configuration.</p>
- * 
+ *
  * <p>There are "convenience" static serialize methods that do these three steps for common configurations.</p>
- * 
+ *
  * <p>Parameters can be configured in this instance (I), and/or as part of the serialize(S) call.</p>
- * 
+ *
  * <p>The parameters that can be configured are:</p>
  * <ul>
  *   <li>(S) The CAS to serialize
  *   <li>(S) where to put the output - an OutputStream, Writer, or File</li>
- *   <li>(I,S) a type system - (default null) if supplied, it is used to "filter" types and features that are serialized.  If provided, only 
+ *   <li>(I,S) a type system - (default null) if supplied, it is used to "filter" types and features that are serialized.  If provided, only
  *   those that exist in the passed in type system are included in the serialization</li>
  *   <li>(I,S) a flag for prettyprinting - default false (no prettyprinting)</li>
  * </ul>
- * 
+ *
  * <p>For Json serialization, additional configuration from the Jackson implementation can be configured</p>
- * on 2 associated Jackson instances:  
- *   <ul><li>JsonFactory</li> 
+ * on 2 associated Jackson instances:
+ *   <ul><li>JsonFactory</li>
  *       <li>JsonGenerator</li></ul>
- * using the standard Jackson methods on the associated JsonFactory instance; 
+ * using the standard Jackson methods on the associated JsonFactory instance;
  * see the Jackson JsonFactory and JsonGenerator javadocs for details.
- * 
+ *
  * <p>These 2 Jackson objects are settable/gettable from an instance of this class.
  * They are created if not supplied by the caller.</p>
- * 
+ *
  * <p>Once this instance is configured, the serialize method is called
  * to serialized a CAS to an output.</p>
- * 
+ *
  * <p>Instances of this class must be used on only one thread while configuration is being done;
  * afterwards, multiple threads may use the configured instance, to call serialize.</p>
  */
@@ -297,21 +223,21 @@ public class JsonCasDeserializer {
 		case "POS_NOUN":
 			return getPos(new POS_NOUN(cas), object);
 		case "POS_NUM":
-			return getPos(new POS_NUM(cas), object);	
+			return getPos(new POS_NUM(cas), object);
 		case "POS_PRON":
-			return getPos(new POS_PRON(cas), object);		
+			return getPos(new POS_PRON(cas), object);
 		case "POS_PROPN":
-			return getPos(new POS_PROPN(cas), object);				
+			return getPos(new POS_PROPN(cas), object);
 		case "POS_PUNCT":
-			return getPos(new POS_PUNCT(cas), object);			
+			return getPos(new POS_PUNCT(cas), object);
 		case "POS_VERB":
-			return getPos(new POS_VERB(cas), object);		
+			return getPos(new POS_VERB(cas), object);
 		case "POS_NPV":
 			return getPos(new POS_NPV(cas), object);
 		case "POS_X":
 			return getPos(new POS_X(cas), object);
 		case "POS":
-			return getPos(new POS(cas), object);			
+			return getPos(new POS(cas), object);
 			/*
 			 * Dependency Types
 			 */

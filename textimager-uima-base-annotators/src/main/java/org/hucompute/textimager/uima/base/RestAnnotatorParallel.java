@@ -2,7 +2,6 @@ package org.hucompute.textimager.uima.base;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.json.JSONArray;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class RestAnnotatorParallel extends JCasAnnotator_ImplBase {
+public abstract class RestAnnotatorParallel extends TextImagerBaseAnnotator {
 	/**
 	 * The endpoint of the rest server. If there are many restEndpoints, please seperate them with an ';'
 	 */

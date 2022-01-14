@@ -1,0 +1,15 @@
+asgiref==3.4.1
+click==8.0.1
+fastapi==0.65.2
+h11==0.12.0
+joblib==1.0.1
+nltk==3.6.2
+pydantic==1.8.2
+regex==2021.8.3
+starlette==0.14.2
+textblob==0.15.3
+textblob-de==0.4.3
+textblob-fr==0.2.0
+tqdm==4.62.0
+typing-extensions==3.10.0.0
+uvicorn==0.14.0

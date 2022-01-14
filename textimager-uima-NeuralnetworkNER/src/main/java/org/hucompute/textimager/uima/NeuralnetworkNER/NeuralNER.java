@@ -1,10 +1,10 @@
 package org.hucompute.textimager.uima.NeuralnetworkNER;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
+import de.tudarmstadt.ukp.dkpro.core.api.io.IobDecoder;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Feature;
@@ -16,11 +16,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import de.tudarmstadt.ukp.dkpro.core.api.io.IobDecoder;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.util.ArrayList;
 
 /**
  * Neuralnetwork NER implementation class.
@@ -30,7 +26,7 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 public class NeuralNER extends NeuralNERBase {
 
 
-	public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION = 
+	public static final String PARAM_NAMED_ENTITY_MAPPING_LOCATION =
 			ComponentParameters.PARAM_NAMED_ENTITY_MAPPING_LOCATION;
 	@ConfigurationParameter(name = PARAM_NAMED_ENTITY_MAPPING_LOCATION, mandatory = false)
 	private String namedEntityMappingLocation;

@@ -1,10 +1,9 @@
 package org.hucompute.textimager.uima.stanza;
 
+import jep.JepException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.JepAnnotator;
-
-import jep.JepException;
 
 public abstract class StanzaBase extends JepAnnotator {
 

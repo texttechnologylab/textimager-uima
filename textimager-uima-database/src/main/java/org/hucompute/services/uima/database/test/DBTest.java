@@ -1,8 +1,8 @@
 package org.hucompute.services.uima.database.test;
 
-import java.io.IOException;
-
 import org.apache.uima.UIMAException;
+
+import java.io.IOException;
 
 public class DBTest {
 

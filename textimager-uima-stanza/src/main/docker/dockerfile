@@ -1,0 +1,18 @@
+FROM python:3.8
+
+WORKDIR /usr/src/app
+
+COPY ./requirements.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+EXPOSE 8000
+
+# preload models
+RUN python -c "import stanza; stanza.download('en')"
+RUN python -c "import stanza; stanza.download('de')"
+
+ENV TEXTIMAGER_STANZA_USE_GPU=False
+
+COPY ./stanza_service.py ./stanza_service.py
+
+CMD ["uvicorn", "stanza_service:app", "--host", "0.0.0.0", "--port" ,"8000"]

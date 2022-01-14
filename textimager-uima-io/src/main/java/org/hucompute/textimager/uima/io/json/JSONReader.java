@@ -1,4 +1,9 @@
 package org.hucompute.textimager.uima.io.json;
+
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -7,11 +12,6 @@ import org.apache.uima.jcas.JCas;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-
 public class JSONReader extends JCasAnnotator_ImplBase{
 
 
@@ -19,7 +19,7 @@ public class JSONReader extends JCasAnnotator_ImplBase{
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 
 		//		JSONArray textArray = new JSONArray(aJCas.getDocumentText());
-		//		
+		//
 		//		StringBuilder sb = new StringBuilder();
 		//		int offset = 0;
 		//		System.out.println("drin in 152");
@@ -87,7 +87,7 @@ public class JSONReader extends JCasAnnotator_ImplBase{
 				if(text.length() >0 && !currentElement.getString("word_form").equals("."))
 					text+=" ";
 				Token token = new Token(cas,text.length(),text.length()+currentElement.getString("word_form").length());
-				text += currentElement.getString("word_form");	
+				text += currentElement.getString("word_form");
 
 				if(!currentElement.getString("pos").equals("empty")){
 					POS pos = new POS(cas, token.getBegin(), token.getEnd());

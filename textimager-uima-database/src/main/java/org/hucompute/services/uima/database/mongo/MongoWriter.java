@@ -1,48 +1,39 @@
 package org.hucompute.services.uima.database.mongo;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-
-import org.apache.commons.io.FileUtils;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.util.JSON;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.json.JsonCasSerializer;
-import org.apache.uima.json.JsonCasSerializer.JsonContextFormat;
 import org.apache.uima.json.JsonCasSerializerModified;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.bson.BsonSerializationException;
 import org.hucompute.services.uima.database.AbstractWriter;
-import org.json.JSONObject;
 
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
-
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import java.io.IOException;
+import java.io.StringWriter;
 
 public class MongoWriter extends AbstractWriter {
 
 	public static final String PARAM_DB_USER = "mongo_connection_user";
 	@ConfigurationParameter(name = PARAM_DB_USER)
 	protected String db_connection_user;
-	
+
 
 	public static final String PARAM_DB_PW = "mongo_connection_pw";
 	@ConfigurationParameter(name = PARAM_DB_PW)
 	protected String db_connection_pw;
-	
-	
+
+
 	public static final String PARAM_DB_HOST = "mongo_connection_host";
 	@ConfigurationParameter(name = PARAM_DB_HOST)
 	protected String db_connection_host;
-	
+
 	public static final String PARAM_DB_DBNAME = "mongo_connection_dbname";
 	@ConfigurationParameter(name = PARAM_DB_DBNAME)
 	protected String db_connection_dbname;
-	
+
 	public static final String PARAM_DB_COLLECTIONNAME = "mongo_connection_collectionname";
 	@ConfigurationParameter(name = PARAM_DB_COLLECTIONNAME)
 	protected String db_connection_collectionname;

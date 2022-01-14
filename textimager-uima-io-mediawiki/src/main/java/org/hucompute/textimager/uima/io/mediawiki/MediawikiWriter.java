@@ -1,26 +1,13 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.io.File;   
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.lang.Math;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DecimalFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.MetaDataStringField;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -30,13 +17,13 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.io.JCasFileWriter_ImplBase;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.io.jwpl.type.WikipediaLink;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
+import java.time.Instant;
+import java.util.*;
 
 
 // TODO replace with new "types" category
@@ -81,7 +68,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 	private long pageIdGlobal = 0;
 	// Variable to add lines of the output file step by step
 	private PrintWriter writer;
-	// To save names of all text files 
+	// To save names of all text files
 	private HashMap<String, HashSet<String>> folderPages;
 	// Collect occurances for every ddc
 	private DDCInfos ddcInfos;
@@ -104,7 +91,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 
 	@Override
 	public void destroy() {
-		// To build all sub-pages for texts 
+		// To build all sub-pages for texts
 
 		// Write Common.js
 		String common = "// Any JavaScript here will be loaded for all users on every page load.\n";
@@ -113,22 +100,22 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 		common += "mw.loader.using('wikification');\n";
 		writePage("Common.js", "javascript", common, nsMediaWiki, "javascript");
 
-		//To save all names of files for the Corpus-page 
+		//To save all names of files for the Corpus-page
 		StringBuilder corpusTextBuilder = new StringBuilder();
 
-		//For each text 
+		//For each text
 		for (HashMap.Entry<String, HashSet<String>> entry : folderPages.entrySet()) {
 			StringBuilder textBuilder = new StringBuilder();
 
-			//read the name of text 
+			//read the name of text
 			for (String page : entry.getValue()) {
 				textBuilder.append("* [[").append(page).append("]]\n");
 			}
-			//Comment for sub-page 
+			//Comment for sub-page
 			String comment = "Generated from directory " + entry.getKey();
 			//Building pages for all text files
 			writePage(entry.getKey(), comment, textBuilder.toString(), nsPage);
-			//Save the name for Corpus-page 
+			//Save the name for Corpus-page
 			if (!entry.getKey().isEmpty()) {
 				corpusTextBuilder.append("'''").append(entry.getKey()).append("'''").append("\n\n");
 			}
@@ -148,11 +135,10 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 		super.destroy();
 	}
 
-	//To initialize and write the beginning of output file 
+	//To initialize and write the beginning of output file
 	@Override
 	public void initialize(UimaContext context) throws ResourceInitializationException {
 		super.initialize(context);
-				
 		File outputDir = new File(targetLocation);
 		outputDir.mkdirs();
 		// To write the file with name: output.wiki.xml
@@ -182,7 +168,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 			e.printStackTrace();
 			throw new ResourceInitializationException(e);
 		}
-		//The header part of output file 
+		//The header part of output file
 		writer.println(
 				"<mediawiki xmlns=\"http://www.mediawiki.org/xml/export-0.10/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd\" version=\"0.10\" xml:lang=\"en\">");
 		writer.println("<siteinfo>");
@@ -257,7 +243,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 			if (level == 3) {
 				pageBuilder.append("*** [[:Category:DDC").append(id).append("|").append(name).append(" (").append(id).append(")]]\n");
 			}
-			
+
 			// List subcategories
 			if (level < 3) {
 				pageBuilder.append("== Subcategories ==\n");
@@ -478,7 +464,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 				text.replace(text.length() - 2, text.length(), "");
 			}
 			text.append(" ]</div></div>\n");
-			
+
 			// TODO: invalid page names: :_: #_# [_-LRB- ]_-RRB-
 			writePage(lemmaPrefix + lemmapos, "Generated Lemma page", text.toString(), nsLemma);
 
@@ -535,8 +521,8 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 		}
 	}
 
-	// To write pages for texts, Corpus - overview page and DDC-Categories page 
-	// Title of page, comment for this page, the body text of page  
+	// To write pages for texts, Corpus - overview page and DDC-Categories page
+	// Title of page, comment for this page, the body text of page
 	private void writePage(String pageTitle, String comment, String textBufferString, String pageNs) {
 		writePage(pageTitle, comment, textBufferString, pageNs, "wikitext");
 	}
@@ -550,14 +536,14 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 			return;
 		}
 
-		//Define ID for the pages 
+		//Define ID for the pages
 		String pageId = String.valueOf(pageIdGlobal);
 		pageIdGlobal++;
 
 		String revisionId = "1";
 		String revParentId = "";	// No revision...
 
-		//To save the time 
+		//To save the time
 		String revTimestamp = Instant.now().toString();
 
 		// TODO SHA1 from a text? Or from all?
@@ -591,31 +577,37 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 	}
 
 	//This process is to get all information from TextImager-Client about the document, paragraphs, sentences and words
-	// All this information is in jCas 
+	// All this information is in jCas
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 
-		DocumentMetaData meta = DocumentMetaData.get(jCas);		 
+		DocumentMetaData meta = DocumentMetaData.get(jCas);
 		String lang = meta.getLanguage();
 
 		String pageTitle = meta.getDocumentId().replaceAll(" ", "_").replaceAll("%20", "_");
 		pageTitle = pageTitle.replace(".txt", "");
 
+		String embedding_id = "zeit_komninos.CBOW_DE_100_NN_NE_V_ADJ"; //Default embedding
+		for (MetaDataStringField field : JCasUtil.select(jCas, MetaDataStringField.class)) {
+			if (field.getKey().equals("embedding_id")) {
+				embedding_id = field.getValue();
+			}
+		}
 		// To separate and remember sub-pages to create the overview pages later
 		String[] split = pageTitle.split("/", -1);
-		// If it is greater than 1, than there are sub-pages 
+		// If it is greater than 1, than there are sub-pages
 		if (split.length > 1) {
 			String level = "";
-			//The last one is the name of page 
+			//The last one is the name of page
 			for (int ind = 0; ind < split.length-1; ++ind) {
 				String s = level + split[ind];
-				
-				// To add the next deep level  
+
+				// To add the next deep level
 				if (!folderPages.containsKey(s)) {
 					folderPages.put(s, new HashSet<String>());
 				}
 				folderPages.get(s).add(s + "/" + split[ind+1]);
-				
+
 				level += s + "/";
 			}
 		} else {
@@ -624,6 +616,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 			}
 			folderPages.get("").add(split[0]);
 		}
+
 
 		String comment = "Generated from file " + meta.getDocumentUri();
 
@@ -650,7 +643,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 				return o1.getValue().compareTo(o2.getValue());
 			}
 		});
-		
+
 		pageBuilder.append("{{#textinfo: DDC");
 		for (CategoryCoveredTagged cct : ddcs) {
 			String ddc = cct.getValue().replaceAll("__label_ddc__", "");
@@ -681,7 +674,7 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 				if (!paragraphCats.isEmpty()) {
 					paragraphCategory = paragraphCats.get(0).getValue().replaceAll("__label_ddc__", "");
 					categories.add("[[" + categoryPrefix + "DDC" + paragraphCategory + "]]");
-					// To add DDC information of paragraph to START tag of paragraph 
+					// To add DDC information of paragraph to START tag of paragraph
 					paragraphBuilder.append(" | DDC:").append(paragraphCategory)
 						.append("_").append(MediawikiDDCHelper.getDDCClassName(paragraphCategory));
 				}
@@ -820,6 +813,32 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 			pageBuilder.append(category).append("\n");
 		}
 		pageBuilder.append("\n\n\n");
+
+		BarplotHelper bh = new BarplotHelper(jCas);
+		String barplotstring = bh.buildStaticEmotionBarplotJS();
+
+		SemiographHelper sh = new SemiographHelper(jCas);
+
+		String semiographstring;
+		try {
+			semiographstring = sh.mergeStaticSemiographString(embedding_id);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			semiographstring = "";
+		}
+
+		MapsHelper mh = new MapsHelper(jCas);
+		String mapstring = mh.buildMapsParserString();
+
+		System.out.println(barplotstring);
+		System.out.println(semiographstring);
+		System.out.println(mapstring);
+		pageBuilder.append(barplotstring);
+		pageBuilder.append(semiographstring);
+		pageBuilder.append(mapstring);
+
+		pageBuilder.append("\n\n\n");
 		writePage(pageTitle, comment, pageBuilder.toString(), nsPage);
 		documentCount++;
 	}
@@ -837,5 +856,6 @@ public class MediawikiWriter extends JCasFileWriter_ImplBase{
 		}
 		mappedList.get(key).add(value);
 	}
+
 
 }

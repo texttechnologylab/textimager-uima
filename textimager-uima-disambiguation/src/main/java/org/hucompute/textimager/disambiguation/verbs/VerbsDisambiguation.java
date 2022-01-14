@@ -1,17 +1,14 @@
 package org.hucompute.textimager.disambiguation.verbs;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
-import javax.xml.stream.XMLStreamException;
-
+import com.github.jfasttext.JFastText;
+import com.github.jfasttext.JFastText.ProbLabel;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense;
+import de.tuebingen.uni.sfs.germanet.api.GermaNet;
+import de.tuebingen.uni.sfs.germanet.api.WordCategory;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
@@ -25,18 +22,13 @@ import org.dkpro.core.api.resources.CasConfigurableProviderBase;
 import org.dkpro.core.api.resources.ModelProviderBase;
 import org.dkpro.core.api.resources.ResourceUtils;
 
-import com.github.jfasttext.JFastText;
-import com.github.jfasttext.JFastText.ProbLabel;
-
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tuebingen.uni.sfs.germanet.api.GermaNet;
-import de.tuebingen.uni.sfs.germanet.api.LexUnit;
-import de.tuebingen.uni.sfs.germanet.api.WordCategory;
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 
@@ -59,20 +51,20 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 	public static final String PARAM_GERMANET_PATH = "germanetPath";
 	@ConfigurationParameter(name = PARAM_GERMANET_PATH, mandatory = false)
 	protected String germanetPath;
-	
+
 	public static final String PARAM_GERMANET = "gnet";
 	@ExternalResource(key=PARAM_GERMANET, mandatory = false, description = "You can pass a GermaNet object instead of a path, to avoid loading germanet multiple times")
 	private GNetWrapper gnetwrapper;
-	
+
 	protected String verblemmaIdsPath;
-	
+
 
 	public static final String PARAM_ACTIVATE_REDUCER = "ACTIVATE_REDUCER";
 	@ConfigurationParameter(name = PARAM_ACTIVATE_REDUCER, mandatory = false,defaultValue="false")
 	protected boolean activateReducer;
 
 	HashMap<String, HashSet<String>>verbLemmaIds = new HashMap<>();
-	
+
 	TreeReducer tr = null;
 	private GermaNet gnet;
 
@@ -91,7 +83,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 		}
 		if(activateReducer){
 			 tr = new TreeReducer();
-			 tr.loadgnet(gnet);
+			 tr.loadgnet(gnet, WordCategory.verben);
 			 tr.reduce();
 		}
 		modelProvider = new ModelProviderBase<JFastText>()
@@ -107,7 +99,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 				setOverride(LOCATION, modelLocation);
 				setOverride(LANGUAGE, "de");
 				setOverride(VARIANT, variant);
-				
+
 			}
 
 			@Override
@@ -118,7 +110,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 					try {
 						List<String> lines;
 						verblemmaIdsPath = aUrl.getFile()+".verbLemmaIds";
-						
+
 						lines = FileUtils.readLines(new File(verblemmaIdsPath));
 						for (String string : lines) {
 							String[]split = string.split("\t");
@@ -135,7 +127,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 				} else {
 					verbLemmaIds = tr.getLemmaIds();
 				}
-				
+
 				JFastText fasttext = new JFastText();
 				File profileFolder = ResourceUtils.getUrlAsFile(aUrl, true);
 				fasttext.loadModel(profileFolder.getAbsolutePath());
@@ -143,15 +135,15 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 			}
 		};
 	}
-	
+
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 
 		modelProvider.configure(aJCas.getCas());
-		
+
 		System.out.println("Starting NN Disambiguation...");
-		
+
 		for (Sentence sentence : JCasUtil.select(aJCas, Sentence.class)) {
 			aJCas.getCas().createAnnotation(sentence.getType(), 1, 0);
 
@@ -165,14 +157,14 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 					sense.addToIndexes();
 					continue;
 				}
-				
+
 
 				if(token.getPos().getClass() == POS_VERB.class){
 					if(JCasUtil.selectCovered(WordSense.class, token).size() > 0) {
 						System.out.println("Verb " + lemma + " already annotated");
 						continue;
 					}
-					
+
 					if(gnet.getLexUnits(lemma, WordCategory.verben).isEmpty()){
 						WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
 						sense.setValue(Integer.toString(-1));
@@ -206,7 +198,7 @@ public class VerbsDisambiguation extends JCasAnnotator_ImplBase{
 						for (ProbLabel probLabel2 : probLabel) {
 							if(verbLemmaIds.get(lemma).contains(probLabel2.label.replace("__label__", ""))){
 								WordSense sense = new WordSense(aJCas, token.getBegin(), token.getEnd());
-								
+
 								// Do reverse mapping to base GermaNet LexUnit ids
 								if (tr == null) sense.setValue(probLabel2.label.replace("__label__", ""));
 								else sense.setValue(tr.reverseMap(lemma, probLabel2.label.replace("__label__", "")));

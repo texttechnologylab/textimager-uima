@@ -1,203 +1,353 @@
 package org.hucompute.textimager.uima.base;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.Socket;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.hucompute.textimager.uima.docker.ContainerParametersBuilder;
+import org.hucompute.textimager.uima.docker.ContainerWrapper;
+import org.hucompute.textimager.uima.docker.DockerAPI;
+import org.json.JSONObject;
 
+import javax.json.JsonObject;
+import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.UUID;
+
+/**
+ * Basic Docker Rest Annotator
+ * If a rest endpoint is specified, Docker is not used
+ */
 public abstract class DockerRestAnnotator extends RestAnnotator {
+	/**
+	 * The docker registry to use
+	 * If left empty uses the default Docker registry
+	 */
+	public static final String PARAM_DOCKER_REGISTRY = "dockerRegistry";
+	@ConfigurationParameter(name = PARAM_DOCKER_REGISTRY, mandatory = false)
+	protected String dockerRegistry;
+
     /**
-     * The docker image for the annotator, if a rest endpoint is specified docker is not used
+     * The docker image for the annotator
+	 * If left empty uses the default of the annotation class
      */
     public static final String PARAM_DOCKER_IMAGE = "dockerImage";
     @ConfigurationParameter(name = PARAM_DOCKER_IMAGE, mandatory = false)
     protected String dockerImage;
-    
-    /**
-     * The min port
-     */
-    public static final String PARAM_PORT_MIN = "portMin";
-    @ConfigurationParameter(name = PARAM_PORT_MIN, mandatory = false, defaultValue = "5000")
-    protected int portMin;
-    
-    /**
-     * The max port
-     */
-    public static final String PARAM_PORT_MAX = "portMax";
-    @ConfigurationParameter(name = PARAM_PORT_MAX, mandatory = false, defaultValue = "5100")
-    protected int portMax;
-    
-    /**
-     * The docker volumes options, separated by comma
-     */
-    public static final String PARAM_DOCKER_VOLUMES = "dockerVolumes";
-    @ConfigurationParameter(name = PARAM_DOCKER_VOLUMES, mandatory = false)
-    protected String dockerVolumes;
 
-	private boolean useDocker = true;
-	private String dockerRestEndpointIP = "127.0.0.1";
-	private String dockerRestEndpoint;
-	private String dockerPidFile = null;
-	
-	// Default Docker Image, if none is configured
-	abstract protected String getDefaultDockerImage();
-	
+	/**
+	 * The tag of the docker image for the annotator
+	 * If left empty uses the default of the annotation class
+	 */
+	public static final String PARAM_DOCKER_IMAGE_TAG = "dockerImageTag";
+	@ConfigurationParameter(name = PARAM_DOCKER_IMAGE_TAG, mandatory = false)
+	protected String dockerImageTag;
+
+	/**
+	 * Port inside the container to use
+	 * If left empty uses the default of the annotation class
+	 */
+	public static final String PARAM_DOCKER_PORT = "dockerPort";
+	@ConfigurationParameter(name = PARAM_DOCKER_PORT, mandatory = false)
+	protected int dockerPort;
+
+	/**
+	 * Optional port on the host to use
+	 */
+	public static final String PARAM_DOCKER_HOST_PORT = "dockerHostPort";
+	@ConfigurationParameter(name = PARAM_DOCKER_HOST_PORT, mandatory = false)
+	protected int dockerHostPort;
+
+	/**
+	 * Override Docker hostname to use locally
+	 */
+	public static final String PARAM_DOCKER_HOSTNAME = "dockerHostname";
+	@ConfigurationParameter(name = PARAM_DOCKER_HOSTNAME, mandatory = false)
+	protected String dockerHostname;
+
+	/**
+	 * The Docker network mode
+	 * Default is TextImager network, use "bridge" to deploy locally
+	 */
+	public static final String PARAM_DOCKER_NETWORK = "dockerNetwork";
+	@ConfigurationParameter(name = PARAM_DOCKER_NETWORK, mandatory = false, defaultValue = "bridge")
+	protected String dockerNetwork;
+
+	/**
+	 * Override Docker mounts
+	 */
+	public static final String PARAM_DOCKER_MOUNTS = "dockerMounts";
+	@ConfigurationParameter(name = PARAM_DOCKER_MOUNTS, mandatory = false)
+	protected String[] dockerMounts;
+
+	/**
+	 * Docker API socket path, currently only socket is supported
+	 */
+	public static final String PARAM_DOCKER_SOCKET = "dockerSocket";
+	@ConfigurationParameter(name = PARAM_DOCKER_SOCKET, mandatory = false, defaultValue = "/var/run/docker.sock")
+	protected File dockerSocket;
+
 	@Override
-	protected String getRestEndpoint() {
-		if (useDocker) {
-			return dockerRestEndpoint + getRestRoute();
-		}		
-		return super.getRestEndpoint();
+	protected String getModelName() {
+		return fullDockerImageName;
 	}
 
-	private boolean isPortFree(String host, int port) {
-		Socket s = null;
-		try {
-			s = new Socket(host, port);
-			return false;
-		} catch (Exception e) {
-			return true;
-		} finally {
-			if (s != null) {
-				try {
-					s.close();
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-		}
+	@Override
+	protected String getModelVersion() {
+		return dockerImageTag;
 	}
-	
-	private boolean isHTTPOK(String url) {
+
+	// Provides default Docker Image, if none is configured
+	abstract protected String getDefaultDockerImage();
+
+	// Provides default Docker Image tag, if none is configured
+	abstract protected String getDefaultDockerImageTag();
+
+	// Provides default Docker Port, if none is configured
+	abstract protected int getDefaultDockerPort();
+
+	// Provides default Docker Mounts inf format [type, source, target, ...], if none is configured
+	protected String[] getDefaultDockerMounts() {
+		return null;
+	}
+
+	// Docker image name with registry info
+	protected String fullDockerImageName;
+
+	// Docker/Container API
+	protected ContainerWrapper container;
+
+	// Endpoint to check for service readyness
+	protected String getRestEndpointTextImagerReady() {
+        return restEndpoint + getReadyRoute();
+    }
+
+    // Default ready endpoint
+    protected String getReadyRoute() {
+        return "/textimager/ready";
+    }
+
+    // Default ready result check
+    protected boolean isReadyCheck(String result) {
+        JSONObject status = new JSONObject(result);
+        return status.getBoolean("ready");
+	}
+
+	// Check if service is ready
+	protected boolean isReady() throws IOException {
 		try {
-			HttpURLConnection.setFollowRedirects(false);
-			HttpURLConnection con = (HttpURLConnection) new URL(dockerRestEndpoint).openConnection();
-			con.setRequestMethod("HEAD");
-			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				System.out.println("docker server online");
-				return true;
-			}
-		} catch (Exception e) {
-			// ignore
+			URL url = new URL(getRestEndpointTextImagerReady());
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setDoInput(true);
+			connection.setUseCaches(false);
+
+			String res = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+            return isReadyCheck(res);
 		}
+		catch (Exception ignored) {
+		}
+
 		return false;
 	}
-	
+
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
-		
-		// use docker if no rest endpoint is specified
-		useDocker = (restEndpoint == null);
-		
-		if (useDocker) {
-			if (dockerImage == null) {
-				System.out.println("no docker image configured.");
-				dockerImage = getDefaultDockerImage();
-			}
-			
-			System.out.println("using docker image: " + dockerImage);
-			
-			// wait so that instances do not interrupt
-			try {
-				Thread.sleep((long) (Math.random() * 1000));
-			} catch (InterruptedException e1) {
-				// ..
-			}
-	
-			try {
-				File dockerPidFileTemp = File.createTempFile("textimager_ducc_", "_docker_pid");
-				dockerPidFile = dockerPidFileTemp.getAbsolutePath();
-				// TODO better solution
-				dockerPidFileTemp.delete();
-				System.out.println("docker pid file: " + dockerPidFile);
-			} catch (Exception ex) {
-				throw new ResourceInitializationException(ex);
-			}
-	
-			int portInt = portMin;
-			while (!isPortFree(dockerRestEndpointIP, portInt)) {
-				System.out.println("port " + portInt + " not available, checking next...");
-				portInt++;
-				if (portInt > portMax) {
-					throw new ResourceInitializationException(new Exception("no free ports found"));
-				}
-			}
-			String port = String.valueOf(portInt);
-			System.out.println("using port " + port);
-			
-			dockerRestEndpoint = "http://" + dockerRestEndpointIP + ":" + port;
 
-			List<String> command = new ArrayList<String>();
-			command.add("docker");
-			command.add("run");
-			command.add("-d");
-			command.add("--cidfile");
-			command.add(dockerPidFile);
-			command.add("--rm");
-			command.add("-p");
-			command.add(port + ":80");
-			if (dockerVolumes != null) {
-				for (String m : dockerVolumes.split(",", -1)) {
-					command.add("-v");
-					command.add(m);
+		// use docker only if no rest endpoint is specified
+		if (restEndpoint == null) {
+			try {
+				// Get Docker image from annotator class if not specified
+				if (dockerImage == null) {
+					dockerImage = getDefaultDockerImage();
 				}
-			}
-			command.add(dockerImage);
-			ProcessBuilder builder = new ProcessBuilder(command);
-	        try {
-	        	Process dockerProcess = builder.start();
-				
-				// wait until server is ready
-				System.out.println("waiting for docker server...");
-				while(!isHTTPOK(dockerRestEndpointIP)) {
-					System.out.println("still waiting...");
+
+				// Get Docker image tag from annotator class if not specified
+				if (dockerImageTag == null) {
+					dockerImageTag = getDefaultDockerImageTag();
+				}
+
+				// Build full image name from image and repository
+				fullDockerImageName = dockerImage;
+				if (dockerRegistry != null) {
+					fullDockerImageName = dockerRegistry + "/" + fullDockerImageName;
+				}
+
+				// Full Docker image name
+				String fullDockerImage = fullDockerImageName + ":" + dockerImageTag;
+				System.out.println("Using Docker image: " + fullDockerImage);
+
+				// Get Docker port from annotator class if not specified
+				if (dockerPort == 0) {
+					dockerPort = getDefaultDockerPort();
+				}
+				System.out.println("Using Docker port: " + dockerPort);
+
+				// Connect to Docker API
+				DockerAPI docker = new DockerAPI(dockerSocket);
+				System.out.println("Connected to Docker API");
+
+				// check if image already exists
+				System.out.println("Checking for docker image...");
+				if (!docker.check_image_exists(fullDockerImage)) {
+					// Pull the docker image to use
+					System.out.println("Docker image not found, pulling...");
+					docker.get_handle().images().pull(fullDockerImageName, dockerImageTag);
+				}
+
+				// Container name based on timestamp
+				String name = getClass().getName() + "__textimager" + "." + Instant.now().getEpochSecond() + "." + UUID.randomUUID();
+				System.out.println("Starting container \"" + name + "\"");
+
+				// Build container
+				ContainerParametersBuilder parametersBuilder = new ContainerParametersBuilder(fullDockerImage);
+
+				// Optionally add port mapping
+				int containerPort = dockerPort;
+
+				// if bridge network use default port from container
+				if (dockerHostPort == 0 && dockerNetwork.equals("bridge")) {
+					dockerHostPort = getDefaultDockerPort();
+				}
+
+				// Create port mapping
+				if (dockerHostPort != 0) {
+					System.out.println("Using Docker port mapping " + dockerPort + " -> " + dockerHostPort);
+					parametersBuilder.set_port_mapping(dockerPort, dockerHostPort);
+					containerPort = dockerHostPort;
+				}
+
+				// Set network
+				System.out.println("Using Docker network " + dockerNetwork);
+				parametersBuilder.set_network_mode(dockerNetwork);
+
+				// Get Docker mounts from annotator class if not specified
+				if (dockerMounts == null) {
+					dockerMounts = getDefaultDockerMounts();
+				}
+
+				// Set mounts
+				if (dockerMounts != null) {
+					System.out.println("Mounting paths:");
+					if (dockerMounts.length % 3 != 0) {
+						throw new ResourceInitializationException(new Exception("Wrong format: mount array needs to be [type, source, target, ...]"));
+					}
+
+					for (int ind = 0; ind < dockerMounts.length-2; ind+=3) {
+						String type = dockerMounts[ind];
+						String source = dockerMounts[ind+1];
+						String target = dockerMounts[ind+2];
+						System.out.println("- " + type + ": " + source + " -> " + target);
+						parametersBuilder.set_mount_mapping(type, source, target);
+					}
+				}
+
+				// Create container
+				JsonObject config = parametersBuilder.get_config();
+				container = new ContainerWrapper(
+						docker.get_handle()
+								.containers()
+								.create(name, config)
+				);
+				System.out.println("Created container with id " + container.get_handle().containerId());
+
+				// Start container
+				container.get_handle().start();
+
+				// Wait until container is running
+				// TODO add timeout
+				try {
+					do {
+						System.out.println("Waiting for Docker container to start...");
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							// ignore
+						}
+					} while (!container.fetch_is_running());
+				} catch (InterruptedException e) {
+					// ignore
+				}
+
+				// Fetch inspect data
+				container.fetch();
+
+				// Update endpoint of RestAnnotator
+				if (dockerHostname == null) {
+					if (dockerNetwork.equals("bridge")) {
+						// use loaclhost if bridge network is being used
+						dockerHostname = "localhost";
+					}
+					else {
+						dockerHostname = container.get_hostname();
+					}
+				}
+				restEndpoint = "http://" + dockerHostname + ":" + containerPort;
+				System.out.println("Container endpoint is " + restEndpoint);
+
+				// Wait until server is ready
+				// TODO add timeout
+				do {
+					System.out.println("Waiting for service to be ready...");
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						// ignore
 					}
-				}
-				try {
-					dockerProcess.waitFor();
-				} catch (InterruptedException e) {
-					dockerProcess.destroyForcibly();
-				}
-				int exitValue = dockerProcess.exitValue();
-				System.out.println("exit value: " + exitValue);
-				if (exitValue != 0) {
-					throw new Exception("error starting docker container with docker rest server.");
-				}
+				} while (!isReady());
+
+				System.out.println("Docker container should be running now");
+
 			} catch (Exception e) {
+				// stop Docker before throwing
+				System.out.println("Trying to stop Docker container before throwing...");
+				dockerStop();
 				throw new ResourceInitializationException(e);
 			}
 		}
 	}
-	
+
+	private void dockerStop() {
+		if (container != null) {
+			// TODO container is not stopped on DUCC?
+			try {
+                System.out.println("Stopping Docker container " + container.get_name());
+                container.get_handle().stop();
+			} catch (Exception e) {
+                System.out.println(e.getMessage());
+				e.printStackTrace();
+			}
+
+            // TODO container removed at stop already?
+			try {
+				System.out.println("Waiting for Docker to stop...");
+				container.get_handle().waitOn("not-running");
+			} catch (Exception e) {
+                System.out.println(e.getMessage());
+				e.printStackTrace();
+			}
+
+			try {
+				System.out.println("Removing Docker container");
+				container.get_handle().remove();
+			} catch (Exception e) {
+                System.out.println(e.getMessage());
+				e.printStackTrace();
+			}
+
+			container = null;
+		}
+	}
+
 	@Override
 	public void destroy() {
-		if (useDocker) {
-			if (dockerPidFile != null) {
-				File dockerPidFileTemp = new File(dockerPidFile);
-				try {
-					String dockerId = FileUtils.readFileToString(dockerPidFileTemp, "UTF-8");
-					System.out.println("docker id: " + dockerId);
-					new ProcessBuilder("docker", "stop", dockerId).start();
-				} catch (IOException e) {
-					// ..
-				}
-				dockerPidFileTemp.delete();
-			}
-		}
-
+		dockerStop();
 		super.destroy();
 	}
+
 }

@@ -22,19 +22,14 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>apache-log4j-extras</artifactId>
-            <version>1.2.17</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.12.1</version>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -78,7 +73,7 @@
             <groupId>com.github.texttechnologylab</groupId>
             <artifactId>UIMATypeSystem</artifactId>
             <version>${ttlab.typesystem.version}</version>
-            <scope>compile</scope>
+<!--            <scope>compile</scope>-->
         </dependency>
         <dependency>
             <groupId>com.github.texttechnologylab</groupId>
@@ -217,14 +212,14 @@
         <repository>
             <id>hu-central</id>
             <name>alba-releases</name>
-            <url>http://service.hucompute.org/artifactory/libs-snapshot-local</url>
+            <url>https://service.hucompute.org/artifactory/libs-snapshot-local</url>
         </repository>
         <repository>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
             <id>ukp-oss-model-releases</id>
-            <url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-model-releases-local</url>
+            <url>https://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-model-releases-local</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
@@ -236,12 +231,12 @@
         <repository>
             <id>hu-central</id>
             <name>alba-releases</name>
-            <url>http://service.hucompute.org/artifactory/libs-snapshot-local</url>
+            <url>https://service.hucompute.org/artifactory/libs-snapshot-local</url>
         </repository>
         <snapshotRepository>
             <id>hu-snapshots</id>
             <name>alba-snapshots</name>
-            <url>http://service.hucompute.org/artifactory/libs-snapshot-local</url>
+            <url>https://service.hucompute.org/artifactory/libs-snapshot-local</url>
         </snapshotRepository>
     </distributionManagement>
 

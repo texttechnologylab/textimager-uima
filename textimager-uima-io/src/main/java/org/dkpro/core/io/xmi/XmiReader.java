@@ -17,14 +17,9 @@
  */
 package org.dkpro.core.io.xmi;
 
-import static java.util.Objects.nonNull;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import eu.openminted.share.annotations.api.DocumentationResource;
+import eu.openminted.share.annotations.api.Parameters;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.impl.CASImpl;
@@ -48,9 +43,13 @@ import org.dkpro.core.api.parameter.MimeTypes;
 import org.dkpro.core.api.resources.CompressionUtils;
 import org.xml.sax.SAXException;
 
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import eu.openminted.share.annotations.api.DocumentationResource;
-import eu.openminted.share.annotations.api.Parameters;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Reader for UIMA XMI files.
@@ -58,7 +57,7 @@ import eu.openminted.share.annotations.api.Parameters;
 @ResourceMetaData(name = "UIMA XMI CAS Reader")
 @DocumentationResource("${docbase}/format-reference.html#format-${command}")
 @Parameters(
-        exclude = { 
+        exclude = {
                 ResourceCollectionReaderBase.PARAM_SOURCE_LOCATION,
                 ResourceCollectionReaderBase.PARAM_INCLUDE_HIDDEN,
                 ResourceCollectionReaderBase.PARAM_USE_DEFAULT_EXCLUDES,
@@ -77,14 +76,14 @@ public class XmiReader
     public static final String PARAM_LENIENT = "lenient";
     @ConfigurationParameter(name = PARAM_LENIENT, mandatory = true, defaultValue = "false")
     private boolean lenient;
-    
+
     /**
-     * Add DKPro Core metadata if it is not already present in the document. 
+     * Add DKPro Core metadata if it is not already present in the document.
      */
     public static final String PARAM_ADD_DOCUMENT_METADATA = "addDocumentMetadata";
     @ConfigurationParameter(name = PARAM_ADD_DOCUMENT_METADATA, mandatory = true, defaultValue = "true")
     private boolean addDocumentMetadata;
-    
+
     /**
      * Generate new DKPro Core document metadata (i.e. title, ID, URI) for the document instead
      * of retaining what is already present in the XMI file.
@@ -92,9 +91,9 @@ public class XmiReader
     public static final String PARAM_OVERRIDE_DOCUMENT_METADATA = "overrideDocumentMetadata";
     @ConfigurationParameter(name = PARAM_OVERRIDE_DOCUMENT_METADATA, mandatory = true, defaultValue = "false")
     private boolean overrideDocumentMetadata;
-    
+
     /**
-     * Determines whether the type system from a currently read file should be merged 
+     * Determines whether the type system from a currently read file should be merged
      * with the current type system.
      */
     public static final String PARAM_MERGE_TYPE_SYSTEM = "mergeTypeSystem";
@@ -109,7 +108,7 @@ public class XmiReader
     public static final String PARAM_TYPE_SYSTEM_FILE = "typeSystemFile";
     @ConfigurationParameter(name = PARAM_TYPE_SYSTEM_FILE, mandatory = false)
     private File typeSystemFile;
-    
+
     @Override
     public void getNext(CAS aCAS)
         throws IOException, CollectionException
@@ -123,14 +122,14 @@ public class XmiReader
                 tsds.add(UIMAFramework.getXMLParser()
                         .parseTypeSystemDescription(new XMLInputSource(typeSystemFile)));
                 TypeSystemDescription merged = CasCreationUtils.mergeTypeSystems(tsds);
-                
+
                 // Create a temporary CAS with the merged TS
                 CAS mergedCas = CasCreationUtils.createCas(merged, null, null, null);
-                
+
                 // Create a holder for the CAS metadata
                 CASMgrSerializer casMgrSerializer = Serialization
                         .serializeCASMgr((CASImpl) mergedCas);
-    
+
                 // Reinitialize CAS with merged type system
                 ((CASImpl) aCAS).setupCasFromCasMgrSerializer(casMgrSerializer);
             }
@@ -138,7 +137,7 @@ public class XmiReader
                 throw new IOException(e);
             }
         }
-        
+
         Resource res = nextFile();
 
         // Read XMI file
@@ -150,7 +149,7 @@ public class XmiReader
 //            throw new IOException(e);
             e.printStackTrace();
         }
-        
+
         // Handle DKPro Core DocumentMetaData
         AnnotationFS docAnno = aCAS.getDocumentAnnotation();
         if (docAnno.getType().getName().equals(DocumentMetaData.class.getName())) {

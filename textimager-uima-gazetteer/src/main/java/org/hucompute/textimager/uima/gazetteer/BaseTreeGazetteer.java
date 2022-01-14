@@ -22,19 +22,20 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.cas.TOP;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.dkpro.core.api.parameter.ComponentParameters;
+import org.dkpro.core.api.resources.MappingProvider;
+import org.dkpro.core.api.segmentation.SegmenterBase;
 import org.hucompute.textimager.uima.gazetteer.models.ITreeGazetteerModel;
 import org.hucompute.textimager.uima.gazetteer.models.TreeGazetteerModel;
 import org.hucompute.textimager.uima.gazetteer.tree.ITreeNode;
 import org.hucompute.textimager.uima.gazetteer.util.UnicodeRegexSegmenter;
-import org.dkpro.core.api.parameter.ComponentParameters;
-import org.dkpro.core.api.resources.MappingProvider;
-import org.dkpro.core.api.segmentation.SegmenterBase;
+import org.texttechnologylab.annotation.AnnotationComment;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -99,6 +100,7 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 	 * Boolean, if true, use StringTree implementation. Default: true.
 	 */
 	public static final String PARAM_USE_STRING_TREE = "pUseStringTree";
+	public static final String PARAM_NO_SKIPGRAMS = "pNoSkipGrams";
 	protected static AnalysisEngine regexSegmenter;
 	@ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false, defaultValue = "de")
 	protected String language;
@@ -133,6 +135,8 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 	protected boolean pAddAbbreviatedTaxa;
 	@ConfigurationParameter(name = PARAM_RETOKENIZE, mandatory = false, defaultValue = "false")
 	protected boolean pRetokenize;
+	@ConfigurationParameter(name = PARAM_NO_SKIPGRAMS, mandatory = false, defaultValue = "false")
+	protected boolean pNoSkipGrams;
 	protected ArrayList<Annotation> tokens;
 	protected ConcurrentHashMap<Integer, Integer> tokenBeginIndex;
 	protected Type taggingType;
@@ -141,6 +145,14 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 	protected JCas localJCas;
 	protected ITreeGazetteerModel stringTreeGazetteerModel;
 	MappingProvider namedEntityMappingProvider;
+
+	/**
+	 * Array of annotation comments, always as pairs: 0 = key, 1 = value, 2 = key, ...
+	 * Has to be added manually in "addMyAnnotation" via "addAdditionalComments"
+	 */
+	public static final String PARAM_ANNOTATION_COMMENTS = "pAnnotationComments";
+	@ConfigurationParameter(name = PARAM_ANNOTATION_COMMENTS, mandatory = false)
+	protected String[] pAnnotationComments;
 
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
@@ -183,7 +195,8 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 				tokenBoundaryRegex,
 				getFilterSet(),
 				getGazetteerName(),
-				useSimpleLoading()
+				useSimpleLoading(),
+				pNoSkipGrams
 		);
 		skipGramTreeRoot = stringTreeGazetteerModel.getTree();
 		skipGramTreeDepth = skipGramTreeRoot.depth();
@@ -377,7 +390,23 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 
 			HashSet<Object> objects = stringTreeGazetteerModel.getTaxonUriMap().get(taxon);
 
-			addMyAnnotation(aJCas, fromToken, toToken, taxon, objects);
+			for (Map.Entry<Type, Set<Integer>> entry : getTaggingTypeWithSourceIds(taxon).entrySet()) {
+				Type type = entry.getKey();
+
+				// each object is of the form "0:abc", containing the source index and the additional string data
+				// filter for this type
+				HashSet<Object> myObjects = (HashSet<Object>) objects
+						.stream()
+						.filter(o -> {
+							Integer id = Integer.valueOf(o.toString().split(":", -1)[0]);
+							return entry.getValue().contains(id);
+						})
+						.map(o -> (Object) Stream.of(o.toString().split(":", -1)).skip(1).collect(Collectors.joining(":")))
+						.collect(Collectors.toSet());
+
+				addMyAnnotation(aJCas, fromToken, toToken, type, myObjects);
+			};
+
 		} catch (NullPointerException e) {
 			// FIXME: Remove this
 			System.err.println(e.getMessage());
@@ -386,9 +415,33 @@ public abstract class BaseTreeGazetteer extends SegmenterBase {
 		}
 	}
 
-	abstract protected void addMyAnnotation(JCas aJCas, Annotation fromToken, Annotation toToken, String element, HashSet<Object> objects);
+	protected void addAdditionalComments(JCas aJCas, TOP ref) {
+		if (pAnnotationComments != null) {
+			if (pAnnotationComments.length > 0 && pAnnotationComments.length % 2 == 0) {
+				for (int i = 0; i < pAnnotationComments.length - 1; i += 2) {
+					String key = pAnnotationComments[i];
+					String value = pAnnotationComments[i + 1];
 
-	protected abstract Type getTaggingType(String taxon);
+					if (!key.isEmpty() && !value.isEmpty()) {
+						AnnotationComment comment = new AnnotationComment(aJCas);
+						comment.setReference(ref);
+						comment.setKey(key);
+						comment.setValue(value);
+						aJCas.addFsToIndexes(comment);
+					}
+				}
+			}
+			else {
+				getLogger().info("Not adding accitional AnnotationComments, this may be a config error. Array contains elements: " + pAnnotationComments.length);
+			}
+		}
+	}
+
+	abstract protected void addMyAnnotation(JCas aJCas, Annotation fromToken, Annotation toToken, Type type, HashSet<Object> objects);
+
+	protected abstract Set<Type> getTaggingType(String taxon);
+
+	protected abstract Map<Type, Set<Integer>> getTaggingTypeWithSourceIds(String taxon);
 
 	protected abstract String getGazetteerName();
 

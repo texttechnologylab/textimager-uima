@@ -1,11 +1,14 @@
 package org.hucompute.services.uima.database.cassandra;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.datastax.driver.core.*;
+import com.datastax.driver.core.exceptions.SyntaxError;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.TagsetDescription;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIterator;
@@ -15,20 +18,11 @@ import org.apache.uima.json.JsonCasSerializer;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.services.uima.database.AbstractWriter;
 
-import com.datastax.driver.core.BatchStatement;
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.SimpleStatement;
-import com.datastax.driver.core.exceptions.SyntaxError;
-
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.TagsetDescription;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class CassandraWriter extends AbstractWriter {
@@ -83,7 +77,7 @@ public class CassandraWriter extends AbstractWriter {
 			e.printStackTrace();
 		}
 //		finally {if ( cluster != null) cluster.close();
-//		
+//
 //		}
 	}
 
@@ -104,7 +98,7 @@ public class CassandraWriter extends AbstractWriter {
                     String type = m.group(2); // what does this exactly do? And for what is typeFull?
 
                     types.add(type);
-                    // uncommented line below 
+                    // uncommented line below
                     addByType(type, annoation, DocumentMetaData.get(jCas).getDocumentId());
                 }
 
@@ -114,7 +108,7 @@ public class CassandraWriter extends AbstractWriter {
             catch(Exception e){
                 e.printStackTrace();
             }
-		
+
         int count = insertQueries.size() + tableCreates.size();
         if(count >= 34845){ // @Hemati: why this exact number?
             System.out.println("Starting queries...");
@@ -123,7 +117,7 @@ public class CassandraWriter extends AbstractWriter {
         }
         suspendWatch();
 		log();
-		
+
 	}
 
 

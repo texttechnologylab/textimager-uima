@@ -1,19 +1,10 @@
 package org.hucompute.textimager.uima.marmot;
 
-import static org.apache.uima.fit.util.JCasUtil.select;
-
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.zip.GZIPInputStream;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import marmot.morph.MorphTagger;
 import marmot.morph.Word;
-
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
@@ -25,9 +16,15 @@ import org.dkpro.core.api.parameter.ComponentParameters;
 import org.dkpro.core.api.resources.CasConfigurableProviderBase;
 import org.dkpro.core.api.resources.ModelProviderBase;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.zip.GZIPInputStream;
+
+import static org.apache.uima.fit.util.JCasUtil.select;
 
 
 
@@ -102,7 +99,7 @@ public class MarMoTLemmaThreads extends JCasAnnotator_ImplBase {
 		}
 		System.out.println("processing time: " + (System.currentTimeMillis()-start));
 	}
-	
+
 	private class SentenceThread implements Runnable{
 		Sentence sentence;
 		JCas aJCas;
@@ -110,7 +107,7 @@ public class MarMoTLemmaThreads extends JCasAnnotator_ImplBase {
 			this.sentence = sentence;
 			this.aJCas = aJCas;
 		}
-		
+
 		@Override
 		public void run() {
 			List<Word> words = new ArrayList<>();
@@ -137,9 +134,9 @@ public class MarMoTLemmaThreads extends JCasAnnotator_ImplBase {
 				}
 				lemma.addToIndexes();
 				tokens.get(i).setLemma(lemma);
-			}			
+			}
 		}
-		
+
 	}
 
 	private String getLemma(String token,String input) throws StringIndexOutOfBoundsException{

@@ -27,7 +27,7 @@
 			<groupId>com.github.texttechnologylab</groupId>
 			<artifactId>UIMATypeSystem</artifactId>
 			<version>${ttlab.typesystem.version}</version>
-			<scope>compile</scope>
+<!--			<scope>compile</scope>-->
 		</dependency>
 		<dependency>
 			<groupId>com.github.texttechnologylab</groupId>

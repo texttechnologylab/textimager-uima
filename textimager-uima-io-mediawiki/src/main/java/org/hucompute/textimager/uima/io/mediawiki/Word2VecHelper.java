@@ -1,10 +1,10 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.util.Collection;
-
-import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
+
+import java.util.Collection;
 
 /** A wrapper around a Word2Vec object. */
 class Word2VecHelper {

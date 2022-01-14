@@ -1,12 +1,5 @@
 package org.hucompute.services.uima.database;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -15,6 +8,13 @@ import org.apache.uima.fit.component.CasCollectionReader_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 
 public abstract class AbstractCollectionReader extends CasCollectionReader_ImplBase {
@@ -22,7 +22,7 @@ public abstract class AbstractCollectionReader extends CasCollectionReader_ImplB
 
 	public static final String PARAM_LOG_FILE_LOCATION = "logFile";
 	@ConfigurationParameter(name = PARAM_LOG_FILE_LOCATION,mandatory = false)
-	public File logFile; 
+	public File logFile;
 
 	public StopWatch stopWatch;
 	int processed = 0;
@@ -38,7 +38,7 @@ public abstract class AbstractCollectionReader extends CasCollectionReader_ImplB
 		stopWatch.start();
 		stopWatch.suspend();
 	}
-	
+
 	public void resumeWatch(){
 		stopWatch.resume();
 	}
@@ -46,7 +46,7 @@ public abstract class AbstractCollectionReader extends CasCollectionReader_ImplB
 	public void suspendWatch(){
 		stopWatch.suspend();
 	}
-	
+
 	public void log(){
 		if(processed++%100==0){
 			logger.info("Reader processed documentscount: " + processed +" in " + getSeconds(stopWatch.toString()) +" ms");
@@ -57,10 +57,10 @@ public abstract class AbstractCollectionReader extends CasCollectionReader_ImplB
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}	
+				}
 		}
 	}
-	
+
 	private long getSeconds(String iso){
 		try {
 			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
