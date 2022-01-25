@@ -10,7 +10,6 @@ import org.apache.uima.resource.ResourceInitializationException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class BorlandWriter extends JCasAnnotator_ImplBase {
 

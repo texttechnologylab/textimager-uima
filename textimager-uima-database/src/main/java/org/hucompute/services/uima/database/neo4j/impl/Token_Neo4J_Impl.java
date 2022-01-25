@@ -1,6 +1,9 @@
 package org.hucompute.services.uima.database.neo4j.impl;
 
-import org.hucompute.services.uima.database.neo4j.data.*;
+import org.hucompute.services.uima.database.neo4j.data.Const;
+import org.hucompute.services.uima.database.neo4j.data.Lemma;
+import org.hucompute.services.uima.database.neo4j.data.Pos;
+import org.hucompute.services.uima.database.neo4j.data.Token;
 import org.neo4j.graphdb.*;
 
 /**

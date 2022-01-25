@@ -1,20 +1,18 @@
 package org.hucompute.textimager.uima.spacy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import jep.JepException;
 import org.apache.uima.UimaContext;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.hucompute.textimager.uima.base.JepAnnotator;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import jep.JepException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public abstract class SpaCyBase extends JepAnnotator {
-	
+
 	@Override
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
@@ -42,22 +40,22 @@ public abstract class SpaCyBase extends JepAnnotator {
 		if (condaVersion == null || condaVersion.isEmpty()) {
 			condaVersion = "py37_4.8.3";
 		}
-		
+
 		System.out.println("initializing spacy base class: conda");
-		
+
 		initConda();
-		
+
 		System.out.println("initializing spacy base class: interprter extras...");
 
 		try {
 			interpreter.exec("import os");
 			interpreter.exec("import sys");
-			interpreter.exec("import spacy"); 
+			interpreter.exec("import spacy");
 			interpreter.exec("from java.lang import System");
 		} catch (JepException ex) {
 			throw new ResourceInitializationException(ex);
 		}
-		
+
 		System.out.println("initializing spacy base class done");
 
 	}

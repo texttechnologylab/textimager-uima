@@ -1,8 +1,6 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.EntityMention;
 import de.julielab.jcore.types.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;

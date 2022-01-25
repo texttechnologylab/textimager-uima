@@ -25,13 +25,6 @@
 
 package org.hucompute.textimager.uima.w2v;
 
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.math.linear.*;
-import org.xml.sax.SAXException;
-
 /**
  * Procrustination function based on procrustes.r
  *
@@ -39,7 +32,7 @@ import org.xml.sax.SAXException;
  * @author Marc Suchard
  * @version $Id$
  */
-public class Procrustes {	
+public class Procrustes {
     public Procrustes(RealMatrix X, RealMatrix Xstar, boolean allowTranslation, boolean allowDilation) {
         rowDimension = X.getRowDimension();
         columnDimension = X.getColumnDimension();

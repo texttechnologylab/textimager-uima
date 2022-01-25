@@ -1,13 +1,12 @@
 package org.hucompute.textimager.uima.allennlp;
 
+import jep.JepException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-
-import jep.JepException;
 
 public class AllenNLPOpenIE extends AllenNLPBase {
 	/**
@@ -17,11 +16,11 @@ public class AllenNLPOpenIE extends AllenNLPBase {
 	@ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
 	protected String language;
 
-	
+
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		try {
-			interpreter.exec("predictor = Predictor.from_path('https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz')");			
+			interpreter.exec("predictor = Predictor.from_path('https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz')");
 		}
 		catch (JepException e) {
 			e.printStackTrace();

@@ -1,16 +1,8 @@
 package org.hucompute.textimager.uima.tool.test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
-
-import javax.xml.transform.OutputKeys;
-
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.cas.impl.XmiCasSerializer;
@@ -20,9 +12,15 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.util.XMLSerializer;
 import org.xml.sax.SAXException;
 
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import javax.xml.transform.OutputKeys;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /*
     Fix XMIs using "regex" to allow procesing in TextImager
@@ -34,12 +32,12 @@ public class XmiFixer {
 
     public XmiFixer(Path xmiFile, Path outputFile) throws IOException, UIMAException, SAXException {
         this.outputFile = outputFile;
-        
+
         jCas = JCasFactory.createJCas();
         InputStream inputStream = Files.newInputStream(xmiFile);
         XmiCasDeserializer.deserialize(inputStream, jCas.getCas());
     }
-    
+
     void fixMeta() {
     	DocumentMetaData meta = DocumentMetaData.get(jCas);
     	meta.setDocumentId(meta.getDocumentId().replaceAll("\\\\", "/"));

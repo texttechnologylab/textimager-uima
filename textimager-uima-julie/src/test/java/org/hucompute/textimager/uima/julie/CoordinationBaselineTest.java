@@ -2,7 +2,6 @@ package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.*;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -69,7 +68,7 @@ public class CoordinationBaselineTest {
         }
     }
     public void init_jcas_dkpro(JCas jcas, String text, String postags, String entities, String entities_begin, String entities_end) {
-        
+
         de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence sentence = new de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence(jcas, 0, text.length());
         sentence.addToIndexes();
         //split sentence to tokens

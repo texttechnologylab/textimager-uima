@@ -1,13 +1,13 @@
 package org.hucompute.textimager.uima.io.tei;
 
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Iterator;
-import java.util.List;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Div;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -24,19 +24,19 @@ import org.dom4j.io.SAXWriter;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
 import org.jaxen.dom4j.Dom4jXPath;
-//import org.jaxen.XPath;
-//import org.jaxen.dom4j.Dom4jXPath;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Div;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
+//import org.jaxen.XPath;
+//import org.jaxen.dom4j.Dom4jXPath;
 
 /**
  * Reader for the TEI XML.
@@ -206,13 +206,13 @@ public class TeiReader1
 		private boolean captureText = false;
 		private int sentenceStart = -1;
 		private int tokenStart = -1;
-		
+
 		private int divStart = -1;
 		private String divTyp = null;
-		
+
 		private int headStart = -1;
 		private String headTyp = null;
-		
+
 		private String posTag = null;
 		private String lemma = null;
 
@@ -355,7 +355,7 @@ public class TeiReader1
 						//												Type posTagType = posMappingProvider.getTagType(posTag);
 						POS pos = new POS(getJCas(),token.getBegin(),token.getEnd());
 						//						Type posTagType = posMappingProvider.getTagType(posTag);
-						//						POS pos = (POS) getJCas().getCas().createAnnotation(posTagType, 
+						//						POS pos = (POS) getJCas().getCas().createAnnotation(posTagType,
 						//								token.getBegin(), token.getEnd());
 						pos.setPosValue(posTag);
 						pos.addToIndexes(getJCas());
@@ -369,7 +369,7 @@ public class TeiReader1
 						token.setLemma(l);
 					}
 
-					if (casee != null || number != null || gender != null || person != null || tense != null || mood != null || 
+					if (casee != null || number != null || gender != null || person != null || tense != null || mood != null ||
 							degree != null || voice != null ) {
 						MorphologicalFeatures cat = new MorphologicalFeatures(getJCas(),token.getBegin(),token.getEnd());
 						cat.setDegree(degree);

@@ -1,13 +1,12 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class MapsHelper {
     Set<String> locations;
@@ -20,7 +19,7 @@ public class MapsHelper {
             }
         }
     }
-    
+
     public String buildMapsParserString(){
         StringBuilder str = new StringBuilder();
         str.append("\n== Recognized Locations ==\n");

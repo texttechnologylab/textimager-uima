@@ -1,18 +1,15 @@
 package org.hucompute.textimager.disambiguation.verbs;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import javax.xml.stream.XMLStreamException;
-
+import de.tuebingen.uni.sfs.germanet.api.GermaNet;
 import org.apache.uima.fit.component.initialize.ConfigurationParameterInitializer;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.resource.DataResource;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.SharedResourceObject;
 
-import de.tuebingen.uni.sfs.germanet.api.GermaNet;
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.IOException;
 
 public final class GNetWrapper implements SharedResourceObject {
 	public static final String PARAM_GERMANET_PATH = "germanetPath";
@@ -21,9 +18,9 @@ public final class GNetWrapper implements SharedResourceObject {
 	private GermaNet gnet;
 
 	public void load(DataResource aData) throws ResourceInitializationException {
-		
+
 		ConfigurationParameterInitializer.initialize(this, aData);
-		
+
 		try {
 			gnet = new GermaNet(new File(germanetPath));
 		} catch (XMLStreamException | IOException e) {

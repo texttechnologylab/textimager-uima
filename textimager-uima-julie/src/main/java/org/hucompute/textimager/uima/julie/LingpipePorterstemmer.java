@@ -1,10 +1,7 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.julie.helper.Converter;
 import org.hucompute.textimager.uima.julie.reader.JsonReader;

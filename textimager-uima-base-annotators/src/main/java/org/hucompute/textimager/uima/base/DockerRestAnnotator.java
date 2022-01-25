@@ -123,18 +123,18 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 
 	// Endpoint to check for service readyness
 	protected String getRestEndpointTextImagerReady() {
-		return restEndpoint + getReadyRoute();
-	}
+        return restEndpoint + getReadyRoute();
+    }
 
-	// Default ready endpoint
-	protected String getReadyRoute() {
-		return "/textimager/ready";
-	}
+    // Default ready endpoint
+    protected String getReadyRoute() {
+        return "/textimager/ready";
+    }
 
-	// Default ready result check
-	protected boolean isReadyCheck(String result) {
-		JSONObject status = new JSONObject(result);
-		return status.getBoolean("ready");
+    // Default ready result check
+    protected boolean isReadyCheck(String result) {
+        JSONObject status = new JSONObject(result);
+        return status.getBoolean("ready");
 	}
 
 	// Check if service is ready
@@ -147,7 +147,7 @@ public abstract class DockerRestAnnotator extends RestAnnotator {
 			connection.setUseCaches(false);
 
 			String res = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-			return isReadyCheck(res);
+            return isReadyCheck(res);
 		}
 		catch (Exception ignored) {
 		}

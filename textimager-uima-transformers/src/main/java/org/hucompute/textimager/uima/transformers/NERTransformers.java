@@ -1,8 +1,7 @@
 package org.hucompute.textimager.uima.transformers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import jep.JepException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
@@ -11,12 +10,12 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.resources.MappingProvider;
 
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import jep.JepException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class NERTransformers extends BaseTransformers {
-	
-	
+
+
 	/**
 	 * Overwrite CAS Language?
 	 */
@@ -39,11 +38,11 @@ public class NERTransformers extends BaseTransformers {
 	protected String variant;
 
 	private MappingProvider mappingProvider;
-	
-	
+
+
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
-		
-		
+
+
 		super.initialize(aContext);
 		mappingProvider = new MappingProvider();
 		mappingProvider.setDefaultVariantsLocation("org/hucompute/textimager/uima/transformers/ner-default-variants.map");
@@ -53,7 +52,7 @@ public class NERTransformers extends BaseTransformers {
 		mappingProvider.setOverride(MappingProvider.LANGUAGE, language);
 		mappingProvider.setOverride(MappingProvider.VARIANT, variant);
 	}
-	
+
 
 	@Override
 	public void process(JCas aJCas) throws AnalysisEngineProcessException {
@@ -66,7 +65,7 @@ public class NERTransformers extends BaseTransformers {
 			interp.set("words",json.get("words"));
 			interp.set("spaces",json.get("spaces"));
 			interp.set("text",aJCas.getDocumentText());
-			
+
 			if(aJCas.getDocumentLanguage().equals("de")) {
 				interp.exec("nlp = pipeline('ner',model='fhswf/bert_de_ner')");
 				interp.exec("tokenizer = AutoTokenizer.from_pretrained(\"fhswf/bert_de_ner\", use_fast=True)");
@@ -75,14 +74,14 @@ public class NERTransformers extends BaseTransformers {
 				interp.exec("nlp = pipeline('ner')");
 				interp.exec("tokenizer = AutoTokenizer.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\", use_fast=True)");
 			}
-			
-			
+
+
 			interp.exec("ents = nlp(text)");
 			interp.exec("tokens = tokenizer(text, return_offsets_mapping = True).get('offset_mapping')");
-			tokens = (ArrayList<ArrayList<Long>>) interp.getValue("tokens");			
+			tokens = (ArrayList<ArrayList<Long>>) interp.getValue("tokens");
 			ArrayList<HashMap<String, Object>> poss = (ArrayList<HashMap<String, Object>>) interp.getValue("ents");
 			poss.forEach(p -> {
-				
+
 				int index = ((Long)p.get("index")).intValue();
 				ArrayList<Long> token = new ArrayList<Long>(tokens.get(index));
 				int begin = token.get(0).intValue() ;
@@ -93,11 +92,11 @@ public class NERTransformers extends BaseTransformers {
 				//NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
 				neAnno.setValue(labelStr);
 				neAnno.addToIndexes();
-				
-				
+
+
 			});
-					
-			
+
+
 
 		} catch (JepException e) {
 			e.printStackTrace();

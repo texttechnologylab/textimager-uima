@@ -1,22 +1,5 @@
 package org.hucompute.textimager.uima.marmot;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.dkpro.core.testing.AssertAnnotations.assertPOS;
-import static org.dkpro.core.testing.AssertAnnotations.assertLemma;
-
-import org.apache.uima.UIMAException;
-import org.apache.uima.fit.factory.AggregateBuilder;
-import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.jcas.JCas;
-import org.junit.Test;
-
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-
 public class MarMoTLemmaTest {
 
 //	@Test
@@ -37,10 +20,10 @@ public class MarMoTLemmaTest {
 //				MarMoTLemma.PARAM_MODEL_LOCATION,"http://cistern.cis.lmu.de/marmot/models/CURRENT/spmrl/de.marmot"
 //				));
 //		SimplePipeline.runPipeline(cas,builder.createAggregate());
-//		
+//
 //		assertLemma(new String[]{"der","sein","ein","gut","Test","--"}, JCasUtil.select(cas, Lemma.class));
 //	}
-	
+
 //	@Test
 //	public void simpleExampleLa() throws UIMAException{
 //		JCas cas = JCasFactory.createText("Hoc senatusconsulti genus in usu fuit a tempore Gracchorum usque ad secundum triumviratum (43 a.C.n.).");
@@ -58,9 +41,9 @@ public class MarMoTLemmaTest {
 //		builder.add(createEngineDescription(
 //				MarMoTLemma.class
 //				));
-//		
+//
 //		SimplePipeline.runPipeline(cas,builder.createAggregate());
-//		
+//
 //		assertLemma(new String[]{"magnus","stultus","sum","."}, JCasUtil.select(cas, Lemma.class));
 //
 //	}

@@ -1,22 +1,12 @@
 package org.hucompute.textimager.uima.spacy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
-import org.dkpro.core.api.resources.MappingProviderFactory;
-
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import jep.JepException;
 
 @TypeCapability(
 		inputs = {
@@ -36,7 +26,7 @@ public class SpaCyTagger extends SpaCyBase {
 	/**
 	 * Overwrite POS mapping location?
 	 */
-	
+
 	public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
 	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
 	protected String posMappingLocation;
@@ -44,7 +34,7 @@ public class SpaCyTagger extends SpaCyBase {
 	/**
 	 * Overwrite model variant?
 	 */
-	
+
 	public static final String PARAM_VARIANT = "variant";
 	@ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
 	protected String variant;
@@ -57,7 +47,7 @@ public class SpaCyTagger extends SpaCyBase {
 
 		/*// TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
 		mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext,posMappingLocation, variant, language);
-		
+
 		try {
 			interp.exec("from spacy.tokens import Doc");
 		} catch (JepException e) {
@@ -96,7 +86,7 @@ public class SpaCyTagger extends SpaCyBase {
 					posAnno.addToIndexes();
 				}
 			});
-			
+
 			interp.exec("print('test')");
 		} catch (JepException e) {
 			e.printStackTrace();

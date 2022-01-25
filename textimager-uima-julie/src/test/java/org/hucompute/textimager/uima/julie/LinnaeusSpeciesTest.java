@@ -1,19 +1,9 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Enzyme;
-import de.julielab.jcore.types.Organism;
 import org.apache.uima.UIMAException;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.jcas.JCas;
 import org.junit.Test;
 
 import java.io.IOException;
-
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertArrayEquals;
 /**
  * LinnaeusSpecies
  *

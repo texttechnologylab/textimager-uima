@@ -1,8 +1,6 @@
 package org.hucompute.textimager.uima.cltk;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertArrayEquals;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -12,7 +10,8 @@ import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.cltk.CLTKTokenizer;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.junit.Assert.assertArrayEquals;
 
 public class CLTKTokenizerTest {
 	@Test
@@ -22,9 +21,9 @@ public class CLTKTokenizerTest {
 
 		AnalysisEngineDescription cltkTokenizer = createEngineDescription(CLTKTokenizer.class,
 				CLTKTokenizer.PARAM_DOCKER_IMAGE,"textimager-cltk");
-		
+
 		SimplePipeline.runPipeline(cas, cltkTokenizer);
-		
+
 		int[][] tokens = new int[][] {
 			new int[] { 0, 5 },
 			new int[] { 6, 10 },
@@ -36,7 +35,7 @@ public class CLTKTokenizerTest {
 			new int[] { 36, 41 },
 			new int[] { 41, 42 }
 		};
-		
+
 		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
 
 		assertArrayEquals(tokens, casTokens);

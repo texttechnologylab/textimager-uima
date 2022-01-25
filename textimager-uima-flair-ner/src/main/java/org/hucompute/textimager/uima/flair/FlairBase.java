@@ -1,11 +1,5 @@
 package org.hucompute.textimager.uima.flair;
 
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -14,6 +8,12 @@ import org.dkpro.core.api.parameter.ComponentParameters;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.hucompute.textimager.uima.base.JepAnnotator;
 import org.springframework.util.FileSystemUtils;
+
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 public abstract class FlairBase extends JepAnnotator {
 

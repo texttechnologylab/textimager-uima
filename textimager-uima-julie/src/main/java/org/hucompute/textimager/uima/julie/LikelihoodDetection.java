@@ -1,6 +1,5 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;

@@ -1,14 +1,14 @@
 package org.hucompute.textimager.uima.allennlp;
 
+import jep.JepException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-//import org.hucompute.textimager.uima.type.Sentiment;
 
-import jep.JepException;
+//import org.hucompute.textimager.uima.type.Sentiment;
 
 public class AllenNLPSentiment extends AllenNLPBase {
 	/**
@@ -18,11 +18,11 @@ public class AllenNLPSentiment extends AllenNLPBase {
 	@ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
 	protected String language;
 
-	
+
 	public void initialize(UimaContext aContext) throws ResourceInitializationException {
 		super.initialize(aContext);
 		try {
-			interpreter.exec("predictor = Predictor.from_path(\'https://storage.googleapis.com/allennlp-public-models/basic_stanford_sentiment_treebank-2020.06.09.tar.gz\')");			
+			interpreter.exec("predictor = Predictor.from_path(\'https://storage.googleapis.com/allennlp-public-models/basic_stanford_sentiment_treebank-2020.06.09.tar.gz\')");
 		}
 		catch (JepException e) {
 			e.printStackTrace();

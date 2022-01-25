@@ -1,7 +1,6 @@
 package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
 import org.apache.uima.UIMAException;

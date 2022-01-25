@@ -1,6 +1,5 @@
 package org.hucompute.textimager.uima.julie;
 
-import de.julielab.jcore.types.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;

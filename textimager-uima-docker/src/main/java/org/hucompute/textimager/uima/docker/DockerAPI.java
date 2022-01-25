@@ -4,7 +4,10 @@ import com.amihaiemil.docker.*;
 
 import javax.json.JsonObject;
 import javax.json.JsonString;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.List;
 import java.util.Vector;

@@ -1,8 +1,8 @@
 package org.hucompute.textimager.uima.flair.ner;
 
-import java.io.IOException;
-import java.nio.file.Paths;
-
+import com.google.common.io.Files;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
@@ -11,14 +11,12 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.hucompute.textimager.uima.flair.FlairPOS;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.hucompute.textimager.uima.flair.FlairPOS;
 
-import com.google.common.io.Files;
-
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import java.io.IOException;
+import java.nio.file.Paths;
 
 public class TestFlairPOS {
 

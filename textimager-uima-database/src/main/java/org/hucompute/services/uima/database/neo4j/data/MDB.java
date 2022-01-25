@@ -4,7 +4,6 @@ package org.hucompute.services.uima.database.neo4j.data;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.index.Index;
 
 import java.util.Set;
 

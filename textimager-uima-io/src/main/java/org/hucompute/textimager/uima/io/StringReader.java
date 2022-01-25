@@ -1,7 +1,6 @@
 package org.hucompute.textimager.uima.io;
 
-import java.io.IOException;
-
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import org.apache.uima.UimaContext;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.fit.component.JCasCollectionReader_ImplBase;
@@ -14,7 +13,7 @@ import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 import org.dkpro.core.api.parameter.ComponentParameters;
 
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import java.io.IOException;
 
 
 @ResourceMetaData(name = "String Reader")
@@ -54,7 +53,7 @@ public class StringReader
     @ConfigurationParameter(name = PARAM_DOCUMENT_BASE_URI, mandatory = false)
     private String documentBaseUri;
 
-    
+
     private int index = 0;
 
     @Override

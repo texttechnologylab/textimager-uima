@@ -2,7 +2,6 @@ package org.hucompute.textimager.uima.julie;
 
 import de.julielab.jcore.types.Lemma;
 import de.julielab.jcore.types.LikelihoodIndicator;
-import de.julielab.jcore.types.Sentence;
 import de.julielab.jcore.types.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;

@@ -1,8 +1,8 @@
 package org.hucompute.textimager.uima.supar;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertArrayEquals;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.cas.CASRuntimeException;
@@ -13,25 +13,24 @@ import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.junit.Assert.assertArrayEquals;
 
 public class SuparDepTest {
 	// TODO add tests for other models
-	
+
 	@Test
 	public void suparDepBiaffineDepEnTest() throws UIMAException, CASRuntimeException {
 		// create document
 		JCas jCas = JCasFactory.createJCas();
 		jCas.setDocumentLanguage("en");
 		jCas.setDocumentText("I saw Sarah with a telescope. Every morning we look for shells in the sand. I put them in a special place in my room.");
-		
+
 		// add sentences
 		new Sentence(jCas, 0, 29).addToIndexes();
 		new Sentence(jCas, 30, 75).addToIndexes();
 		new Sentence(jCas, 76, 117).addToIndexes();
-		
+
 		// add token
 		int[][] tokensPosition = new int[][] {
 				new int[] { 0, 1 },
@@ -76,11 +75,11 @@ public class SuparDepTest {
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
-		
+
 		// test dep positions
 		int[][] casDepPoss = (int[][]) JCasUtil.select(jCas, Token.class).stream().map(p -> new int[] { p.getBegin(), p.getEnd() }).toArray(int[][]::new);
 		assertArrayEquals(tokensPosition, casDepPoss);
-		
+
 		// test types
 		String[] deps = new String[] {
 				"nsubj","--", "dobj", "prep", "det","pobj", "punct",
@@ -93,7 +92,7 @@ public class SuparDepTest {
 		};
 		String[] casDeps = (String[]) JCasUtil.select(jCas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 		assertArrayEquals(deps, casDeps);
-		
+
 		// test governors
 		int[][] depGovPoss = new int[][] {
 				tokensPosition[1],

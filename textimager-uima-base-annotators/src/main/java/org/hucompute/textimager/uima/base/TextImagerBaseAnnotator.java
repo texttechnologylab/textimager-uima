@@ -3,9 +3,9 @@ package org.hucompute.textimager.uima.base;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.TOP;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.texttechnologylab.annotation.AnnotatorMetaData;
 
 public abstract class TextImagerBaseAnnotator extends JCasAnnotator_ImplBase {

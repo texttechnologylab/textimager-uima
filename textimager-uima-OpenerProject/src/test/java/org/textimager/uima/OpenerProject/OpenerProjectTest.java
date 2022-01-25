@@ -1,15 +1,9 @@
 package org.textimager.uima.OpenerProject;
 
-import static de.tudarmstadt.ukp.dkpro.core.testing.AssertAnnotations.assertPOS;
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertEquals;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Timestamp;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.testing.AssertAnnotations;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -19,21 +13,24 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.testing.AssertAnnotations;
-
 import org.hucompute.services.util.XmlFormatter;
 import org.hucompute.textimager.uima.OpenerProject.*;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
+
+import static de.tudarmstadt.ukp.dkpro.core.testing.AssertAnnotations.assertPOS;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.junit.Assert.assertEquals;
 
 
 public class OpenerProjectTest {
 
-	
+
 	@Test
 	public void TokenizerFR() throws UIMAException{
 		JCas cas = JCasFactory.createText("Ceci est un bon test.", "fr");
@@ -43,7 +40,7 @@ public class OpenerProjectTest {
 		builder.add(createEngineDescription(
 				OpenerProjectTokenizer.class));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
-		
+
 		for (Token token : JCasUtil.select(cas, Token.class)) {
 			System.out.println(token.getCoveredText());
 		}
@@ -51,7 +48,7 @@ public class OpenerProjectTest {
 		AssertAnnotations.assertToken(new String[] {"Ceci", "est", "un", "bon", "test","."}, JCasUtil.select(cas, Token.class));
 
 	}
-	
+
 	@Test
 	public void TokenizerDE() throws UIMAException{
 		JCas cas = JCasFactory.createText("Das ist ein \n guter Test.", "de");
@@ -61,7 +58,7 @@ public class OpenerProjectTest {
 		builder.add(createEngineDescription(
 				OpenerProjectTokenizer.class));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
-		
+
 		for (Token token : JCasUtil.select(cas, Token.class)) {
 			System.out.println(token);
 		}
@@ -69,7 +66,7 @@ public class OpenerProjectTest {
 		AssertAnnotations.assertToken(new String[] {"Das", "ist", "ein", "guter", "Test","."}, JCasUtil.select(cas, Token.class));
 
 	}
-	
+
 	@Test
 	public void LanguageTestDE() throws UIMAException{
 		JCas cas = JCasFactory.createText("Das ist ein guter Test.");
@@ -81,9 +78,9 @@ public class OpenerProjectTest {
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
 
 		assertEquals("Language", "de" , cas.getDocumentLanguage());
-		
+
 	}
-	
+
 	@Test
 	public void LanguageTestFR() throws UIMAException{
 		JCas cas = JCasFactory.createText("Ceci est un bon test.");
@@ -93,13 +90,13 @@ public class OpenerProjectTest {
 		builder.add(createEngineDescription(
 				OpenerProjectLanguageIdentifier.class));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
-		
+
 		for (Token token : JCasUtil.select(cas, Token.class)) {
 			System.out.println(token);
 		}
 
 		assertEquals("Language", "fr" , cas.getDocumentLanguage());
-		
+
 	}
 	@Test
 	public void POS_DE() throws UIMAException{
@@ -120,15 +117,15 @@ public class OpenerProjectTest {
 				,OpenerProjectPOSTagger.PARAM_JRUBY_LOCATION,"~/jruby/bin/"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
-		
+
 		for (Token token : JCasUtil.select(cas, Token.class)) {
 			System.out.println(token);
 		}
 
 		assertPOS(
 				new String[] { "PR", "V", "ART", "ADJ", "NN","O"},
-				new String[] { "R", "V", "D", "A", "G","O"}, 
-				JCasUtil.select(cas, POS.class));	
+				new String[] { "R", "V", "D", "A", "G","O"},
+				JCasUtil.select(cas, POS.class));
 	}
 	@Test
 	public void NER_DE() throws UIMAException, IOException{
@@ -151,16 +148,16 @@ public class OpenerProjectTest {
 				,OpenerProjectNER.PARAM_NAMED_ENTITY_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/ner-default.map"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
-	
+
 
 		System.out.println(cas.getCas());
 		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
-		
+
 		File xml = new File("Out.xml");
 		System.out.println(xml.getAbsolutePath());
 		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
 	}
-	
+
 //	@Test
 	public void Constituent() throws UIMAException, IOException{
 		String text = new String(Files.readAllBytes(Paths.get("wiki_de_text")));
@@ -185,11 +182,11 @@ public class OpenerProjectTest {
 				OpenerProjectConstituentCoref.PARAM_CONSTITUENT_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/constituent-en-default.map"
 				));
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
-	
+
 
 		System.out.println(cas.getCas());
 		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
-		
+
 		File xml = new File("Out.xml");
 		System.out.println(xml.getAbsolutePath());
 		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
@@ -199,29 +196,29 @@ public class OpenerProjectTest {
 		String lan = "en";
 		String text = new String(Files.readAllBytes(Paths.get("src/test/java/wiki_"+lan+"_text")));
 		JCas cas = JCasFactory.createText(text,lan);
-		
+
 		AggregateBuilder token = new AggregateBuilder();
 		token.add(createEngineDescription(
 				OpenerProjectTokenizer.class));
-		
+
 		AggregateBuilder POS = new AggregateBuilder();
 		POS.add(createEngineDescription(
 				OpenerProjectPOSTagger.class
 				,OpenerProjectPOSTagger.PARAM_POS_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/pos-default.map"
 				));
-		
+
 		AggregateBuilder Const = new AggregateBuilder();
 		Const.add(createEngineDescription(
 				OpenerProjectConstituentCoref.class,
 				OpenerProjectConstituentCoref.PARAM_CONSTITUENT_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/constituent-en-default.map"
 				));
-		
+
 		AggregateBuilder NER = new AggregateBuilder();
 		NER.add(createEngineDescription(
 				OpenerProjectNER.class
 				,OpenerProjectNER.PARAM_NAMED_ENTITY_MAPPING_LOCATION,"src/main/resources/org/hucompute/textimager/uima/OpenerProject/lib/ner-default.map"
 				));
-		
+
 		long Time_1 = RunPipe(cas, token);
 		System.out.println("Tokenizer: " + Time_1 +" seconds");
 		long Time_2 = RunPipe(cas, POS);
@@ -230,13 +227,13 @@ public class OpenerProjectTest {
 		System.out.println("Constituent: " + Time_3+" seconds");
 		long Time_4 = RunPipe(cas, NER);
 		System.out.println("NER: " + Time_4 +" seconds");
-		
-		
-		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));	
+
+
+		System.out.println(XmlFormatter.getPrettyString(cas.getCas()));
 		File xml = new File("Out.xml");
 		System.out.println(xml.getAbsolutePath());
 		FileUtils.writeStringToFile(xml , XmlFormatter.getPrettyString(cas.getCas()));
-		
+
 		System.out.println("Tokenizer: " + Time_1 +" seconds");
 		System.out.println("POS: " + Time_2 +" seconds");
 		System.out.println("Constituent: " + Time_3+" seconds");
@@ -247,15 +244,15 @@ public class OpenerProjectTest {
 	}
 
 	public long RunPipe(JCas cas,AggregateBuilder builder) throws AnalysisEngineProcessException, ResourceInitializationException {
-		
+
 		Timestamp timestamp1 = new Timestamp(System.currentTimeMillis());
 		SimplePipeline.runPipeline(cas,builder.createAggregate());
-		Timestamp timestamp2 = new Timestamp(System.currentTimeMillis());	
+		Timestamp timestamp2 = new Timestamp(System.currentTimeMillis());
 		Timestamp t3 = new Timestamp(timestamp2.getTime() - timestamp1.getTime());
-		
+
 		return (t3.getTime() / 1000);
 	}
-	
-	
+
+
 
 }

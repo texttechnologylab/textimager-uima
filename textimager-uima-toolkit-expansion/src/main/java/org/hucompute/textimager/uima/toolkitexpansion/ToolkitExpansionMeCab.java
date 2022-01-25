@@ -1,46 +1,35 @@
 package org.hucompute.textimager.uima.toolkitexpansion;
 
-import static org.apache.uima.fit.util.JCasUtil.selectCovered;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.lang.ProcessBuilder.Redirect;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
+import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import ixa.kaflib.KAFDocument;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.Type;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-//import org.hucompute.textimager.uima.OpenerProject.JCastoKaf;
-import org.junit.Test;
-//import org.chasen.mecab.Tagger;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
+import java.io.*;
+import java.lang.ProcessBuilder.Redirect;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import static org.apache.uima.fit.util.JCasUtil.selectCovered;
+
+//import org.hucompute.textimager.uima.OpenerProject.JCastoKaf;
+//import org.chasen.mecab.Tagger;
 //import de.tudarmstadt.ukp.dkpro.core.mecab.MeCabTagger;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import ixa.kaflib.KAFDocument;
 
 @TypeCapability(inputs = { "de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence" }, outputs = {
 		"de.tudarmstadt.ukp.dkpro.core.mecab.type.JapaneseToken",
@@ -115,37 +104,37 @@ public class ToolkitExpansionMeCab extends JCasAnnotator_ImplBase {
 		CAS cas = aJCas.getCas();
 		modelProvider.configure(cas);
 		posMappingProvider.configure(cas);
-		
+
 		//Generate KAF File
 		JCastoKaf jkaf = new JCastoKaf(aJCas);
 		jkaf.add_POS_Lemma();
 		KAFDocument kaf = jkaf.getKaf();
 		String KAF_LOCATION = jkaf.KAF_LOCATION;
 		kaf.save(KAF_LOCATION);
-		
+
 		//TODO: Path to gcc einfügen
 		String pathToGcc= "~/jruby/bin/";
 		if(gccLocation != null) pathToGcc=gccLocation;
-		
+
 		List<String> cmd = new ArrayList<String>();
 	    cmd.add("/bin/sh");
 	    cmd.add("-c");
-	    cmd.add("export PATH=/usr/bin:$PATH && cat" 
-	    + " \"" + KAF_LOCATION+"\"" + 
+	    cmd.add("export PATH=/usr/bin:$PATH && cat"
+	    + " \"" + KAF_LOCATION+"\"" +
 	    " | "+pathToGcc+"jruby -S tokenizer");
 
 		// Define ProcessBuilder
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.redirectError(Redirect.INHERIT);
-        
+
 	    //ProcessBuilder pb = new ProcessBuilder(PythonPATH, POLYGLOT_LOCATION + "language.py", "token",
 	    //		sentence.getCoveredText());
 	    //pb.redirectError(Redirect.INHERIT);
-	    	    
-	    
+
+
 	    boolean success = false;
 	    Process proc = null;
-	    
+
 	    try {
 	        // Start Process
 	        proc = pb.start();
@@ -200,7 +189,7 @@ public class ToolkitExpansionMeCab extends JCasAnnotator_ImplBase {
 	        	proc.destroy();
 	        }
 	    }
-		
+
 		// Get JCas text and language
 		String language = aJCas.getDocumentLanguage();
 		String originalText = aJCas.getDocumentText();

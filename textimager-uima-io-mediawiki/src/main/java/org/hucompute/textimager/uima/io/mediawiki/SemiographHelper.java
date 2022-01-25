@@ -1,8 +1,6 @@
 package org.hucompute.textimager.uima.io.mediawiki;
 
-import java.io.IOException;
-import java.util.Set;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -14,7 +12,8 @@ import org.apache.uima.jcas.JCas;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.io.IOException;
+import java.util.Set;
 
 public class SemiographHelper {
     EmotionHelper eh;
@@ -113,7 +112,7 @@ public class SemiographHelper {
         payload.put("words", words);
         payload.put("maxn", "8");
         payload.put("add_ddc_nodes", "true");
-        
+
         JSONObject result = null;
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         try {
@@ -128,7 +127,7 @@ public class SemiographHelper {
             System.out.println("----------------------------------------------------");
             JSONObject tres = new JSONObject(json);
             result = tres.getJSONObject(embedding_id);
-            
+
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         } finally {

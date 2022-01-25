@@ -1,13 +1,13 @@
 package org.hucompute.textimager.uima.util;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import org.apache.commons.io.FileUtils;
-
 public class Util {
-	
+
 	public static File getFile(ClassLoader classloader, String resource){
 		File output = new File(System.getProperty("java.io.tmpdir")+"/"+resource);
 		if(!output.exists()){

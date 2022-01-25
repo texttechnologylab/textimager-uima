@@ -14,12 +14,11 @@ import org.texttechnologylab.annotation.NamedEntity;
 import java.util.Arrays;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertArrayEquals;
 
 public class BiofidFlairTest {
     @Test
     public void basicTest() throws UIMAException {
-    	
+
         String sentence_str = "Das ist ein Test am 08.12.2020, einem Dienstag in Frankfurt.";
 
         JCas jCas = JCasFactory.createText(sentence_str + " " + sentence_str, "de");
@@ -50,7 +49,7 @@ public class BiofidFlairTest {
                 .map(ne -> ne.getValue().substring(0, ne.getValue().indexOf(";")))
                 .toArray(String[]::new);
         System.out.println(Arrays.toString(casEntities));
-        
+
 //        assertArrayEquals(entities, casEntities);
     }
 }
