@@ -71,13 +71,8 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
-
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -189,13 +184,8 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
-
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "biaffine-dep-roberta-en",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "biaffine-dep-roberta-en"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -307,13 +297,8 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
-
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "crf2o-dep-en",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "crf2o-dep-en"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -419,13 +404,11 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				//SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_de",
+				SuparDep.PARAM_MODELS_CACHE_DIR, "/home/daniel/.textimager/cache",
+				SuparDep.PARAM_MODEL_NAME, "/root/.cache/supar/ttlab/models/biaffine_dep_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -522,13 +505,9 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_roberta_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_roberta_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -625,13 +604,9 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_gbert_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_gbert_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -727,13 +702,9 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/crf_dep_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/crf_dep_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -829,13 +800,9 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/crf2o_dep_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/crf2o_dep_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
