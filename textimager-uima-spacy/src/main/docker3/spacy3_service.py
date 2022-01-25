@@ -14,10 +14,12 @@ from pydantic import BaseModel
 class TextImagerRequest(BaseModel):
     lang: str
     text: str
+    model_name: str
 
 
 class SpacyResponse(BaseModel):
     multitag: dict
+    actual_name_model: str
 
 
 # pipeline per lang and per tool
@@ -73,9 +75,13 @@ switch = {
 }
 
 
-def spacy_get_pipeline(tool: str, format_spacy: str = "ef", lang: str = "de") -> spacy:
-    if lang in spacy_pipelines and tool in spacy_pipelines[lang]:
-        return spacy_pipelines[lang][tool]
+def spacy_get_pipeline(tool: str, model_name: str, lang: str, max_spacy: int = 1000000) -> spacy:
+    if model_name == "":
+        actual_name_model = switch["ef"][lang]
+    else:
+         actual_name_model = model_name
+    if actual_name_model in spacy_pipelines and tool in spacy_pipelines[actual_name_model]:
+        return spacy_pipelines[actual_name_model][tool]
 
     nlp = None
 
@@ -83,18 +89,18 @@ def spacy_get_pipeline(tool: str, format_spacy: str = "ef", lang: str = "de") ->
     try:
         if spacy_use_gpu:
             spacy.prefer_gpu()
-        nlp = spacy.load(switch[format_spacy][lang])
+        nlp = spacy.load(actual_name_model)
+        nlp.max_length = max_spacy
 
         # cache and return
-        if lang not in spacy_pipelines:
-            spacy_pipelines[lang] = {}
-        if tool not in spacy_pipelines[lang]:
-            spacy_pipelines[lang][tool] = nlp
+        if actual_name_model not in spacy_pipelines:
+            spacy_pipelines[actual_name_model] = {}
+        if tool not in spacy_pipelines[actual_name_model]:
+            spacy_pipelines[actual_name_model][tool] = nlp
     except:
         print("Unexpected error:", sys.exc_info()[0])
 
-
-    return nlp
+    return nlp, actual_name_model
 
 
 spacy_use_gpu = os.environ.get("TEXTIMAGER_SPACY_USE_GPU", False)
@@ -112,7 +118,7 @@ def get_textimager():
 
 @app.post("/multi")
 def process(request: TextImagerRequest) -> SpacyResponse:
-    nlp = spacy_get_pipeline("Multitagger", lang=request.lang)
+    nlp, actual_name_model = spacy_get_pipeline("Multitagger", model_name=request.model_name,  lang=request.lang)
 
     res_dict = {}
     if nlp is not None:
@@ -206,7 +212,7 @@ def process(request: TextImagerRequest) -> SpacyResponse:
         # TODO return error message
         print("not pipeline found for spacy lang", request)
 
-    response = SpacyResponse(multitag=res_dict)
+    response = SpacyResponse(multitag=res_dict, actual_name_model=actual_name_model)
     return response
 
 

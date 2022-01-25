@@ -89,6 +89,8 @@ public class SpaCyMultiTagger3Test {
 
 		JCas cas = JCasFactory.createText("This is an IPhone by Apple. And this is an iMac.", "en");
 
+		SpaCyMultiTagger3.set_model_name(cas, "en");
+
 		AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger3.class,
 				SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, 8000
 		);

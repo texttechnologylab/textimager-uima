@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.spacy;
 
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.morph.MorphologicalFeatures;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.MetaDataStringField;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
@@ -13,6 +14,7 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
@@ -75,11 +77,36 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
         mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant, language);
     }
 
+    /**
+     * The unique key to identify the annotation of the dynamic batch size inside of the jCas Object
+     */
+    static public String DYNAMIC_CONFIGURATION_MODEL_NAME_KEY = "spacy.dynamic_configuration.model_name";
+
+    /**
+     * Sets the batch size as annotation inside of the jCAS
+     * @param aJCAS The jCAS Object to annotate
+     * @param model_name The chosen model
+     */
+    public static void set_model_name(JCas aJCAS, String model_name) {
+        MetaDataStringField field = new MetaDataStringField(aJCAS);
+        field.setValue(model_name);
+        field.setKey(DYNAMIC_CONFIGURATION_MODEL_NAME_KEY);
+        field.addToIndexes();
+    }
+
     @Override
     protected JSONObject buildJSON(JCas aJCas) {
         JSONObject json = new JSONObject();
         json.put("text", aJCas.getDocumentText());
         json.put("lang", aJCas.getDocumentLanguage());
+
+        String modelName = "";
+        for (MetaDataStringField i : JCasUtil.select(aJCas, MetaDataStringField.class)) {
+            if (i.getKey().equals(DYNAMIC_CONFIGURATION_MODEL_NAME_KEY)) {
+                modelName = i.getValue();
+            }
+        }
+        json.put("model_name", modelName);
         return json;
     }
 

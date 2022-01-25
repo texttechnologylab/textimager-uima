@@ -39,7 +39,8 @@ six==1.16.0
 sklearn-crfsuite==0.3.6
 smart-open==5.1.0
 sortedcontainers==2.1.0
-spacy==3.1.1
+spacy==3.0.7
+scispacy==0.4.0
 spacy-legacy==3.0.8
 srsly==2.4.1
 starlette==0.14.2
