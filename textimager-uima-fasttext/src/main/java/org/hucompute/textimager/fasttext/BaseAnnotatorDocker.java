@@ -3,39 +3,38 @@ package org.hucompute.textimager.fasttext;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.*;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.analysis_engine.annotator.AnnotatorProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Basis Klasse für fastText Annotatoren
  */
-public abstract class BaseAnnotatorDocker extends JCasAnnotator_ImplBase {
+public abstract class BaseAnnotatorDocker extends DockerRestAnnotator {
     /**
      * Comma separated list of Language and Location and Num Labels of the model.
      * EX: de,model_de.bin,100,en,en_model1.bin,93...
      */
-    public static final String PARAM_LANGUAGE_MODELS_LABELS = "language_models_labels";
+    /*public static final String PARAM_LANGUAGE_MODELS_LABELS = "language_models_labels";
     @ConfigurationParameter(name = PARAM_LANGUAGE_MODELS_LABELS, mandatory = true)
-    protected String language_models_labels;
+    protected String language_models_labels;*/
 
     /**
      * Location from which the model is read.
      */
-    public static final String PARAM_FASTTEXT_LOCATION = "fasttextLocation";
+    /*public static final String PARAM_FASTTEXT_LOCATION = "fasttextLocation";
     @ConfigurationParameter(name = PARAM_FASTTEXT_LOCATION, mandatory = true)
-    protected String fasttextLocation;
+    protected String fasttextLocation;*/
 
     /**
      * fastText k parameter == Max Anzahl an Labeln.
@@ -122,12 +121,43 @@ public abstract class BaseAnnotatorDocker extends JCasAnnotator_ImplBase {
     @ConfigurationParameter(name = PARAM_IGNORE_MISSING_LEMMA_POS, mandatory = false, defaultValue = "true")
     protected boolean ignoreMissingLemmaPOS;
 
+    @Override
+    protected String getDefaultDockerImage() {
+        return "textimager-uima-ddc-fasttext-service";
+    }
+
+    @Override
+    protected String getDefaultDockerImageTag() {
+        return "0.1";
+    }
+
+    @Override
+    protected int getDefaultDockerPort() {
+        return 8000;
+    }
+
+    @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
+    @Override
+    protected String getRestRoute() {
+        return "/fasttext/";
+    }
 
     // POS Mapping
     protected static HashMap<String, String> posMapping = new HashMap<>();
 
-    // fastText Prozesse über StdIn/Out
-    protected FastTextBridge fasttext;
+    protected JSONObject buildJSON(JCas aJCas) {
+        // ignored - not needed
+        return new JSONObject();
+    }
+
+    // Update CAS with JSON results
+    protected void updateCAS(JCas aJCas, JSONObject jsonResult) {
+        // ignored - not needed
+    }
 
     @Override
     public void initialize(UimaContext aContext) throws ResourceInitializationException {
@@ -154,16 +184,12 @@ public abstract class BaseAnnotatorDocker extends JCasAnnotator_ImplBase {
             }
         }
 
-        fasttext = new FastTextBridge(fasttextLocation, language_models_labels, lazyLoad, lazyLoadMax);
-
         System.out.println("initializing done.");
     }
 
     @Override
     public void destroy() {
     	System.out.println("destroying...");
-
-        fasttext.exit();
 
         super.destroy();
     }
@@ -207,6 +233,40 @@ public abstract class BaseAnnotatorDocker extends JCasAnnotator_ImplBase {
                 processCoveredWithFastText(jCas, null);
             }
         }
+    }
+
+    protected ArrayList<FastTextResult> input(String language, String inputText, String ddcVersion) throws AnnotatorProcessException {
+        JSONObject payload = new JSONObject();
+        payload.put("lang", language);
+        payload.put("text", inputText);
+
+        String body = payload.toString();
+
+        ArrayList<FastTextResult> results = new ArrayList<>();
+        try {
+            String res = sendRequest(body, getRestEndpoint() + ddcVersion);
+            JSONObject resJson = new JSONObject(res);
+            if (resJson.has("fasttext_results")) {
+                for (Object r : resJson.getJSONArray("fasttext_results")) {
+                    JSONObject resultJ = (JSONObject) r;
+                    ArrayList<ProbabilityLabel> probs = new ArrayList<ProbabilityLabel>();
+                    for (Object p : resultJ.getJSONArray("results")) {
+                        JSONObject prob = (JSONObject) p;
+                        ProbabilityLabel label = new ProbabilityLabel(prob.getString("label"), prob.getDouble("logProb"), prob.getDouble("prob"));
+                        probs.add(label);
+                    }
+                    FastTextResult result = new FastTextResult(probs, resultJ.getString("status"), resultJ.getString("message"));
+                    results.add(result);
+                }
+            }
+
+            System.out.println("");
+        }
+        catch (Exception ex) {
+            throw new AnnotatorProcessException(ex);
+        }
+
+        return results;
     }
 
     // Funktion die abgeleitete Klassen implementieren müssen

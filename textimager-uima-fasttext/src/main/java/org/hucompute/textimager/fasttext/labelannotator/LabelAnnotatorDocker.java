@@ -7,10 +7,11 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.hucompute.textimager.fasttext.BaseAnnotator;
+import org.hucompute.textimager.fasttext.BaseAnnotatorDocker;
 import org.hucompute.textimager.fasttext.FastTextResult;
 import org.hucompute.textimager.fasttext.ProbabilityLabel;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
+import org.texttechnologylab.annotation.AnnotationComment;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -22,7 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 
-public class LabelAnnotatorDocker extends BaseAnnotator {
+public class LabelAnnotatorDocker extends BaseAnnotatorDocker {
     /**
      * Tag of Disambig Results
      */
@@ -204,7 +205,7 @@ public class LabelAnnotatorDocker extends BaseAnnotator {
 
         try {
             // result is a list, there can be more than one model loaded
-            ArrayList<FastTextResult> results = fasttext.input(jCas.getDocumentLanguage(), documentText);
+            ArrayList<FastTextResult> results = input(jCas.getDocumentLanguage(), documentText, "ddc2");
 
             for (FastTextResult ftResult : results) {
                 ArrayList<ProbabilityLabel> labels = ftResult.getSortedResults(cutoff);
@@ -224,6 +225,8 @@ public class LabelAnnotatorDocker extends BaseAnnotator {
                     cat.setTags(tags);
                     cat.setRef(ref);
                     cat.addToIndexes();
+
+                    addAnnotatorComment(jCas, cat);
                 }
             }
         } catch (Exception ex) {

@@ -8,6 +8,12 @@ public class FastTextResult {
     private String status;
     private String message;
 
+    public FastTextResult(ArrayList<ProbabilityLabel> results, String status, String message) {
+        this.results = results;
+        this.status = status;
+        this.message = message;
+    }
+
     public FastTextResult() {
         results = new ArrayList<>();
         status = "unknown";
@@ -21,6 +27,18 @@ public class FastTextResult {
 
     public void success(String message) {
         this.status = "success";
+        this.message = message;
+    }
+
+    public void setResults(ArrayList<ProbabilityLabel> results) {
+        this.results = results;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setMessage(String message) {
         this.message = message;
     }
 
