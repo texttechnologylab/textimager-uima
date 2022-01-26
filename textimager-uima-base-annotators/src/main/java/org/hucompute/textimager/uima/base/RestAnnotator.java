@@ -33,8 +33,8 @@ public abstract class RestAnnotator extends TextImagerBaseAnnotator {
 		return restEndpoint + getRestRoute();
 	}
 
-	protected String sendRequest(String body) throws IOException {
-		URL url = new URL(getRestEndpoint());
+	protected String sendRequest(String body, String fullUrl) throws IOException {
+		URL url = new URL(fullUrl);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
 		connection.setDoInput(true);
@@ -50,6 +50,10 @@ public abstract class RestAnnotator extends TextImagerBaseAnnotator {
 		writer.close();
 
 		return res;
+	}
+
+	protected String sendRequest(String body) throws IOException {
+		return sendRequest(body, getRestEndpoint());
 	}
 
 	@Override

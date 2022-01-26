@@ -7,10 +7,7 @@ import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.hucompute.textimager.fasttext.BaseAnnotator;
-import org.hucompute.textimager.fasttext.FastTextBridge;
-import org.hucompute.textimager.fasttext.FastTextResult;
-import org.hucompute.textimager.fasttext.ProbabilityLabel;
+import org.hucompute.textimager.fasttext.*;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
 
 import java.util.ArrayList;
@@ -20,14 +17,14 @@ import java.util.HashMap;
 /*
  * Führt DDC2 und DDC3 durch, multipliziert dann die Ergebnisse
  */
-public class LabelAnnotatorDDCMulDocker extends BaseAnnotator {
+public class LabelAnnotatorDDCMulDocker extends BaseAnnotatorDocker {
     /**
      * Comma separated list of Language and Location and Num Labels of the model.
      * EX: de,model_de.bin,100,en,en_model1.bin,93...
      */
-    public static final String PARAM_LANGUAGE_MODELS_LABELS_DDC3 = "language_models_labels_ddc3";
+    /*public static final String PARAM_LANGUAGE_MODELS_LABELS_DDC3 = "language_models_labels_ddc3";
     @ConfigurationParameter(name = PARAM_LANGUAGE_MODELS_LABELS_DDC3, mandatory = true)
-    protected String language_models_labels_ddc3;
+    protected String language_models_labels_ddc3;*/
 
     /**
      * Remove DDC2/DDC3 Scores
@@ -70,9 +67,6 @@ public class LabelAnnotatorDDCMulDocker extends BaseAnnotator {
     @ConfigurationParameter(name = PARAM_TAGS_DDC3, mandatory = false)
     protected String tagsDDC3;
 
-    // 2. fastText Prozess für DDC3
-    private FastTextBridge fasttext_ddc3;
-
     // DDC2 / DDC3 Ergebnisse speichern
     private class CategoryCoveredTaggedSimple {
         public int begin;
@@ -93,8 +87,6 @@ public class LabelAnnotatorDDCMulDocker extends BaseAnnotator {
 
         System.out.println("initializing additional fastText for DDC3");
 
-        fasttext_ddc3 = new FastTextBridge(fasttextLocation, language_models_labels_ddc3, lazyLoad, lazyLoadMax);
-
         categoriesLevel2 = new HashMap<>();
         categoriesLevel3 = new HashMap<>();
 
@@ -103,8 +95,6 @@ public class LabelAnnotatorDDCMulDocker extends BaseAnnotator {
     @Override
     public void destroy() {
     	System.out.println("destroying...");
-
-        fasttext_ddc3.exit();
 
         super.destroy();
     }
@@ -136,8 +126,8 @@ public class LabelAnnotatorDDCMulDocker extends BaseAnnotator {
 
         try {
             // FastText für DDC2 und DDC3 aufrufen
-            addDDC(jCas, ref, begin, end, documentText, fasttext_ddc3, categoriesLevel3, tagsDDC3);
-            addDDC(jCas, ref, begin, end, documentText, fasttext, categoriesLevel2, tagsDDC2);
+            addDDC(jCas, ref, begin, end, documentText, "ddc3", categoriesLevel3, tagsDDC3);
+            addDDC(jCas, ref, begin, end, documentText, "ddc2", categoriesLevel2, tagsDDC2);
         } catch (Exception ex) {
             throw new AnalysisEngineProcessException("error processing: " + ex.getMessage(), null, ex);
         }
@@ -210,14 +200,14 @@ public class LabelAnnotatorDDCMulDocker extends BaseAnnotator {
         return String.valueOf(begin + "_" + end);
     }
 
-    private void addDDC(JCas jCas, Annotation ref, int begin, int end, String documentText, FastTextBridge ft, HashMap<String, ArrayList<CategoryCoveredTaggedSimple>> list, String tagsDDC) throws AnnotatorProcessException {
+    private void addDDC(JCas jCas, Annotation ref, int begin, int end, String documentText, String ft, HashMap<String, ArrayList<CategoryCoveredTaggedSimple>> list, String tagsDDC) throws AnnotatorProcessException {
 
         if (documentText.isEmpty()) {
             return;
         }
 
         // Only supports 1 model!
-        FastTextResult ftResult = ft.input(jCas.getDocumentLanguage(), documentText).get(0);
+        FastTextResult ftResult = input(jCas.getDocumentLanguage(), documentText, ft).get(0);
         ArrayList<ProbabilityLabel> labels = ftResult.getSortedResults(false);
 
         int num = 0;
