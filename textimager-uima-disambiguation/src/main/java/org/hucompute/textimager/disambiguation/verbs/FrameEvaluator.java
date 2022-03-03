@@ -1,17 +1,16 @@
 package org.hucompute.textimager.disambiguation.verbs;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.xml.stream.XMLStreamException;
-
+import com.google.common.collect.Sets;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
+import de.tuebingen.uni.sfs.germanet.api.Frame;
+import de.tuebingen.uni.sfs.germanet.api.GermaNet;
+import de.tuebingen.uni.sfs.germanet.api.LexUnit;
+import de.tuebingen.uni.sfs.germanet.api.WordCategory;
 import org.apache.uima.UimaContext;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -20,25 +19,18 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import com.google.common.collect.Sets;
-
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.semantics.type.WordSense;
-import de.tuebingen.uni.sfs.germanet.api.Frame;
-import de.tuebingen.uni.sfs.germanet.api.GermaNet;
-import de.tuebingen.uni.sfs.germanet.api.LexUnit;
-import de.tuebingen.uni.sfs.germanet.api.WordCategory;
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FrameEvaluator extends JCasAnnotator_ImplBase {
 
 	public static final String PARAM_GERMANET_PATH = "germanetPath";
 	@ConfigurationParameter(name = PARAM_GERMANET_PATH, mandatory = false, description = "The germanet directory")
 	private String germanetPath;
-	
+
 	public static final String PARAM_GERMANET = "gnet";
 	@ExternalResource(key=PARAM_GERMANET, mandatory = false, description = "You can pass a GermaNet object instead of a path, to avoid loading germanet multiple times")
 	private GNetWrapper gnetwrapper;
@@ -78,10 +70,10 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			} else {
 				gnet = gnetwrapper.getGnet();
 			}
-			
+
 			senseInventory = new HashMap<String, HashSet<String>>();
 			senseCriteria = new HashMap<String, HashSet<String>>();
-			
+
 
 
 			// TODO: Maybe build criteria for all senses here, instead of during predict call? Fewer duplicated operations?
@@ -121,11 +113,11 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 				HashSet<String> senses = new HashSet<String>();
 				if (senseInventory.containsKey(lemma)) {
 					senses = senseInventory.get(lemma);
-				} 
+				}
 				if (senseCriteria.containsKey(id)) senses.add(id);
 				if (!senses.isEmpty()) senseInventory.put(lemma, senses);
 			}
-			
+
 			senseFramesUnique = new HashMap<String, HashSet<Set<String>>>();
 			senseFramesAmbiguous = new HashMap<String, HashSet<Set<String>>>();
 			coveredVerbs = new HashMap<String, Set<String>>();
@@ -159,7 +151,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			Dependency dep = JCasUtil.selectCovered(Dependency.class, child).get(0);
 			String depType = dep.getDependencyType();
 			String pos = child.getPos().getPosValue();
-			
+
 			if (depType.equals("NK") || depType.equals("MO")) {
 				if (childMap.containsKey(child)) {
 					toProcess.addAll(childMap.get(child));
@@ -193,7 +185,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		return frames;
 	}
 
-	
+
 	public HashMap<Token, ArrayList<Token>> preprocSentence(Sentence sentence, boolean verbose) {
 		HashMap<Token, ArrayList<Token>> childMap = new HashMap<Token, ArrayList<Token>>();
 
@@ -217,7 +209,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		if (root == null) return null; // Lemmatization error, couldn't find target word or the dep tree is malformed
 		return childMap;
 	}
-	
+
 
 	public HashSet<String> generateFrames(Sentence sentence, String target, HashMap<Token, ArrayList<Token>> childMap, boolean verbose) {
 		HashSet<String> frames = new HashSet<String>();
@@ -259,7 +251,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		for (String sense : senseInventory.get(target)) {
 			senseFrameMap_uniques.put(sense, senseFramesUnique.get(sense));
 		}
-		
+
 		HashMap<String, HashSet<Set<String>>> outMap = new HashMap<String, HashSet<Set<String>>>();
 		if ("strict".equals(strict) || "superstrict".equals(strict)) {
 			outMap = senseFrameMap_uniques;
@@ -320,19 +312,19 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		}
 	}
 
-	// docId of null means that we are doing a test run and don't want to load a cached cas. 
+	// docId of null means that we are doing a test run and don't want to load a cached cas.
 	// We still write a cas with id "test", but it will not be loaded and will be overwritten when we do another test run.
 	public void process(JCas cas) {
-		
+
 		for (Sentence sentence : JCasUtil.select(cas, Sentence.class)) {
 //			List<Dependency>svps = new ArrayList<>();
 //			for (Dependency dependency : JCasUtil.selectCovered(Dependency.class, sentence)) {
 //				if(dependency.getDependencyType().equals("SVP"))
 //					svps.add(dependency);
 //			}
-			
+
 			HashMap<Token, ArrayList<Token>> depTree = preprocSentence(sentence, verbose);
-			
+
 			for (Token token : JCasUtil.selectCovered(Token.class, sentence)) {
 				String lemma = token.getLemma().getValue();
 //				for (Dependency dependency : svps) {
@@ -353,7 +345,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 					if (verbose) System.out.println("Generated frames " + sentence_frames + " for " + lemma);
 					if (sentence_frames == null || sentence_frames.isEmpty()) continue;
 
-					HashMap<String, HashSet<Set<String>>> criteriaMap = getCandidateCriteria(lemma, strict); 
+					HashMap<String, HashSet<Set<String>>> criteriaMap = getCandidateCriteria(lemma, strict);
 					if (verbose) System.out.println("Candidate senses: " + criteriaMap);
 					HashMap<String, Set<Set<String>>> candidates = new HashMap<String, Set<Set<String>>>();
 					boolean is_ambiguous = false;
@@ -390,7 +382,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 								}
 							}
 						}
-						
+
 						// Go through all gold frames and check for candidates
 						// A gold frame is a candidate if it is completely contained in the sentence frames
 						if (!criteriaMap.containsKey(sense) || criteriaMap.get(sense) == null) {
@@ -483,12 +475,12 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 		return senseFrameMap;
 	}
 
-	
+
 	public HashMap<String, HashSet<Set<String>>> getUniques(String target, boolean implemented) {
 		return getUniques(target, implemented, false);
 	}
-	
-	
+
+
 	public HashMap<String, HashSet<Set<String>>> getUniques(String target, boolean implemented, boolean init_pop) {
 		HashMap<String, HashSet<Set<String>>> candidateCriteria = new HashMap<String, HashSet<Set<String>>>();
 		HashMap<String, HashSet<Set<String>>> senseFrameMap = preprocFrames(target);
@@ -542,7 +534,7 @@ public class FrameEvaluator extends JCasAnnotator_ImplBase {
 			senseFramesUnique.putAll(candidateCriteria);
 			coveredVerbs.put(target, candidateCriteria.keySet());
 		}
-		
+
 		return candidateCriteria;
 	}
 

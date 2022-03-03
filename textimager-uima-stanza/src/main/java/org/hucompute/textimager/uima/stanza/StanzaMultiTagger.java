@@ -9,24 +9,37 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
-import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.tcas.Annotation;
+import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
+import org.dkpro.core.api.resources.MappingProviderFactory;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
-import org.hucompute.textimager.uima.sentiment.base.SentimentBase;
-import org.hucompute.textimager.uima.type.Sentiment;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.texttechnologylab.annotation.AnnotationComment;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class StanzaMultiTagger extends DockerRestAnnotator {
+    public static final String PARAM_VARIANT = "variant";
+    @ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
+    protected String variant;
+
+    public static final String PARAM_LANGUAGE = "language";
+    @ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
+    protected String language;
+
+    public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
+    @ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
+    protected String posMappingLocation;
 
     private MappingProvider mappingProvider;
 
@@ -51,18 +64,25 @@ public class StanzaMultiTagger extends DockerRestAnnotator {
     }
 
     @Override
+    protected String getAnnotatorVersion() {
+        return "0.0.1";
+    }
+
+    @Override
+    public void initialize(UimaContext aContext) throws ResourceInitializationException {
+        super.initialize(aContext);
+
+        // TODO defaults for de (stts) and en (ptb) are ok, add own language mapping later
+        mappingProvider = MappingProviderFactory.createPosMappingProvider(aContext, posMappingLocation, variant, language);
+    }
+
+    @Override
     protected JSONObject buildJSON(JCas aJCas) throws AnalysisEngineProcessException {
         JSONObject json = new JSONObject();
         json.put("text", aJCas.getDocumentText());
         json.put("lang", aJCas.getDocumentLanguage());
         return json;
     }
-
-    @Override
-    protected String getAnnotatorVersion() {
-        return "0.0.1";
-    }
-
 
     @Override
     protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
@@ -115,6 +135,8 @@ public class StanzaMultiTagger extends DockerRestAnnotator {
                 Token tokenAnno = tokensMap.get(begin).get(end);
                 tokenAnno.setLemma(lemmaAnno);
                 lemmaAnno.addToIndexes();
+
+                addAnnotatorComment(aJCas, tokenAnno);
             }
         });
     }
@@ -208,6 +230,8 @@ public class StanzaMultiTagger extends DockerRestAnnotator {
                     Token tokenAnno = tokensMap.get(begin).get(end);
                     tokenAnno.setMorph(morphAnno);
                     morphAnno.addToIndexes();
+
+                    addAnnotatorComment(aJCas, morphAnno);
                 }
             }
         });
@@ -216,10 +240,14 @@ public class StanzaMultiTagger extends DockerRestAnnotator {
     private void processSentences(JCas aJCas, JSONArray sents) {
         sents.forEach(s -> {
             JSONObject sentence = (JSONObject) s;
+
             int begin = sentence.getInt("begin");
             int end = sentence.getInt("end");
+
             Sentence sentAnno = new Sentence(aJCas, begin, end);
             sentAnno.addToIndexes();
+
+            addAnnotatorComment(aJCas, sentAnno);
         });
     }
 
@@ -230,8 +258,12 @@ public class StanzaMultiTagger extends DockerRestAnnotator {
             if (!token.getBoolean("is_space")) {
                 int begin = token.getInt("idx");
                 int end = begin + token.getInt("length");
+
                 Token casToken = new Token(aJCas, begin, end);
                 casToken.addToIndexes();
+
+                addAnnotatorComment(aJCas, casToken);
+
                 if (!tokensMap.containsKey(begin)) {
                     tokensMap.put(begin, new HashMap<>());
                 }
@@ -262,6 +294,8 @@ public class StanzaMultiTagger extends DockerRestAnnotator {
                 Token tokenAnno = tokensMap.get(begin).get(end);
                 tokenAnno.setPos(posAnno);
                 posAnno.addToIndexes();
+
+                addAnnotatorComment(aJCas, posAnno);
             }
         });
     }
@@ -275,26 +309,34 @@ public class StanzaMultiTagger extends DockerRestAnnotator {
                 int begin = dep.getInt("idx");
                 int end = begin + dep.getInt("length");
 
-                // TODO
                 JSONObject headToken = dep.getJSONObject("head");
-                int beginHead = headToken.getInt("idx");
-                int endHead = beginHead + headToken.getInt("length");
+                if (!headToken.getBoolean("is_space")) {
+                    int beginHead = headToken.getInt("idx");
+                    int endHead = beginHead + headToken.getInt("length");
 
-                Token dependent = tokensMap.get(begin).get(end);
-                Token governor = tokensMap.get(beginHead).get(endHead);
+                    try {
+                        Token dependent = tokensMap.get(begin).get(end);
+                        Token governor = tokensMap.get(beginHead).get(endHead);
 
-                Dependency depAnno;
-                if (depStr.equals("ROOT")) {
-                    depAnno = new ROOT(aJCas, begin, end);
-                    depAnno.setDependencyType("--");
-                } else {
-                    depAnno = new Dependency(aJCas, begin, end);
-                    depAnno.setDependencyType(depStr);
+                        Dependency depAnno;
+                        if (depStr.equals("ROOT")) {
+                            depAnno = new ROOT(aJCas, begin, end);
+                            depAnno.setDependencyType("--");
+                        } else {
+                            depAnno = new Dependency(aJCas, begin, end);
+                            depAnno.setDependencyType(depStr);
+                        }
+                        depAnno.setDependent(dependent);
+                        depAnno.setGovernor(governor);
+                        depAnno.setFlavor(DependencyFlavor.BASIC);
+                        depAnno.addToIndexes();
+
+                        addAnnotatorComment(aJCas, depAnno);
+                    }
+                    catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
-                depAnno.setDependent(dependent);
-                depAnno.setGovernor(governor);
-                depAnno.setFlavor(DependencyFlavor.BASIC);
-                depAnno.addToIndexes();
             }
         });
     }
@@ -302,12 +344,16 @@ public class StanzaMultiTagger extends DockerRestAnnotator {
     private void processNER(JCas aJCas, JSONArray ents) {
         ents.forEach(e -> {
             JSONObject ent = (JSONObject) e;
+
             int begin = ent.getInt("start_char");
             int end = ent.getInt("end_char");
             String labelStr = ent.getString("label");
+
             NamedEntity neAnno = new NamedEntity(aJCas, begin, end);
             neAnno.setValue(labelStr);
             neAnno.addToIndexes();
+
+            addAnnotatorComment(aJCas, neAnno);
         });
     }
 
@@ -318,7 +364,7 @@ public class StanzaMultiTagger extends DockerRestAnnotator {
 
         // abort on empty
         if (textLength < 1) {
-            System.out.println("skipping spacy due to text length < 1");
+            System.out.println("skipping stanza due to text length < 1");
             return;
         }
 

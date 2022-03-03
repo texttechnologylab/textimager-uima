@@ -2,6 +2,7 @@ package org.hucompute.textimager.uima.julie;
 
 import org.apache.uima.UIMAException;
 import org.junit.Test;
+
 import java.io.IOException;
 
 /**

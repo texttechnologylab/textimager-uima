@@ -1,11 +1,10 @@
 package org.hucompute.textimager.uima.cltk;
 
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.jcas.JCas;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 public class CLTKTokenizer extends CLTKBase {
 	@Override
@@ -19,16 +18,16 @@ public class CLTKTokenizer extends CLTKBase {
 	protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
 		String docText = aJCas.getDocumentText();
 		JSONArray tokens = jsonResult.getJSONArray("token");
-		
+
 		int last_search_pos = 0;
 		int last_end = 0;
-		
+
 		for (Object t : tokens) {
 			String token = (String) t;
 
 			int begin = -1;
 			int end = -1;
-			
+
 			// TODO deckt das alle Fälle ab?
 			if (token.length() > 1 && token.startsWith("-")) {
 				begin = last_end;

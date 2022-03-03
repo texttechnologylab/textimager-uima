@@ -28,6 +28,7 @@
 		<ttlab.typesystem.version>667e4c061c07d2853243c8cf87fda97404982d8a</ttlab.typesystem.version>
 		<ttlab.utilities.version>1.1.1-uima-2.10.4</ttlab.utilities.version>
 		<jcore.types.version>9df8678666856d87b815e79fe100da26f777fb91</jcore.types.version>
+		<log4j.version>2.16.0</log4j.version>
 	</properties>
 
 	<repositories>
@@ -70,6 +71,14 @@
 	</dependencyManagement>
 
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-core</artifactId>
@@ -82,6 +91,16 @@
 			<groupId>org.dkpro.core</groupId>
 			<artifactId>dkpro-core-testing-asl</artifactId>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
@@ -141,5 +160,6 @@
 		<module>textimager-uima-gnfinder</module>
 		<module>textimager-uima-supar</module>
 		<module>textimager-uima-splitter</module>
+		<module>textimager-uima-local</module>
 	</modules>
 </project>

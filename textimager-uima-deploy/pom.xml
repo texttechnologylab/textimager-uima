@@ -153,21 +153,21 @@
 					<artifactId>textimager-uima-spacy</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<!--				<dependency>-->
+				<!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+				<!--					<artifactId>textimager-uima-spacy-ie</artifactId>-->
+				<!--					<version>${project.version}</version>-->
+				<!--				</dependency>-->
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-spacy-ie</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-gnfinder</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-biofid-flair</artifactId>
-					<version>${project.version}</version>
-				</dependency>
+                    <artifactId>textimager-uima-gnfinder</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.hucompute.textimager.uima</groupId>
+                    <artifactId>textimager-uima-biofid-flair</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-stanza</artifactId>
@@ -268,16 +268,16 @@
 					<artifactId>textimager-uima-biofid-general-gazetteer</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>com.github.myyyvothrr.jcore-base</groupId>
-					<artifactId>jcore-types</artifactId>
-					<version>${jcore.types.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.hucompute.textimager.uima</groupId>
-					<artifactId>textimager-uima-julie</artifactId>
-					<version>${project.version}</version>
-				</dependency>
+                <!--				<dependency>-->
+                <!--					<groupId>com.github.myyyvothrr.jcore-base</groupId>-->
+                <!--					<artifactId>jcore-types</artifactId>-->
+                <!--					<version>${jcore.types.version}</version>-->
+                <!--				</dependency>-->
+                <!--				<dependency>-->
+                <!--					<groupId>org.hucompute.textimager.uima</groupId>-->
+                <!--					<artifactId>textimager-uima-julie</artifactId>-->
+                <!--					<version>${project.version}</version>-->
+                <!--				</dependency>-->
 				<dependency>
 					<groupId>org.hucompute.textimager.uima</groupId>
 					<artifactId>textimager-uima-german-emotion-detection</artifactId>

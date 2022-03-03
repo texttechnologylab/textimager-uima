@@ -1,9 +1,7 @@
 package org.hucompute.textimager.uima.stanza;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
@@ -12,12 +10,6 @@ import org.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.hucompute.textimager.uima.type.Sentiment;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 

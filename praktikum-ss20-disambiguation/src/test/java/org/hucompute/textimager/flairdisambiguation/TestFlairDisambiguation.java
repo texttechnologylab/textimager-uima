@@ -1,16 +1,15 @@
 package org.hucompute.textimager.flairdisambiguation;
 
+import org.apache.uima.UIMAException;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
-import org.dkpro.core.stanfordnlp.StanfordPosTagger;
 import org.dkpro.core.corenlp.CoreNlpSegmenter;
+import org.dkpro.core.stanfordnlp.StanfordPosTagger;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-
-import org.apache.uima.UIMAException;
 
 /**
  * <p>This class implements a test for the flair disambiguation interface class.</\p>

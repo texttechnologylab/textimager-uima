@@ -1,12 +1,7 @@
 package org.hucompute.textimager.uima.stanza;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertArrayEquals;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -17,15 +12,19 @@ import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.junit.Assert.assertArrayEquals;
 
 public class StanzaTaggerTest {
 	@Test
 	public void simpleExample() throws UIMAException, SAXException, IOException{
 		JCas cas = JCasFactory.createText("Das ist   ein Test. Und noch      einer.  ");
 		cas.setDocumentLanguage("de");
-		
+
 		Token t1 = new Token(cas, 0, 3);
 		t1.addToIndexes();
 		Token t2 = new Token(cas, 4, 7);
@@ -44,13 +43,13 @@ public class StanzaTaggerTest {
 		t8.addToIndexes();
 		Token t9 = new Token(cas, 39, 40);
 		t9.addToIndexes();
-		
+
 		AnalysisEngineDescription stanzaTagger = createEngineDescription(StanzaTagger.class);
-		
+
 		stanzaTagger.toXML(new FileWriter(new File("StanzaTagger.xml")));
-		
+
 		SimplePipeline.runPipeline(cas, stanzaTagger);
-		
+
 		String[] pos = new String[] {
 				"PRON", "AUX", "DET", "NOUN", "PUNCT",
 				"CCONJ", "ADV", "PRON", "PUNCT"
@@ -61,7 +60,7 @@ public class StanzaTaggerTest {
 
 		assertArrayEquals(pos, casPos);
 	}
-	
+
 //	@Test
 //	public void multiTaggerTest() throws UIMAException{
 //

@@ -1,7 +1,5 @@
 package org.hucompute.textimager.uima.textblob;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -12,6 +10,8 @@ import org.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.hucompute.textimager.uima.type.Sentiment;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
+
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 public class TextBlobSentimentTest {
 	@Test

@@ -1,8 +1,9 @@
 package org.hucompute.textimager.uima.textscorer;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertArrayEquals;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
@@ -13,10 +14,7 @@ import org.hucompute.textimager.uima.textscorer.TextScorerQL;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
 public class TextScorerQLTest {
 	@Test
@@ -32,7 +30,7 @@ public class TextScorerQLTest {
 		AnalysisEngineDescription taQl = createEngineDescription(TextScorerQL.class);
 
 		SimplePipeline.runPipeline(cas, taQl);
-		
+
 		for (Token t : JCasUtil.select(cas, Token.class)) {
 			System.out.println("!~" + t.getCoveredText() + "!~");
 			System.out.println(t);
@@ -59,9 +57,9 @@ public class TextScorerQLTest {
 
 		String[] ents = new String[] { "MISC","ORG"};
 		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
-		
+
 		System.out.println(XmlFormatter.getPrettyString(cas));
-		
+
 //		assertArrayEquals(tokens, casTokens);
 //		assertArrayEquals(pos, casPos);
 //		assertArrayEquals(deps, casDeps);

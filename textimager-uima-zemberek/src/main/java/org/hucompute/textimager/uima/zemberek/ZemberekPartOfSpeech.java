@@ -1,23 +1,5 @@
 package org.hucompute.textimager.uima.zemberek;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-
-import org.apache.uima.UimaContext;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
-import org.apache.uima.fit.descriptor.ConfigurationParameter;
-import org.apache.uima.fit.descriptor.TypeCapability;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.resource.ResourceInitializationException;
-
-import static org.apache.uima.fit.util.JCasUtil.select;
-
-import org.apache.uima.cas.CAS;
-import org.apache.uima.cas.Type;
-
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
@@ -26,11 +8,27 @@ import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
 import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import org.apache.uima.UimaContext;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.CAS;
+import org.apache.uima.cas.Type;
+import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
+import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.descriptor.TypeCapability;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+
+import static org.apache.uima.fit.util.JCasUtil.select;
 
 /**
 * ZemberekPartOfSpeech
@@ -40,7 +38,7 @@ import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
 * @author Alexander Sang
 * @version 1.2
 *
-* This class provide POS for turkish language. 
+* This class provide POS for turkish language.
 * UIMA-Token, UIMA-Sentence are needed as input to create POS.
 * UIMA-Standard is used to represent the final POS.
 */
@@ -100,7 +98,7 @@ public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
 
     private CasConfigurableProviderBase<File> modelProvider;
     private MappingProvider posMappingProvider;
-    
+
     @Override
     public void initialize(UimaContext aContext)
         throws ResourceInitializationException
@@ -132,13 +130,13 @@ public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
 
         posMappingProvider = MappingProviderFactory.createPosMappingProvider(posMappingLocation, language, modelProvider);
     }
-	
+
     /**
 	 * Analyze the sentences and create POS for every token. After successfully creation, map and add POS to JCas.
 	 * @param aJCas
 	 */
 	@Override
-	public void process(JCas aJCas) throws AnalysisEngineProcessException {		
+	public void process(JCas aJCas) throws AnalysisEngineProcessException {
 			// Variables for mapping
 			CAS cas = aJCas.getCas();
 			modelProvider.configure(cas);
@@ -149,28 +147,28 @@ public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
 	        	Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
 	        	TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
 
-				
+
 				// Create an ArrayList of all token, because POS-library doesn't output begin/end of POS. Calculate it manually.
 				ArrayList<Token> T = new ArrayList<Token>();
 				for (Token token : select(aJCas, Token.class)) {
 					T.add(token);
 				}
-				
+
 				// Current
 				int i = 0;
-				
+
 				// Analyze the sentences.
 				for (Sentence sentence : select(aJCas, Sentence.class)) {
 					SentenceAnalysis analysis = sentenceAnalyzer.analyze(sentence.getCoveredText());
 					sentenceAnalyzer.disambiguate(analysis);
-					
+
 					// Analyze sentence
-			        for (SentenceAnalysis.Entry entry : analysis) {	            
+			        for (SentenceAnalysis.Entry entry : analysis) {
 			        	// Analyze current token
 			        	WordAnalysis wa = entry.parses.get(0);
-			        	
+
 			        	// If we have a token, create a corresponding POS-Tag.
-			        	if(T.size() > i) {		        		
+			        	if(T.size() > i) {
 			        		// Filter for primaryPos and secondaryPos
 			        		if(wa.dictionaryItem.secondaryPos.toString().equals("None")) {
 			        			String tag = wa.dictionaryItem.primaryPos + "";
@@ -185,12 +183,12 @@ public class ZemberekPartOfSpeech  extends JCasAnnotator_ImplBase {
 								posElement.setPosValue(tag);
 								posElement.addToIndexes();
 			        		}
-			        	}            
-			        	
+			        	}
+
 			    		// Next
 			        	i = i + 1;
 			        }
-				}		
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -1,8 +1,7 @@
 package org.hucompute.textimager.fasttext.languageidentification;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 
+import com.github.jfasttext.JFastText;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -11,20 +10,17 @@ import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.apache.uima.fit.util.CasIOUtil;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.parameter.ComponentParameters;
 import org.dkpro.core.api.resources.CasConfigurableProviderBase;
 import org.dkpro.core.api.resources.ModelProviderBase;
 import org.dkpro.core.api.resources.ResourceUtils;
-
-import com.github.jfasttext.JFastText;
-
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import org.dkpro.core.io.xmi.XmiWriter;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 

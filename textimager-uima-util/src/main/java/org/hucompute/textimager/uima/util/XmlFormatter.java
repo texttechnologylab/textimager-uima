@@ -16,7 +16,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -44,8 +43,8 @@ public class XmlFormatter {
 //			    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 //			    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-			
-			
+
+
 			//initialize StreamResult with File object to save to file
 			StreamResult result = new StreamResult(new StringWriter());
 			DOMSource source = new DOMSource(document);
@@ -60,7 +59,7 @@ public class XmlFormatter {
 		}
 		return null;
 	}
-	
+
 	public static String printDocument(String unformattedXml) throws IOException, TransformerException {
 		final Document document = parseXmlFile(unformattedXml);
 
@@ -93,7 +92,7 @@ public class XmlFormatter {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static String getString(CAS jCas) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
@@ -107,7 +106,7 @@ public class XmlFormatter {
 	public static String getPrettyString(CAS cas){
 		return format(getString(cas));
 	}
-	
+
 	public static String getPrettyString(JCas jcas){
 		return format(getString(jcas.getCas()));
 	}

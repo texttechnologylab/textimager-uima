@@ -1,10 +1,7 @@
 package org.hucompute.textimager.uima.io.embeddings.writer;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.NoSuchElementException;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.util.JCasUtil;
@@ -12,9 +9,10 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_PUNCT;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.NoSuchElementException;
 
 
 public class MikolovWriter extends BaseEmbeddingsWriter{
@@ -23,9 +21,9 @@ public class MikolovWriter extends BaseEmbeddingsWriter{
 	public static final String PARAM_OUTPUT_DISAMBIG = "DISAMBIG_OUTPUT";
 	@ConfigurationParameter(name=PARAM_OUTPUT_DISAMBIG, mandatory=true, defaultValue="false")
 	private boolean disambigOutput;
-	
+
 	int processed = 0;
-	
+
 	private String getDisambig(Annotation anno, String defaultStr) {
 		Collection<CategoryCoveredTagged> disambigs = JCasUtil.selectCovered(CategoryCoveredTagged.class, anno);
 		if (!disambigs.isEmpty()) {
@@ -36,7 +34,7 @@ public class MikolovWriter extends BaseEmbeddingsWriter{
 				// ignore
 			}
 		}
-		
+
 		return defaultStr;
 	}
 
@@ -67,10 +65,10 @@ public class MikolovWriter extends BaseEmbeddingsWriter{
 						if (disambigOutput) {
 							lemmaStr = getDisambig(token, lemmaStr);
 						}
-						
+
 						if(normalizePos(token.getPos().getPosValue()).equals("PUN"))
 							lemmaStr = token.getCoveredText();
-						
+
 						writer.write(lemmaStr + "_" + (normalizePos?normalizePos(token.getPos().getPosValue()):token.getPos().getPosValue())+ " ");
 						break;
 					}

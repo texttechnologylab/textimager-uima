@@ -1,8 +1,8 @@
 package org.hucompute.textimager.uima.supar;
 
-import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
-import static org.junit.Assert.assertArrayEquals;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.cas.CASRuntimeException;
@@ -13,25 +13,24 @@ import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+import static org.junit.Assert.assertArrayEquals;
 
 public class SuparDepTest {
 	// TODO add tests for other models
-	
+
 	@Test
 	public void suparDepBiaffineDepEnTest() throws UIMAException, CASRuntimeException {
 		// create document
 		JCas jCas = JCasFactory.createJCas();
 		jCas.setDocumentLanguage("en");
 		jCas.setDocumentText("I saw Sarah with a telescope. Every morning we look for shells in the sand. I put them in a special place in my room.");
-		
+
 		// add sentences
 		new Sentence(jCas, 0, 29).addToIndexes();
 		new Sentence(jCas, 30, 75).addToIndexes();
 		new Sentence(jCas, 76, 117).addToIndexes();
-		
+
 		// add token
 		int[][] tokensPosition = new int[][] {
 				new int[] { 0, 1 },
@@ -71,21 +70,16 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
-
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
-		
+
 		// test dep positions
 		int[][] casDepPoss = (int[][]) JCasUtil.select(jCas, Token.class).stream().map(p -> new int[] { p.getBegin(), p.getEnd() }).toArray(int[][]::new);
 		assertArrayEquals(tokensPosition, casDepPoss);
-		
+
 		// test types
 		String[] deps = new String[] {
 				"nsubj","--", "dobj", "prep", "det","pobj", "punct",
@@ -98,7 +92,7 @@ public class SuparDepTest {
 		};
 		String[] casDeps = (String[]) JCasUtil.select(jCas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 		assertArrayEquals(deps, casDeps);
-		
+
 		// test governors
 		int[][] depGovPoss = new int[][] {
 				tokensPosition[1],
@@ -189,13 +183,8 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
-
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "biaffine-dep-roberta-en",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "biaffine-dep-roberta-en"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -307,13 +296,8 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
-
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "crf2o-dep-en",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "crf2o-dep-en"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -419,13 +403,11 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				//SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_de",
+				SuparDep.PARAM_MODELS_CACHE_DIR, "/home/daniel/.textimager/cache",
+				SuparDep.PARAM_MODEL_NAME, "/root/.cache/supar/ttlab/models/biaffine_dep_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -522,13 +504,9 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_roberta_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_roberta_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -625,13 +603,9 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_gbert_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/biaffine_dep_gbert_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -727,13 +701,9 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/crf_dep_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/crf_dep_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));
@@ -829,13 +799,9 @@ public class SuparDepTest {
 
 		// run pipeline with supar
 
-		//AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-		//		SuparDep.PARAM_MODEL_NAME, "biaffine-dep-en"
-		//);
 		// Server-Path for model: "/home/stud_homes/s5935481/work3/models/biaffine_dep_de"
 		AnalysisEngineDescription depParser = createEngineDescription(SuparDep.class,
-				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/crf2o_dep_de",
-				SuparDep.PARAM_REST_ENDPOINT, "http://geltlin.hucompute.org:8000"
+				SuparDep.PARAM_MODEL_NAME, "/home/stud_homes/s5935481/work3/models/crf2o_dep_de"
 		);
 		SimplePipeline.runPipeline(jCas, depParser);
 		System.out.println(XmlFormatter.getPrettyString(jCas));

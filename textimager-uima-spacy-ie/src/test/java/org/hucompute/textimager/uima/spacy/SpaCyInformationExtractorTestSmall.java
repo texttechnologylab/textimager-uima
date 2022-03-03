@@ -7,7 +7,6 @@ import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.util.TypeSystemUtil;
 import org.apache.uima.util.XMLSerializer;
 import org.dkpro.core.languagetool.LanguageToolSegmenter;
 import org.hucompute.textimager.uima.geonames.gazetteer.GeonamesGazetteer;

@@ -9,7 +9,7 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.bitbucket.rkilinger.ged.Emotion;
 import org.hucompute.textimager.uima.base.TextImagerBaseAnnotator;
 
-import java.io.*;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Scanner;
 

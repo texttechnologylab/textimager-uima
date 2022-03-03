@@ -1,13 +1,23 @@
 package org.hucompute.textimager.uima.talismane;
 
-import static org.apache.uima.fit.util.JCasUtil.selectCovered;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.sql.Timestamp;
-import java.util.List;
-
+import com.joliciel.talismane.TalismaneException;
+import com.joliciel.talismane.TalismaneSession;
+import com.joliciel.talismane.machineLearning.Decision;
+import com.joliciel.talismane.parser.*;
+import com.joliciel.talismane.posTagger.PosTagSequence;
+import com.joliciel.talismane.posTagger.PosTaggedToken;
+import com.joliciel.talismane.posTagger.UnknownPosTagException;
+import com.joliciel.talismane.rawText.Sentence;
+import com.joliciel.talismane.tokeniser.Token;
+import com.joliciel.talismane.tokeniser.TokenSequence;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
+import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
@@ -19,29 +29,13 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import com.joliciel.talismane.TalismaneException;
-import com.joliciel.talismane.TalismaneSession;
-import com.joliciel.talismane.machineLearning.Decision;
-import com.joliciel.talismane.parser.ParseConfiguration;
-import com.joliciel.talismane.parser.ParseTree;
-import com.joliciel.talismane.parser.ParseTreeNode;
-import com.joliciel.talismane.parser.Parser;
-import com.joliciel.talismane.parser.Parsers;
-import com.joliciel.talismane.posTagger.PosTagSequence;
-import com.joliciel.talismane.posTagger.PosTaggedToken;
-import com.joliciel.talismane.posTagger.UnknownPosTagException;
-import com.joliciel.talismane.rawText.Sentence;
-import com.joliciel.talismane.tokeniser.Token;
-import com.joliciel.talismane.tokeniser.TokenSequence;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.sql.Timestamp;
+import java.util.List;
 
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tudarmstadt.ukp.dkpro.core.api.parameter.ComponentParameters;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.CasConfigurableProviderBase;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProvider;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.MappingProviderFactory;
-import de.tudarmstadt.ukp.dkpro.core.api.resources.ResourceUtils;
+import static org.apache.uima.fit.util.JCasUtil.selectCovered;
 
 @TypeCapability(
 inputs = {
@@ -57,7 +51,7 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
     public static final String PARAM_CONFIG_LOCATION = "PARAM_CONFIG_LOCATION";
     @ConfigurationParameter(name = PARAM_CONFIG_LOCATION, mandatory = false)
     protected String configLocation;
-    
+
     /**
      * Log the tag set(s) when a model is loaded.
      *
@@ -95,7 +89,7 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
     public static final String PARAM_DEPENDENCY_MAPPING_LOCATION = ComponentParameters.PARAM_DEPENDENCY_MAPPING_LOCATION;
     @ConfigurationParameter(name = PARAM_DEPENDENCY_MAPPING_LOCATION, mandatory = false)
     private String dependencyMappingLocation;
-    
+
     /**
      * Use the {@link String#intern()} method on tags. This is usually a good idea to avoid
      * spaming the heap with thousands of strings representing only a few different tags.
@@ -107,16 +101,16 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
     /**
      * Process anyway, even if the model relies on features that are not supported by this
      * component.
-     * 
+     *
      * Default: {@code false}
      */
     public static final String PARAM_IGNORE_MISSING_FEATURES = "ignoreMissingFeatures";
     @ConfigurationParameter(name = PARAM_IGNORE_MISSING_FEATURES, mandatory = true, defaultValue = "false")
     protected boolean ignoreMissingFeatures;
-    
+
     private CasConfigurableProviderBase<File> modelProvider;
     private MappingProvider dependencyMappingProvider;
-    
+
 
     @Override
     public void initialize(UimaContext aContext)
@@ -146,7 +140,7 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
                 return ResourceUtils.getUrlAsFile(aUrl, true);
             }
         };
-         
+
         dependencyMappingProvider = MappingProviderFactory.createDependencyMappingProvider(dependencyMappingLocation,
                 language, modelProvider);
     }
@@ -159,7 +153,7 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
 
 		// load the Talismane configuration
 	    Config conf = ConfigFactory.load(configLocation);
-	    
+
 	    //create session ID
   		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
   		String sessionId = timestamp.toString();
@@ -170,25 +164,25 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
 			e1.printStackTrace();
 		}
 
-		
-		for (de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence jCasSentence : 
+
+		for (de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence jCasSentence :
 			org.apache.uima.fit.util.JCasUtil.select(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence.class)) {
-			
-			List<de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS> jCasTokens = selectCovered(aJCas, 
+
+			List<de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS> jCasTokens = selectCovered(aJCas,
 					de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS.class, jCasSentence);
-			
+
 			int SentenceBegin = jCasSentence.getBegin();
-			
+
 			// Create Sequences for Talismane
 			Sentence originalText = new Sentence(jCasSentence.getCoveredText(), session);
 			TokenSequence tokenSequence = new TokenSequence(originalText, session);
 			tokenSequence.cleanSlate();
 			PosTagSequence posTagSequence = new PosTagSequence(tokenSequence);
-			
+
 			//Add token to PosTagSequence
 			for(de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS jCasToken :jCasTokens) {
 				Token token = tokenSequence.addToken(jCasToken.getBegin() - SentenceBegin, jCasToken.getEnd() - SentenceBegin);
-				
+
 				try {
 					posTagSequence.addPosTaggedToken(new PosTaggedToken(token, new Decision(jCasToken.getPosValue()), session));
 				} catch (UnknownPosTagException e) {
@@ -210,18 +204,18 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
 			} catch (TalismaneException | IOException e) {
 				e.printStackTrace();
 			}
-			
+
 			//Get ParseTree and Root
 		     ParseTree parseTree = new ParseTree(parseConfiguration, true);
 		     ParseTreeNode root = parseTree.getRoot();
-		     
+
 		     //Write Annottaion to JCas
 		     for(ParseTreeNode node : root.getChildren()) {
 		    	 TreetoJCas(node, aJCas, SentenceBegin);
-		     }	    
-		
+		     }
+
 		}
-			
+
 	}
 	/**
 	 * This Procedure adds the Nodes to JCas
@@ -235,19 +229,19 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
 		int pEnd = node.getParent().getPosTaggedToken().getToken().getEndIndex() + SentenceBegin;
 		int cStart = node.getPosTaggedToken().getToken().getStartIndex() + SentenceBegin;
 		int cEnd = node.getPosTaggedToken().getToken().getEndIndex() + SentenceBegin;
-		
+
 		// Get Parent and Child Token from JCas
 		de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token parent = null;
-		if((pStart != pEnd)) {		
+		if((pStart != pEnd)) {
 			parent = JCasUtil.selectSingleAt(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, pStart, pEnd);
 		}
 		else{
 			parent = JCasUtil.selectSingleAt(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, cStart, cEnd);
 		}
-		
-		de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token child = 
+
+		de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token child =
 				JCasUtil.selectSingleAt(aJCas, de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token.class, cStart, cEnd);
-		
+
 		//Map the Dependency Tag and add the Annontaion to JCas
 		CAS cas = aJCas.getCas();
 		String tag = node.getLabel();
@@ -258,7 +252,7 @@ public class TalismaneDependencyParser extends JCasAnnotator_ImplBase{
 		dep.setGovernor(parent);
 		dep.setDependent(child);
 		dep.addToIndexes();
-		
+
 		//Repeat for all child nodes
 		for(ParseTreeNode cnode : node.getChildren()) {
 			TreetoJCas(cnode, aJCas, SentenceBegin);

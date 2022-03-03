@@ -1,10 +1,13 @@
 package org.hucompute.textimager.uima.spacy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
+import jep.JepException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
@@ -15,14 +18,10 @@ import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
-import jep.JepException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SpaCyMultiTagger extends SpaCyBase {
 
@@ -123,10 +122,10 @@ public class SpaCyMultiTagger extends SpaCyBase {
 				POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
 				posAnno.setPosValue(tagStr);
 				POSUtils.assignCoarseValue(posAnno);
-				
+
 				Token tokenAnno = tokensMap.get(begin).get(end);
 				tokenAnno.setPos(posAnno);
-				
+
 				posAnno.addToIndexes();
 			}
 		});
@@ -224,7 +223,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 
 		try {
 			interpreter.set("lang", (Object)aJCas.getDocumentLanguage());
-			
+
 			interpreter.exec("nlp = nlps[lang] if lang in nlps else nlps['en']");
 
 			int spacyMaxLength = interpreter.getValue("nlp.max_length", Integer.class);
@@ -266,7 +265,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 			for (String text : texts) {
 				counter++;
 				System.out.println("processing text part " + counter + "/" + texts.size());
-				
+
 				// text to python interpreter
 				interpreter.set("text", (Object)text);
 				interpreter.exec("doc = nlp(text)");
@@ -281,7 +280,7 @@ public class SpaCyMultiTagger extends SpaCyBase {
 
 				// Sentences
 				processSentences(aJCas, beginOffset);
-				
+
 				// Tokenizer
 				Map<Integer, Map<Integer, Token>> tokensMap = processToken(aJCas, beginOffset);
 

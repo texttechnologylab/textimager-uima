@@ -1,13 +1,7 @@
 package org.hucompute.textimager.uima.io.pdf;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Heading;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
 import org.apache.uima.UIMAException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.fit.descriptor.TypeCapability;
@@ -19,8 +13,13 @@ import org.dkpro.core.io.pdf.internal.Pdf2CasConverter;
 import org.dkpro.core.io.pdf.internal.SubstitutionTrieParser;
 import org.dkpro.core.io.pdf.internal.Trie;
 
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Heading;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+import static org.apache.commons.io.IOUtils.closeQuietly;
 
 /**
  * Collection reader for PDF files. Uses simple heuristics to detect headings and paragraphs.

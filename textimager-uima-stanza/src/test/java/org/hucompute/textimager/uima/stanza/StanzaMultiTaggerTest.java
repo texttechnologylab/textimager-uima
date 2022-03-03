@@ -4,10 +4,7 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.dkpro.core.languagetool.LanguageToolSegmenter;
-import org.hucompute.textimager.uima.type.Sentiment;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
 

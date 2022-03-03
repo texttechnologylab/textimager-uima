@@ -1,13 +1,13 @@
 package org.hucompute.textimager.uima.ner;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADJ;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADV;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_CONJ;
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.unihd.dbs.uima.types.heideltime.Timex3;
 import org.apache.commons.io.FileUtils;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -25,24 +25,13 @@ import org.dkpro.core.dictionaryannotator.PhraseTree;
 import org.hucompute.textimager.uima.type.wikidata.WikiDataHyponym;
 import org.hucompute.textimager.uima.type.wikipedia.WikipediaLink;
 import org.texttechnologylab.annotation.AbstractNamedEntity;
-import org.texttechnologylab.annotation.type.Group_Collection;
-import org.texttechnologylab.annotation.type.Location_Place;
-import org.texttechnologylab.annotation.type.Other;
-import org.texttechnologylab.annotation.type.Person_HumanBeing;
-import org.texttechnologylab.annotation.type.Time;
+import org.texttechnologylab.annotation.type.*;
 import org.texttechnologylab.annotation.type.concept.Attribute_Property;
 import org.texttechnologylab.annotation.type.concept.Cognition_Ideation;
-import org.texttechnologylab.annotation.type.concept.Taxon;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADJ;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_ADV;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_CONJ;
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS_VERB;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.PP;
-import de.unihd.dbs.uima.types.heideltime.Timex3;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * UIMA XMI format writer.

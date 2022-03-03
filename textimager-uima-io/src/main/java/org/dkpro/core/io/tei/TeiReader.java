@@ -17,36 +17,16 @@
  */
 package org.dkpro.core.io.tei;
 
-import static java.lang.Character.isWhitespace;
-import static java.util.Arrays.asList;
-import static org.apache.commons.io.IOUtils.closeQuietly;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.dkpro.core.api.resources.MappingProviderFactory.createPosMappingProvider;
-import static org.dkpro.core.io.tei.internal.TeiConstants.ATTR_FUNCTION;
-import static org.dkpro.core.io.tei.internal.TeiConstants.ATTR_LEMMA;
-import static org.dkpro.core.io.tei.internal.TeiConstants.ATTR_POS;
-import static org.dkpro.core.io.tei.internal.TeiConstants.ATTR_TYPE;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_CHARACTER;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_MULTIWORD;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_PARAGRAPH;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_PHRASE;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_RS;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_SUNIT;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_TEI_DOC;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_TEXT;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_TITLE;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_U;
-import static org.dkpro.core.io.tei.internal.TeiConstants.TAG_WORD;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-import java.util.zip.GZIPInputStream;
-
+import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
+import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.ROOT;
+import eu.openminted.share.annotations.api.DocumentationResource;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.uima.UimaContext;
@@ -82,16 +62,17 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
-import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
-import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Paragraph;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.ROOT;
-import eu.openminted.share.annotations.api.DocumentationResource;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.zip.GZIPInputStream;
+
+import static java.lang.Character.isWhitespace;
+import static java.util.Arrays.asList;
+import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.dkpro.core.api.resources.MappingProviderFactory.createPosMappingProvider;
+import static org.dkpro.core.io.tei.internal.TeiConstants.*;
 
 /**
  * Reader for the TEI XML.
@@ -148,7 +129,7 @@ import eu.openminted.share.annotations.api.DocumentationResource;
  * <td><code>w</code></td>
  * <td>word</td>
  * <td>Token</td>
- * <td>(<code>pos</code>, <code>type</code>) -&gt; POS.PosValue (<code>pos</code> preferred over 
+ * <td>(<code>pos</code>, <code>type</code>) -&gt; POS.PosValue (<code>pos</code> preferred over
  *   <code>type</code>)</td>
  * </tr>
  * <tr>
@@ -219,7 +200,7 @@ extends ResourceCollectionReaderBase
 	/**
 	 * Write named entity annotations to the CAS.
 	 */
-	public static final String PARAM_READ_NAMED_ENTITY = 
+	public static final String PARAM_READ_NAMED_ENTITY =
 			ComponentParameters.PARAM_READ_NAMED_ENTITY;
 	@ConfigurationParameter(name = PARAM_READ_NAMED_ENTITY, mandatory = true, defaultValue = "true")
 	private boolean readNamedEntity;
@@ -260,14 +241,14 @@ extends ResourceCollectionReaderBase
 	 * Enable/disable type mapping.
 	 */
 	public static final String PARAM_MAPPING_ENABLED = ComponentParameters.PARAM_MAPPING_ENABLED;
-	@ConfigurationParameter(name = PARAM_MAPPING_ENABLED, mandatory = true, defaultValue = 
+	@ConfigurationParameter(name = PARAM_MAPPING_ENABLED, mandatory = true, defaultValue =
 			ComponentParameters.DEFAULT_MAPPING_ENABLED)
 	protected boolean mappingEnabled;
 
 	/**
 	 * Location of the mapping file for part-of-speech tags to UIMA types.
 	 */
-	public static final String PARAM_POS_MAPPING_LOCATION = 
+	public static final String PARAM_POS_MAPPING_LOCATION =
 			ComponentParameters.PARAM_POS_MAPPING_LOCATION;
 	@ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
 	protected String mappingPosLocation;
@@ -293,7 +274,7 @@ extends ResourceCollectionReaderBase
 	 * annotations to start and end at a non-whitespace character.
 	 */
 	public static final String PARAM_ELEMENTS_TO_TRIM = "elementsToTrim";
-	@ConfigurationParameter(name = PARAM_ELEMENTS_TO_TRIM, mandatory = true, defaultValue = { 
+	@ConfigurationParameter(name = PARAM_ELEMENTS_TO_TRIM, mandatory = true, defaultValue = {
 			TAG_SUNIT, TAG_U, TAG_PARAGRAPH, TAG_RS, TAG_WORD, TAG_CHARACTER, TAG_MULTIWORD})
 	private Set<String> elementsToTrim;
 
@@ -527,7 +508,7 @@ extends ResourceCollectionReaderBase
 				captureText = true;
 				inTextElement = true;
 			}
-			else if (inTextElement && (TAG_SUNIT.equals(aName) || 
+			else if (inTextElement && (TAG_SUNIT.equals(aName) ||
 					(utterancesAsSentences && TAG_U.equals(aName)))) {
 				sentenceStart = getBuffer().length();
 			}

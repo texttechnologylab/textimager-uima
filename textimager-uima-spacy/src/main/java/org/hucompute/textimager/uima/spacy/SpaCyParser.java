@@ -1,19 +1,9 @@
 package org.hucompute.textimager.uima.spacy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
-
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
-import jep.JepException;
 
 public class SpaCyParser extends SpaCyBase {
 	@Override
@@ -70,7 +60,7 @@ public class SpaCyParser extends SpaCyBase {
 					Token dependent = JCasUtil.selectSingleAt(aJCas, Token.class, begin, end);
 					Token governor = JCasUtil.selectSingleAt(aJCas, Token.class, beginHead, endHead);
 
-					Dependency depAnno;					
+					Dependency depAnno;
 					if (depStr.equals("ROOT")) {
 						depAnno = new ROOT(aJCas, begin, end);
 						depAnno.setDependencyType("--");

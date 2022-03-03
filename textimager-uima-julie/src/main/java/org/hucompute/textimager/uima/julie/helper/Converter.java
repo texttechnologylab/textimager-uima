@@ -6,16 +6,11 @@ import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.chunk.Chunk;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ABBREV;
-import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ABBREV_Type;
 import org.apache.uima.UIMAException;
-import org.apache.uima.cas.impl.XCASDeserializer;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.json.JSONML;
-import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**

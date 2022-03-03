@@ -1,15 +1,5 @@
 package org.hucompute.textimager.fasttext.labelannotator;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
@@ -21,6 +11,16 @@ import org.hucompute.textimager.fasttext.BaseAnnotator;
 import org.hucompute.textimager.fasttext.FastTextResult;
 import org.hucompute.textimager.fasttext.ProbabilityLabel;
 import org.hucompute.textimager.uima.type.category.CategoryCoveredTagged;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 
 public class LabelAnnotator extends BaseAnnotator {
     /**
@@ -56,7 +56,7 @@ public class LabelAnnotator extends BaseAnnotator {
     public static final String PARAM_APPEND_DDC_VARIANT = "appendDDCVariant";
     @ConfigurationParameter(name = PARAM_APPEND_DDC_VARIANT, mandatory = false, defaultValue = "")
     protected String appendDDCVariant;
-    
+
     /**
      * DDC class names mapping file
      */
@@ -77,11 +77,11 @@ public class LabelAnnotator extends BaseAnnotator {
         		String[] entryFields = entry.split(":", 2);
         		String lang = entryFields[0].trim();
         		String filename = entryFields[1].trim();
-        		
+
 	            System.out.println("loading ddc class names for language " + lang + " from file " + filename + "...");
 				try {
 					ddcNames.put(lang, new HashMap<>());
-					
+
 					BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename), Charset.forName("UTF-8")));
 		            String line;
 		            while ((line = reader.readLine()) != null) {
@@ -105,7 +105,7 @@ public class LabelAnnotator extends BaseAnnotator {
         	System.out.println("loaded ddc class names for " + ddcNames.size() + " languages.");
         }
     }
-    
+
     // __label_ddc__480 -> __ddc__480
     private String ddcLabelToFeature(String ddc) {
     	return "__ddc__" + ddc.substring(13);
@@ -172,7 +172,7 @@ public class LabelAnnotator extends BaseAnnotator {
 
                     //System.out.println("top ddc: " + topCat.getValue());
                     //System.out.println("top score: " + topCat.getScore());
-                    
+
                     int reps = 10;
                     int textLen = documentText.length();
                     if (textLen < 1000) {

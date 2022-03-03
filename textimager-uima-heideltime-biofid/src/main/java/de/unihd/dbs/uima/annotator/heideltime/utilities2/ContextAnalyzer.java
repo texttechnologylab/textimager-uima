@@ -1,13 +1,5 @@
 package de.unihd.dbs.uima.annotator.heideltime.utilities2;
 
-import java.util.List;
-import java.util.TreeMap;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
-
-import org.apache.uima.cas.FSIterator;
-import org.apache.uima.jcas.JCas;
-
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.unihd.dbs.uima.annotator.heideltime.resources.Language;
@@ -17,9 +9,16 @@ import de.unihd.dbs.uima.annotator.heideltime.utilities.DateCalculator;
 import de.unihd.dbs.uima.annotator.heideltime.utilities.Logger;
 import de.unihd.dbs.uima.annotator.heideltime.utilities.Toolbox;
 import de.unihd.dbs.uima.types.heideltime.Timex3;
+import org.apache.uima.cas.FSIterator;
+import org.apache.uima.jcas.JCas;
+
+import java.util.List;
+import java.util.TreeMap;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 /**
- * 
+ *
  * This class contains methods that work with the dependence of a subject with its
  * surrounding data; namely via the jcas element or a subset list.
  * @author jannik stroetgen
@@ -35,17 +34,17 @@ public class ContextAnalyzer {
 	 */
 	public static String getLastMentionedX(List<Timex3> linearDates, int i, String x, Language language) {
 		NormalizationManager nm = NormalizationManager.getInstance(language, true);
-		
+
 		// Timex for which to get the last mentioned x (i.e., Timex i)
 		Timex3 t_i = linearDates.get(i);
-		
+
 		String xValue = "";
 		int j = i - 1;
 		while (j >= 0) {
 			Timex3 timex = linearDates.get(j);
 			// check that the two timexes to compare do not have the same offset:
 				if (!(t_i.getBegin() == timex.getBegin())) {
-				
+
 					String value = timex.getTimexValue();
 					if (!(value.contains("funcDate"))){
 						if (x.equals("century")) {
@@ -165,7 +164,7 @@ public class ContextAnalyzer {
 								String quarter = nm.getFromNormMonthInQuarter(month);
 								if(quarter == null) {
 									quarter = "1";
-								}	
+								}
 								xValue = value.substring(0,4)+"-Q"+quarter;
 								break;
 							}
@@ -212,7 +211,7 @@ public class ContextAnalyzer {
 							else {
 								j--;
 							}
-						}	
+						}
 					} else {
 						j--;
 					}
@@ -222,19 +221,19 @@ public class ContextAnalyzer {
 		}
 		return xValue;
 	}
-	
+
 	/**
 	 * Get the last tense used in the sentence
-	 * 
+	 *
 	 * @param timex timex construct to discover tense data for
 	 * @return string that contains the tense
 	 */
 	public static String getClosestTense(Timex3 timex, JCas jcas, Language language) {
 		RePatternManager rpm = RePatternManager.getInstance(language, false);
-		
+
 		String lastTense = "";
 		String nextTense = "";
-		
+
 		int tokenCounter = 0;
 		int lastid = 0;
 		int nextid = 0;
@@ -258,25 +257,25 @@ public class ContextAnalyzer {
 			Token token = (Token) iterToken.next();
 			tmToken.put(token.getEnd(), token);
 		}
-		
+
 		// Get the last VERB token
 		for (Integer tokEnd : tmToken.keySet()) {
 			tokenCounter++;
 			if (tokEnd < timex.getBegin()) {
 				Token token = tmToken.get(tokEnd);
-				
+
 				Logger.printDetail("GET LAST TENSE: string:"+token.getCoveredText()+" pos:"+token.getPosValue());
 				Logger.printDetail("hmAllRePattern.containsKey(tensePos4PresentFuture):"+rpm.get("tensePos4PresentFuture"));
 				Logger.printDetail("hmAllRePattern.containsKey(tensePos4Future):"+rpm.get("tensePos4Future"));
 				Logger.printDetail("hmAllRePattern.containsKey(tensePos4Past):"+rpm.get("tensePos4Past"));
 				Logger.printDetail("CHECK TOKEN:"+token.getPosValue());
-				
+
 				if (token.getPosValue() == null) {
-					
+
 				}
 				else if ((rpm.containsKey("tensePos4PresentFuture")) && (token.getPosValue().matches(rpm.get("tensePos4PresentFuture")))) {
 					lastTense = "PRESENTFUTURE";
-					lastid = tokenCounter; 
+					lastid = tokenCounter;
 				}
 				else if ((rpm.containsKey("tensePos4Past")) && (token.getPosValue().matches(rpm.get("tensePos4Past")))) {
 					lastTense = "PAST";
@@ -301,15 +300,15 @@ public class ContextAnalyzer {
 			if (nextTense.equals("")) {
 				if (tokEnd > timex.getEnd()) {
 					Token token = tmToken.get(tokEnd);
-					
+
 					Logger.printDetail("GET NEXT TENSE: string:"+token.getCoveredText()+" pos:"+token.getPos());
 					Logger.printDetail("hmAllRePattern.containsKey(tensePos4PresentFuture):"+rpm.get("tensePos4PresentFuture"));
 					Logger.printDetail("hmAllRePattern.containsKey(tensePos4Future):"+rpm.get("tensePos4Future"));
 					Logger.printDetail("hmAllRePattern.containsKey(tensePos4Past):"+rpm.get("tensePos4Past"));
 					Logger.printDetail("CHECK TOKEN:"+token.getPos());
-					
+
 					if (token.getPos() == null) {
-						
+
 					}
 					else if ((rpm.containsKey("tensePos4PresentFuture")) && (token.getPosValue().matches(rpm.get("tensePos4PresentFuture")))) {
 						nextTense = "PRESENTFUTURE";
@@ -337,7 +336,7 @@ public class ContextAnalyzer {
 			return lastTense;
 		}
 		else {
-			// If there is tense before and after the timex token, 
+			// If there is tense before and after the timex token,
 			// return the closer one:
 			if ((tid - lastid) > (nextid - tid)) {
 				Logger.printDetail("TENSE: "+nextTense);
@@ -345,21 +344,21 @@ public class ContextAnalyzer {
 			}
 			else {
 				Logger.printDetail("TENSE: "+lastTense);
-				return lastTense;	
-			}	
+				return lastTense;
+			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Get the last tense used in the sentence
-	 * 
+	 *
 	 * @param timex timex construct to discover tense data for
 	 * @return string that contains the tense
 	 */
 	public static String getLastTense(Timex3 timex, JCas jcas, Language language) {
 		RePatternManager rpm = RePatternManager.getInstance(language, false);
-		
+
 		String lastTense = "";
 
 		// Get the sentence
@@ -391,9 +390,9 @@ public class ContextAnalyzer {
 				Logger.printDetail("hmAllRePattern.containsKey(tensePos4Future):"+rpm.get("tensePos4Future"));
 				Logger.printDetail("hmAllRePattern.containsKey(tensePos4Past):"+rpm.get("tensePos4Past"));
 				Logger.printDetail("CHECK TOKEN:"+token.getPosValue());
-				
+
 				if (token.getPosValue() == null) {
-					
+
 				}
 				else if ((rpm.containsKey("tensePos4PresentFuture")) && (token.getPosValue().matches(rpm.get("tensePos4PresentFuture")))) {
 					lastTense = "PRESENTFUTURE";
@@ -413,7 +412,7 @@ public class ContextAnalyzer {
 					lastTense = "PAST";
 					Logger.printDetail("this tense:"+lastTense);
 				}
-				if (token.getCoveredText().equals("depuis")) { // French		
+				if (token.getCoveredText().equals("depuis")) { // French
 					lastTense = "PAST";
 					Logger.printDetail("this tense:"+lastTense);
 				}
@@ -421,15 +420,15 @@ public class ContextAnalyzer {
 			if (lastTense.equals("")) {
 				if (tokEnd > timex.getEnd()) {
 					Token token = tmToken.get(tokEnd);
-					
+
 					Logger.printDetail("GET NEXT TENSE: string:"+token.getCoveredText()+" pos:"+token.getPosValue());
 					Logger.printDetail("hmAllRePattern.containsKey(tensePos4PresentFuture):"+rpm.get("tensePos4PresentFuture"));
 					Logger.printDetail("hmAllRePattern.containsKey(tensePos4Future):"+rpm.get("tensePos4Future"));
 					Logger.printDetail("hmAllRePattern.containsKey(tensePos4Past):"+rpm.get("tensePos4Past"));
 					Logger.printDetail("CHECK TOKEN:"+token.getPosValue());
-					
+
 					if (token.getPosValue() == null) {
-						
+
 					}
 					else if ((rpm.containsKey("tensePos4PresentFuture")) && (token.getPosValue().matches(rpm.get("tensePos4PresentFuture")))) {
 						lastTense = "PRESENTFUTURE";
@@ -488,7 +487,7 @@ public class ContextAnalyzer {
 		}
 		// French: VER:pres VER:pper
 		if (lastTense.equals("PAST")) {
-			for (Integer tokEnd : tmToken.keySet()) { 
+			for (Integer tokEnd : tmToken.keySet()) {
 				if (tokEnd < timex.getBegin()) {
 					Token token = tmToken.get(tokEnd);
 					if (("VER:pres".equals(prevPos)) && ("VER:pper".equals(token.getPosValue()))) {
@@ -516,26 +515,26 @@ public class ContextAnalyzer {
 			}
 		}
 		Logger.printDetail("TENSE: "+lastTense);
-		
+
 		return lastTense;
 	}
-	
+
 	/**
 	 * Check token boundaries of expressions.
-	 * @param r MatchResult 
+	 * @param r MatchResult
 	 * @param s Respective sentence
 	 * @return whether or not the MatchResult is a clean one
 	 */
 	public static Boolean checkInfrontBehind(MatchResult r, Sentence s) {
 		Boolean ok = true;
-		
+
 		// get rid of expressions such as "1999" in 53453.1999
 		if (r.start() > 1) {
 			if ((s.getCoveredText().substring(r.start() - 2, r.start()).matches("\\d\\."))){
 				ok = false;
 			}
 		}
-		
+
 		// get rid of expressions if there is a character or symbol ($+) directly in front of the expression
 		if (r.start() > 0) {
 			if (((s.getCoveredText().substring(r.start() - 1, r.start()).matches("[\\w\\$\\+]"))) &&
@@ -543,7 +542,7 @@ public class ContextAnalyzer {
 				ok = false;
 			}
 		}
-		
+
 		if (r.end() < s.getCoveredText().length()) {
 			if ((s.getCoveredText().substring(r.end(), r.end() + 1).matches("[°\\w]")) &&
 					(!(s.getCoveredText().substring(r.end(), r.end() + 1).matches("\\)")))){
@@ -558,7 +557,7 @@ public class ContextAnalyzer {
 		}
 		return ok;
 	}
-	
+
 	/**
 	* Check token boundaries using token information
 	* @param r MatchResult
@@ -569,25 +568,25 @@ public class ContextAnalyzer {
 	public static Boolean checkTokenBoundaries(MatchResult r, Sentence s, JCas jcas){
 		Boolean beginOK = false;
 		Boolean endOK = false;
-	
+
 		// whole expression is marked as a sentence
 		if ((r.end() - r.start()) == (s.getEnd() -s.getBegin())){
 			return true;
 		}
-		
+
 		// Only check Token boundaries if no white-spaces in front of and behind the match-result
-		if ((r.start() > 0) 
+		if ((r.start() > 0)
 				&& ((s.getCoveredText().subSequence(r.start()-1, r.start()).equals(" ")))
 				&& ((r.end() < s.getCoveredText().length()) && ((s.getCoveredText().subSequence(r.end(), r.end()+1).equals(" "))))) {
 			return true;
 		}
-	
+
 		// other token boundaries than white-spaces
 		else {
 			FSIterator iterToken = jcas.getAnnotationIndex(Token.type).subiterator(s);
 			while (iterToken.hasNext()) {
 				Token t = (Token) iterToken.next();
-			
+
 				// Check begin
 				if ((r.start() + s.getBegin()) == t.getBegin()){
 					beginOK = true;
@@ -596,30 +595,30 @@ public class ContextAnalyzer {
 				// e.g., "...12 August-24 Augsut..."
 				else if ((r.start() > 0)
 						&& ((s.getCoveredText().subSequence(r.start()-1, r.start()).equals("."))
-						|| (s.getCoveredText().subSequence(r.start()-1, r.start()).equals("/")) 
+						|| (s.getCoveredText().subSequence(r.start()-1, r.start()).equals("/"))
 						|| (s.getCoveredText().subSequence(r.start()-1, r.start()).equals("–"))
 						|| (s.getCoveredText().subSequence(r.start()-1, r.start()).equals("-")))) {
 					beginOK = true;
 				}
-			
+
 				// Check end
 				if ((r.end() + s.getBegin()) == t.getEnd()) {
 					endOK = true;
 				}
 				// Tokenizer does not split number from some symbols (".", "/", "-", "–"),
 				// e.g., "... in 1990. New Sentence ..."
-				else if ((r.end() < s.getCoveredText().length()) 
+				else if ((r.end() < s.getCoveredText().length())
 						&& ((s.getCoveredText().subSequence(r.end(), r.end()+1).equals("."))
 								|| (s.getCoveredText().subSequence(r.end(), r.end()+1).equals("/"))
-								|| (s.getCoveredText().subSequence(r.end(), r.end()+1).equals("–")) 
+								|| (s.getCoveredText().subSequence(r.end(), r.end()+1).equals("–"))
 								|| (s.getCoveredText().subSequence(r.end(), r.end()+1).equals("-")))) {
 					endOK = true;
 				}
-			
+
 				if (beginOK && endOK)
 					return true;
 			}
 		}
 		return false;
-	} 
+	}
 }

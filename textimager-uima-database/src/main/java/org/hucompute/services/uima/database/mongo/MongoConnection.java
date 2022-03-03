@@ -1,19 +1,14 @@
 package org.hucompute.services.uima.database.mongo;
 
 
+import com.mongodb.*;
+
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.MongoException;
-import com.mongodb.ServerAddress;
-
 /**
  * A wrapper for a connection to Mongo.
- * 
+ *
  * @author renaud.richardet@epfl.ch
  */
 public class MongoConnection {
@@ -56,15 +51,15 @@ public class MongoConnection {
 //		checkNotNull(collectionName, "collectionName is NULL");
 //		checkNotNull(user, "user is NULL");
 //		checkNotNull(pw, "pw is NULL");
-		
+
 		MongoClient mongoClient = null;
-		
+
 		// Skip authentication if user and pass are empty/null
 		if ((this.user == null || this.user.isEmpty())
 				&& (this.pw == null || this.pw.isEmpty())) {
 
 			mongoClient = new MongoClient( host );
-			
+
 		} else {
 
 //			m = new Mongo(host, 27017);
@@ -75,9 +70,9 @@ public class MongoConnection {
 			MongoCredential credential = MongoCredential.createScramSha1Credential(user,
 					(this.authSource.isEmpty() ? "admin" : this.authSource),
 					pw.toCharArray());
-			
+
 			System.out.println(credential);
-			
+
 			mongoClient = new MongoClient(new ServerAddress(host, 27017), Arrays.asList(credential));
 		}
 

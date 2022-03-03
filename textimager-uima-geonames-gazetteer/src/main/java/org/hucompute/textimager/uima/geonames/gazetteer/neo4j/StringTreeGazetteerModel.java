@@ -3,8 +3,6 @@ package org.hucompute.textimager.uima.geonames.gazetteer.neo4j;
 //import org.hucompute.textimager.uima.tree.SkipGramGazetteerModel;
 //import org.neo4j.driver.*;
 
-import java.io.IOException;
-
 //public class StringTreeGazetteerModel extends SkipGramGazetteerModel {
 //
 //    private static String NAME = "name";

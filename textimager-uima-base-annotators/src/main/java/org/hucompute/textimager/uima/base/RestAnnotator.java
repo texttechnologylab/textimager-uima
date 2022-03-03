@@ -1,15 +1,15 @@
 package org.hucompute.textimager.uima.base;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
 import org.apache.uima.jcas.JCas;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public abstract class RestAnnotator extends TextImagerBaseAnnotator {
 	/**
@@ -33,8 +33,8 @@ public abstract class RestAnnotator extends TextImagerBaseAnnotator {
 		return restEndpoint + getRestRoute();
 	}
 
-	protected String sendRequest(String body) throws IOException {
-		URL url = new URL(getRestEndpoint());
+	protected String sendRequest(String body, String fullUrl) throws IOException {
+		URL url = new URL(fullUrl);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
 		connection.setDoInput(true);
@@ -50,6 +50,10 @@ public abstract class RestAnnotator extends TextImagerBaseAnnotator {
 		writer.close();
 
 		return res;
+	}
+
+	protected String sendRequest(String body) throws IOException {
+		return sendRequest(body, getRestEndpoint());
 	}
 
 	@Override
