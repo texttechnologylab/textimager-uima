@@ -83,7 +83,13 @@ def spacy_get_pipeline(tool: str, format_spacy: str = "ef", lang: str = "de") ->
     try:
         if spacy_use_gpu:
             spacy.prefer_gpu()
-        nlp = spacy.load(switch[format_spacy][lang])
+
+        if format_spacy in switch and lang in switch[format_spacy]:
+            nlp = spacy.load(switch[format_spacy][lang])
+        elif format_spacy in switch:
+            nlp = spacy.load(switch[format_spacy]["multi"])
+        else:
+            nlp = spacy.load(switch["ef"]["multi"])
 
         # cache and return
         if lang not in spacy_pipelines:
