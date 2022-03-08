@@ -19,7 +19,7 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDesc
 
 public class SimpleLocalPipelineSpacyDdc {
     public static void main(String[] args) throws UIMAException, IOException {
-        if (args.length != 5) {
+        if (args.length != 4) {
             System.out.println("Usage:");
             System.out.println("  language inputDir outputDir dockerPort");
             System.exit(1);
