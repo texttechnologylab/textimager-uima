@@ -64,6 +64,7 @@ public class SimpleLocalPipeline {
                 , XmiWriter.PARAM_VERSION, "1.1"
                 , XmiWriter.PARAM_COMPRESSION, CompressionMethod.GZIP
                 , XmiWriter.PARAM_PRETTY_PRINT, true
+                , XmiWriter.PARAM_OVERWRITE, true
         );
 
         AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger3.class,
