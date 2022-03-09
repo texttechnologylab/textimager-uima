@@ -133,9 +133,13 @@ public class SimpleLocalPipelineSpacyDdc {
                 SpaCyMultiTagger3.class
                 , SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, dockerPort
                 , SpaCyMultiTagger3.PARAM_DOCKER_REGISTRY, "141.2.89.20:5000"
-                , SpaCyMultiTagger3.PARAM_DOCKER_IMAGE_TAG, "0.7"
+                , SpaCyMultiTagger3.PARAM_DOCKER_IMAGE_TAG, "0.8"
         );
 
         SimplePipeline.runPipeline(reader, spacyMulti, ddc2, writer);
+
+        System.out.println("lang: " + language);
+        System.out.println("in: " + inputDir);
+        System.out.println("out: " + outputDir);
     }
 }
