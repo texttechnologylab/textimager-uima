@@ -183,20 +183,26 @@ def process(request: TextImagerRequest) -> SpacyResponse:
             }
             deps.append(deps_dict)
 
-        for sent in doc.sents:
-            sents_dict = {
-                'begin': sent.start_char,
-                'end': sent.end_char
-            }
-            sents.append(sents_dict)
+        try:
+            for sent in doc.sents:
+                sents_dict = {
+                    'begin': sent.start_char,
+                    'end': sent.end_char
+                }
+                sents.append(sents_dict)
+        except Exception as ex:
+            print(ex)
 
-        for ent in doc.ents:
-            ents_dict = {
-                'start_char': ent.start_char,
-                'end_char': ent.end_char,
-                'label': ent.label_
-            }
-            ents.append(ents_dict)
+        try:
+            for ent in doc.ents:
+                ents_dict = {
+                    'start_char': ent.start_char,
+                    'end_char': ent.end_char,
+                    'label': ent.label_
+                }
+                ents.append(ents_dict)
+        except Exception as ex:
+            print(ex)
 
         res_dict = {
             'tokens': tokens,
