@@ -51,6 +51,11 @@
             <artifactId>Utilities</artifactId>
             <version>${ttlab.utilities.version}</version>
         </dependency>
+        <dependency>
+            <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+            <artifactId>de.tudarmstadt.ukp.dkpro.core.tokit-asl</artifactId>
+            <version>1.9.2</version>
+        </dependency>
 
     </dependencies>
 </project>

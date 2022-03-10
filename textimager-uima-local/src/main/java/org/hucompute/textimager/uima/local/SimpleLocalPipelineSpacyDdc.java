@@ -1,5 +1,6 @@
 package org.hucompute.textimager.uima.local;
 
+import de.tudarmstadt.ukp.dkpro.core.tokit.BreakIteratorSegmenter;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReader;
@@ -129,14 +130,24 @@ public class SimpleLocalPipelineSpacyDdc {
             );
         }
 
-        AnalysisEngineDescription spacyMulti = createEngineDescription(
-                SpaCyMultiTagger3.class
-                , SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, dockerPort
-                , SpaCyMultiTagger3.PARAM_DOCKER_REGISTRY, "141.2.89.20:5000"
-                , SpaCyMultiTagger3.PARAM_DOCKER_IMAGE_TAG, "0.8"
-        );
+        AnalysisEngineDescription segmenter;
+        if (language.equalsIgnoreCase("ja")) {
+            System.out.println("segmenter: break");
+            segmenter = createEngineDescription(
+                    BreakIteratorSegmenter.class
+            );
+        }
+        else {
+            System.out.println("segmenter: spacy");
+            segmenter = createEngineDescription(
+                    SpaCyMultiTagger3.class
+                    , SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, dockerPort
+                    , SpaCyMultiTagger3.PARAM_DOCKER_REGISTRY, "141.2.89.20:5000"
+                    , SpaCyMultiTagger3.PARAM_DOCKER_IMAGE_TAG, "0.8"
+            );
+        }
 
-        SimplePipeline.runPipeline(reader, spacyMulti, ddc2, writer);
+        SimplePipeline.runPipeline(reader, segmenter, ddc2, writer);
 
         System.out.println("lang: " + language);
         System.out.println("in: " + inputDir);
