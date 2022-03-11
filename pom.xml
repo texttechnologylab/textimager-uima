@@ -160,6 +160,5 @@
 		<module>textimager-uima-supar</module>
 		<module>textimager-uima-splitter</module>
 		<module>textimager-uima-local</module>
-		<module>textimager-uima-gnfinder</module>
 	</modules>
 </project>
