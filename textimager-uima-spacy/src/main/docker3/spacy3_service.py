@@ -83,7 +83,13 @@ def spacy_get_pipeline(tool: str, format_spacy: str = "ef", lang: str = "de") ->
     try:
         if spacy_use_gpu:
             spacy.prefer_gpu()
-        nlp = spacy.load(switch[format_spacy][lang])
+
+        if format_spacy in switch and lang in switch[format_spacy]:
+            nlp = spacy.load(switch[format_spacy][lang])
+        elif format_spacy in switch:
+            nlp = spacy.load(switch[format_spacy]["multi"])
+        else:
+            nlp = spacy.load(switch["ef"]["multi"])
 
         # cache and return
         if lang not in spacy_pipelines:
@@ -177,20 +183,26 @@ def process(request: TextImagerRequest) -> SpacyResponse:
             }
             deps.append(deps_dict)
 
-        for sent in doc.sents:
-            sents_dict = {
-                'begin': sent.start_char,
-                'end': sent.end_char
-            }
-            sents.append(sents_dict)
+        try:
+            for sent in doc.sents:
+                sents_dict = {
+                    'begin': sent.start_char,
+                    'end': sent.end_char
+                }
+                sents.append(sents_dict)
+        except Exception as ex:
+            print(ex)
 
-        for ent in doc.ents:
-            ents_dict = {
-                'start_char': ent.start_char,
-                'end_char': ent.end_char,
-                'label': ent.label_
-            }
-            ents.append(ents_dict)
+        try:
+            for ent in doc.ents:
+                ents_dict = {
+                    'start_char': ent.start_char,
+                    'end_char': ent.end_char,
+                    'label': ent.label_
+                }
+                ents.append(ents_dict)
+        except Exception as ex:
+            print(ex)
 
         res_dict = {
             'tokens': tokens,
