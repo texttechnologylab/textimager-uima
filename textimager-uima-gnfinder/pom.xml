@@ -13,10 +13,5 @@
 			<artifactId>textimager-uima-base-annotators</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-util</artifactId>
-			<version>${project.version}</version>
-		</dependency>
     </dependencies>
 </project>

@@ -45,6 +45,12 @@
 			<groupId>com.github.texttechnologylab</groupId>
 			<artifactId>UIMATypeSystem</artifactId>
 			<version>${ttlab.typesystem.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.github.texttechnologylab</groupId>
+					<artifactId>Utilities</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 
