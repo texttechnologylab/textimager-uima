@@ -22,13 +22,15 @@ public class GNfinder extends JCasAnnotator_ImplBase {
     @ConfigurationParameter(name = PARAM_ONLY_VERIFICATION, mandatory = false, description = "Use only found Taxa which are validated.")
     private boolean bVerification = true;
 
+    public static final String PARAM_BIN_GNFINDER = "pathBin";
+    @ConfigurationParameter(name = PARAM_BIN_GNFINDER, mandatory = true, description = "Use only found Taxa which are validated.")
+    private String pathBin = "";
+
 
     @Override
     public void process(JCas aJCas) throws AnalysisEngineProcessException {
 
         File tf = null;
-
-        String sPath = GNfinder.class.getClassLoader().getResource("gnfinder").getPath();
 
         try {
             tf = TempFileHandler.getTempFile("aaa", "bbb");
@@ -37,7 +39,7 @@ public class GNfinder extends JCasAnnotator_ImplBase {
 
             Process process = null;
             try {
-                process = Runtime.getRuntime().exec(sPath + " " + tf.getAbsolutePath() + " -v -f compact");
+                process = Runtime.getRuntime().exec(pathBin + " " + tf.getAbsolutePath() + " -v -f compact");
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(
                         process.getInputStream()));
