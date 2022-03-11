@@ -20,11 +20,11 @@ public class GNfinder extends JCasAnnotator_ImplBase {
 
     public static final String PARAM_ONLY_VERIFICATION = "bVerification";
     @ConfigurationParameter(name = PARAM_ONLY_VERIFICATION, mandatory = false, defaultValue = "true", description = "Use only found Taxa which are validated.")
-    private boolean bVerification;
+    protected boolean bVerification;
 
     public static final String PARAM_BIN_GNFINDER = "pathBin";
     @ConfigurationParameter(name = PARAM_BIN_GNFINDER, mandatory = true, description = "Use only found Taxa which are validated.")
-    private String pathBin;
+    protected String pathBin;
 
 
     @Override
