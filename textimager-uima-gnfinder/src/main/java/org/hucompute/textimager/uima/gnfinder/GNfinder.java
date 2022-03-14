@@ -83,8 +83,12 @@ public class GNfinder extends JCasAnnotator_ImplBase {
                             Taxon nTaxon = new Taxon(aJCas);
                             nTaxon.setBegin(iBegin);
                             nTaxon.setEnd(iEnd);
-                            nTaxon.setIdentifier(bestResult.getString("outlink"));
-                            nTaxon.setValue(bestResult.getString("currentName"));
+                            if (bestResult.has("outlink")) {
+                                nTaxon.setIdentifier(bestResult.getString("outlink"));
+                            }
+                            if (bestResult.has("currentName")) {
+                                nTaxon.setValue(bestResult.getString("currentName"));
+                            }
                             nTaxon.addToIndexes();
 
                             AnnotationComment ac = new AnnotationComment(aJCas);
@@ -121,7 +125,7 @@ public class GNfinder extends JCasAnnotator_ImplBase {
                 e.printStackTrace();
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (tf != null) {
