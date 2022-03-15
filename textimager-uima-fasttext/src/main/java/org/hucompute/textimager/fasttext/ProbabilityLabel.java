@@ -5,6 +5,12 @@ public class ProbabilityLabel {
     private double logProb;
     private double prob;
 
+    ProbabilityLabel(String label, double logProb, double prob) {
+        this.label = label;
+        this.logProb = logProb;
+        this.prob = prob;
+    }
+
     ProbabilityLabel(String label, double logProb) {
         this.label = label;
         this.logProb = logProb;

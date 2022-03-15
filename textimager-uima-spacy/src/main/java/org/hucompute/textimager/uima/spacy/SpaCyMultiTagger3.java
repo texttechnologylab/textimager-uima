@@ -49,7 +49,7 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.5";
+        return "0.6";
     }
 
     @Override
@@ -127,15 +127,16 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
                 int begin = lemma.getInt("idx");
                 int end = begin + lemma.getInt("length");
                 String text = lemma.getString("lemma_text");
+                if (!text.isEmpty()) {
+                    Lemma lemmaAnno = new Lemma(aJCas, begin, end);
+                    lemmaAnno.setValue(text);
 
-                Lemma lemmaAnno = new Lemma(aJCas, begin, end);
-                lemmaAnno.setValue(text);
+                    Token tokenAnno = tokensMap.get(begin).get(end);
+                    tokenAnno.setLemma(lemmaAnno);
+                    lemmaAnno.addToIndexes();
 
-                Token tokenAnno = tokensMap.get(begin).get(end);
-                tokenAnno.setLemma(lemmaAnno);
-                lemmaAnno.addToIndexes();
-
-                addAnnotatorComment(aJCas, lemmaAnno);
+                    addAnnotatorComment(aJCas, lemmaAnno);
+                }
             }
         });
     }
@@ -283,18 +284,20 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
                 int begin = pos.getInt("idx");
                 int end = begin + pos.getInt("length");
                 String tagStr = pos.getString("tag");
+                if (!tagStr.isEmpty()) {
 
-                Type posTag = mappingProvider.getTagType(tagStr);
+                    Type posTag = mappingProvider.getTagType(tagStr);
 
-                POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
-                posAnno.setPosValue(tagStr);
-                POSUtils.assignCoarseValue(posAnno);
+                    POS posAnno = (POS) aJCas.getCas().createAnnotation(posTag, begin, end);
+                    posAnno.setPosValue(tagStr);
+                    POSUtils.assignCoarseValue(posAnno);
 
-                Token tokenAnno = tokensMap.get(begin).get(end);
-                tokenAnno.setPos(posAnno);
-                posAnno.addToIndexes();
+                    Token tokenAnno = tokensMap.get(begin).get(end);
+                    tokenAnno.setPos(posAnno);
+                    posAnno.addToIndexes();
 
-                addAnnotatorComment(aJCas, posAnno);
+                    addAnnotatorComment(aJCas, posAnno);
+                }
             }
         });
     }
@@ -304,37 +307,37 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
             JSONObject dep = (JSONObject) d;
             if (!dep.getBoolean("is_space")) {
                 String depStr = dep.getString("dep").toUpperCase();
+                if (!depStr.isEmpty()) {
+                    int begin = dep.getInt("idx");
+                    int end = begin + dep.getInt("length");
 
-                int begin = dep.getInt("idx");
-                int end = begin + dep.getInt("length");
+                    JSONObject headToken = dep.getJSONObject("head");
+                    if (!headToken.getBoolean("is_space")) {
+                        int beginHead = headToken.getInt("idx");
+                        int endHead = beginHead + headToken.getInt("length");
 
-                JSONObject headToken = dep.getJSONObject("head");
-                if (!headToken.getBoolean("is_space")) {
-                    int beginHead = headToken.getInt("idx");
-                    int endHead = beginHead + headToken.getInt("length");
+                        // Note: if no token is found this may be due to empty lines
+                        try {
+                            Token dependent = tokensMap.get(begin).get(end);
+                            Token governor = tokensMap.get(beginHead).get(endHead);
 
-                    // Note: if no token is found this may be due to empty lines
-                    try {
-                        Token dependent = tokensMap.get(begin).get(end);
-                        Token governor = tokensMap.get(beginHead).get(endHead);
+                            Dependency depAnno;
+                            if (depStr.equals("ROOT")) {
+                                depAnno = new ROOT(aJCas, begin, end);
+                                depAnno.setDependencyType("--");
+                            } else {
+                                depAnno = new Dependency(aJCas, begin, end);
+                                depAnno.setDependencyType(depStr);
+                            }
+                            depAnno.setDependent(dependent);
+                            depAnno.setGovernor(governor);
+                            depAnno.setFlavor(DependencyFlavor.BASIC);
+                            depAnno.addToIndexes();
 
-                        Dependency depAnno;
-                        if (depStr.equals("ROOT")) {
-                            depAnno = new ROOT(aJCas, begin, end);
-                            depAnno.setDependencyType("--");
-                        } else {
-                            depAnno = new Dependency(aJCas, begin, end);
-                            depAnno.setDependencyType(depStr);
+                            addAnnotatorComment(aJCas, depAnno);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-                        depAnno.setDependent(dependent);
-                        depAnno.setGovernor(governor);
-                        depAnno.setFlavor(DependencyFlavor.BASIC);
-                        depAnno.addToIndexes();
-
-                        addAnnotatorComment(aJCas, depAnno);
-                    }
-                    catch (Exception ex) {
-                        ex.printStackTrace();
                     }
                 }
             }

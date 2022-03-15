@@ -10,12 +10,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-base-annotators</artifactId>
+			<artifactId>textimager-uima-types</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hucompute.textimager.uima</groupId>
-			<artifactId>textimager-uima-util</artifactId>
+			<artifactId>textimager-uima-base-annotators</artifactId>
 			<version>${project.version}</version>
 		</dependency>
     </dependencies>

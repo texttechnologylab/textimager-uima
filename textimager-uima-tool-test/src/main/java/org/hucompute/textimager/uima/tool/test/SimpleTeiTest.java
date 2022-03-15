@@ -9,7 +9,6 @@ import org.dkpro.core.api.io.ResourceCollectionReaderBase;
 import org.dkpro.core.api.resources.CompressionMethod;
 import org.dkpro.core.io.xmi.XmiWriter;
 import org.hucompute.textimager.uima.io.tei.TeiReaderTTLab;
-import org.hucompute.textimager.uima.stanza.StanzaTagger;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -35,7 +34,7 @@ public class SimpleTeiTest {
 //		builder.add(createEngineDescription(BreakIteratorSegmenter.class));
 //		builder.add(createEngineDescription(SpaCyMultiTagger.class));
 //		builder.add(createEngineDescription(LanguageToolLemmatizer.class));
-		builder.add(createEngineDescription(StanzaTagger.class));
+		//builder.add(createEngineDescription(StanzaTagger.class));
 		builder.add(createEngineDescription(
 				XmiWriter.class,
 				XmiWriter.PARAM_TARGET_LOCATION,"/resources/corpora/DTA/dta_kernkorpus_2020-07-20/ttlab_xmi_only_stanza",
