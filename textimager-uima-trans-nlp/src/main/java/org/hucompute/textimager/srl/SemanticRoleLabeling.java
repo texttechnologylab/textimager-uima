@@ -1,3 +1,5 @@
+package org.hucompute.textimager.srl;
+
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.http.client.fluent.Content;
