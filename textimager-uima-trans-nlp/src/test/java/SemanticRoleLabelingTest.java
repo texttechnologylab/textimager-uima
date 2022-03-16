@@ -7,6 +7,7 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.hucompute.textimager.srl.SemanticRoleLabeling;
 import org.junit.Test;
 import org.texttechnologylab.annotation.semaf.semafsr.SrLink;
 
