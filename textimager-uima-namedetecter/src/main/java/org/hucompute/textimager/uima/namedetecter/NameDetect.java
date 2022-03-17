@@ -9,7 +9,9 @@ import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.texttechnologylab.annotation.AnnotationComment;
 
+import java.lang.annotation.Annotation;
 import java.util.Iterator;
 
 public class NameDetect extends DockerRestAnnotator {
@@ -66,23 +68,29 @@ public class NameDetect extends DockerRestAnnotator {
                 int end = token.getInt("end");
                 boolean typo = token.getBoolean("typonym");
                 boolean proper = token.getBoolean("proper");
-                String label = "None";
-                if (proper){
-                    label = "Propername";
-                    NamedEntity newAnno = new NamedEntity(aJCas, begin, end);
-                    newAnno.setValue(label);
-                    newAnno.addToIndexes();
-
-                    addAnnotatorComment(aJCas, newAnno);
-                }
                 if (typo){
-                    label = "Typonym";
                     Location loc = new Location(aJCas, begin, end);
                     loc.setValue("LOC");
                     loc.addToIndexes();
                     addAnnotatorComment(aJCas, loc);
+                    if (proper){
+                        AnnotationComment modelAnno = new AnnotationComment(aJCas);
+                        modelAnno.setReference(loc);
+                        modelAnno.setKey("propername");
+                        modelAnno.setValue("1");
+                        addAnnotatorComment(aJCas, modelAnno);
+                    }
                 }
-
+                else if(proper){
+                    NamedEntity newAnno = new NamedEntity(aJCas, begin, end);
+                    newAnno.addToIndexes();
+                    addAnnotatorComment(aJCas, newAnno);
+                    AnnotationComment modelAnno = new AnnotationComment(aJCas);
+                    modelAnno.setReference(newAnno);
+                    modelAnno.setKey("propername");
+                    modelAnno.setValue("1");
+                    addAnnotatorComment(aJCas, modelAnno);
+                }
             }
         }
     }
