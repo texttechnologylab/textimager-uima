@@ -32,7 +32,32 @@ public class NameDetectTest {
         );
         SimplePipeline.runPipeline(cas, nameDetector);
 
-        String[] ents = new String[] { "Propername","LOC", "Propername", "LOC"};
+        String[] ents = new String[] { "LOC", "LOC"};
+        String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
+
+        System.out.println(XmlFormatter.getPrettyString(cas));
+
+        assertArrayEquals(ents, casEnts);
+    }
+
+    @Test
+    public void NameTest2() throws UIMAException {
+
+        JCas cas = JCasFactory.createText("Germany location Angela Merkel", "en");
+
+        Token t1 = new Token(cas, 0, 7);
+        t1.addToIndexes();
+        Token t2 = new Token(cas, 8, 16);
+        t2.addToIndexes();
+        Token t3 = new Token(cas, 17, 30);
+        t3.addToIndexes();
+
+        AnalysisEngineDescription nameDetector = createEngineDescription(NameDetect.class,
+                NameDetect.PARAM_DOCKER_HOST_PORT, 8000
+        );
+        SimplePipeline.runPipeline(cas, nameDetector);
+
+        String[] ents = new String[] {"LOC", null};
         String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
 
         System.out.println(XmlFormatter.getPrettyString(cas));
