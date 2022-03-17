@@ -1,0 +1,21 @@
+FROM python:3.8
+
+WORKDIR /usr/src/app
+
+RUN pip install uvicorn
+RUN pip install fastapi
+RUN pip install pydantic
+
+
+
+EXPOSE 8000
+
+
+COPY ./personennamen.csv_json.gz /data/personennamen.csv_json.gz
+COPY ./geonames.txt /data/geonames.txt
+COPY ./Toponymelist.csv_json.gz /data/Toponymelist.csv_json.gz
+COPY ./Name_detector.py ./Name_detector.py
+
+
+ENTRYPOINT ["uvicorn", "Name_detector:app", "--host", "0.0.0.0", "--port" ,"8000"]
+CMD ["--workers", "1"]
