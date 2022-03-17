@@ -2,6 +2,7 @@ package org.hucompute.textimager.srl;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
@@ -121,8 +122,14 @@ public class SemanticRoleLabeling extends JCasAnnotator_ImplBase {
 
                 }
             }
+
         } catch (IOException e) {
-            throw new AnalysisEngineProcessException(e);
+
+            if (e instanceof NoHttpResponseException) {
+                e.printStackTrace();
+            } else {
+                throw new AnalysisEngineProcessException(e);
+            }
         }
     }
 }

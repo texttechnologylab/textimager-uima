@@ -28,12 +28,12 @@ public class NameDetectTest {
         t3.addToIndexes();
 
         AnalysisEngineDescription nameDetector = createEngineDescription(NameDetect.class,
-                NameDetect.PARAM_DOCKER_HOST_PORT, 8000
+                NameDetect.PARAM_REST_ENDPOINT, "http://rawindra.hucompute.org:8102"
         );
         SimplePipeline.runPipeline(cas, nameDetector);
 
         String[] ents = new String[] { "LOC", "LOC"};
-        String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
 
         System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -58,7 +58,7 @@ public class NameDetectTest {
         SimplePipeline.runPipeline(cas, nameDetector);
 
         String[] ents = new String[] {"LOC", null};
-        String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
 
         System.out.println(XmlFormatter.getPrettyString(cas));
 

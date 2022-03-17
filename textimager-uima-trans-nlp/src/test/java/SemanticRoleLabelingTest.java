@@ -47,7 +47,10 @@ public class SemanticRoleLabelingTest {
             System.out.printf("'%s'\n", token.getCoveredText());
         }
 
-        AnalysisEngine engine = AnalysisEngineFactory.createEngine(SemanticRoleLabeling.class);
+        AnalysisEngine engine = AnalysisEngineFactory.createEngine(SemanticRoleLabeling.class,
+                SemanticRoleLabeling.PARAM_HOST, "rawindra.hucompute.org",
+                SemanticRoleLabeling.PARAM_PORT, 5087
+        );
 
         SimplePipeline.runPipeline(jCas,
                 engine

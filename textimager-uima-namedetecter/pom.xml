@@ -28,13 +28,13 @@
             <groupId>org.hucompute.textimager.uima</groupId>
             <artifactId>textimager-uima-io</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
+            <!--            <scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>org.hucompute.textimager.uima</groupId>
             <artifactId>textimager-uima-spacy</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
+            <!--            <scope>test</scope>-->
         </dependency>
     </dependencies>
 </project>

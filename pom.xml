@@ -135,6 +135,7 @@
 		<module>textimager-uima-util</module>
 		<module>textimager-uima-stanza</module>
 		<module>textimager-uima-io-embeddings</module>
+		<module>textimager-uima-namedetecter</module>
 <!--		<module>textimager-uima-allennlp</module>-->
 <!--		<module>textimager-uima-flair-ner</module>-->
 	<!--	<module>textimager-uima-text2scene</module>-->
