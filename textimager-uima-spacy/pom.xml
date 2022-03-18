@@ -18,7 +18,13 @@
 			<artifactId>textimager-uima-util</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
+        <!-- https://mvnrepository.com/artifact/org.dkpro.core/dkpro-core-tokit-asl -->
+        <dependency>
+            <groupId>org.dkpro.core</groupId>
+            <artifactId>dkpro-core-tokit-asl</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
 			<version>1.1.1</version>
