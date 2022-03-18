@@ -1,8 +1,8 @@
 package org.hucompute.textimager.srl;
 
+import de.tudarmstadt.ukp.dkpro.core.api.metadata.type.DocumentMetaData;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
-import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
@@ -19,7 +19,6 @@ import org.json.JSONObject;
 import org.texttechnologylab.annotation.semaf.isobase.Entity;
 import org.texttechnologylab.annotation.semaf.semafsr.SrLink;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +50,7 @@ public class SemanticRoleLabeling extends JCasAnnotator_ImplBase {
     @Override
     public void process(JCas aJCas) throws AnalysisEngineProcessException {
         try {
-            ArrayList<Sentence> sentences = new ArrayList<>( JCasUtil.select(aJCas, Sentence.class));
+            ArrayList<Sentence> sentences = new ArrayList<>(JCasUtil.select(aJCas, Sentence.class));
             List<String> sentenceStrings = sentences.stream()
                     .map(Annotation::getCoveredText)
                     .map(String::strip)
@@ -60,76 +59,82 @@ public class SemanticRoleLabeling extends JCasAnnotator_ImplBase {
             JSONObject requestJSON = new JSONObject();
             requestJSON.put("sentences", new JSONArray(sentenceStrings));
             requestJSON.put("lang", this.language);
-            Content content = Request.Post(endpoint)
-                    .bodyString(requestJSON.toString(), ContentType.APPLICATION_JSON)
-                    .execute()
-                    .returnContent();
-            JSONArray responseJSON = new JSONArray(content.toString());
-
+            JSONArray responseJSON = new JSONArray();
+            try {
+                Content content = Request.Post(endpoint)
+                        .bodyString(requestJSON.toString(), ContentType.APPLICATION_JSON)
+                        .execute()
+                        .returnContent();
+                responseJSON = new JSONArray(content.toString());
+            } catch (Exception e) {
+                DocumentMetaData dmd = DocumentMetaData.get(aJCas);
+                System.out.println(dmd.getDocumentId() + "\t" + dmd.getDocumentTitle());
+                e.printStackTrace();
+            }
             Map<Integer, Token> tokenBeginMap = JCasUtil.select(aJCas, Token.class).stream().collect(Collectors.toMap(
                     Token::getBegin,
                     Function.identity(),
                     (a, b) -> a
             ));
 
-            for (int sentIdx = 0; sentIdx < sentences.size(); sentIdx++) {
-                int sentenceOffset = sentences.get(sentIdx).getBegin();
+            if (responseJSON.length() > 0) {
 
-                JSONObject sentenceResults = responseJSON.getJSONObject(sentIdx);
-                JSONArray srlResults = sentenceResults.getJSONArray("srl");
-                for (int predIdx = 0; predIdx < srlResults.length(); predIdx++) {
-                    JSONObject predicateJSON = srlResults.getJSONObject(predIdx);
+                for (int sentIdx = 0; sentIdx < sentences.size(); sentIdx++) {
+                    int sentenceOffset = sentences.get(sentIdx).getBegin();
 
-                    JSONArray character_aligned_tags = predicateJSON.getJSONArray("character_aligned_tags");
-                    int predBegin = -1;
-                    for (int tagIdx = 0; tagIdx < character_aligned_tags.length(); tagIdx++) {
-                        JSONArray tagArray = character_aligned_tags.getJSONArray(tagIdx);
-                        int tagBegin = tagArray.getInt(0);
-                        String tagValue = tagArray.getString(2);
+                    JSONObject sentenceResults = responseJSON.getJSONObject(sentIdx);
+                    JSONArray srlResults = sentenceResults.getJSONArray("srl");
+                    for (int predIdx = 0; predIdx < srlResults.length(); predIdx++) {
+                        JSONObject predicateJSON = srlResults.getJSONObject(predIdx);
 
-                        if (tagValue.equals("V")) {
-                            predBegin = tagBegin;
-                            break;
+                        JSONArray character_aligned_tags = predicateJSON.getJSONArray("character_aligned_tags");
+                        int predBegin = -1;
+                        for (int tagIdx = 0; tagIdx < character_aligned_tags.length(); tagIdx++) {
+                            JSONArray tagArray = character_aligned_tags.getJSONArray(tagIdx);
+                            int tagBegin = tagArray.getInt(0);
+                            String tagValue = tagArray.getString(2);
+
+                            if (tagValue.equals("V")) {
+                                predBegin = tagBegin;
+                                break;
+                            }
                         }
-                    }
-                    if (predBegin < 0 || !tokenBeginMap.containsKey(predBegin + sentenceOffset)) {
-                        continue;
-                    }
-
-                    Token predicateToken = tokenBeginMap.get(predBegin + sentenceOffset);
-                    Entity predciateEntity = new Entity(aJCas, predicateToken.getBegin(), predicateToken.getEnd());
-                    aJCas.addFsToIndexes(predciateEntity);
-
-                    for (int tagIdx = 0; tagIdx < character_aligned_tags.length(); tagIdx++) {
-                        JSONArray tagArray = character_aligned_tags.getJSONArray(tagIdx);
-                        int tagBegin = tagArray.getInt(0);
-                        int tagEnd = tagArray.getInt(1);
-                        String tagValue = tagArray.getString(2);
-
-                        if (tagValue.equals("V") || tagValue.equals("O")) {
+                        if (predBegin < 0 || !tokenBeginMap.containsKey(predBegin + sentenceOffset)) {
                             continue;
                         }
 
-                        Entity tagEntity = new Entity(aJCas, tagBegin + sentenceOffset, tagEnd + sentenceOffset);
-                        aJCas.addFsToIndexes(tagEntity);
+                        Token predicateToken = tokenBeginMap.get(predBegin + sentenceOffset);
+                        Entity predciateEntity = new Entity(aJCas, predicateToken.getBegin(), predicateToken.getEnd());
+                        aJCas.addFsToIndexes(predciateEntity);
 
-                        SrLink srLink = new SrLink(aJCas);
-                        srLink.setFigure(predciateEntity);
-                        srLink.setGround(tagEntity);
-                        srLink.setRel_type(tagValue);
-                        aJCas.addFsToIndexes(srLink);
+                        for (int tagIdx = 0; tagIdx < character_aligned_tags.length(); tagIdx++) {
+                            JSONArray tagArray = character_aligned_tags.getJSONArray(tagIdx);
+                            int tagBegin = tagArray.getInt(0);
+                            int tagEnd = tagArray.getInt(1);
+                            String tagValue = tagArray.getString(2);
+
+                            if (tagValue.equals("V") || tagValue.equals("O")) {
+                                continue;
+                            }
+
+                            Entity tagEntity = new Entity(aJCas, tagBegin + sentenceOffset, tagEnd + sentenceOffset);
+                            aJCas.addFsToIndexes(tagEntity);
+
+                            SrLink srLink = new SrLink(aJCas);
+                            srLink.setFigure(predciateEntity);
+                            srLink.setGround(tagEntity);
+                            srLink.setRel_type(tagValue);
+                            aJCas.addFsToIndexes(srLink);
+                        }
+
                     }
-
                 }
             }
-
-        } catch (IOException e) {
-
-            if (e instanceof NoHttpResponseException) {
-                e.printStackTrace();
-            } else {
-                throw new AnalysisEngineProcessException(e);
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new AnalysisEngineProcessException(e);
         }
+
+
     }
 }
