@@ -29,6 +29,8 @@ import org.dkpro.core.tokit.BreakIteratorSegmenter;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.languagetool.Language;
+import org.languagetool.language.LanguageIdentifier;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -41,16 +43,20 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDesc
 
 public class SpaCyMultiTagger3 extends DockerRestAnnotator {
     public static final String PARAM_VARIANT = "variant";
+    public static final String PARAM_LANGUAGE = "language";
+    public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
+    public static final String PARAM_MAX_TEXT_WINDOW = "iMaxTextWindow";
     @ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
     protected String variant;
-
-    public static final String PARAM_LANGUAGE = "language";
     @ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
     protected String language;
-
-    public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
     @ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
     protected String posMappingLocation;
+    public static final String PARAM_DETECT_LANGUAGE = "bDetectLanguage";
+    @ConfigurationParameter(name = PARAM_MAX_TEXT_WINDOW, defaultValue = "100000", mandatory = false)
+    protected int iMaxTextWindow;
+    @ConfigurationParameter(name = PARAM_DETECT_LANGUAGE, defaultValue = "false", mandatory = false)
+    protected boolean bDetectLanguage;
 
     private MappingProvider mappingProvider;
 
@@ -105,7 +111,7 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
         JSONArray lemmas = jsonResult.getJSONObject("multitag").getJSONArray("lemmas");
         JSONArray sents = jsonResult.getJSONObject("multitag").getJSONArray("sents");
 
-        try{
+        try {
             // Sentences
             processSentences(aJCas, sents);
 
@@ -126,8 +132,7 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
             // NER
             processNER(aJCas, ents);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -374,9 +379,20 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
     @Override
     public void process(JCas aJCas) throws AnalysisEngineProcessException {
-        final int maxTextLength = 100000;
+        final int maxTextLength = iMaxTextWindow;
         long textLength = aJCas.getDocumentText().length();
         System.out.println("text length: " + textLength);
+
+        if (aJCas.getDocumentLanguage().equalsIgnoreCase("x-unspecified") || aJCas.getDocumentLanguage() == null && bDetectLanguage) {
+
+            LanguageIdentifier li = new LanguageIdentifier();
+
+            Language l = li.detectLanguage(li.cleanAndShortenText(aJCas.getDocumentText()));
+
+            System.out.println("Detecting: " + l.toString());
+
+            aJCas.setDocumentLanguage(l.getShortCode());
+        }
 
         // abort on empty
         if (textLength < 1) {
@@ -385,6 +401,8 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
         } else if (textLength > maxTextLength) {
 
             long sSize = JCasUtil.select(aJCas, Sentence.class).size();
+
+            JCas nCas = null;
 
             if (sSize == 0) {
 
@@ -399,91 +417,9 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
                             BreakIteratorSegmenter.PARAM_WRITE_FORM, false
                     ));
 
-                    JCas nCas = JCasFactory.createText(aJCas.getDocumentText(), aJCas.getDocumentLanguage());
+                    nCas = JCasFactory.createText(aJCas.getDocumentText(), aJCas.getDocumentLanguage());
 
                     SimplePipeline.runPipeline(nCas, pipeline.createAggregate());
-
-                    long lSentences = JCasUtil.select(nCas, Sentence.class).size();
-
-                    int lStart = 0;
-                    int lLastMax = 0;
-
-                    do {
-
-                        StringBuilder stringBuilder = new StringBuilder();
-
-                        AtomicInteger standoff = new AtomicInteger(0);
-
-                        JCasUtil.selectCovered(nCas, Sentence.class, lStart, lLastMax + maxTextLength).forEach(s -> {
-                            if (standoff.get() == 0 || standoff.get() > s.getBegin()) {
-                                standoff.set(s.getBegin());
-                            }
-
-                            stringBuilder.append(s.getCoveredText());
-
-                        });
-
-                        JCas tCas = null;
-
-                        if (standoff.get() > 0 && lStart == 0) {
-                            tCas = JCasFactory.createText(aJCas.getDocumentText().substring(0, standoff.get()) + "" + stringBuilder.toString());
-                        } else {
-                            tCas = JCasFactory.createText(stringBuilder.toString());
-                        }
-
-
-                        super.process(tCas);
-
-                        int finalLStart = lStart;
-                        JCasUtil.select(tCas, Annotation.class).forEach(t -> {
-
-                            try {
-                                Class c = Class.forName(t.getType().toString());
-
-                                TOP fs = (TOP) c.getConstructor(JCas.class).newInstance(aJCas);
-
-                                t.getType().getFeatures().forEach(f -> {
-
-                                    if (!f.getRange().toString().contains(".Sofa")) {
-
-                                        if (f.getRange().isPrimitive()) {
-                                            if ((f.getShortName().equalsIgnoreCase("begin") || f.getShortName().equalsIgnoreCase("end")) && finalLStart > 0) {
-                                                int iValue = Integer.valueOf(t.getFeatureValueAsString(f));
-                                                iValue += standoff.get();
-                                                fs.setFeatureValueFromString(f, "" + iValue);
-                                            } else {
-                                                fs.setFeatureValueFromString(f, t.getFeatureValueAsString(f));
-                                            }
-                                        } else {
-                                            fs.setFeatureValue(f, t.getFeatureValue(f));
-                                        }
-
-                                    }
-
-
-                                });
-
-                                fs.addToIndexes();
-
-
-                            } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
-                            } catch (NoSuchMethodException e) {
-                                e.printStackTrace();
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            } catch (InstantiationException e) {
-                                e.printStackTrace();
-                            } catch (InvocationTargetException e) {
-                                e.printStackTrace();
-                            }
-
-                        });
-
-                        lLastMax += maxTextLength;
-                        lStart = lLastMax;
-                    }
-                    while (lLastMax < textLength);
 
                 } catch (ResourceInitializationException e) {
                     e.printStackTrace();
@@ -493,10 +429,104 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
             }
 
+            try {
+
+                int lStart = 0;
+                int lLastMax = 0;
+
+                do {
+
+                    AtomicInteger standoff_Begin = new AtomicInteger(0);
+                    AtomicInteger standoff_End = new AtomicInteger(0);
+
+                    JCasUtil.selectCovered(nCas, Sentence.class, lStart, lLastMax + maxTextLength).forEach(s -> {
+                        if (standoff_Begin.get() == 0 || standoff_Begin.get() > s.getBegin()) {
+                            standoff_Begin.set(s.getBegin());
+                        }
+                        if (standoff_End.get() == 0 || standoff_End.get() < s.getEnd()) {
+                            standoff_End.set(s.getEnd());
+                        }
+
+                    });
+
+                    JCas tCas = null;
+
+                    if (standoff_Begin.get() > 0 && lStart == 0) {
+                        tCas = JCasFactory.createText(aJCas.getDocumentText().substring(0, standoff_End.get()), aJCas.getDocumentLanguage());
+                    } else {
+                        tCas = JCasFactory.createText(aJCas.getDocumentText().substring(standoff_Begin.get(), standoff_End.get()), aJCas.getDocumentLanguage());
+                    }
+
+
+                    super.process(tCas);
+
+                    int finalLStart = lStart;
+                    JCasUtil.select(tCas, Annotation.class).forEach(t -> {
+
+                        try {
+                            Class c = Class.forName(t.getType().toString());
+
+                            TOP fs = (TOP) c.getConstructor(JCas.class).newInstance(aJCas);
+
+                            t.getType().getFeatures().forEach(f -> {
+
+                                if (!f.getRange().toString().contains(".Sofa")) {
+
+                                    if (f.getRange().isPrimitive()) {
+                                        if ((f.getShortName().equalsIgnoreCase("begin") || f.getShortName().equalsIgnoreCase("end")) && finalLStart > 0) {
+                                            int iValue = Integer.valueOf(t.getFeatureValueAsString(f));
+                                            iValue += standoff_Begin.get();
+                                            fs.setFeatureValueFromString(f, "" + iValue);
+                                        } else {
+                                            fs.setFeatureValueFromString(f, t.getFeatureValueAsString(f));
+                                        }
+                                    } else {
+
+                                        fs.setFeatureValue(f, t.getFeatureValue(f));
+                                    }
+
+                                }
+
+
+                            });
+
+                            fs.addToIndexes();
+
+
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchMethodException e) {
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InstantiationException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+
+                    });
+
+                    lLastMax += maxTextLength;
+                    lStart = lLastMax;
+                }
+                while (lLastMax < textLength);
+
+            } catch (ResourceInitializationException e) {
+                e.printStackTrace();
+            } catch (UIMAException e) {
+                e.printStackTrace();
+            }
+
+
         } else {
             super.process(aJCas);
         }
 
 
+    }
+
+    private Annotation createAnnotation(JCas pCas, Annotation pAnnotation) {
+        return null;
     }
 }

@@ -31,11 +31,18 @@ public class SpaCyMultiTagger3Test {
         JCas pCas = JCasFactory.createText(FileUtils.getContentFromFile(new File(testFile)));
 
         AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger3.class,
+				SpaCyMultiTagger3.PARAM_DETECT_LANGUAGE, true,
                 SpaCyMultiTagger3.PARAM_REST_ENDPOINT, "http://huaxal.hucompute.org:8106");
 
         SimplePipeline.runPipeline(pCas, spacyMulti);
 
-        JCasUtil.selectAll(pCas).forEach(t -> {
+		JCasUtil.select(pCas, Token.class).forEach(t -> {
+			System.out.println(t.getCoveredText());
+		});
+		JCasUtil.select(pCas, Sentence.class).forEach(t -> {
+			System.out.println(t.getCoveredText());
+		});
+		JCasUtil.select(pCas, Dependency.class).forEach(t -> {
             System.out.println(t);
         });
 
@@ -53,7 +60,7 @@ public class SpaCyMultiTagger3Test {
 				SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, 8000
 		);
 		SimplePipeline.runPipeline(cas, spacyMulti);
-		
+
 		for (Token t : JCasUtil.select(cas, Token.class)) {
 			System.out.println("!~" + t.getCoveredText() + "!~");
 			System.out.println(t);
