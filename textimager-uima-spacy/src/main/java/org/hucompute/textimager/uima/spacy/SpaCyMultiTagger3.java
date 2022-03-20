@@ -19,8 +19,6 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.TOP;
-import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
@@ -31,13 +29,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.languagetool.Language;
 import org.languagetool.language.LanguageIdentifier;
+import org.texttechnologylab.utilities.uima.jcas.JCasTTLabUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 
@@ -429,68 +426,10 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
             }
 
-            try {
-
-                int lStart = 0;
-                int lLastMax = 0;
-
-                do {
-
-                    AtomicInteger standoff_Begin = new AtomicInteger(0);
-                    AtomicInteger standoff_End = new AtomicInteger(0);
-
-                    JCasUtil.selectCovered(nCas, Sentence.class, lStart, lLastMax + maxTextLength).forEach(s -> {
-                        if (standoff_Begin.get() == 0 || standoff_Begin.get() > s.getBegin()) {
-                            standoff_Begin.set(s.getBegin());
-                        }
-                        if (standoff_End.get() == 0 || standoff_End.get() < s.getEnd()) {
-                            standoff_End.set(s.getEnd());
-                        }
-
-                    });
-
-                    JCas tCas = null;
-
-                    if (standoff_Begin.get() > 0 && lStart == 0) {
-                        tCas = JCasFactory.createText(aJCas.getDocumentText().substring(0, standoff_End.get()), aJCas.getDocumentLanguage());
-                    } else {
-                        tCas = JCasFactory.createText(aJCas.getDocumentText().substring(standoff_Begin.get(), standoff_End.get()), aJCas.getDocumentLanguage());
-                    }
+            JCasTTLabUtils.splitAndProcess(aJCas, nCas, iMaxTextWindow, this);
 
 
-                    super.process(tCas);
 
-                    int finalLStart = lStart;
-                    JCasUtil.select(tCas, Annotation.class).forEach(t -> {
-
-                        try {
-
-                            createAnnotation(aJCas, t, standoff_Begin.get(), finalLStart==0);
-
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (NoSuchMethodException e) {
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        } catch (InstantiationException e) {
-                            e.printStackTrace();
-                        } catch (InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
-
-                    });
-
-                    lLastMax += maxTextLength;
-                    lStart = lLastMax;
-                }
-                while (lLastMax < textLength);
-
-            } catch (ResourceInitializationException e) {
-                e.printStackTrace();
-            } catch (UIMAException e) {
-                e.printStackTrace();
-            }
 
 
         } else {
@@ -500,54 +439,6 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
     }
 
-    private TOP createAnnotation(JCas pCas, TOP pAnnotation, int iStandoff, boolean bFirst) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-
-        Class c = Class.forName(pAnnotation.getType().toString());
-
-        TOP fs = (TOP) c.getConstructor(JCas.class).newInstance(pCas);
-
-        pAnnotation.getType().getFeatures().forEach(f -> {
-
-            if (!f.getRange().toString().contains(".Sofa")) {
-
-                if (f.getRange().isPrimitive()) {
-                    if ((f.getShortName().equalsIgnoreCase("begin") || f.getShortName().equalsIgnoreCase("end")) && !bFirst) {
-                        int iValue = Integer.valueOf(pAnnotation.getFeatureValueAsString(f));
-                        iValue += iStandoff;
-                        fs.setFeatureValueFromString(f, "" + iValue);
-                    } else {
-                        fs.setFeatureValueFromString(f, pAnnotation.getFeatureValueAsString(f));
-                    }
-                } else {
-
-                    TOP nAnno = null;
-                    try {
-                        if(pAnnotation.getFeatureValue(f)!=null) {
-                            nAnno = createAnnotation(pCas, (TOP) pAnnotation.getFeatureValue(f), iStandoff, bFirst);
-                            fs.setFeatureValue(f, nAnno);
-                        }
-
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchMethodException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    } catch (InstantiationException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-            }
 
 
-        });
-
-        fs.addToIndexes();
-        return fs;
-
-    }
 }

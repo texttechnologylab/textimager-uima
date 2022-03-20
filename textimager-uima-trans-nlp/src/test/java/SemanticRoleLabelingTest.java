@@ -7,18 +7,56 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.dkpro.core.tokit.BreakIteratorSegmenter;
 import org.hucompute.textimager.srl.SemanticRoleLabeling;
 import org.junit.Test;
 import org.texttechnologylab.annotation.semaf.semafsr.SrLink;
+import org.texttechnologylab.utilities.helper.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SemanticRoleLabelingTest {
 
+
+    //@Test
+    public void bigTest() throws UIMAException, IOException {
+
+        String testFile = SemanticRoleLabelingTest.class.getClassLoader().getResource("1000.txt").getPath();
+        //String testFile = SemanticRoleLabelingTest.class.getClassLoader().getResource("Small.txt").getPath();
+
+        JCas jCas = JCasFactory.createText(FileUtils.getContentFromFile(new File(testFile)));
+
+        AnalysisEngine sentence = AnalysisEngineFactory.createEngine(BreakIteratorSegmenter.class,
+                BreakIteratorSegmenter.PARAM_WRITE_TOKEN, true,
+                BreakIteratorSegmenter.PARAM_WRITE_SENTENCE, true,
+                BreakIteratorSegmenter.PARAM_WRITE_FORM, false
+        );
+        AnalysisEngine engine = AnalysisEngineFactory.createEngine(SemanticRoleLabeling.class,
+                SemanticRoleLabeling.PARAM_HOST, "rawindra.hucompute.org",
+                SemanticRoleLabeling.PARAM_MAX_TEXT_WINDOW, 2,
+                SemanticRoleLabeling.PARAM_PORT, 5087
+        );
+
+        SimplePipeline.runPipeline(jCas, sentence, engine);
+
+        JCasUtil.select(jCas, Sentence.class).forEach(t -> {
+            System.out.println(t);
+
+
+        });
+        System.out.println(JCasUtil.select(jCas, SrLink.class).size());
+
+    }
+
     @Test
     public void testKafka() throws UIMAException {
+
+
         JCas jCas = JCasFactory.createText("Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er sich in seinem Bett zu einem ungeheuren Ungeziefer verwandelt. Über dem Atlantik befand sich ein barometrisches Minimum; es wanderte ostwärts, einem über Russland lagernden Maximum zu, und verriet noch nicht die Neigung, diesem nördlich auszuweichen.");
+
         Sentence kafkaSatz = new Sentence(jCas, 0, 133);
         jCas.addFsToIndexes(kafkaSatz);
         Sentence barometrischerSatz = new Sentence(jCas, 134, 321);

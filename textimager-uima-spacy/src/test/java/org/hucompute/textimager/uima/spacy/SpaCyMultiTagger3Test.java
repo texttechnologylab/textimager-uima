@@ -27,12 +27,13 @@ public class SpaCyMultiTagger3Test {
     public void bigText() throws UIMAException, IOException {
 
         String testFile = SpaCyMultiTagger3Test.class.getClassLoader().getResource("1000.txt").getPath();
+//        String testFile = SpaCyMultiTagger3Test.class.getClassLoader().getResource("Small.txt").getPath();
 
         JCas pCas = JCasFactory.createText(FileUtils.getContentFromFile(new File(testFile)));
 
         AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger3.class,
 				SpaCyMultiTagger3.PARAM_DETECT_LANGUAGE, true,
-				SpaCyMultiTagger3.PARAM_MAX_TEXT_WINDOW, 50000,
+				SpaCyMultiTagger3.PARAM_MAX_TEXT_WINDOW, 90000,
                 SpaCyMultiTagger3.PARAM_REST_ENDPOINT, "http://huaxal.hucompute.org:8106");
 
         SimplePipeline.runPipeline(pCas, spacyMulti);

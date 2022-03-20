@@ -57,6 +57,16 @@
             <artifactId>UIMATypeSystem</artifactId>
             <version>492deec3b5</version>
         </dependency>
+        <dependency>
+            <groupId>org.dkpro.core</groupId>
+            <artifactId>dkpro-core-tokit-asl</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hucompute.textimager.uima</groupId>
+            <artifactId>textimager-uima-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <!--    <properties>-->
