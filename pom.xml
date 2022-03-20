@@ -26,7 +26,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<ttlab.typesystem.version>667e4c061c07d2853243c8cf87fda97404982d8a</ttlab.typesystem.version>
-		<ttlab.utilities.version>1.1.4-uima-2.10.4</ttlab.utilities.version>
+		<ttlab.utilities.version>1.1.7-uima-2.10.4</ttlab.utilities.version>
 		<jcore.types.version>9df8678666856d87b815e79fe100da26f777fb91</jcore.types.version>
 		<log4j.version>2.17.1</log4j.version>
 	</properties>
