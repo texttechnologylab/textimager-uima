@@ -464,34 +464,8 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
                     JCasUtil.select(tCas, Annotation.class).forEach(t -> {
 
                         try {
-                            Class c = Class.forName(t.getType().toString());
 
-                            TOP fs = (TOP) c.getConstructor(JCas.class).newInstance(aJCas);
-
-                            t.getType().getFeatures().forEach(f -> {
-
-                                if (!f.getRange().toString().contains(".Sofa")) {
-
-                                    if (f.getRange().isPrimitive()) {
-                                        if ((f.getShortName().equalsIgnoreCase("begin") || f.getShortName().equalsIgnoreCase("end")) && finalLStart > 0) {
-                                            int iValue = Integer.valueOf(t.getFeatureValueAsString(f));
-                                            iValue += standoff_Begin.get();
-                                            fs.setFeatureValueFromString(f, "" + iValue);
-                                        } else {
-                                            fs.setFeatureValueFromString(f, t.getFeatureValueAsString(f));
-                                        }
-                                    } else {
-
-                                        fs.setFeatureValue(f, t.getFeatureValue(f));
-                                    }
-
-                                }
-
-
-                            });
-
-                            fs.addToIndexes();
-
+                            createAnnotation(aJCas, t, standoff_Begin.get(), finalLStart==0);
 
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
@@ -526,7 +500,54 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
     }
 
-    private Annotation createAnnotation(JCas pCas, Annotation pAnnotation) {
-        return null;
+    private TOP createAnnotation(JCas pCas, TOP pAnnotation, int iStandoff, boolean bFirst) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        Class c = Class.forName(pAnnotation.getType().toString());
+
+        TOP fs = (TOP) c.getConstructor(JCas.class).newInstance(pCas);
+
+        pAnnotation.getType().getFeatures().forEach(f -> {
+
+            if (!f.getRange().toString().contains(".Sofa")) {
+
+                if (f.getRange().isPrimitive()) {
+                    if ((f.getShortName().equalsIgnoreCase("begin") || f.getShortName().equalsIgnoreCase("end")) && !bFirst) {
+                        int iValue = Integer.valueOf(pAnnotation.getFeatureValueAsString(f));
+                        iValue += iStandoff;
+                        fs.setFeatureValueFromString(f, "" + iValue);
+                    } else {
+                        fs.setFeatureValueFromString(f, pAnnotation.getFeatureValueAsString(f));
+                    }
+                } else {
+
+                    TOP nAnno = null;
+                    try {
+                        if(pAnnotation.getFeatureValue(f)!=null) {
+                            nAnno = createAnnotation(pCas, (TOP) pAnnotation.getFeatureValue(f), iStandoff, bFirst);
+                            fs.setFeatureValue(f, nAnno);
+                        }
+
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchMethodException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    } catch (InstantiationException e) {
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+
+
+        });
+
+        fs.addToIndexes();
+        return fs;
+
     }
 }
