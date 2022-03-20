@@ -13,12 +13,45 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
+import org.texttechnologylab.utilities.helper.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
 import static org.junit.Assert.assertArrayEquals;
 
 public class SpaCyMultiTagger3Test {
-	@Test
+
+    @Test
+    public void bigText() throws UIMAException, IOException {
+
+        String testFile = SpaCyMultiTagger3Test.class.getClassLoader().getResource("1000.txt").getPath();
+//        String testFile = SpaCyMultiTagger3Test.class.getClassLoader().getResource("Small.txt").getPath();
+
+        JCas pCas = JCasFactory.createText(FileUtils.getContentFromFile(new File(testFile)));
+
+        AnalysisEngineDescription spacyMulti = createEngineDescription(SpaCyMultiTagger3.class,
+				SpaCyMultiTagger3.PARAM_DETECT_LANGUAGE, true,
+				SpaCyMultiTagger3.PARAM_MAX_TEXT_WINDOW, 90000,
+                SpaCyMultiTagger3.PARAM_REST_ENDPOINT, "http://huaxal.hucompute.org:8106");
+
+        SimplePipeline.runPipeline(pCas, spacyMulti);
+
+		JCasUtil.select(pCas, Token.class).forEach(t -> {
+			System.out.println(t.getCoveredText());
+		});
+		JCasUtil.select(pCas, Sentence.class).forEach(t -> {
+			System.out.println(t.getCoveredText());
+		});
+		JCasUtil.select(pCas, Dependency.class).forEach(t -> {
+            System.out.println(t);
+        });
+
+
+    }
+
+    @Test
 	public void multiTaggerTest_de() throws UIMAException {
 
 // German Tests =======================================================================================================
@@ -29,7 +62,7 @@ public class SpaCyMultiTagger3Test {
 				SpaCyMultiTagger3.PARAM_DOCKER_HOST_PORT, 8000
 		);
 		SimplePipeline.runPipeline(cas, spacyMulti);
-		
+
 		for (Token t : JCasUtil.select(cas, Token.class)) {
 			System.out.println("!~" + t.getCoveredText() + "!~");
 			System.out.println(t);
@@ -50,27 +83,27 @@ public class SpaCyMultiTagger3Test {
 			new int[] { 46, 50 }, //iMac
 			new int[] { 50, 51 } //.
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 			new int[] { 0, 29 },
 			new int[] { 30, 51 }
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"PDS", "VAFIN", "ART", "NN", "APPR", "NE", "$.", "KON", "PDS", "VAFIN", "ART", "NN", "$."
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"SB", "--", "NK", "PD", "PG","NK", "PUNCT", "JU", "SB", "--", "NK", "PD", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "MISC","ORG", "MISC"};
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -114,27 +147,27 @@ public class SpaCyMultiTagger3Test {
 				new int[] { 43, 47 }, //iMac
 				new int[] { 47, 48 } //.
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] { 0, 27 },
 				new int[] { 28, 48 }
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"DT", "VBZ", "DT", "NN", "IN", "NNP", ".", "CC", "DT", "VBZ", "DT", "NNP", "."
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"NSUBJ", "--", "DET", "ATTR", "PREP", "POBJ", "PUNCT", "CC", "NSUBJ", "--", "DET", "ATTR", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "ORG", "ORG" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -176,27 +209,27 @@ public class SpaCyMultiTagger3Test {
 				new int[] { 38, 45 }, //voiture
 				new int[] { 45, 46} //.
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] { 0, 19 },
 				new int[] { 20, 46 }
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"PRON", "VERB", "DET", "NOUN", "PUNCT", "PROPN", "AUX", "VERB", "DET", "NOUN", "PUNCT"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"NSUBJ", "--", "DET", "OBJ", "PUNCT", "NSUBJ", "AUX:TENSE", "--", "DET", "OBJ", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "PER" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -241,7 +274,7 @@ public class SpaCyMultiTagger3Test {
 				new int[] { 41, 47 }, //fløjet
 				new int[] { 47, 48 } //.
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] { 0, 14 },
@@ -249,20 +282,20 @@ public class SpaCyMultiTagger3Test {
 				new int[] { 32, 48 }
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"PRON", "ADV", "DET", "NOUN", "PUNCT", "PRON", "VERB", "DET", "NOUN", "PUNCT", "NOUN", "AUX", "VERB", "PUNCT"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"--", "PUNCT", "DET", "OBJ", "PUNCT", "NSUBJ", "--", "DET", "OBJ", "PUNCT", "NSUBJ", "AUX", "--", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -318,14 +351,14 @@ public class SpaCyMultiTagger3Test {
 				new int[] {97, 98}
 
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] { 0, 42 },
 				new int[] { 43, 98 }
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"VNW|pers|pron|nomin|vol|3|ev|masc", "WW|pv|verl|ev", "VZ|init", "VNW|bez|det|stan|vol|3|ev|prenom|zonder|agr",
@@ -334,16 +367,16 @@ public class SpaCyMultiTagger3Test {
 				"N|soort|ev|basis|zijd|stan", "BW", "WW|inf|vrij|zonder", "VG|onder", "VNW|pers|pron|stan|red|3|ev|onz",
 				"VNW|onbep|grad|stan|vrij|zonder|basis", "BW", "ADJ|vrij|basis|zonder", "WW|pv|tgw|ev", "LET"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"NSUBJ", "--", "CASE", "NMOD:POSS", "OBL", "CC", "NMOD:POSS", "CONJ", "PUNCT", "AUX", "NSUBJ", "NMOD:POSS",
 				"OBJ", "ADVMOD", "--", "MARK", "NSUBJ", "NMOD", "ADVMOD", "CCOMP", "COP", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -386,27 +419,27 @@ public class SpaCyMultiTagger3Test {
 				new int[] {40, 46},
 				new int[] {46, 47}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] { 0, 29 },
 				new int[] { 30, 47 }
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"SCONJ", "ADP", "VERB", "VERB", "PART", "VERB", "PUNCT", "VERB", "DET", "PROPN", "PUNCT"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"MARK", "CASE", "AMOD", "OBL", "ADVMOD", "--", "PUNCT", "--", "DET", "OBJ", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "GPE" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -457,7 +490,7 @@ public class SpaCyMultiTagger3Test {
 				new int[] {72, 80},
 				new int[] {80, 81}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 41},
@@ -465,20 +498,20 @@ public class SpaCyMultiTagger3Test {
 				new int[] {58, 81}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"RD", "S", "E_RD", "S", "V", "RD", "S", "FS", "B", "V", "RD", "S", "FS", "BN", "V", "RD", "S", "FS"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"DET", "NSUBJ", "CASE", "NMOD", "--", "DET", "OBJ", "PUNCT", "ADVMOD", "--", "DET", "NSUBJ", "PUNCT", "ADVMOD", "--", "DET", "OBJ", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] {  };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -526,7 +559,7 @@ public class SpaCyMultiTagger3Test {
 				new int[] {18, 20},
 				new int[] {20, 21}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 9},
@@ -534,20 +567,20 @@ public class SpaCyMultiTagger3Test {
 				new int[] {15, 21}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"PN", "VC", "PN", "VA", "DEC", "NN", "PU", "PN", "NN", "CD", "PU", "PN", "VV", "VA", "PU"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"NSUBJ", "COP", "DEP", "AMOD", "MARK", "--", "PUNCT", "NMOD:POSS", "NSUBJ", "--", "PUNCT", "NSUBJ", "--", "CCOMP", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] {  };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -602,29 +635,29 @@ public class SpaCyMultiTagger3Test {
 				new int[] {31, 33},
 				new int[] {33, 34}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 34}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"名詞-普通名詞-一般", "助詞-格助詞", "動詞-一般", "助詞-接続助詞", "動詞-非自立可能", "助動詞", "助詞-終助詞", "補助記号-句点",
 				"名詞-固有名詞-地名-国", "名詞-普通名詞-一般", "助詞-係助詞", "動詞-一般", "助動詞", "助動詞", "補助記号-句点", "名詞-普通名詞-一般",
 				"助詞-格助詞", "接頭辞", "動詞-非自立可能", "動詞-非自立可能", "助動詞", "補助記号-句点"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"OBJ", "CASE", "ACL", "MARK", "AUX", "AUX", "MARK", "COMPOUND", "COMPOUND", "NSUBJ", "CASE", "ACL", "AUX",
 				"AUX", "PUNCT", "OBJ", "CASE", "COMPOUND", "--", "AUX", "AUX", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "LANGUAGE" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -670,7 +703,7 @@ public class SpaCyMultiTagger3Test {
 				new int[] {51, 57},
 				new int[] {57, 58}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 15},
@@ -678,21 +711,21 @@ public class SpaCyMultiTagger3Test {
 				new int[] {34, 58}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"įv.vns.V.", "bdv.nelygin.mot.vns.V.", "dkt.tikr.vyr.vns.K.", "skyr.", "vksm.asm.sngr.liep.dgs.2.", "prl.Įn.",
 				"įv.vns.Įn.", "skyr.", "dll.", "vksm.asm.tiesiog.es.dgs.3.", "vksm.bndr.", "prv.aukšt.", "skyr."
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"NSUBJ", "--", "NMOD", "PUNCT", "--", "CASE", "OBL:ARG", "PUNCT", "ADVMOD:EMPH", "--", "XCOMP", "ADVMOD", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "PERSON" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -735,7 +768,7 @@ public class SpaCyMultiTagger3Test {
 				new int[] {51, 62},
 				new int[] {62, 63}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 13},
@@ -743,20 +776,20 @@ public class SpaCyMultiTagger3Test {
 				new int[] {39, 63}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"QUB", "FIN", "INTERP", "QUB", "FIN", "PREP", "ADJP", "INTERP", "ADJ", "ADJ", "INTERP"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"ADVMOD:NEG", "--", "PUNCT", "ADVMOD", "--", "CASE", "OBL", "PUNCT", "--", "AMOD", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "placeName" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -806,7 +839,7 @@ public class SpaCyMultiTagger3Test {
 				new int[] {76, 80},
 				new int[] {80, 81}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 24},
@@ -814,20 +847,20 @@ public class SpaCyMultiTagger3Test {
 				new int[] {52, 81}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"PRON", "ADV", "VERB", "NOUN", "PUNCT", "ADP", "PRON", "VERB", "DET", "NOUN", "PUNCT", "PRON", "VERB", "PRON", "VERB", "ADP", "NOUN", "PUNCT"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"NSUBJ", "ADVMOD", "--", "OBJ", "PUNCT", "CASE", "OBL", "--", "DET", "OBJ", "PUNCT", "NSUBJ", "--", "OBJ", "XCOMP", "CASE", "OBL", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] {  };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -883,7 +916,7 @@ public class SpaCyMultiTagger3Test {
 				new int[] {95, 99},
 				new int[] {99, 100}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 18},
@@ -892,22 +925,22 @@ public class SpaCyMultiTagger3Test {
 				new int[] {70, 100}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"Vmip3p", "Qs", "Vmip3p", "Tifsr", "Ncfsrn", "QUEST", "Pp1-sa--------w", "Vmip1s", "Qs", "Pp2-pa--------w", "Vmip1s", "PERIOD", "Vmip3p",
 				"Rgp", "Ncfsry", "Afpfsrn", "PERIOD", "Vmip3p", "Vmnp", "Spsa", "Ncms-n", "Spsa", "Rgp", "QUEST"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"--", "MARK", "CCOMP", "DET", "OBJ", "PUNCT", "EXPL:PV", "--", "MARK", "EXPL:PV", "CCOMP", "PUNCT", "--", "ADVMOD", "OBJ",
 				"AMOD", "PUNCT", "--", "CCOMP", "CASE", "OBL", "CASE", "ADVMOD", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "LANGUAGE" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -953,7 +986,7 @@ public class SpaCyMultiTagger3Test {
 				new int[] {61, 68},
 				new int[] {68, 69} // nice
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 18},
@@ -962,20 +995,20 @@ public class SpaCyMultiTagger3Test {
 				new int[] {53, 69} // nice
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"PRON", "VERB", "PROPN", "PUNCT", "VERB", "ADV", "PUNCT", "ADV", "NOUN", "PUNCT", "PRON", "ADV", "VERB", "PUNCT"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"OBJ", "--", "NSUBJ", "PUNCT", "--", "ADVMOD", "PUNCT", "--", "NSUBJ", "PUNCT", "NSUBJ", "ADVMOD", "--", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "PER" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -1021,7 +1054,7 @@ public class SpaCyMultiTagger3Test {
 				new int[] {56, 60},
 				new int[] {60, 61}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 14},
@@ -1029,20 +1062,20 @@ public class SpaCyMultiTagger3Test {
 				new int[] {44, 61}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"AUX", "ADJ", "PUNCT", "PUNCT", "AUX", "VERB", "ADV", "ADV", "PUNCT", "PRON", "VERB", "NUM", "NOUN", "PUNCT"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"COP", "--", "PUNCT", "PUNCT", "AUX", "--", "ADVMOD", "OBJ", "PUNCT", "NSUBJ", "--", "NUMMOD", "OBJ", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "PER", "MISC" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
 
@@ -1087,27 +1120,27 @@ public class SpaCyMultiTagger3Test {
 				new int[] {35, 39},
 				new int[] {39, 40}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 14},
 				new int[] {15, 40}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"AUX", "VERB", "NOUN", "PUNCT", "PROPN", "VERB", "PRON", "ADP", "PUNCT", "PRON", "AUX", "PRON", "PUNCT"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"AUX", "--", "OBJ", "PUNCT", "NSUBJ", "FLAT", "OBL", "OBL", "PUNCT", "NSUBJ", "COP", "--", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] { "LOC", "ORG" };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 
 		System.out.println(XmlFormatter.getPrettyString(cas));
@@ -1178,30 +1211,30 @@ public class SpaCyMultiTagger3Test {
 				new int[] {133, 139},
 				new int[] {139, 140}
 		};
-		int[][] casTokens = (int[][]) JCasUtil.select(cas, Token.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casTokens = JCasUtil.select(cas, Token.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		int[][] sents = new int[][] {
 				new int[] {0, 23},
 				new int[] {24, 140}
 		};
 
-		int[][] casSents = (int[][]) JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[] { s.getBegin(), s.getEnd() }).toArray(int[][]::new);
+        int[][] casSents = JCasUtil.select(cas, Sentence.class).stream().map(s -> new int[]{s.getBegin(), s.getEnd()}).toArray(int[][]::new);
 
 		String[] pos = new String[] {
 				"NOUN", "PRON", "NOUN", "NOUN", "PUNCT", "CONJ", "VERB", "ADP", "NOUN", "ADP", "NOUN", "PUNCT", "CONJ", "VERB", "ADP", "ADP", "NOUN",
 				"SCONJ", "PROPN", "AUX", "NOUN", "CONJ", "PROPN", "CONJ", "PROPN", "PUNCT", "ADP", "ADJ", "NOUN", "PUNCT"
 		};
-		String[] casPos = (String[]) JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
+        String[] casPos = JCasUtil.select(cas, POS.class).stream().map(p -> p.getPosValue()).toArray(String[]::new);
 
 		String[] deps = new String[] {
 				"NSUBJ", "PPDO", "--", "DOBJ", "PUNCT", "DEP", "NEG", "DEP", "--", "PREP", "IOBJ", "PUNCT", "PREP",
 				"POBJ", "PREP", "PREP", "POBJ", "DEP", "DEP", "AUX", "IOBJ", "CC", "POBJ", "CC", "POBJ", "PUNCT", "PREP",
 				"ATT", "POBJ", "PUNCT"
 		};
-		String[] casDeps = (String[]) JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
+        String[] casDeps = JCasUtil.select(cas, Dependency.class).stream().map(p -> p.getDependencyType()).toArray(String[]::new);
 
 		String[] ents = new String[] {  };
-		String[] casEnts = (String[]) JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
+        String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(p -> p.getValue()).toArray(String[]::new);
 
 
 		assertArrayEquals(tokens, casTokens);

@@ -41,16 +41,22 @@ public class SemanticRoleLabeling extends JCasAnnotator_ImplBase {
 
     protected String endpoint;
 
+    public static final String PARAM_MAX_TEXT_WINDOW = "iMaxTextWindow";
+    @ConfigurationParameter(name = PARAM_MAX_TEXT_WINDOW, defaultValue = "100", mandatory = false)
+    protected int iMaxTextWindow;
+
     @Override
     public void initialize(UimaContext context) throws ResourceInitializationException {
         super.initialize(context);
         endpoint = String.format("http://%s:%d/srl", host, port);
     }
 
-    @Override
-    public void process(JCas aJCas) throws AnalysisEngineProcessException {
+    public void internalProcess(JCas aJCas, int iBegin, int iEnd) throws AnalysisEngineProcessException {
+
         try {
             ArrayList<Sentence> sentences = new ArrayList<>(JCasUtil.select(aJCas, Sentence.class));
+            sentences = new ArrayList<>(sentences.subList(iBegin, iEnd));
+
             List<String> sentenceStrings = sentences.stream()
                     .map(Annotation::getCoveredText)
                     .map(String::strip)
@@ -133,6 +139,41 @@ public class SemanticRoleLabeling extends JCasAnnotator_ImplBase {
         } catch (Exception e) {
             e.printStackTrace();
             throw new AnalysisEngineProcessException(e);
+        }
+
+
+    }
+
+
+    @Override
+    public void process(JCas aJCas) throws AnalysisEngineProcessException {
+
+        ArrayList<Sentence> sentences = new ArrayList<>(JCasUtil.select(aJCas, Sentence.class));
+
+        if (iMaxTextWindow < 0) {
+            internalProcess(aJCas, 0, sentences.size());
+        } else {
+
+            int iCount = 0;
+
+            boolean finish = false;
+            while (!finish) {
+                int iFrom = iMaxTextWindow * iCount;
+                int iTo = (iCount * iMaxTextWindow) + iMaxTextWindow;
+
+                if (((iCount * iMaxTextWindow) + iMaxTextWindow) < sentences.size() - 1) {
+                    System.out.println(iFrom + " --> " + iTo);
+                    internalProcess(aJCas, iFrom, iTo);
+                } else {
+                    internalProcess(aJCas, iFrom, sentences.size());
+                    finish = true;
+                }
+
+                iCount++;
+
+
+            }
+
         }
 
 
