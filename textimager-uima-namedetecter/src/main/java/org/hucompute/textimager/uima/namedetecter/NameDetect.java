@@ -1,6 +1,7 @@
 package org.hucompute.textimager.uima.namedetecter;
 
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Location;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Organization;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -23,7 +24,7 @@ public class NameDetect extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.1";
+        return "0.2";
     }
 
     @Override
@@ -53,6 +54,9 @@ public class NameDetect extends DockerRestAnnotator {
                 tokens.put(tokenObj);
         }
         payload.put("tokens", tokens);
+        String lang = aJCas.getDocumentLanguage();
+        if (lang.equals("x-unspecified")) lang = "en";
+        payload.put("lang", lang);
 
         return payload;
     }
@@ -68,6 +72,7 @@ public class NameDetect extends DockerRestAnnotator {
                 int end = token.getInt("end");
                 boolean typo = token.getBoolean("typonym");
                 boolean proper = token.getBoolean("proper");
+                boolean organization = token.getBoolean("organization");
                 if (typo){
                     Location loc = new Location(aJCas, begin, end);
                     loc.setValue("LOC");
@@ -81,7 +86,20 @@ public class NameDetect extends DockerRestAnnotator {
                         addAnnotatorComment(aJCas, modelAnno);
                     }
                 }
-                else if(proper){
+                if (organization){
+                    Organization organ_new = new Organization(aJCas, begin, end);
+                    organ_new.setValue("ORG");
+                    organ_new.addToIndexes();
+                    addAnnotatorComment(aJCas, organ_new);
+                    if (proper){
+                        AnnotationComment modelAnno = new AnnotationComment(aJCas);
+                        modelAnno.setReference(organ_new);
+                        modelAnno.setKey("propername");
+                        modelAnno.setValue("1");
+                        addAnnotatorComment(aJCas, modelAnno);
+                    }
+                }
+                if(proper & (!organization & !typo)){
                     NamedEntity newAnno = new NamedEntity(aJCas, begin, end);
                     newAnno.addToIndexes();
                     addAnnotatorComment(aJCas, newAnno);
