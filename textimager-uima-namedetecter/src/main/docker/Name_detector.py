@@ -13,7 +13,8 @@ class TextImagerRequest(BaseModel):
 
 class NameDetect(BaseModel):
     tokens: dict
-
+    language_in: bool
+    lang: str
 
 dict_names = {
         "proper": set(),
@@ -63,7 +64,7 @@ def load_words() -> dict:
         dict_names["loaded"] = True
     return dict_names
 
-
+load_words()
 app = FastAPI()
 @app.get("/textimager/ready")
 def get_textimager():
@@ -77,42 +78,48 @@ def process(request: TextImagerRequest) -> NameDetect:
     res_dict = {}
     name_dict = load_words()
     word_list = {}
+    language_found = True
     language = request.lang
     for token in request.tokens:
         word_list[token["text"]] = token
     word_set = set(word_list.keys())
-    proper_intersection = word_set.intersection(name_dict["proper"])
-    typonym_intersection = word_set.intersection(name_dict["typonym"])
     if language in name_dict["organization"]:
-        if not request.label_wikidata:
-            organization_intersection = word_set.intersection(name_dict["organization_not_labels"][language])
-        else:
-            organization_intersection = word_set.intersection(name_dict["organization"][language].values())
-        print(organization_intersection)
-        print(len(name_dict["organization"][language]))
+            if not request.label_wikidata:
+                if language in name_dict["organization_not_labels"]:
+                    organization_intersection = word_set.intersection(name_dict["organization_not_labels"][language])
+                else:
+                    language_found = False
+            else:
+                organization_intersection = word_set.intersection(name_dict["organization"][language].values())
+            print(organization_intersection)
+            print(len(name_dict["organization"][language]))
     else:
+        language_found = False
         organization_intersection = set()
-    print(proper_intersection)
-    print(typonym_intersection)
-    for word in word_list:
-        word_typo = False
-        word_proper = False
-        word_organization =  False
-        if word in proper_intersection:
-            word_proper = True
-        if word in typonym_intersection:
-            word_typo = True
-        if word in organization_intersection:
-            word_organization =True
-        info_dict = {
-            "proper": word_proper,
-            "typonym": word_typo,
-            "organization": word_organization,
-            "begin": word_list[word]["begin"],
-            "end": word_list[word]["end"]
-        }
-        res_dict[word] = info_dict
-    response = NameDetect(tokens=res_dict)
+    if language_found:
+        proper_intersection = word_set.intersection(name_dict["proper"])
+        typonym_intersection = word_set.intersection(name_dict["typonym"])
+        print(proper_intersection)
+        print(typonym_intersection)
+        for word in word_list:
+            word_typo = False
+            word_proper = False
+            word_organization =  False
+            if word in proper_intersection:
+                word_proper = True
+            if word in typonym_intersection:
+                word_typo = True
+            if word in organization_intersection:
+                word_organization =True
+            info_dict = {
+                "proper": word_proper,
+                "typonym": word_typo,
+                "organization": word_organization,
+                "begin": word_list[word]["begin"],
+                "end": word_list[word]["end"]
+            }
+            res_dict[word] = info_dict
+    response = NameDetect(tokens=res_dict, language_in=language_found, lang=request.lang)
     return response
 
 
