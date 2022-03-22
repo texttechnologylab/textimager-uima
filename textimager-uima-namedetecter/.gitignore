@@ -1,3 +1,4 @@
 src/main/docker/geonames.txt
 src/main/docker/personennamen.csv_json.gz
 src/main/docker/Toponymelist.csv_json.gz
+src/main/docker/Organization_names.json
