@@ -8,6 +8,7 @@ import json
 class TextImagerRequest(BaseModel):
     tokens: list
     lang: str
+    label_wikidata: bool
 
 
 class NameDetect(BaseModel):
@@ -18,9 +19,10 @@ dict_names = {
         "proper": set(),
         "typonym": set(),
         "organization": dict(),
+        "organization_not_labels": dict(),
         "loaded": False
     }
-
+labels_not_wikidata = set()
 
 def load_words() -> dict:
     base_dir = "/data"
@@ -28,6 +30,7 @@ def load_words() -> dict:
     typonym_name_dir = f"{base_dir}/Toponymelist.csv_json.gz"
     geo_name_dir = f"{base_dir}/geonames.txt"
     organization_dir = f"{base_dir}/Organization_names.json"
+    organization_label_dir = f"{base_dir}/Organization_labels.json"
     if not dict_names["loaded"]:
         with gzip.open(proper_name_dir, "rt", encoding="UTF-8") as out_file:
             for i in out_file.readlines():
@@ -41,13 +44,22 @@ def load_words() -> dict:
             for i in out_file.readlines():
                 name_geo = i.split("\t")[0]
                 dict_names["typonym"].add(name_geo)
+        with open(organization_label_dir, "r", encoding="UTF-8") as out_file:
+            labels_wikidata = set(json.load(out_file))
         with open(organization_dir, "r", encoding="UTF-8") as out_file:
             organization_names = json.load(out_file)
-            for word in organization_names:
-                for language in organization_names[word]:
+            labels_not_wikidata = set(list(organization_names.keys())).difference(labels_wikidata)
+            print(len(labels_not_wikidata))
+            for qid in organization_names:
+                for language in organization_names[qid]:
                     if language not in dict_names["organization"]:
-                        dict_names["organization"][language] = set()
-                    dict_names["organization"][language].add(organization_names[word][language])
+                        dict_names["organization"][language] = dict()
+                    dict_names["organization"][language][qid] = organization_names[qid][language]
+            for qid in labels_not_wikidata:
+                for language in organization_names[qid]:
+                    if language not in dict_names["organization_not_labels"]:
+                        dict_names["organization_not_labels"][language] = set()
+                    dict_names["organization_not_labels"][language].add(organization_names[qid][language])
         dict_names["loaded"] = True
     return dict_names
 
@@ -72,7 +84,10 @@ def process(request: TextImagerRequest) -> NameDetect:
     proper_intersection = word_set.intersection(name_dict["proper"])
     typonym_intersection = word_set.intersection(name_dict["typonym"])
     if language in name_dict["organization"]:
-        organization_intersection = word_set.intersection(name_dict["organization"][language])
+        if not request.label_wikidata:
+            organization_intersection = word_set.intersection(name_dict["organization_not_labels"][language])
+        else:
+            organization_intersection = word_set.intersection(name_dict["organization"][language].values())
         print(organization_intersection)
         print(len(name_dict["organization"][language]))
     else:

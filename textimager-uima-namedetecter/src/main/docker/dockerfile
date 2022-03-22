@@ -15,6 +15,7 @@ COPY ./personennamen.csv_json.gz /data/personennamen.csv_json.gz
 COPY ./geonames.txt /data/geonames.txt
 COPY ./Toponymelist.csv_json.gz /data/Toponymelist.csv_json.gz
 COPY ./Organization_names.json /data/Organization_names.json
+COPY ./Organization_labels.json /data/Organization_labels.json
 COPY ./Name_detector.py ./Name_detector.py
 
 

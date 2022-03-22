@@ -35,7 +35,7 @@ public class NameDetectTest {
 //        );
         SimplePipeline.runPipeline(cas, nameDetector);
 
-        String[] ents = new String[] { "ORG", "LOC", "ORG", "LOC"};
+        String[] ents = new String[] { "ORG", "LOC", "LOC"};
         String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
 
         System.out.println(XmlFormatter.getPrettyString(cas));
