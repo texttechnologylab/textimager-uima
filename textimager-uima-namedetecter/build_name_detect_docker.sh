@@ -1,1 +1,1 @@
-docker build -t textimager-uima-service-name_detect:0.2 src/main/docker
+docker build -t textimager-uima-service-name_detect:0.3.1 src/main/docker

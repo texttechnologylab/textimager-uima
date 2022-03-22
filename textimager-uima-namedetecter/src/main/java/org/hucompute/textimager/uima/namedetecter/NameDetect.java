@@ -24,7 +24,7 @@ public class NameDetect extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.2";
+        return "0.3.1";
     }
 
     @Override
@@ -53,16 +53,28 @@ public class NameDetect extends DockerRestAnnotator {
                 tokenObj.put("text", token.getCoveredText());
                 tokens.put(tokenObj);
         }
+        if (tokens.isEmpty()){
+            throw new AnalysisEngineProcessException(new Exception("No tokens found. Tokenize your document"));
+        }
         payload.put("tokens", tokens);
         String lang = aJCas.getDocumentLanguage();
         if (lang.equals("x-unspecified")) lang = "en";
         payload.put("lang", lang);
+        payload.put("label_wikidata", false);
 
         return payload;
     }
 
     @Override
     protected void updateCAS(JCas aJCas, JSONObject jsonResult) throws AnalysisEngineProcessException {
+        if (jsonResult.has("language_in"))
+        {
+            boolean result = jsonResult.getBoolean("language_in");
+            if (!result){
+                String lang = jsonResult.getString("lang");
+                throw new AnalysisEngineProcessException(new Exception(String.format("Your language %s is not supported", lang)));
+            }
+        }
         if (jsonResult.has("tokens")) {
             JSONObject tokens = jsonResult.getJSONObject("tokens");
             for (Iterator<String> it = tokens.keys(); it.hasNext(); ) {

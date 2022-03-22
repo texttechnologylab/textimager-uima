@@ -52,7 +52,7 @@ public class NameDetectTest {
     @Test
     public void NameTest() throws UIMAException {
 
-        JCas cas = JCasFactory.createText("Germany location Angela");
+        JCas cas = JCasFactory.createText("Germany location Angela", "en");
 
         Token t1 = new Token(cas, 0, 7);
         t1.addToIndexes();
@@ -61,20 +61,10 @@ public class NameDetectTest {
         Token t3 = new Token(cas, 17, 23);
         t3.addToIndexes();
 
-        AnalysisEngineDescription nameDetector = createEngineDescription(NameDetect.class,
-                NameDetect.PARAM_REST_ENDPOINT, "http://rawindra.hucompute.org:8102"
-        );
 //        AnalysisEngineDescription nameDetector = createEngineDescription(NameDetect.class,
-//                NameDetect.PARAM_DOCKER_HOST_PORT, 8000
+//                NameDetect.PARAM_REST_ENDPOINT, "http://rawindra.hucompute.org:8102"
 //        );
 
-        long lStart = System.currentTimeMillis();
-
-        SimplePipeline.runPipeline(cas, nameDetector);
-
-        long lEnd = System.currentTimeMillis();
-
-        String[] ents = new String[]{"ORG", "LOC", "ORG", "LOC"};
         String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
 
         System.out.println(XmlFormatter.getPrettyString(cas));
