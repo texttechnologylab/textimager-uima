@@ -24,7 +24,7 @@ public class NameDetect extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.2";
+        return "0.3";
     }
 
     @Override
@@ -57,6 +57,7 @@ public class NameDetect extends DockerRestAnnotator {
         String lang = aJCas.getDocumentLanguage();
         if (lang.equals("x-unspecified")) lang = "en";
         payload.put("lang", lang);
+        payload.put("label_wikidata", false);
 
         return payload;
     }
