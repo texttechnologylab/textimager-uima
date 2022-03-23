@@ -162,5 +162,6 @@
 		<module>textimager-uima-splitter</module>
 		<module>textimager-uima-local</module>
 		<module>textimager-uima-trans-nlp</module>
+		<module>textimager-uima-text2wiki</module>
 	</modules>
 </project>
