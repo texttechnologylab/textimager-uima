@@ -1,6 +1,7 @@
 package org.hucompute.textimager.uima.namedetecter;
 
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Location;
+import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Person;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.Organization;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
@@ -24,7 +25,7 @@ public class NameDetect extends DockerRestAnnotator {
 
     @Override
     protected String getDefaultDockerImageTag() {
-        return "0.3.1";
+        return "0.3.2";
     }
 
     @Override
@@ -84,6 +85,7 @@ public class NameDetect extends DockerRestAnnotator {
                 int end = token.getInt("end");
                 boolean typo = token.getBoolean("typonym");
                 boolean proper = token.getBoolean("proper");
+                boolean person = token.getBoolean("person");
                 boolean organization = token.getBoolean("organization");
                 if (typo){
                     Location loc = new Location(aJCas, begin, end);
@@ -111,7 +113,20 @@ public class NameDetect extends DockerRestAnnotator {
                         addAnnotatorComment(aJCas, modelAnno);
                     }
                 }
-                if(proper & (!organization & !typo)){
+                if (person){
+                    Person person_new = new Person(aJCas, begin, end);
+                    person_new.setValue("PER");
+                    person_new.addToIndexes();
+                    addAnnotatorComment(aJCas, person_new);
+                    if (proper){
+                        AnnotationComment modelAnno = new AnnotationComment(aJCas);
+                        modelAnno.setReference(person_new);
+                        modelAnno.setKey("propername");
+                        modelAnno.setValue("1");
+                        addAnnotatorComment(aJCas, modelAnno);
+                    }
+                }
+                if(proper & (!organization & !typo & !person)){
                     NamedEntity newAnno = new NamedEntity(aJCas, begin, end);
                     newAnno.addToIndexes();
                     addAnnotatorComment(aJCas, newAnno);

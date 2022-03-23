@@ -10,7 +10,7 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.hucompute.textimager.uima.util.XmlFormatter;
 import org.junit.Test;
-import org.texttechnologylab.utilities.helper.FileUtils;
+//import org.texttechnologylab.utilities.helper.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,34 +19,34 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDesc
 import static org.junit.Assert.assertArrayEquals;
 
 public class NameDetectTest {
-    @Test
-    public void TimeTest() throws UIMAException, IOException {
-
-        String testFile = NameDetectTest.class.getClassLoader().getResource("1000.txt").getPath();
-//        String testFile = NameDetectTest.class.getClassLoader().getResource("City.txt").getPath();
-//        String testFile = NameDetectTest.class.getClassLoader().getResource("Small.txt").getPath();
-
-        JCas cas = JCasFactory.createText(FileUtils.getContentFromFile(new File(testFile)), "de");
-
-        AnalysisEngineDescription nameDetector = createEngineDescription(NameDetect.class,
-                NameDetect.PARAM_REST_ENDPOINT, "http://rawindra.hucompute.org:8102"
-        );
+//    @Test
+//    public void TimeTest() throws UIMAException, IOException {
+//
+//        String testFile = NameDetectTest.class.getClassLoader().getResource("1000.txt").getPath();
+////        String testFile = NameDetectTest.class.getClassLoader().getResource("City.txt").getPath();
+////        String testFile = NameDetectTest.class.getClassLoader().getResource("Small.txt").getPath();
+//
+//        JCas cas = JCasFactory.createText(FileUtils.getContentFromFile(new File(testFile)), "de");
+//
 //        AnalysisEngineDescription nameDetector = createEngineDescription(NameDetect.class,
-//                NameDetect.PARAM_DOCKER_HOST_PORT, 8000
+//                NameDetect.PARAM_REST_ENDPOINT, "http://rawindra.hucompute.org:8102"
 //        );
-
-        long lStart = System.currentTimeMillis();
-
-        SimplePipeline.runPipeline(cas, nameDetector);
-
-        long lEnd = System.currentTimeMillis();
-
-        System.out.println(XmlFormatter.getPrettyString(cas));
-
-        System.out.println((lEnd - lStart) / 60000);
-
-        System.out.println("End");
-    }
+////        AnalysisEngineDescription nameDetector = createEngineDescription(NameDetect.class,
+////                NameDetect.PARAM_DOCKER_HOST_PORT, 8000
+////        );
+//
+//        long lStart = System.currentTimeMillis();
+//
+//        SimplePipeline.runPipeline(cas, nameDetector);
+//
+//        long lEnd = System.currentTimeMillis();
+//
+//        System.out.println(XmlFormatter.getPrettyString(cas));
+//
+//        System.out.println((lEnd - lStart) / 60000);
+//
+//        System.out.println("End");
+//    }
 
 
     @Test
@@ -64,12 +64,14 @@ public class NameDetectTest {
 //        AnalysisEngineDescription nameDetector = createEngineDescription(NameDetect.class,
 //                NameDetect.PARAM_REST_ENDPOINT, "http://rawindra.hucompute.org:8102"
 //        );
-
+        AnalysisEngineDescription nameDetector = createEngineDescription(NameDetect.class,
+                NameDetect.PARAM_DOCKER_HOST_PORT, 8000
+        );
+        SimplePipeline.runPipeline(cas, nameDetector);
+        String[] ents = new String[] {"ORG", "LOC", "LOC"};
         String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
 
         System.out.println(XmlFormatter.getPrettyString(cas));
-
-        System.out.println((lEnd - lStart) % 60000);
 
         assertArrayEquals(ents, casEnts);
     }
@@ -91,7 +93,7 @@ public class NameDetectTest {
         );
         SimplePipeline.runPipeline(cas, nameDetector);
 
-        String[] ents = new String[] {"ORG", "LOC", null};
+        String[] ents = new String[] {"ORG", "LOC", "PER"};
         String[] casEnts = JCasUtil.select(cas, NamedEntity.class).stream().map(NamedEntity::getValue).toArray(String[]::new);
 
         System.out.println(XmlFormatter.getPrettyString(cas));
