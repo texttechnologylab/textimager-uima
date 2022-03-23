@@ -21,6 +21,7 @@ dict_names = {
         "typonym": set(),
         "organization": dict(),
         "organization_not_labels": dict(),
+        "person": dict(),
         "loaded": False
     }
 labels_not_wikidata = set()
@@ -32,6 +33,7 @@ def load_words() -> dict:
     geo_name_dir = f"{base_dir}/geonames.txt"
     organization_dir = f"{base_dir}/Organization_names.json"
     organization_label_dir = f"{base_dir}/Organization_labels.json"
+    person_dir = f"{base_dir}/Person_names.json"
     if not dict_names["loaded"]:
         with gzip.open(proper_name_dir, "rt", encoding="UTF-8") as out_file:
             for i in out_file.readlines():
@@ -61,6 +63,14 @@ def load_words() -> dict:
                     if language not in dict_names["organization_not_labels"]:
                         dict_names["organization_not_labels"][language] = set()
                     dict_names["organization_not_labels"][language].add(organization_names[qid][language])
+        with open(person_dir, "r", encoding="UTF-8") as out_file:
+            person_names = json.load(out_file)
+            print(len(person_names))
+            for qid in person_names:
+                for language in person_names[qid]:
+                    if language not in dict_names["person"]:
+                        dict_names["person"][language] = set()
+                    dict_names["person"][language].add(person_names[qid][language])
         dict_names["loaded"] = True
     return dict_names
 
@@ -83,7 +93,7 @@ def process(request: TextImagerRequest) -> NameDetect:
     for token in request.tokens:
         word_list[token["text"]] = token
     word_set = set(word_list.keys())
-    if language in name_dict["organization"]:
+    if language in name_dict["organization"] and language in name_dict["person"]:
             if not request.label_wikidata:
                 if language in name_dict["organization_not_labels"]:
                     organization_intersection = word_set.intersection(name_dict["organization_not_labels"][language])
@@ -99,22 +109,27 @@ def process(request: TextImagerRequest) -> NameDetect:
     if language_found:
         proper_intersection = word_set.intersection(name_dict["proper"])
         typonym_intersection = word_set.intersection(name_dict["typonym"])
+        person_intersection = word_set.intersection(name_dict["person"][language])
         print(proper_intersection)
         print(typonym_intersection)
         for word in word_list:
             word_typo = False
             word_proper = False
-            word_organization =  False
+            word_organization = False
+            word_person = False
             if word in proper_intersection:
                 word_proper = True
             if word in typonym_intersection:
                 word_typo = True
             if word in organization_intersection:
                 word_organization =True
+            if word in person_intersection:
+                word_person = True
             info_dict = {
                 "proper": word_proper,
                 "typonym": word_typo,
                 "organization": word_organization,
+                "person": word_person,
                 "begin": word_list[word]["begin"],
                 "end": word_list[word]["end"]
             }
