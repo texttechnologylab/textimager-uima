@@ -128,7 +128,8 @@ public class SemanticRoleLabelingTest {
                 SemanticRoleLabeling.PARAM_ENDPOINTS, new String[]{
                         "http://localhost:5087/srl",
                         "http://localhost:5088/srl"
-                }
+                },
+                SemanticRoleLabeling.PARAM_BATCH_SIZE, 1
         );
 
         SimplePipeline.runPipeline(jCas, engine);
