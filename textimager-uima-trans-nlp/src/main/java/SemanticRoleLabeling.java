@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import org.texttechnologylab.annotation.semaf.isobase.Entity;
 import org.texttechnologylab.annotation.semaf.semafsr.SrLink;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,18 @@ public class SemanticRoleLabeling extends JCasAnnotator_ImplBase {
             "language. For currently supported languages, see the apidocs of the endpoints.")
     protected String language;
 
+    public static final String PARAM_ALIGNMENT_METHOD = "alignmentMethod";
+    @ConfigurationParameter(name = PARAM_ALIGNMENT_METHOD, mandatory = false, defaultValue = "itermax")
+    protected String alignmentMethod;
+
+    public static final String PARAM_TOKEN_TYPE = "alignmentTokenType";
+    @ConfigurationParameter(
+            name = PARAM_TOKEN_TYPE, mandatory = false, defaultValue = "word",
+            description = "Choose 'bpe' for languages where SentencePiece (or other) segmentation makes sense, " +
+                    "otherwise choose 'word' (default)."
+    )
+    protected String alignmentTokenType;
+
     public static final String PARAM_BATCH_SIZE = "batchSize";
     @ConfigurationParameter(
             name = PARAM_BATCH_SIZE,
@@ -54,6 +67,22 @@ public class SemanticRoleLabeling extends JCasAnnotator_ImplBase {
         super.initialize(context);
         executorService = Executors.newFixedThreadPool(endpoints.length);
         endpointQueue.addAll(List.of(endpoints));
+
+        if (!List.of("fwd", "rev", "inter", "itermax").contains(alignmentMethod))
+            throw new ResourceInitializationException(
+                    new InvalidParameterException(
+                            String.format("Invalid alignment method '%s', valid choices are: fwd, rev, inter, itermax.",
+                                    alignmentMethod)
+                    )
+            );
+
+        if (!List.of("word", "bpe").contains(alignmentTokenType))
+            throw new ResourceInitializationException(
+                    new InvalidParameterException(
+                            String.format("Invalid alignment method '%s', valid choices are: word, bpe.",
+                                    alignmentTokenType)
+                    )
+            );
     }
 
     @Override
@@ -81,7 +110,7 @@ public class SemanticRoleLabeling extends JCasAnnotator_ImplBase {
         // Create Callables for each sentence chunk, wrap them in a future and start them in their own thread
         ArrayList<Future<String>> tasks = new ArrayList<>();
         for (List<String> chunk : chunkedSentences) {
-            tasks.add(executorService.submit(new SRLCallable(chunk, this.language)));
+            tasks.add(executorService.submit(new SRLCallable(chunk)));
         }
 
         // Collect all response strings, which are serialized JSON arrays, in a single list
@@ -182,10 +211,12 @@ public class SemanticRoleLabeling extends JCasAnnotator_ImplBase {
 
         private final JSONObject requestJSON;
 
-        public SRLCallable(List<String> sentences, String language) {
+        public SRLCallable(List<String> sentences) {
             requestJSON = new JSONObject();
             requestJSON.put("sentences", new JSONArray(sentences));
             requestJSON.put("lang", language);
+            requestJSON.put("alignment_method", alignmentMethod);
+            requestJSON.put("alignment_token_type", alignmentTokenType);
         }
 
         @Override
