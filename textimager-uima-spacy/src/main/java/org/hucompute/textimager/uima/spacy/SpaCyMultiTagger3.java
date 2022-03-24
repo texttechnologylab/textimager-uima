@@ -9,36 +9,51 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.DependencyFlavor;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.ROOT;
+import org.apache.uima.UIMAException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.Type;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.factory.AggregateBuilder;
+import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.dkpro.core.api.lexmorph.pos.POSUtils;
 import org.dkpro.core.api.resources.MappingProvider;
 import org.dkpro.core.api.resources.MappingProviderFactory;
+import org.dkpro.core.tokit.BreakIteratorSegmenter;
 import org.hucompute.textimager.uima.base.DockerRestAnnotator;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.languagetool.Language;
+import org.languagetool.language.LanguageIdentifier;
+import org.texttechnologylab.utilities.uima.jcas.JCasTTLabUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDescription;
+
 public class SpaCyMultiTagger3 extends DockerRestAnnotator {
     public static final String PARAM_VARIANT = "variant";
+    public static final String PARAM_LANGUAGE = "language";
+    public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
+    public static final String PARAM_MAX_TEXT_WINDOW = "iMaxTextWindow";
     @ConfigurationParameter(name = PARAM_VARIANT, mandatory = false)
     protected String variant;
-
-    public static final String PARAM_LANGUAGE = "language";
     @ConfigurationParameter(name = PARAM_LANGUAGE, mandatory = false)
     protected String language;
-
-    public static final String PARAM_POS_MAPPING_LOCATION = "posMappingLocation";
     @ConfigurationParameter(name = PARAM_POS_MAPPING_LOCATION, mandatory = false)
     protected String posMappingLocation;
+    public static final String PARAM_DETECT_LANGUAGE = "bDetectLanguage";
+    @ConfigurationParameter(name = PARAM_MAX_TEXT_WINDOW, defaultValue = "100000", mandatory = false)
+    protected int iMaxTextWindow;
+    @ConfigurationParameter(name = PARAM_DETECT_LANGUAGE, defaultValue = "false", mandatory = false)
+    protected boolean bDetectLanguage;
 
     private MappingProvider mappingProvider;
 
@@ -93,7 +108,7 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
         JSONArray lemmas = jsonResult.getJSONObject("multitag").getJSONArray("lemmas");
         JSONArray sents = jsonResult.getJSONObject("multitag").getJSONArray("sents");
 
-        try{
+        try {
             // Sentences
             processSentences(aJCas, sents);
 
@@ -114,8 +129,7 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
             // NER
             processNER(aJCas, ents);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -362,15 +376,69 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
 
     @Override
     public void process(JCas aJCas) throws AnalysisEngineProcessException {
+        final int maxTextLength = iMaxTextWindow;
         long textLength = aJCas.getDocumentText().length();
         System.out.println("text length: " + textLength);
+
+        if (aJCas.getDocumentLanguage().equalsIgnoreCase("x-unspecified") || aJCas.getDocumentLanguage() == null && bDetectLanguage) {
+
+            LanguageIdentifier li = new LanguageIdentifier();
+
+            Language l = li.detectLanguage(li.cleanAndShortenText(aJCas.getDocumentText()));
+
+            System.out.println("Detecting: " + l.toString());
+
+            aJCas.setDocumentLanguage(l.getShortCode());
+        }
 
         // abort on empty
         if (textLength < 1) {
             System.out.println("skipping spacy due to text length < 1");
             return;
+        } else if (textLength > maxTextLength) {
+
+            long sSize = JCasUtil.select(aJCas, Sentence.class).size();
+
+            JCas nCas = null;
+
+            if (sSize == 0) {
+
+                // Fallback --> Creating Sentence
+                AggregateBuilder pipeline = new AggregateBuilder();
+
+
+                try {
+                    pipeline.add(createEngineDescription(BreakIteratorSegmenter.class,
+                            BreakIteratorSegmenter.PARAM_WRITE_TOKEN, false,
+                            BreakIteratorSegmenter.PARAM_WRITE_SENTENCE, true,
+                            BreakIteratorSegmenter.PARAM_WRITE_FORM, false
+                    ));
+
+                    nCas = JCasFactory.createText(aJCas.getDocumentText(), aJCas.getDocumentLanguage());
+
+                    SimplePipeline.runPipeline(nCas, pipeline.createAggregate());
+
+                } catch (ResourceInitializationException e) {
+                    e.printStackTrace();
+                } catch (UIMAException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            JCasTTLabUtils.splitAndProcess(aJCas, nCas, iMaxTextWindow, this);
+
+
+
+
+
+        } else {
+            super.process(aJCas);
         }
 
-        super.process(aJCas);
+
     }
+
+
+
 }

@@ -1,0 +1,23 @@
+FROM python:3.8
+
+WORKDIR /usr/src/app
+
+COPY ./models/simple-bert5_strict-strict-0.15_2021-12-02_11-59-16-882162_dewiki-v8-token-nopunct.model.hs.bin /mnt/rawindra/vol/public/baumartz/text2wiki/data/text_classifier/2021-11-26/2021-12-02_08-34/simple-bert5/strict-strict-0.15/2022_01_25/simple-bert5_strict-strict-0.15_2021-12-02_11-59-16-882162_dewiki-v8-token-nopunct.model.hs.bin
+COPY ./models/simple-bert5_strict-strict-0.15_2021-12-02_11-59-16-882162_dewiki-v8-token-nopunct.model.ova.bin /mnt/rawindra/vol/public/baumartz/text2wiki/data/text_classifier/2021-11-26/2021-12-02_08-34/simple-bert5/strict-strict-0.15/2022_01_25/simple-bert5_strict-strict-0.15_2021-12-02_11-59-16-882162_dewiki-v8-token-nopunct.model.ova.bin
+
+COPY ./models/simple-bert5_strict-strict-0.15_2021-12-02_11-59-16-882162_enwiki-v8-token.model.hs.bin /mnt/rawindra/vol/public/baumartz/text2wiki/data/text_classifier/2021-11-26/2021-12-02_08-34/simple-bert5/strict-strict-0.15/2022_02_08/simple-bert5_strict-strict-0.15_2021-12-02_11-59-16-882162_enwiki-v8-token.model.hs.bin
+COPY ./models/simple-bert5_strict-strict-0.15_2021-12-02_11-59-16-882162_enwiki-v8-token.model.ova.bin /mnt/rawindra/vol/public/baumartz/text2wiki/data/text_classifier/2021-11-26/2021-12-02_08-34/simple-bert5/strict-strict-0.15/2022_02_08/simple-bert5_strict-strict-0.15_2021-12-02_11-59-16-882162_enwiki-v8-token.model.ova.bin
+
+RUN pip install setuptools wheel
+
+COPY ./requirements.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+EXPOSE 8000
+
+ENV TEXTIMAGER_SPACY_USE_GPU=False
+
+COPY ./text2wiki_service.py ./text2wiki_service.py
+
+ENTRYPOINT ["uvicorn", "text2wiki_service:app", "--host", "0.0.0.0", "--port" ,"8000"]
+CMD ["--workers", "1"]
