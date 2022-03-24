@@ -377,6 +377,9 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
     @Override
     public void process(JCas aJCas) throws AnalysisEngineProcessException {
         final int maxTextLength = iMaxTextWindow;
+        if (aJCas.getDocumentText() == null) {
+            return;
+        }
         long textLength = aJCas.getDocumentText().length();
         System.out.println("text length: " + textLength);
 
