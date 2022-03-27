@@ -383,15 +383,17 @@ public class SpaCyMultiTagger3 extends DockerRestAnnotator {
         long textLength = aJCas.getDocumentText().length();
         System.out.println("text length: " + textLength);
 
-        if (aJCas.getDocumentLanguage().equalsIgnoreCase("x-unspecified") || aJCas.getDocumentLanguage() == null && bDetectLanguage) {
+        if (bDetectLanguage) {
+            if (aJCas.getDocumentLanguage().equalsIgnoreCase("x-unspecified") || aJCas.getDocumentLanguage() == null) {
 
-            LanguageIdentifier li = new LanguageIdentifier();
+                LanguageIdentifier li = new LanguageIdentifier();
 
-            Language l = li.detectLanguage(li.cleanAndShortenText(aJCas.getDocumentText()));
+                Language l = li.detectLanguage(li.cleanAndShortenText(aJCas.getDocumentText()));
 
-            System.out.println("Detecting: " + l.toString());
+                System.out.println("Detecting: " + l.toString());
 
-            aJCas.setDocumentLanguage(l.getShortCode());
+                aJCas.setDocumentLanguage(l.getShortCode());
+            }
         }
 
         // abort on empty
