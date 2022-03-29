@@ -76,7 +76,7 @@ public class EnglishSentimentBertTest {
 		AnalysisEngineDescription bertSentiment = createEngineDescription(SentimentBert.class,
 				SentimentBert.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
 				SentimentBert.PARAM_MODEL_NAME, "cardiffnlp/twitter-roberta-base-sentiment",
-				SentimentBert.PARAM_MODEL_MAX_LENGTH, 514,
+				SentimentBert.PARAM_MODEL_MAX_LENGTH, 512,
 				SentimentBert.PARAM_SENTIMENT_MAPPINGS, new String[] {
 						"LABEL_2;1",
 						"LABEL_1;0",
@@ -114,7 +114,7 @@ public class EnglishSentimentBertTest {
 		AnalysisEngineDescription bertSentiment = createEngineDescription(SentimentBert.class,
 				SentimentBert.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
 				SentimentBert.PARAM_MODEL_NAME, "siebert/sentiment-roberta-large-english",
-				SentimentBert.PARAM_MODEL_MAX_LENGTH, 514,
+				SentimentBert.PARAM_MODEL_MAX_LENGTH, 512,
 				SentimentBert.PARAM_SENTIMENT_MAPPINGS, new String[] {
 						"NEGATIVE;-1",
 						"POSITIVE;1"
@@ -151,7 +151,7 @@ public class EnglishSentimentBertTest {
 		AnalysisEngineDescription bertSentiment = createEngineDescription(SentimentBert.class,
 				SentimentBert.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
 				SentimentBert.PARAM_MODEL_NAME, "finiteautomata/bertweet-base-sentiment-analysis",
-				SentimentBert.PARAM_MODEL_MAX_LENGTH, 130,
+				SentimentBert.PARAM_MODEL_MAX_LENGTH, 128,
 				SentimentBert.PARAM_SENTIMENT_MAPPINGS, new String[] {
 						"NEG;-1",
 						"NEU;0",
@@ -189,7 +189,7 @@ public class EnglishSentimentBertTest {
 		AnalysisEngineDescription bertSentiment = createEngineDescription(SentimentBert.class,
 				SentimentBert.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
 				SentimentBert.PARAM_MODEL_NAME, "cardiffnlp/twitter-xlm-roberta-base-sentiment",
-				SentimentBert.PARAM_MODEL_MAX_LENGTH, 514,
+				SentimentBert.PARAM_MODEL_MAX_LENGTH, 512,
 				SentimentBert.PARAM_SENTIMENT_MAPPINGS, new String[] {
 						"Negative;-1",
 						"Neutral;0",

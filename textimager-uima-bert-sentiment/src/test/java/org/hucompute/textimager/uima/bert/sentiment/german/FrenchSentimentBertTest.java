@@ -76,7 +76,7 @@ public class FrenchSentimentBertTest {
 		AnalysisEngineDescription bertSentiment = createEngineDescription(SentimentBert.class,
 				SentimentBert.PARAM_SELECTION, "text,de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence",
 				SentimentBert.PARAM_MODEL_NAME, "cardiffnlp/twitter-xlm-roberta-base-sentiment",
-				SentimentBert.PARAM_MODEL_MAX_LENGTH, 514,
+				SentimentBert.PARAM_MODEL_MAX_LENGTH, 512,
 				SentimentBert.PARAM_SENTIMENT_MAPPINGS, new String[] {
 						"Negative;-1",
 						"Neutral;0",
