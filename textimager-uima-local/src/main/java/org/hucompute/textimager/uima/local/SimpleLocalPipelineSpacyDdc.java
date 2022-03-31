@@ -10,6 +10,7 @@ import org.dkpro.core.api.resources.CompressionMethod;
 import org.dkpro.core.io.xmi.XmiReader;
 import org.dkpro.core.io.xmi.XmiWriter;
 import org.hucompute.textimager.fasttext.labelannotator.LabelAnnotator;
+import org.hucompute.textimager.fasttext.labelannotator.LabelAnnotatorDDCMul;
 import org.hucompute.textimager.uima.spacy.SpaCyMultiTagger3;
 
 import java.io.IOException;
@@ -121,6 +122,82 @@ public class SimpleLocalPipelineSpacyDdc {
                     , LabelAnnotator.PARAM_CUTOFF, false
                     , LabelAnnotator.PARAM_SELECTION, "text"
                     , LabelAnnotator.PARAM_TAGS, "ddc2"
+                    , LabelAnnotator.PARAM_USE_LEMMA, false
+                    , LabelAnnotator.PARAM_ADD_POS, false
+                    , LabelAnnotator.PARAM_REMOVE_FUNCTIONWORDS, false
+                    , LabelAnnotator.PARAM_REMOVE_PUNCT, false
+                    , LabelAnnotator.PARAM_LAZY_LOAD, true
+                    , LabelAnnotator.PARAM_LAZY_LOAD_MAX, 1
+            );
+        }
+
+        AnalysisEngineDescription ddc3;
+        if (language.equalsIgnoreCase("de")) {
+            System.out.println("ddc3: de");
+            ddc3 = createEngineDescription(
+                    LabelAnnotatorDDCMul.class
+                    , LabelAnnotatorDDCMul.PARAM_FASTTEXT_LOCATION, "/resources/nlp/bin/categorization/fastText_original_for_ducc_annotators/fasttext"
+                    , LabelAnnotatorDDCMul.PARAM_LANGUAGE_MODELS_LABELS, "de,/resources/nlp/models/categorization/ddc/ddc_2018/wikipedia_de.v8.lemma.nopunct.pos.no_functionwords_gnd_ddc.v4.with_categories-lr0.2-lrUR150-minC5-dim100-ep10000-vec_vec_token_lemmapos.vec.epoch5000.bin,98"
+                    , LabelAnnotatorDDCMul.PARAM_LANGUAGE_MODELS_LABELS_DDC3, "de,/resources/nlp/models/categorization/ddc/ddc_2018/wikipedia_de.v8.lemma.nopunct.pos.no_functionswords_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep10000-vec_vec_token_lemmapos.vec.epoch5000.bin,635"
+                    , LabelAnnotatorDDCMul.PARAM_FASTTEXT_K, 1000
+                    , LabelAnnotatorDDCMul.PARAM_CUTOFF, false
+                    , LabelAnnotatorDDCMul.PARAM_SELECTION, "text"
+                    , LabelAnnotatorDDCMul.PARAM_TAGS, "ddc3"
+                    , LabelAnnotatorDDCMul.PARAM_USE_LEMMA, true
+                    , LabelAnnotatorDDCMul.PARAM_ADD_POS, true
+                    , LabelAnnotatorDDCMul.PARAM_POSMAP_LOCATION, "/resources/nlp/models/categorization/am_posmap.txt"
+                    , LabelAnnotatorDDCMul.PARAM_REMOVE_FUNCTIONWORDS, true
+                    , LabelAnnotatorDDCMul.PARAM_REMOVE_PUNCT, true
+                    , LabelAnnotatorDDCMul.PARAM_REMOVE_OLD_SCORES, true
+            );
+        }
+        else if (language.equalsIgnoreCase("en")) {
+            System.out.println("ddc3: en");
+            ddc3 = createEngineDescription(
+                    LabelAnnotatorDDCMul.class
+                    , LabelAnnotatorDDCMul.PARAM_FASTTEXT_LOCATION, "/resources/nlp/bin/categorization/fastText_original_for_ducc_annotators/fasttext"
+                    , LabelAnnotatorDDCMul.PARAM_LANGUAGE_MODELS_LABELS, "en,/resources/nlp/models/categorization/ddc/ddc2_2018/wikipedia_en.v8.lemma.nopunct_gnd_ddc.v3.with_wikidata_model_dim100_pretreined-glove.6B.100d.txt_epoch100000.epoch10000.bin,95"
+                    , LabelAnnotatorDDCMul.PARAM_LANGUAGE_MODELS_LABELS_DDC3, "en,/resources/nlp/models/categorization/ddc/ddc3_2018/wikipedia_en.v8.lemma.nopunct_gnd_ddc_full.v5.with_categories_dim300-ep10000-vec_wiki.en.vec.bin,601"
+                    , LabelAnnotatorDDCMul.PARAM_FASTTEXT_K, 1000
+                    , LabelAnnotatorDDCMul.PARAM_CUTOFF, false
+                    , LabelAnnotatorDDCMul.PARAM_SELECTION, "text"
+                    , LabelAnnotatorDDCMul.PARAM_TAGS, "ddc3"
+                    , LabelAnnotatorDDCMul.PARAM_USE_LEMMA, true
+                    , LabelAnnotatorDDCMul.PARAM_ADD_POS, false
+                    , LabelAnnotatorDDCMul.PARAM_POSMAP_LOCATION, "/resources/nlp/models/categorization/am_posmap.txt"
+                    , LabelAnnotatorDDCMul.PARAM_REMOVE_FUNCTIONWORDS, false
+                    , LabelAnnotatorDDCMul.PARAM_REMOVE_PUNCT, true
+                    , LabelAnnotatorDDCMul.PARAM_REMOVE_OLD_SCORES, true
+            );
+        }
+        else if (language.equalsIgnoreCase("ar") || language.equalsIgnoreCase("es") || language.equalsIgnoreCase("fr") || language.equalsIgnoreCase("tr")) {
+            System.out.println("ddc3: ar, es, fr, tr");
+            ddc3 = createEngineDescription(
+                    LabelAnnotator.class
+                    , LabelAnnotator.PARAM_FASTTEXT_LOCATION, "/resources/nlp/bin/categorization/fastText_original_for_ducc_annotators/fasttext"
+                    , LabelAnnotator.PARAM_LANGUAGE_MODELS_LABELS, "fr,/resources/nlp/models/categorization/ddc/ddc3_2018/wikipedia_fr.v8.token_gnd_ddc_full.v4_lr0.1-lrUR150-dim300-ws5-ep10000-minC5-minCL0-neg7-ngrams1-bucket2000000-minn0-maxn0-t0.0001-lossns-vec-wiki.fr.vec.epoch5000.bin,618,ar,/resources/nlp/models/categorization/ddc/ddc3_2018/wikipedia_ar.v8.token_gnd_ddc_full.v4_lr0.1-lrUR150-dim300-ws5-ep10000-minC5-minCL0-neg7-ngrams1-bucket2000000-minn0-maxn0-t0.0001-lossns-vec-wiki.ar.vec.epoch100.bin,589,tr,/resources/nlp/models/categorization/ddc/ddc3_2018/wikipedia_tr.v8.token_gnd_ddc_full.v4_lr0.1-lrUR150-dim300-ws5-ep10000-minC5-minCL0-neg7-ngrams1-bucket2000000-minn0-maxn0-t0.0001-lossns-vec-wiki.tr.vec.bin,566,es,/resources/nlp/models/categorization/ddc/ddc3_2018/wikipedia_es.v8.token_gnd_ddc_full.v4_lr0.1-lrUR150-dim300-ws5-ep10000-minC5-minCL0-neg7-ngrams1-bucket2000000-minn0-maxn0-t0.0001-lossns-vec-wiki.es.vec.epoch500.bin,613"
+                    , LabelAnnotator.PARAM_FASTTEXT_K, 1000
+                    , LabelAnnotator.PARAM_CUTOFF, false
+                    , LabelAnnotator.PARAM_SELECTION, "text"
+                    , LabelAnnotator.PARAM_TAGS, "ddc3"
+                    , LabelAnnotator.PARAM_USE_LEMMA, false
+                    , LabelAnnotator.PARAM_ADD_POS, false
+                    , LabelAnnotator.PARAM_REMOVE_FUNCTIONWORDS, false
+                    , LabelAnnotator.PARAM_REMOVE_PUNCT, false
+                    , LabelAnnotator.PARAM_LAZY_LOAD, true
+                    , LabelAnnotator.PARAM_LAZY_LOAD_MAX, 1
+            );
+        }
+        else {
+            System.out.println("ddc3: others");
+            ddc3 = createEngineDescription(
+                    LabelAnnotator.class
+                    , LabelAnnotator.PARAM_FASTTEXT_LOCATION, "/resources/nlp/bin/categorization/fastText_2018_03_22_test_every_epoch_for_ducc/fasttext"
+                    , LabelAnnotator.PARAM_LANGUAGE_MODELS_LABELS, "bn,/resources/nlp/models/categorization/ddc/ddc_2018_andere/bnwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,456,bs,/resources/nlp/models/categorization/ddc/ddc_2018_andere/bswiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,474,da,/resources/nlp/models/categorization/ddc/ddc_2018_andere/dawiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,570,el,/resources/nlp/models/categorization/ddc/ddc_2018_andere/elwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,535,fa,/resources/nlp/models/categorization/ddc/ddc_2018_andere/fawiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,578,he,/resources/nlp/models/categorization/ddc/ddc_2018_andere/hewiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,575,hi,/resources/nlp/models/categorization/ddc/ddc_2018_andere/hiwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,501,hu,/resources/nlp/models/categorization/ddc/ddc_2018_andere/huwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,561,id,/resources/nlp/models/categorization/ddc/ddc_2018_andere/idwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,567,it,/resources/nlp/models/categorization/ddc/ddc_2018_andere/itwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,600,ja,/resources/nlp/models/categorization/ddc/ddc_2018_andere/jawiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,593,ko,/resources/nlp/models/categorization/ddc/ddc_2018_andere/kowiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,577,lv,/resources/nlp/models/categorization/ddc/ddc_2018_andere/lvwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,509,mk,/resources/nlp/models/categorization/ddc/ddc_2018_andere/mkwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,490,ml,/resources/nlp/models/categorization/ddc/ddc_2018_andere/mlwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,471,pt,/resources/nlp/models/categorization/ddc/ddc_2018_andere/ptwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,589,ro,/resources/nlp/models/categorization/ddc/ddc_2018_andere/rowiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,561,ru,/resources/nlp/models/categorization/ddc/ddc_2018_andere/ruwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,613,sh,/resources/nlp/models/categorization/ddc/ddc_2018_andere/shwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,560,simple,/resources/nlp/models/categorization/ddc/ddc_2018_andere/simplewiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,558,sr,/resources/nlp/models/categorization/ddc/ddc_2018_andere/srwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,573,te,/resources/nlp/models/categorization/ddc/ddc_2018_andere/tewiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,409,th,/resources/nlp/models/categorization/ddc/ddc_2018_andere/thwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,517,ur,/resources/nlp/models/categorization/ddc/ddc_2018_andere/urwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,457,vi,/resources/nlp/models/categorization/ddc/ddc_2018_andere/viwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,539,zh,/resources/nlp/models/categorization/ddc/ddc_2018_andere/zhwiki.token_gnd_ddc_full.v5.with_categories-lr0.2-lrUR150-minC5-dim100-ep1000.best_epoch.bin,587"
+                    , LabelAnnotator.PARAM_FASTTEXT_K, 1000
+                    , LabelAnnotator.PARAM_CUTOFF, false
+                    , LabelAnnotator.PARAM_SELECTION, "text"
+                    , LabelAnnotator.PARAM_TAGS, "ddc3"
                     , LabelAnnotator.PARAM_USE_LEMMA, false
                     , LabelAnnotator.PARAM_ADD_POS, false
                     , LabelAnnotator.PARAM_REMOVE_FUNCTIONWORDS, false
