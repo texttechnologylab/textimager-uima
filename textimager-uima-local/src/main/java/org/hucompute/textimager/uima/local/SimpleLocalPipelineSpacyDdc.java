@@ -7,6 +7,7 @@ import org.apache.uima.collection.CollectionReader;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.dkpro.core.api.resources.CompressionMethod;
+import org.dkpro.core.io.text.TextReader;
 import org.dkpro.core.io.xmi.XmiReader;
 import org.dkpro.core.io.xmi.XmiWriter;
 import org.hucompute.textimager.fasttext.labelannotator.LabelAnnotator;
@@ -21,34 +22,52 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDesc
 
 public class SimpleLocalPipelineSpacyDdc {
     public static void main(String[] args) throws UIMAException, IOException {
-        if (args.length != 4) {
+        if (args.length != 5) {
             System.out.println("Usage:");
-            System.out.println("  language inputDir outputDir dockerPort");
+            System.out.println("  fileType language inputDir outputDir dockerPort");
             System.exit(1);
         }
 
-        String language = args[0];                      // de, en, ...
-        Path inputDir = Paths.get(args[1]);             // path
-        Path outputDir = Paths.get(args[2]);            // path
-        int dockerPort = Integer.parseInt(args[3]);     // 8462
+        String fileType = args[0];                      // txt, xmi
+        String language = args[1];                      // de, en, ...
+        Path inputDir = Paths.get(args[2]);             // path
+        Path outputDir = Paths.get(args[3]);            // path
+        int dockerPort = Integer.parseInt(args[4]);     // 8462
 
         System.out.println("lang: " + language);
         System.out.println("in: " + inputDir);
         System.out.println("out: " + outputDir);
         System.out.println("docker port: " + dockerPort);
 
-        CollectionReader reader = CollectionReaderFactory.createReader(
-                XmiReader.class
-                , XmiReader.PARAM_SOURCE_LOCATION, inputDir.toString()
-                , XmiReader.PARAM_PATTERNS, "**/*.xmi*"
-                , XmiReader.PARAM_LENIENT, false
-                , XmiReader.PARAM_ADD_DOCUMENT_METADATA, false
-                , XmiReader.PARAM_OVERRIDE_DOCUMENT_METADATA, false
-                , XmiReader.PARAM_MERGE_TYPE_SYSTEM, false
-                , XmiReader.PARAM_USE_DEFAULT_EXCLUDES, true
-                , XmiReader.PARAM_INCLUDE_HIDDEN, false
-                , XmiReader.PARAM_LOG_FREQ, 1
-        );
+        CollectionReader reader;
+        if (fileType.equalsIgnoreCase("xmi")) {
+            System.out.println("XMI input");
+            reader = CollectionReaderFactory.createReader(
+                    XmiReader.class
+                    , XmiReader.PARAM_SOURCE_LOCATION, inputDir.toString()
+                    , XmiReader.PARAM_PATTERNS, "**/*.xmi*"
+                    , XmiReader.PARAM_LENIENT, false
+                    , XmiReader.PARAM_ADD_DOCUMENT_METADATA, false
+                    , XmiReader.PARAM_OVERRIDE_DOCUMENT_METADATA, false
+                    , XmiReader.PARAM_MERGE_TYPE_SYSTEM, false
+                    , XmiReader.PARAM_USE_DEFAULT_EXCLUDES, true
+                    , XmiReader.PARAM_INCLUDE_HIDDEN, false
+                    , XmiReader.PARAM_LOG_FREQ, 1
+            );
+        }
+        else { // txt
+            System.out.println("TXT input");
+            reader = CollectionReaderFactory.createReader(
+                    TextReader.class
+                    , TextReader.PARAM_SOURCE_LOCATION, inputDir.toString()
+                    , TextReader.PARAM_PATTERNS, "**/*.txt"
+                    , TextReader.PARAM_SOURCE_ENCODING, "UTF-8"
+                    , XmiReader.PARAM_USE_DEFAULT_EXCLUDES, true
+                    , XmiReader.PARAM_INCLUDE_HIDDEN, false
+                    , XmiReader.PARAM_LOG_FREQ, 1
+                    , XmiReader.PARAM_LANGUAGE, language
+            );
+        }
 
         AnalysisEngineDescription writer = createEngineDescription(
                 XmiWriter.class
@@ -224,7 +243,7 @@ public class SimpleLocalPipelineSpacyDdc {
             );
         }
 
-        SimplePipeline.runPipeline(reader, segmenter, ddc2, writer);
+        SimplePipeline.runPipeline(reader, segmenter, ddc2, ddc3, writer);
 
         System.out.println("lang: " + language);
         System.out.println("in: " + inputDir);
