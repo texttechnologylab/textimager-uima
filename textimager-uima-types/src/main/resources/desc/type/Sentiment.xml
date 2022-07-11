@@ -23,7 +23,7 @@
       </features>
     </typeDescription>
       <typeDescription>
-          <name>org.hucompute.textimager.uima.type.VaderSentiment</name>
+          <name>org.hucompute.textimager.uima.type.CategorizedSentiment</name>
           <description/>
           <supertypeName>org.hucompute.textimager.uima.type.Sentiment</supertypeName>
           <features>
@@ -43,6 +43,12 @@
                   <rangeTypeName>uima.cas.Double</rangeTypeName>
               </featureDescription>
           </features>
+      </typeDescription>
+      <typeDescription>
+          <name>org.hucompute.textimager.uima.type.VaderSentiment</name>
+          <description/>
+          <supertypeName>org.hucompute.textimager.uima.type.CategorizedSentiment</supertypeName>
+          <features/>
       </typeDescription>
       <typeDescription>
           <name>org.hucompute.textimager.uima.type.GerVaderSentiment</name>
