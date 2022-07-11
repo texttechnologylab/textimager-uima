@@ -7,8 +7,8 @@ import org.apache.uima.cas.impl.TypeImpl;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
 
-/**
- * Updated by JCasGen Wed Sep 01 09:32:12 CEST 2021
+/** 
+ * Updated by JCasGen Mon Jul 11 11:54:35 CEST 2022
  * @generated */
 public class GerVaderSentiment_Type extends VaderSentiment_Type {
   /** @generated */

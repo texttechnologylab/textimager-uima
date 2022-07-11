@@ -10,8 +10,8 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
-/**
- * Updated by JCasGen Wed Sep 01 09:32:12 CEST 2021
+/** 
+ * Updated by JCasGen Mon Jul 11 11:54:35 CEST 2022
  * @generated */
 public class Sentiment_Type extends Annotation_Type {
   /** @generated */
@@ -43,9 +43,9 @@ public class Sentiment_Type extends Annotation_Type {
         if (featOkTst && casFeat_sentiment == null)
       jcas.throwFeatMissing("sentiment", "org.hucompute.textimager.uima.type.Sentiment");
     ll_cas.ll_setDoubleValue(addr, casFeatCode_sentiment, v);}
-
-
-
+    
+  
+ 
   /** @generated */
   final Feature casFeat_subjectivity;
   /** @generated */
@@ -67,8 +67,8 @@ public class Sentiment_Type extends Annotation_Type {
         if (featOkTst && casFeat_subjectivity == null)
       jcas.throwFeatMissing("subjectivity", "org.hucompute.textimager.uima.type.Sentiment");
     ll_cas.ll_setDoubleValue(addr, casFeatCode_subjectivity, v);}
-
-
+    
+  
 
 
 
@@ -81,11 +81,11 @@ public class Sentiment_Type extends Annotation_Type {
     super(jcas, casType);
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
 
-
+ 
     casFeat_sentiment = jcas.getRequiredFeatureDE(casType, "sentiment", "uima.cas.Double", featOkTst);
     casFeatCode_sentiment  = (null == casFeat_sentiment) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_sentiment).getCode();
 
-
+ 
     casFeat_subjectivity = jcas.getRequiredFeatureDE(casType, "subjectivity", "uima.cas.Double", featOkTst);
     casFeatCode_subjectivity  = (null == casFeat_subjectivity) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_subjectivity).getCode();
 

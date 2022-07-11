@@ -9,8 +9,8 @@ import org.apache.uima.jcas.cas.TOP_Type;
 
 
 
-/**
- * Updated by JCasGen Wed Sep 01 09:32:11 CEST 2021
+/** 
+ * Updated by JCasGen Mon Jul 11 11:54:35 CEST 2022
  * XML source: /home/daniel/data/hiwi/git/myyyvothrr/textimager-uima/textimager-uima-types/src/main/resources/desc/type/Sentiment.xml
  * @generated */
 public class GerVaderSentiment extends VaderSentiment {
@@ -29,11 +29,11 @@ public class GerVaderSentiment extends VaderSentiment {
    */
   @Override
   public              int getTypeIndexID() {return typeIndexID;}
-
+ 
   /** Never called.  Disable default constructor
    * @generated */
   protected GerVaderSentiment() {/* intentionally empty block */}
-
+    
   /** Internal - constructor used by generator
    * @generated
    * @param addr low level Feature Structure reference
@@ -43,14 +43,14 @@ public class GerVaderSentiment extends VaderSentiment {
     super(addr, type);
     readObject();
   }
-
+  
   /** @generated
    * @param jcas JCas to which this Feature Structure belongs
    */
   public GerVaderSentiment(JCas jcas) {
     super(jcas);
-    readObject();
-  }
+    readObject();   
+  } 
 
   /** @generated
    * @param jcas JCas to which this Feature Structure belongs
@@ -62,14 +62,14 @@ public class GerVaderSentiment extends VaderSentiment {
     setBegin(begin);
     setEnd(end);
     readObject();
-  }
+  }   
 
-  /**
+  /** 
    * <!-- begin-user-doc -->
    * Write your own initialization here
    * <!-- end-user-doc -->
    *
-   * @generated modifiable
+   * @generated modifiable 
    */
   private void readObject() {/*default - does nothing empty block */}
 

@@ -22,17 +22,18 @@ import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngineDesc
 
 public class SimpleLocalPipelineSpacyDdc {
     public static void main(String[] args) throws UIMAException, IOException {
-        if (args.length != 5) {
+        if (args.length != 6) {
             System.out.println("Usage:");
-            System.out.println("  fileType language inputDir outputDir dockerPort");
+            System.out.println("  fileType language inputDir outputDir dockerPort checkParentDir");
             System.exit(1);
         }
 
-        String fileType = args[0];                      // txt, xmi
-        String language = args[1];                      // de, en, ...
-        Path inputDir = Paths.get(args[2]);             // path
-        Path outputDir = Paths.get(args[3]);            // path
-        int dockerPort = Integer.parseInt(args[4]);     // 8462
+        String fileType = args[0];                                  // txt, xmi
+        String language = args[1];                                  // de, en, ...
+        Path inputDir = Paths.get(args[2]);                         // path
+        Path outputDir = Paths.get(args[3]);                        // path
+        int dockerPort = Integer.parseInt(args[4]);                 // 8462
+        boolean checkParentDir = Boolean.parseBoolean(args[5]);     // true
 
         System.out.println("lang: " + language);
         System.out.println("in: " + inputDir);
@@ -45,6 +46,7 @@ public class SimpleLocalPipelineSpacyDdc {
             reader = CollectionReaderFactory.createReader(
                     XmiReader.class
                     , XmiReader.PARAM_SOURCE_LOCATION, inputDir.toString()
+                    , XmiReader.PARAM_TARGET_LOCATION, outputDir.toString()
                     , XmiReader.PARAM_PATTERNS, "**/*.xmi*"
                     , XmiReader.PARAM_LENIENT, false
                     , XmiReader.PARAM_ADD_DOCUMENT_METADATA, false
@@ -53,6 +55,7 @@ public class SimpleLocalPipelineSpacyDdc {
                     , XmiReader.PARAM_USE_DEFAULT_EXCLUDES, true
                     , XmiReader.PARAM_INCLUDE_HIDDEN, false
                     , XmiReader.PARAM_LOG_FREQ, 1
+                    , XmiReader.PARAM_CHECK_PARENT_OF_SOURCE_LOCATION_FOR_SKIP_FILES, checkParentDir
             );
         }
         else { // txt
@@ -60,12 +63,14 @@ public class SimpleLocalPipelineSpacyDdc {
             reader = CollectionReaderFactory.createReader(
                     TextReader.class
                     , TextReader.PARAM_SOURCE_LOCATION, inputDir.toString()
+                    , TextReader.PARAM_TARGET_LOCATION, outputDir.toString()
                     , TextReader.PARAM_PATTERNS, "**/*.txt"
                     , TextReader.PARAM_SOURCE_ENCODING, "UTF-8"
-                    , XmiReader.PARAM_USE_DEFAULT_EXCLUDES, true
-                    , XmiReader.PARAM_INCLUDE_HIDDEN, false
-                    , XmiReader.PARAM_LOG_FREQ, 1
-                    , XmiReader.PARAM_LANGUAGE, language
+                    , TextReader.PARAM_USE_DEFAULT_EXCLUDES, true
+                    , TextReader.PARAM_INCLUDE_HIDDEN, false
+                    , TextReader.PARAM_LOG_FREQ, 1
+                    , TextReader.PARAM_LANGUAGE, language
+                    , TextReader.PARAM_CHECK_PARENT_OF_SOURCE_LOCATION_FOR_SKIP_FILES, checkParentDir
             );
         }
 

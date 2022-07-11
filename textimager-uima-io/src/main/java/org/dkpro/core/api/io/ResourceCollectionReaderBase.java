@@ -184,6 +184,14 @@ extends CasCollectionReader_ImplBase
 	@ConfigurationParameter(name = PARAM_DOC_MODIFICATION_COMMENT, mandatory = false)
 	private String docModificationComment;
 
+	/**
+	 * Check parent directory of source location to find existing files in target
+	 * Only applies if targetLocation is set
+	 */
+	public static final String PARAM_CHECK_PARENT_OF_SOURCE_LOCATION_FOR_SKIP_FILES = "checkParentOfSourceLocationForSkipFiles";
+	@ConfigurationParameter(name = PARAM_CHECK_PARENT_OF_SOURCE_LOCATION_FOR_SKIP_FILES, mandatory = false, defaultValue = "false")
+	private boolean checkParentOfSourceLocationForSkipFiles;
+
 	private boolean docModificationWritten;
 
 	private int completed;
@@ -293,7 +301,7 @@ extends CasCollectionReader_ImplBase
 			else {
 				Path outputDir = Paths.get(targetLocation);
 				if(outputDir.toFile().exists()){
-					System.out.println("Checking for already existing files in: " + outputDir.toString());
+					System.out.println("Checking for already existing files in: " + outputDir);
 
 					// Get existing files, map to filename, remove extensions
 					try (Stream<Path> stream = Files.walk(outputDir)) {
@@ -306,11 +314,34 @@ extends CasCollectionReader_ImplBase
 
 						// Remove existing from collected resources
 						int sizeBefore = resources.size();
-						System.out.println("Checking " + sizeBefore + " files...");
-						resources.removeIf(r -> existingFiles.contains(removeFileExtensions(r.getPath())));
+						Path inputDir = Paths.get(sourceLocation);
+						System.out.println("Checking " + sizeBefore + " files in input: " + inputDir);
+						resources.removeIf(r -> existingFiles.contains(
+								removeFileExtensions(
+										inputDir.relativize(
+												Paths.get(r.getLocation())
+										).toString()
+								)
+						));
 						int sizeAfter = resources.size();
 						int sizeRemoved = sizeBefore - sizeAfter;
 						System.out.println("Removed " + sizeRemoved + " files that already exist.");
+
+						// If none removed, try checking parent directory
+						if (sizeRemoved == 0 && checkParentOfSourceLocationForSkipFiles) {
+							Path inputDirParent = inputDir.getParent();
+							System.out.println("Checking again in input: " + inputDirParent);
+							resources.removeIf(r -> existingFiles.contains(
+									removeFileExtensions(
+											inputDirParent.relativize(
+													Paths.get(r.getLocation())
+											).toString()
+									)
+							));
+							sizeAfter = resources.size();
+							sizeRemoved = sizeBefore - sizeAfter;
+							System.out.println("Removed " + sizeRemoved + " files that already exist.");
+						}
 					}
 				}
 			}
