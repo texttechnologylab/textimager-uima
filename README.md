@@ -2,7 +2,6 @@
 [![version](https://img.shields.io/github/license/texttechnologylab/textimager-uima)]()
 [![latest](https://img.shields.io/github/v/release/texttechnologylab/textimager-uima)]()
 [![](https://jitpack.io/v/texttechnologylab/textimager-uima.svg)](https://jitpack.io/#texttechnologylab/textimager-uima)
-
 [![Paper](http://img.shields.io/badge/paper-ACL--anthology-B31B1B.svg)](https://www.aclweb.org/anthology/C/C16/C16-2013.pdf)
 [![Conference](http://img.shields.io/badge/conference-COLING--2016-4b44ce.svg)](https://coling2016.anlp.jp/)
 
