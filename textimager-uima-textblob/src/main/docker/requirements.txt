@@ -2,7 +2,7 @@ asgiref==3.4.1
 click==8.0.1
 fastapi==0.65.2
 h11==0.12.0
-joblib==1.0.1
+joblib==1.2.0
 nltk==3.6.2
 pydantic==1.8.2
 regex==2021.8.3
