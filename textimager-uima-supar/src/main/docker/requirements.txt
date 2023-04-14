@@ -8,7 +8,7 @@ filelock==3.0.12
 h11==0.12.0
 huggingface-hub==0.0.17
 idna==3.2
-joblib==1.0.1
+joblib==1.2.0
 nltk==3.6.2
 numpy==1.21.2
 packaging==21.0
