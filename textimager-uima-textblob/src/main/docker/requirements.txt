@@ -6,7 +6,7 @@ joblib==1.0.1
 nltk==3.6.2
 pydantic==1.8.2
 regex==2021.8.3
-starlette==0.14.2
+starlette==0.25.0
 textblob==0.15.3
 textblob-de==0.4.3
 textblob-fr==0.2.0
