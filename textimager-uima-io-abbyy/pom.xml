@@ -8,12 +8,12 @@
     </parent>
 
     <artifactId>textimager-uima-io-abbyy</artifactId>
+    <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -87,11 +87,11 @@
             <version>${ttlab.typesystem.version}</version>
             <!--            <scope>compile</scope>-->
         </dependency>
-        <dependency>
-            <groupId>org.languagetool</groupId>
-            <artifactId>languagetool-core</artifactId>
-            <version>4.6</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.languagetool</groupId>-->
+<!--            <artifactId>languagetool-core</artifactId>-->
+<!--            <version>4.6</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
             <artifactId>de.tudarmstadt.ukp.dkpro.core.api.io-asl</artifactId>
@@ -109,16 +109,16 @@
             <artifactId>dkpro-core-io-xmi-asl</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.hucompute.textimager.uima</groupId>
-            <artifactId>textimager-uima-HUComputeNER</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hucompute.textimager.uima</groupId>
-            <artifactId>textimager-uima-heideltime</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.hucompute.textimager.uima</groupId>-->
+<!--            <artifactId>textimager-uima-HUComputeNER</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.hucompute.textimager.uima</groupId>-->
+<!--            <artifactId>textimager-uima-heideltime</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
             <artifactId>de.tudarmstadt.ukp.dkpro.core.tokit-asl</artifactId>
@@ -131,6 +131,12 @@
         <!--            <version>1.2.1</version>-->
         <!--            <scope>test</scope>-->
         <!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/biz.k11i/xgboost-predictor -->
+<!--        <dependency>-->
+<!--            <groupId>biz.k11i</groupId>-->
+<!--            <artifactId>xgboost-predictor</artifactId>-->
+<!--            <version>0.3.1</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -146,6 +152,66 @@
             </resource>
         </resources>
         <plugins>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-assembly-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>single</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <archive>-->
+<!--                            <manifest>-->
+<!--                                <mainClass>-->
+<!--                                    org.hucompute.textimager.uima.io.abby.TTLabBioFIDPreProcessingGZ-->
+<!--                                </mainClass>-->
+<!--                            </manifest>-->
+<!--                            </archive>-->
+<!--                            <descriptorRefs>-->
+<!--                                <descriptorRef>jar-with-dependencies</descriptorRef>-->
+<!--                            </descriptorRefs>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+<!--             <plugin>-->
+<!--              <artifactId>maven-assembly-plugin</artifactId>-->
+<!--              <configuration>-->
+<!--                <archive>-->
+<!--                  <manifest>-->
+<!--                    <mainClass>org.hucompute.textimager.uima.io.abby.TTLabBioFIDPreProcessingGZ</mainClass>-->
+<!--                  </manifest>-->
+<!--                </archive>-->
+<!--                <descriptorRefs>-->
+<!--                  <descriptorRef>jar-with-dependencies</descriptorRef>-->
+<!--                </descriptorRefs>-->
+<!--              </configuration>-->
+<!--            </plugin>-->
+           <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <configuration>
+          <descriptorRefs>
+              <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+              <manifest>
+                <mainClass>textimager.uima.io.abby.TTLabBioFIDPreProcessingGZ</mainClass>
+              </manifest>
+          </archive>
+      </configuration>
+      <executions>
+          <execution>
+              <id>make-assembly</id>
+              <phase>package</phase>
+              <goals>
+                <goal>single</goal>
+              </goals>
+          </execution>
+      </executions>
+    </plugin>
             <plugin>
                 <groupId>com.github.ekryd.sortpom</groupId>
                 <artifactId>sortpom-maven-plugin</artifactId>
@@ -166,30 +232,32 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <artifactId>maven-assembly-plugin</artifactId>-->
+<!--                <version>2.6</version>-->
+<!--                <configuration>-->
+<!--                    <descriptorRefs>-->
+<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
+<!--                    </descriptorRefs>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>single</goal>-->
+<!--                        </goals>-->
+<!--                        <phase>package</phase>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.2</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
+<!--                    <source>1.8</source>-->
+<!--                    <target>1.8</target>-->
                 </configuration>
             </plugin>
             <plugin>

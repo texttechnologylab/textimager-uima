@@ -34,8 +34,10 @@ public class BIOfidTest {
 
 	@Test
 	public void testReader() throws IOException {
-		String sBase = "/home/staff_homes/abrami/Downloads/newRun/";
-		String sOutPath= "/home/staff_homes/abrami/Downloads/newRunOut/";
+//		String sBase = "/home/staff_homes/abrami/Downloads/newRun/";
+		String sBase = "/data/biofid/abbyy";
+//		String sOutPath= "/home/staff_homes/abrami/Downloads/newRunOut/";
+		String sOutPath= "/data/tmp";
 
 		Set<String> outSet = FileUtils.getFiles(sBase, ".xml").stream().map(f->f.getName()).collect(Collectors.toSet());
 

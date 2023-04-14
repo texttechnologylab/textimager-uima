@@ -17,7 +17,7 @@ public class MultiDocumentReaderTest {
 
 	@Test
 	public void testReader() {
-		String path = Paths.get("src/test/resources/Botanische_Zeitschriften/").toAbsolutePath().toString();
+		String path = Paths.get("/data/biofid/abbyy").toAbsolutePath().toString();
 
 		try {
 			System.out.println(path);
@@ -29,7 +29,7 @@ public class MultiDocumentReaderTest {
 //					DeepEosTagger.PARAM_VERBOSE, true);
 			AnalysisEngineDescription engine2 =  AnalysisEngineFactory.createEngineDescription(
 					JCas2JSONWriter.class,
-					JCas2JSONWriter.PARAM_TARGET_LOCATION, "/tmp/MultiDocumentReaderTest.json");
+					JCas2JSONWriter.PARAM_TARGET_LOCATION, "/data/tmp/MultiDocumentReaderTest.json");
 			SimplePipeline.runPipeline(reader, engine2);
 //			SimplePipeline.runPipeline(reader, engine1, engine2);
 		} catch (UIMAException | IOException e) {
