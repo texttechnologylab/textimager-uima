@@ -21,7 +21,7 @@ requests==2.26.0
 sacremoses==0.0.45
 six==1.16.0
 stanza==1.2.3
-starlette==0.14.2
+starlette==0.25.0
 supar==1.1.2
 tokenizers==0.10.3
 torch==1.9.0
