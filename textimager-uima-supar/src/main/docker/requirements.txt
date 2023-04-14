@@ -24,7 +24,7 @@ stanza==1.2.3
 starlette==0.14.2
 supar==1.1.2
 tokenizers==0.10.3
-torch==1.9.0
+torch==1.13.1
 tqdm==4.62.2
 transformers==4.10.2
 typing-extensions==3.10.0.2
