@@ -60,8 +60,8 @@ public class SemanticRoleLabelingTest {
         ArrayList<Integer> endIndices = new ArrayList<>();
         for (String string : strings) {
             startIndices.add(lastEnd + 1);
-            endIndices.add(lastEnd + string.length());
-            lastEnd = lastEnd + string.length();
+            endIndices.add(lastEnd + 1 + string.length());
+            lastEnd = lastEnd + 1 + string.length();
         }
 
         JCas jCas = JCasFactory.createText(String.join(" ", strings));
@@ -128,7 +128,8 @@ public class SemanticRoleLabelingTest {
                 SemanticRoleLabeling.PARAM_ENDPOINTS, new String[]{
                         "http://localhost:5087/srl",
                         "http://localhost:5088/srl"
-                }
+                },
+                SemanticRoleLabeling.PARAM_BATCH_SIZE, 1
         );
 
         SimplePipeline.runPipeline(jCas, engine);
