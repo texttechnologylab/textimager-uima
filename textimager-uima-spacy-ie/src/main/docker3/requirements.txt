@@ -19,7 +19,7 @@ joblib==1.0.1
 MarkupSafe==2.0.1
 murmurhash==1.0.5
 natto-py==0.9.2
-numpy==1.21.1
+numpy==1.22.0
 packaging==21.0
 pathy==0.6.0
 preshed==3.0.5
